@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GodTrader Pro — Local Crypto Paper-Trading & 10-Source AI Terminal</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --panel: #0e1524;
+      --panel-2: #141e33;
+      --border: #1e2d4a;
+      --text: #f1f5f9;
+      --muted: #8b9bb4;
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.14);
+      --red: #f43f5e;
+      --red-bg: rgba(244, 63, 94, 0.14);
+      --accent: #3b82f6;
+      --gold: #f59e0b;
+      --cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navbar & Virtual Wallet Bar */
+    .topbar {
+      background: #0a101d;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-live {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #032218;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.4px;
+    }
+
+    .site-title {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .wallet-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .metric-pill {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+    }
+    .metric-pill .k {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .metric-pill .v {
+      font-size: 14px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      margin-top: 1px;
+    }
+
+    .reset-group {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .btn-top {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 7px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+    .btn-top:hover {
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* Main 3-Column Trading Terminal Grid */
+    .terminal-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr 350px;
+      gap: 10px;
+      padding: 10px;
+      flex: 1;
+      max-width: 1920px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1180px) {
+      .terminal-grid {
+        grid-template-columns: 1fr 340px;
+      }
+      .col-left {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .terminal-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .up { color: var(--green) !important; }
+    .down { color: var(--red) !important; }
+
+    /* Left Column: Market Watchlist */
+    .sym-search {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+    .sym-search input {
+      flex: 1;
+      background: #080d17;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 7px 9px;
+      color: #fff;
+      font-size: 12px;
+      outline: none;
+    }
+    .sym-search button {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 0 10px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .watch-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
+      max-height: 760px;
+    }
+
+    .watch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 9px;
+      border-radius: 8px;
+      background: #0b111e;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: 0.12s;
+    }
+    .watch-row:hover {
+      border-color: #2b3f66;
+    }
+    .watch-row.active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--accent);
+    }
+
+    .watch-sym {
+      font-weight: 800;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .score-tag {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .score-tag.up { background: var(--green-bg); color: var(--green); }
+    .score-tag.down { background: var(--red-bg); color: var(--red); }
+
+    /* Center Column: Chart + Positions/History */
+    .col-center {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chart-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .hero-pair {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .hero-pair .sym {
+      font-size: 22px;
+      font-weight: 900;
+    }
+    .hero-pair .prc {
+      font-size: 22px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tf-group {
+      display: flex;
+      gap: 4px;
+    }
+    .tf-btn {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .tf-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    canvas#mainChart {
+      width: 100%;
+      height: 330px;
+      background: #080d17;
+      border: 1px solid #182338;
+      border-radius: 8px;
+      display: block;
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table.trade-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    table.trade-table th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 700;
+      padding: 7px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    table.trade-table td {
+      padding: 8px;
+      border-bottom: 1px solid #152036;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .btn-action {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: #e2e8f0;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-right: 4px;
+    }
+    .btn-action.danger {
+      background: var(--red-bg);
+      border-color: var(--red);
+      color: #fecdd3;
+    }
+
+    /* Right Column: Order Ticket & AI Analyst */
+    .col-right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .side-switch, .type-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .side-btn {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .side-btn.buy.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #032218;
+    }
+    .side-btn.sell.active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .type-btn {
+      padding: 7px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: #090f1c;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .type-btn.active {
+      border-color: var(--accent);
+      color: #fff;
+      background: rgba(59, 130, 246, 0.18);
+    }
+
+    .field {
+      margin-bottom: 8px;
+    }
+    .field label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .field input {
+      width: 100%;
+      background: #080d17;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 10px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: var(--accent);
+    }
+
+    .quick-row {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .q-btn {
+      flex: 1;
+      min-width: 44px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .q-btn.kelly {
+      background: rgba(245, 158, 11, 0.16);
+      border-color: var(--gold);
+      color: #fde68a;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .submit-order-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 9px;
+      border: none;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .submit-order-btn.buy {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #032218;
+    }
+    .submit-order-btn.sell {
+      background: linear-gradient(135deg, #f43f5e, #e11d48);
+      color: #fff;
+    }
+
+    #toast {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      background: #1e293b;
+      border: 1px solid var(--accent);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      z-index: 200;
+      display: none;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+  <div id="toast"></div>
+
+  <!-- Top Navigation & Made-Up Money Portfolio Bar -->
+  <header class="topbar">
+    <div class="brand-group">
+      <span class="badge-live">● LOCAL SIMULATOR</span>
+      <span class="site-title">GodTrader Institutional Crypto Terminal</span>
+    </div>
+
+    <div class="wallet-strip">
+      <div class="metric-pill">
+        <span class="k">Total Virtual Equity</span>
+        <span class="v" id="topEquity">$10,000.00</span>
+      </div>
+      <div class="metric-pill">
+        <span class="k">Available Cash (USDT)</span>
+        <span class="v" id="topCash">$10,000.00</span>
+      </div>
+      <div class="metric-pill">
+        <span class="k">Open Unrealized PnL</span>
+        <span class="v" id="topUpnl">$0.00</span>
+      </div>
+      <div class="metric-pill">
+        <span class="k">Closed Realized PnL</span>
+        <span class="v" id="topRpnl">$0.00</span>
+      </div>
+      <div class="metric-pill">
+        <span class="k">Win Rate</span>
+        <span class="v" id="topWinRate">0.0% (0W/0L)</span>
+      </div>
+
+      <div class="reset-group">
+        <button class="btn-top" onclick="resetWalletTo(1000)">Reset $1K</button>
+        <button class="btn-top" onclick="resetWalletTo(10000)">Reset $10K</button>
+        <button class="btn-top" onclick="resetWalletTo(50000)">Reset $50K</button>
+        <button class="btn-top" style="border-color:var(--gold);color:#fde68a;" onclick="promptCustomBalance()">Set Custom $</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Widescreen Trading Website Layout -->
+  <main class="terminal-grid">
+    <!-- LEFT COLUMN: LIVE BINANCE WATCHLIST + AI SCORES -->
+    <section class="panel col-left">
+      <div class="panel-header">
+        <span>Live Binance USDT Markets</span>
+        <span style="color:var(--accent);font-size:10px;">25-Source AI</span>
+      </div>
+      <div class="sym-search">
+        <input type="text" id="customSymInput" placeholder="Any symbol (e.g. LINK, AVAX)..." onkeydown="if(event.key==='Enter')addCustomSymbol()" />
+        <button onclick="addCustomSymbol()">Go</button>
+      </div>
+      <div class="watch-list" id="watchListContainer"></div>
+    </section>
+
+    <!-- CENTER COLUMN: LIVE CHART + OPEN POSITIONS + ORDERS + TRADE LOG -->
+    <section class="col-center">
+      <!-- Chart Panel -->
+      <div class="panel">
+        <div class="chart-top">
+          <div class="hero-pair">
+            <span class="sym" id="chartSym">PHAUSDT</span>
+            <span class="prc" id="chartPrice">$0.0670</span>
+            <span id="chartChg" class="up" style="font-size:13px;font-weight:700;">+14.20%</span>
+            <span style="font-size:12px;color:var(--muted);">24h Range: <b id="chartRange" style="color:#cbd5e1;">-</b> | 24h Vol: <b id="chartVol" style="color:#cbd5e1;">-</b></span>
+          </div>
+          <div class="tf-group">
+            <button class="tf-btn" onclick="changeTf('1m', this)">1m</button>
+            <button class="tf-btn" onclick="changeTf('5m', this)">5m</button>
+            <button class="tf-btn active" onclick="changeTf('15m', this)">15m</button>
+            <button class="tf-btn" onclick="changeTf('1h', this)">1h</button>
+            <button class="tf-btn" onclick="changeTf('4h', this)">4h</button>
+            <button class="tf-btn" onclick="changeTf('1d', this)">1d</button>
+          </div>
+        </div>
+        <canvas id="mainChart" width="860" height="330"></canvas>
+      </div>
+
+      <!-- Open Positions Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>Active Paper Positions (<span id="posCount">0</span>) — Live Mark-to-Market & Auto SL/TP</span>
+          <span style="font-size:11px;color:var(--muted);">Auto-triggers checked every 3s</span>
+        </div>
+        <div class="table-wrap">
+          <table class="trade-table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Qty</th>
+                <th>Entry Price</th>
+                <th>Live Price</th>
+                <th>Position Value</th>
+                <th>Unrealized PnL</th>
+                <th>Stop-Loss (SL)</th>
+                <th>Take-Profit (TP)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="positionsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Resting Limit Orders & Execution History -->
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><span>Resting Limit Orders (<span id="ordCount">0</span>)</span></div>
+          <div class="table-wrap">
+            <table class="trade-table">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Side</th>
+                  <th>Limit</th>
+                  <th>USDT</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span>Simulated Trade Execution History</span></div>
+          <div class="table-wrap" style="max-height:220px;overflow-y:auto;">
+            <table class="trade-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Trade</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                  <th>Realized PnL</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: SIMULATED ORDER TICKET + 10-SOURCE AI ANALYST -->
+    <section class="col-right">
+      <!-- Simulated Order Ticket -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>Paper Order Ticket (<span id="ticketSymLbl">PHAUSDT</span>)</span>
+          <span style="color:var(--gold);cursor:pointer;" onclick="applyAiPlanToTicket()">⚡ Auto-Fill AI Plan</span>
+        </div>
+
+        <div class="side-switch">
+          <button class="side-btn buy active" id="btnSideBuy" onclick="setSide('BUY')">BUY / LONG</button>
+          <button class="side-btn sell" id="btnSideSell" onclick="setSide('SELL')">SELL / CLOSE</button>
+        </div>
+
+        <div class="type-switch">
+          <button class="type-btn active" id="btnTypeMarket" onclick="setOrderType('MARKET')">MARKET (Instant Fill)</button>
+          <button class="type-btn" id="btnTypeLimit" onclick="setOrderType('LIMIT')">LIMIT (Target Price)</button>
+        </div>
+
+        <div class="field" id="limitField" style="display:none;">
+          <label><span>Limit Price (USDT)</span><span style="color:var(--accent);cursor:pointer;" onclick="fillLiveLimit()">Use Live Price</span></label>
+          <input type="number" step="any" id="inpLimitPrice" placeholder="0.00" />
+        </div>
+
+        <div class="field" id="buyAmountField">
+          <label>
+            <span>Order Size (Made-Up USDT)</span>
+            <span>Available: <b id="ticketAvailCash" style="color:#fff;">$10,000.00</b></span>
+          </label>
+          <input type="number" step="any" id="inpUsdtAmount" value="1000" />
+        </div>
+
+        <div class="field" id="sellPctField" style="display:none;">
+          <label>
+            <span>Percentage of Position to Sell (%)</span>
+            <span id="ticketHoldingLbl">Holding: $0.00</span>
+          </label>
+          <input type="number" step="any" id="inpSellPct" value="100" />
+        </div>
+
+        <div class="quick-row" id="buyQuickBtns">
+          <div class="q-btn" onclick="setAmt(100)">$100</div>
+          <div class="q-btn" onclick="setAmt(500)">$500</div>
+          <div class="q-btn" onclick="setAmt(1000)">$1,000</div>
+          <div class="q-btn" onclick="setCashPct(0.25)">25%</div>
+          <div class="q-btn" onclick="setCashPct(0.50)">50%</div>
+          <div class="q-btn" onclick="setCashPct(1.0)">MAX</div>
+          <div class="q-btn kelly" onclick="applyAiPlanToTicket()">⚡ AI Kelly</div>
+        </div>
+
+        <div class="grid-2" id="slTpFields">
+          <div class="field">
+            <label><span>Stop-Loss (SL)</span><span style="color:var(--red);cursor:pointer;" onclick="setPresetSlTp()">-3% SL</span></label>
+            <input type="number" step="any" id="inpStopLoss" placeholder="Optional SL" />
+          </div>
+          <div class="field">
+            <label><span>Take-Profit (TP)</span><span style="color:var(--green);cursor:pointer;" onclick="setPresetSlTp()">+6% (2R)</span></label>
+            <input type="number" step="any" id="inpTakeProfit" placeholder="Optional TP" />
+          </div>
+        </div>
+
+        <button class="submit-order-btn buy" id="btnSubmitOrder" onclick="submitOrder()">SIMULATE MARKET BUY</button>
+      </div>
+
+      <!-- 25-Source God-Level AI Analyst Panel -->
+      <div class="panel" style="flex:1;max-height:540px;overflow-y:auto;">
+        <div class="panel-header">
+          <span>25-Source Omni-Intelligence (Fed / Banks / X / Magazines)</span>
+          <button class="btn-action" onclick="loadForecast(currentSymbol, true)">↻ Refresh Live</button>
+        </div>
+        <div id="aiReportContainer" style="font-size:12px;line-height:1.5;">Loading 25-source institutional analysis...</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let currentSymbol = "PHAUSDT";
+    let currentInterval = "15m";
+    let currentSide = "BUY";
+    let currentType = "MARKET";
+    let appState = null;
+    let currentForecast = null;
+    let picksMap = {};
+    let klineBars = [];
+
+    function fmtP(x) {
+      if (x === null || x === undefined || isNaN(x)) return "-";
+      const f = Number(x);
+      if (f === 0) return "$0.00";
+      if (Math.abs(f) < 0.0001) return "$" + f.toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+      if (Math.abs(f) < 0.01) return "$" + f.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+      if (Math.abs(f) < 1.0) return "$" + f.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+      return "$" + f.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fmtUsd(x, signed=false) {
+      if (x === null || x === undefined || isNaN(x)) return "-";
+      const f = Number(x);
+      const s = signed ? (f > 0 ? "+" : (f < 0 ? "-" : "")) : (f < 0 ? "-" : "");
+      const a = Math.abs(f);
+      if (a >= 1e9) return s + "$" + (a / 1e9).toFixed(2) + "B";
+      if (a >= 1e6) return s + "$" + (a / 1e6).toFixed(2) + "M";
+      return s + "$" + a.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.style.display = "block";
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => { el.style.display = "none"; }, 3500);
+    }
+
+    function selectSymbol(sym) {
+      currentSymbol = sym.toUpperCase();
+      document.getElementById("ticketSymLbl").textContent = currentSymbol;
+      fetchState();
+      fetchKlines();
+      loadForecast(currentSymbol, false);
+    }
+
+    function addCustomSymbol() {
+      const raw = document.getElementById("customSymInput").value.trim().toUpperCase();
+      if (!raw) return;
+      const sym = raw.endsWith("USDT") ? raw : (raw + "USDT");
+      document.getElementById("customSymInput").value = "";
+      selectSymbol(sym);
+    }
+
+    function changeTf(tf, btn) {
+      currentInterval = tf;
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      fetchKlines();
+    }
+
+    function setSide(side) {
+      currentSide = side;
+      document.getElementById("btnSideBuy").classList.toggle("active", side === "BUY");
+      document.getElementById("btnSideSell").classList.toggle("active", side === "SELL");
+      document.getElementById("buyAmountField").style.display = side === "BUY" ? "block" : "none";
+      document.getElementById("buyQuickBtns").style.display = side === "BUY" ? "flex" : "none";
+      document.getElementById("slTpFields").style.display = side === "BUY" ? "grid" : "none";
+      document.getElementById("sellPctField").style.display = side === "SELL" ? "block" : "none";
+      const btn = document.getElementById("btnSubmitOrder");
+      btn.className = "submit-order-btn " + (side === "BUY" ? "buy" : "sell");
+      btn.textContent = "SIMULATE " + currentType + " " + side + " (" + currentSymbol + ")";
+    }
+
+    function setOrderType(tp) {
+      currentType = tp;
+      document.getElementById("btnTypeMarket").classList.toggle("active", tp === "MARKET");
+      document.getElementById("btnTypeLimit").classList.toggle("active", tp === "LIMIT");
+      document.getElementById("limitField").style.display = tp === "LIMIT" ? "block" : "none";
+      if (tp === "LIMIT" && !document.getElementById("inpLimitPrice").value) {
+        fillLiveLimit();
+      }
+      document.getElementById("btnSubmitOrder").textContent = "SIMULATE " + currentType + " " + currentSide + " (" + currentSymbol + ")";
+    }
+
+    function fillLiveLimit() {
+      const tk = (appState && appState.watchlist || []).find(t => t.symbol === currentSymbol);
+      if (tk) document.getElementById("inpLimitPrice").value = tk.price;
+    }
+
+    function setAmt(val) {
+      document.getElementById("inpUsdtAmount").value = val;
+    }
+
+    function setCashPct(pct) {
+      if (!appState) return;
+      document.getElementById("inpUsdtAmount").value = Math.floor(appState.cash_usdt * pct * 100) / 100;
+    }
+
+    function setPresetSlTp() {
+      const tk = (appState && appState.watchlist || []).find(t => t.symbol === currentSymbol);
+      if (!tk) return;
+      const p = tk.price;
+      const dec = p < 0.0001 ? 8 : (p < 0.01 ? 6 : (p < 1 ? 4 : 2));
+      document.getElementById("inpStopLoss").value = (p * 0.97).toFixed(dec);
+      document.getElementById("inpTakeProfit").value = (p * 1.06).toFixed(dec);
+      toast("Set -3% Stop-Loss & +6% (2R) Take-Profit");
+    }
+
+    async function applyAiPlanToTicket() {
+      toast("Loading 10-Source AI Kelly Trade Plan for " + currentSymbol + "...");
+      const r = await fetch("/api/forecast?symbol=" + encodeURIComponent(currentSymbol));
+      const d = await r.json();
+      if (d && d.kelly_trade_plan) {
+        currentForecast = d;
+        const kp = d.kelly_trade_plan;
+        setSide("BUY");
+        document.getElementById("inpStopLoss").value = kp.stop_loss;
+        document.getElementById("inpTakeProfit").value = kp.tp1;
+        const eq = appState ? appState.total_equity_usdt : 10000;
+        const riskUsd = eq * 0.02;
+        const stopDistPct = Math.max(0.01, Math.abs(d.price - kp.stop_loss) / d.price);
+        const posUsd = Math.min(appState ? appState.cash_usdt : 1000, Math.round(riskUsd / stopDistPct));
+        document.getElementById("inpUsdtAmount").value = Math.max(50, posUsd);
+        toast("AI Plan Loaded: SL " + fmtP(kp.stop_loss) + " | TP " + fmtP(kp.tp1));
+        drawChart();
+      }
+    }
+
+    async function submitOrder() {
+      const payload = {
+        symbol: currentSymbol,
+        side: currentSide,
+        type: currentType,
+        usdt_amount: Number(document.getElementById("inpUsdtAmount").value || 0),
+        sell_pct: Number(document.getElementById("inpSellPct").value || 100),
+        limit_price: Number(document.getElementById("inpLimitPrice").value || 0),
+        stop_loss: document.getElementById("inpStopLoss").value,
+        take_profit: document.getElementById("inpTakeProfit").value,
+      };
+      const r = await fetch("/api/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const doc = await r.json();
+      if (!doc.ok) {
+        toast("❌ " + (doc.error || "Order rejected"));
+        return;
+      }
+      toast("✅ " + doc.result.status + " (" + currentSymbol + ")");
+      renderState(doc.state);
+      drawChart();
+    }
+
+    async function quickClose(sym, pct) {
+      const r = await fetch("/api/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol: sym, side: "SELL", type: "MARKET", sell_pct: pct }),
+      });
+      const doc = await r.json();
+      if (doc.ok) {
+        toast("✅ Sold " + pct + "% of " + sym);
+        renderState(doc.state);
+        drawChart();
+      } else {
+        toast("❌ " + doc.error);
+      }
+    }
+
+    async function editBrackets(sym, curSl, curTp) {
+      const slIn = prompt(`Set Stop-Loss (SL) price for ${sym} (leave blank to clear):`, curSl || "");
+      if (slIn === null) return;
+      const tpIn = prompt(`Set Take-Profit (TP) price for ${sym} (leave blank to clear):`, curTp || "");
+      if (tpIn === null) return;
+      const r = await fetch("/api/brackets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          symbol: sym,
+          stop_loss: slIn.trim() ? Number(slIn) : null,
+          take_profit: tpIn.trim() ? Number(tpIn) : null,
+        }),
+      });
+      const doc = await r.json();
+      if (doc.ok) {
+        toast("✅ Updated SL/TP for " + sym);
+        renderState(doc.state);
+        drawChart();
+      } else {
+        toast("❌ " + (doc.error || "Failed to update SL/TP"));
+      }
+    }
+
+    async function cancelOrder(id) {
+      const r = await fetch("/api/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const doc = await r.json();
+      if (doc.ok) {
+        toast("Cancelled limit order " + id);
+        renderState(doc.state);
+      }
+    }
+
+    async function resetWalletTo(amount) {
+      const r = await fetch("/api/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ starting_cash: amount }),
+      });
+      const doc = await r.json();
+      if (doc.ok) {
+        toast("✅ Virtual Wallet Reset to $" + Number(amount).toLocaleString());
+        renderState(doc.state);
+        drawChart();
+      }
+    }
+
+    function promptCustomBalance() {
+      const v = prompt("Enter custom starting virtual USDT balance:", "25000");
+      if (v && !isNaN(v) && Number(v) > 0) resetWalletTo(Number(v));
+    }
+
+    function renderState(s) {
+      if (!s) return;
+      appState = s;
+
+      const retSign = s.total_return_usdt >= 0 ? "+" : "";
+      const eqEl = document.getElementById("topEquity");
+      eqEl.textContent = "$" + s.total_equity_usdt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${retSign}${s.total_return_pct.toFixed(2)}%)`;
+      eqEl.className = "v " + (s.total_return_usdt >= 0 ? "up" : "down");
+
+      document.getElementById("topCash").textContent = "$" + s.cash_usdt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById("ticketAvailCash").textContent = "$" + s.cash_usdt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      const upnlEl = document.getElementById("topUpnl");
+      upnlEl.textContent = (s.unrealized_pnl_usdt >= 0 ? "+" : "") + "$" + s.unrealized_pnl_usdt.toFixed(2);
+      upnlEl.className = "v " + (s.unrealized_pnl_usdt >= 0 ? "up" : "down");
+
+      const rpnlEl = document.getElementById("topRpnl");
+      rpnlEl.textContent = (s.realized_pnl_usdt >= 0 ? "+" : "") + "$" + s.realized_pnl_usdt.toFixed(2);
+      rpnlEl.className = "v " + (s.realized_pnl_usdt >= 0 ? "up" : "down");
+
+      document.getElementById("topWinRate").textContent = `${s.win_rate_pct}% (${s.winning_trades}W/${s.losing_trades}L)`;
+
+      // Left Watchlist
+      const wl = document.getElementById("watchListContainer");
+      wl.innerHTML = (s.watchlist || []).map(t => {
+        const isUp = t.change_24h_pct >= 0;
+        const pick = picksMap[t.symbol];
+        const scoreBadge = pick
+          ? `<span class="score-tag ${pick.composite_score >= 0 ? 'up' : 'down'}">${pick.composite_score >= 0 ? '+' : ''}${pick.composite_score}</span>`
+          : "";
+        return `
+          <div class="watch-row ${t.symbol === currentSymbol ? 'active' : ''}" onclick="selectSymbol('${t.symbol}')">
+            <div>
+              <div class="watch-sym">${t.symbol.replace(/USDT$/, '')}<span style="color:var(--muted);font-weight:500;font-size:11px;">/USDT</span> ${scoreBadge}</div>
+              <div style="font-size:10px;color:var(--muted);">Vol ${fmtUsd(t.volume_24h_usd)}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:800;font-size:13px;">${fmtP(t.price)}</div>
+              <div class="${isUp ? 'up' : 'down'}" style="font-size:11px;font-weight:700;">${isUp ? '+' : ''}${t.change_24h_pct.toFixed(2)}%</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      const activeTk = (s.watchlist || []).find(t => t.symbol === currentSymbol);
+      if (activeTk) {
+        document.getElementById("chartSym").textContent = activeTk.symbol;
+        document.getElementById("chartPrice").textContent = fmtP(activeTk.price);
+        const cEl = document.getElementById("chartChg");
+        cEl.textContent = (activeTk.change_24h_pct >= 0 ? "+" : "") + activeTk.change_24h_pct.toFixed(2) + "%";
+        cEl.className = activeTk.change_24h_pct >= 0 ? "up" : "down";
+        document.getElementById("chartRange").textContent = fmtP(activeTk.low_24h) + " – " + fmtP(activeTk.high_24h);
+        document.getElementById("chartVol").textContent = fmtUsd(activeTk.volume_24h_usd);
+      }
+
+      const myPos = (s.positions || []).find(p => p.symbol === currentSymbol);
+      document.getElementById("ticketHoldingLbl").textContent = myPos ? ("Holding: $" + myPos.market_value_usdt.toFixed(2)) : "No position";
+
+      // Open Positions Table
+      document.getElementById("posCount").textContent = (s.positions || []).length;
+      const pBody = document.getElementById("positionsTableBody");
+      if (!s.positions || !s.positions.length) {
+        pBody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px;">No active paper positions. Use the Paper Order Ticket on the right to simulate a Buy!</td></tr>`;
+      } else {
+        pBody.innerHTML = s.positions.map(p => {
+          const isUp = p.unrealized_pnl_usdt >= 0;
+          const sign = isUp ? "+" : "";
+          return `
+            <tr>
+              <td><b style="cursor:pointer;color:#60a5fa;" onclick="selectSymbol('${p.symbol}')">${p.symbol}</b></td>
+              <td>${Number(p.qty).toPrecision(5)}</td>
+              <td>${fmtP(p.avg_entry)}</td>
+              <td><b>${fmtP(p.live_price)}</b></td>
+              <td>$${p.market_value_usdt.toFixed(2)}</td>
+              <td class="${isUp ? 'up' : 'down'}"><b>${sign}$${p.unrealized_pnl_usdt.toFixed(2)} (${sign}${p.unrealized_pnl_pct.toFixed(2)}%)</b></td>
+              <td style="color:var(--red);font-weight:700;">${p.stop_loss ? fmtP(p.stop_loss) : '-'}</td>
+              <td style="color:var(--green);font-weight:700;">${p.take_profit ? fmtP(p.take_profit) : '-'}</td>
+              <td>
+                <button class="btn-action" onclick="editBrackets('${p.symbol}', ${p.stop_loss || 'null'}, ${p.take_profit || 'null'})">SL/TP</button>
+                <button class="btn-action" onclick="quickClose('${p.symbol}', 50)">Sell 50%</button>
+                <button class="btn-action danger" onclick="quickClose('${p.symbol}', 100)">Close 100%</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      // Resting Limit Orders Table
+      document.getElementById("ordCount").textContent = (s.open_orders || []).length;
+      const oBody = document.getElementById("ordersTableBody");
+      if (!s.open_orders || !s.open_orders.length) {
+        oBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:12px;">No resting limit orders.</td></tr>`;
+      } else {
+        oBody.innerHTML = s.open_orders.map(o => `
+          <tr>
+            <td><b>${o.symbol}</b></td>
+            <td class="${o.side === 'BUY' ? 'up' : 'down'}"><b>${o.side}</b></td>
+            <td>${fmtP(o.limit_price)}</td>
+            <td>$${o.usdt_amount}</td>
+            <td><button class="btn-action danger" onclick="cancelOrder('${o.id}')">Cancel</button></td>
+          </tr>
+        `).join("");
+      }
+
+      // Trade Execution History Table
+      const hBody = document.getElementById("historyTableBody");
+      if (!s.history || !s.history.length) {
+        hBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:12px;">No trades yet.</td></tr>`;
+      } else {
+        hBody.innerHTML = s.history.map(h => {
+          const pnlCell = h.pnl_usdt !== null && h.pnl_usdt !== undefined
+            ? `<span class="${h.pnl_usdt >= 0 ? 'up' : 'down'}"><b>${h.pnl_usdt >= 0 ? '+' : ''}$${Number(h.pnl_usdt).toFixed(2)} (${h.pnl_pct}%)</b></span>`
+            : `<span style="color:var(--muted);">${h.reason}</span>`;
+          return `
+            <tr>
+              <td style="color:var(--muted);">${h.time.slice(11, 19)}</td>
+              <td><b class="${h.action === 'BUY' ? 'up' : 'down'}">${h.action}</b> <b>${h.symbol}</b></td>
+              <td>${fmtP(h.price)}</td>
+              <td>$${h.usdt_total}</td>
+              <td>${pnlCell}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+    }
+
+    async function fetchState() {
+      try {
+        const r = await fetch("/api/state?symbol=" + encodeURIComponent(currentSymbol));
+        const doc = await r.json();
+        renderState(doc);
+      } catch (e) {}
+    }
+
+    async function fetchKlines() {
+      try {
+        const r = await fetch(`/api/klines?symbol=${encodeURIComponent(currentSymbol)}&interval=${encodeURIComponent(currentInterval)}&limit=100`);
+        const doc = await r.json();
+        if (doc && doc.bars) {
+          klineBars = doc.bars;
+          drawChart();
+        }
+      } catch (e) {}
+    }
+
+    function drawChart() {
+      const canvas = document.getElementById("mainChart");
+      if (!canvas || !klineBars.length) return;
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      let minP = Math.min(...klineBars.map(b => b.l));
+      let maxP = Math.max(...klineBars.map(b => b.h));
+      const maxV = Math.max(...klineBars.map(b => b.v)) || 1;
+
+      const myPos = (appState && appState.positions || []).find(p => p.symbol === currentSymbol);
+      if (myPos) {
+        if (myPos.stop_loss && myPos.stop_loss > minP * 0.90) minP = Math.min(minP, myPos.stop_loss * 0.997);
+        if (myPos.take_profit && myPos.take_profit < maxP * 1.10) maxP = Math.max(maxP, myPos.take_profit * 1.003);
+      }
+      const pad = (maxP - minP) * 0.08 || maxP * 0.01;
+      minP -= pad;
+      maxP += pad;
+
+      const chartH = H - 52;
+      const yOf = p => 12 + (1 - (p - minP) / (maxP - minP)) * (chartH - 18);
+
+      // Horizontal Grid + Price Labels
+      ctx.strokeStyle = "#142038";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "11px sans-serif";
+      for (let i = 0; i < 5; i++) {
+        const gy = 14 + (chartH - 22) * (i / 4);
+        const gp = maxP - (maxP - minP) * (i / 4);
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(W - 70, gy);
+        ctx.stroke();
+        ctx.fillText(fmtP(gp), W - 66, gy + 4);
+      }
+
+      const n = klineBars.length;
+      const step = (W - 78) / n;
+      const cw = Math.max(2.5, step * 0.68);
+
+      // Candlesticks + Volume
+      klineBars.forEach((b, idx) => {
+        const x = 8 + idx * step;
+        const isUp = b.c >= b.o;
+        ctx.fillStyle = isUp ? "rgba(16,185,129,0.22)" : "rgba(244,63,94,0.22)";
+        const vh = (b.v / maxV) * 40;
+        ctx.fillRect(x, H - vh - 4, cw, vh);
+
+        ctx.strokeStyle = isUp ? "#10b981" : "#f43f5e";
+        ctx.fillStyle = isUp ? "#10b981" : "#f43f5e";
+        ctx.beginPath();
+        ctx.moveTo(x + cw / 2, yOf(b.h));
+        ctx.lineTo(x + cw / 2, yOf(b.l));
+        ctx.stroke();
+
+        const yOpen = yOf(b.o);
+        const yClose = yOf(b.c);
+        ctx.fillRect(x, Math.min(yOpen, yClose), cw, Math.max(1.5, Math.abs(yClose - yOpen)));
+      });
+
+      const drawLine = (price, color, label) => {
+        if (!price || price < minP || price > maxP) return;
+        const y = yOf(price);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W - 70, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = color;
+        ctx.font = "bold 11px sans-serif";
+        ctx.fillText(label + ": " + fmtP(price), 12, Math.max(14, y - 5));
+      };
+
+      if (myPos) {
+        drawLine(myPos.avg_entry, "#3b82f6", "YOUR ENTRY");
+        if (myPos.stop_loss) drawLine(myPos.stop_loss, "#f43f5e", "STOP-LOSS");
+        if (myPos.take_profit) drawLine(myPos.take_profit, "#10b981", "TAKE-PROFIT");
+      }
+    }
+
+    async function loadForecast(sym, refresh=false) {
+      const box = document.getElementById("aiReportContainer");
+      if (refresh) box.innerHTML = "Running live 25-source institutional, Fed, Bank, X/Twitter & Magazine analysis on " + sym + "...";
+      try {
+        const r = await fetch(`/api/forecast?symbol=${encodeURIComponent(sym)}&refresh=${refresh ? '1' : '0'}`);
+        const d = await r.json();
+        if (d.error) {
+          box.innerHTML = `<span class="down">${d.error}</span>`;
+          return;
+        }
+        currentForecast = d;
+        picksMap[d.symbol] = d;
+        const h4 = d.horizons["4h"];
+        const h24 = d.horizons["24h"];
+        const fut = d.futures || {};
+        const vp = d.volume_profile || {};
+        const kp = d.kelly_trade_plan || {};
+        const nw = d.news || {};
+        const trd = nw.trending_social || {};
+        const scCls = d.composite_score >= 12 ? "up" : (d.composite_score <= -12 ? "down" : "");
+
+        const renderList = (arr, maxItems=2) => (arr || []).slice(0, maxItems).map(it =>
+          `<div style="font-size:11px;margin-bottom:3px;color:#cbd5e1;">• <b style="color:#93c5fd;">[${it.source}]</b> ${it.title}</div>`
+        ).join("");
+
+        const trendingHtml = trd.is_trending
+          ? `<div style="background:rgba(245,158,11,0.18);border:1px solid var(--gold);color:#fde68a;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:700;margin-bottom:8px;">🔥 SOCIAL HEAT: ${d.symbol} is TRENDING #${trd.trending_rank} Globally on CoinGecko!</div>`
+          : (trd.top_trending_coins && trd.top_trending_coins.length
+              ? `<div style="font-size:10px;color:var(--muted);margin-bottom:6px;">🔥 Global Trending Coins: <b style="color:#e2e8f0;">${trd.top_trending_coins.slice(0, 7).join(", ")}</b></div>`
+              : "");
+
+        box.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:15px;font-weight:800;">${d.symbol}</span>
+            <span class="score-tag ${d.composite_score >= 0 ? 'up' : 'down'}" style="font-size:12px;padding:3px 8px;">Composite: ${d.composite_score >= 0 ? '+' : ''}${d.composite_score} / 100</span>
+          </div>
+          <div class="${scCls}" style="font-weight:800;margin-bottom:6px;">${d.verdict}</div>
+          ${trendingHtml}
+
+          <div class="grid-2" style="margin-bottom:8px;">
+            <div style="background:#080d17;border:1px solid var(--border);padding:7px;border-radius:7px;">
+              <div style="font-size:10px;color:var(--muted);">Next 4h P(UP)</div>
+              <div style="font-size:13px;font-weight:800;" class="${h4.prob_up_pct>=53?'up':''}">${h4.prob_up_pct}% → ${fmtP(h4.expected_price)}</div>
+            </div>
+            <div style="background:#080d17;border:1px solid var(--border);padding:7px;border-radius:7px;">
+              <div style="font-size:10px;color:var(--muted);">Next 24h P(UP)</div>
+              <div style="font-size:13px;font-weight:800;" class="${h24.prob_up_pct>=53?'up':''}">${h24.prob_up_pct}% → ${fmtP(h24.expected_price)}</div>
+            </div>
+          </div>
+
+          <div style="background:#080d17;border:1px solid var(--border);padding:8px;border-radius:8px;margin-bottom:8px;">
+            <div>• <b>Global Perp OI:</b> ${fmtUsd(fut.global_oi_usd || fut.open_interest_usd)} (${fut.oi_regime ? fut.oi_regime.split('(')[0] : 'N/A'})</div>
+            <div>• <b>8h Funding Consensus:</b> ${fut.consensus_funding_pct || fut.funding_rate_pct || 0}%</div>
+            <div>• <b>Whales vs Retail:</b> Whales ${fut.whale_long_pct || 50}% Long vs Retail ${fut.retail_long_pct || 50}% Long</div>
+            <div>• <b>7d Volume Profile:</b> VAL ${fmtP(vp.val)} | POC ${fmtP(vp.poc)} | VAH ${fmtP(vp.vah)}</div>
+            <div>• <b>Quarter-Kelly Plan (${kp.bias}):</b> Entry ${fmtP(kp.limit_pullback_entry)} | SL ${fmtP(kp.stop_loss)} | TP1 ${fmtP(kp.tp1)} (Edge: +${kp.expected_value_R}R)</div>
+          </div>
+
+          <div style="background:#080d17;border:1px solid var(--border);padding:8px;border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;margin-bottom:4px;">🏛️ Fed (FOMC) & Wall St. Bank Announcements</div>
+            ${renderList(nw.fed_and_central_banks, 2) || '<div style="font-size:11px;color:var(--muted);">No new FOMC releases</div>'}
+            ${renderList(nw.bank_and_institutional, 2)}
+            <div style="font-size:10px;font-weight:800;color:#38bdf8;text-transform:uppercase;margin:6px 0 4px;">🐦 Crypto Twitter / X Whale Flow & Binance CMS</div>
+            ${renderList(nw.twitter_x_flow, 2)}
+            ${renderList(nw.binance_official, 1)}
+            <div style="font-size:10px;font-weight:800;color:#a78bfa;text-transform:uppercase;margin:6px 0 4px;">📰 Financial & Crypto Magazines (Forbes / Bloomberg / The Block)</div>
+            ${renderList(nw.magazines_and_press, 2)}
+          </div>
+
+          <button class="submit-order-btn buy" style="padding:9px;font-size:12px;" onclick="applyAiPlanToTicket()">⚡ Load This AI Trade Plan Into Ticket</button>
+        `;
+      } catch (e) {
+        box.innerHTML = "Could not load forecast.";
+      }
+    }
+
+    async function loadPicksMap() {
+      try {
+        const r = await fetch("/api/picks");
+        const doc = await r.json();
+        (doc.picks || []).forEach(p => { picksMap[p.symbol] = p; });
+      } catch (e) {}
+    }
+
+    loadPicksMap().then(() => {
+      fetchState();
+      fetchKlines();
+      loadForecast(currentSymbol, false);
+    });
+    setInterval(fetchState, 3000);
+    setInterval(fetchKlines, 8000);
+  </script>
+</body>
+</html>

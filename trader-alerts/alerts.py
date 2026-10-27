@@ -61,6 +61,7 @@ UA = "Mozilla/5.0 (compatible; day-trader-skill/2.0; +https://github.com/Jakesch
 PAUSE = 0.5    # seconds between requests: be polite to free endpoints
 BACKOFF = 2.0  # seconds to wait before the one retry after a 429
 YAHOO_HOSTS = ("query2.finance.yahoo.com", "query1.finance.yahoo.com")
+BINANCE_HOSTS = ("https://api.binance.com", "https://data-api.binance.vision")
 HHMM = re.compile(r"^([01]?\d|2[0-3]):([0-5]\d)$")
 
 NYSE_HOLIDAYS = {
@@ -163,9 +164,14 @@ def session(d):
     return OPEN, (EARLY if d.isoformat() in NYSE_EARLY_CLOSE else CLOSE)
 
 
-def market_status(now_utc):
+def market_status(now_utc, is_binance=True):
     local = to_eastern(now_utc)
     d = local.date()
+    if is_binance:
+        return {"now_new_york": local.strftime("%Y-%m-%d %H:%M"), "date": d.isoformat(),
+                "weekday": local.strftime("%A"), "calendar_known": True,
+                "open": True, "reason": "24/7 crypto session", "early_close": None,
+                "opens": "00:00", "closes": "23:59"}
     ok, reason = trading_day(d)
     st = {"now_new_york": local.strftime("%Y-%m-%d %H:%M"), "date": d.isoformat(),
           "weekday": local.strftime("%A"), "calendar_known": d.year in CALENDAR_YEARS,
@@ -193,12 +199,47 @@ def market_status(now_utc):
 
 # ---------------------------------------------------------------- quotes
 
+def to_binance(sym):
+    s = re.sub(r"[\s/\-_]+", "", str(sym or "").upper())
+    if s.endswith(".USD"):
+        s = s[:-4] + "USDT"
+    elif s.endswith("USD") and not s.endswith(("USDT", "FDUSD", "BUSD", "TUSD", "PYUSD", "RLUSD", "XUSD", "BFUSD")):
+        s = s[:-3] + "USDT"
+    elif not s.endswith(("USDT", "USDC", "FDUSD", "BUSD")) and not (len(s) > 4 and s.endswith(("BTC", "ETH", "BNB"))):
+        s = s + "USDT"
+    return s
+
+
 def stooq_url(sym):
     return "https://stooq.com/q/l/?s=%s.us&f=sd2t2ohlcv&h&e=csv" % sym.lower().replace(".", "-")
 
 
 def yahoo_url(sym, host=YAHOO_HOSTS[0]):
     return "https://%s/v8/finance/chart/%s?range=1d&interval=1d" % (host, sym.upper().replace(".", "-"))
+
+
+def parse_binance(text, sym):
+    try:
+        d = json.loads(text)
+    except ValueError:
+        raise AlertError("Binance returned invalid JSON for %s" % sym)
+    if not isinstance(d, dict) or d.get("lastPrice") is None:
+        raise AlertError("Binance has no quote for %s" % sym)
+    t_ms = d.get("closeTime")
+    when = (datetime.datetime.fromtimestamp(int(t_ms) / 1000.0, datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            if t_ms else "")
+    return {
+        "symbol": str(d.get("symbol") or to_binance(sym)).upper(),
+        "price": float(d["lastPrice"]),
+        "open": float(d["openPrice"]) if d.get("openPrice") is not None else None,
+        "high": float(d["highPrice"]) if d.get("highPrice") is not None else None,
+        "low": float(d["lowPrice"]) if d.get("lowPrice") is not None else None,
+        "prev_close": float(d["prevClosePrice"]) if d.get("prevClosePrice") is not None else (
+            float(d["openPrice"]) if d.get("openPrice") is not None else None),
+        "time": when,
+        "currency": "USDT",
+        "source": "binance",
+    }
 
 
 def parse_stooq(text, sym):
@@ -298,6 +339,24 @@ def fetch_yahoo(sym, timeout=20):
     raise AlertError("%s answered HTTP %d" % (last[0].split("?")[0], last[1]))
 
 
+def fetch_binance(sym, timeout=20):
+    bsym = to_binance(sym)
+    last = "no answer"
+    for host in BINANCE_HOSTS:
+        url = "%s/api/v3/ticker/24hr?symbol=%s" % (host, bsym)
+        code, text = _get(url, timeout)
+        if code in (429, 418):
+            _sleep(BACKOFF)
+            code, text = _get(url, timeout)
+        if code == 200:
+            return text
+        if code in (451, 403, 429, 418) or code >= 500:
+            last = "HTTP %d" % code
+            continue
+        raise AlertError("Binance answered HTTP %d for %s" % (code, bsym))
+    raise AlertError("Binance did not answer for %s (%s)" % (bsym, last))
+
+
 def _offline_text(folder, source, sym):
     ext = "csv" if source == "stooq" else "json"
     base = os.path.join(folder, "%s-%s.%s" % (source, sym, ext))
@@ -310,19 +369,27 @@ def _offline_text(folder, source, sym):
     raise AlertError("no offline quote file %s" % base)
 
 
-def get_quotes(symbols, source="yahoo", offline=None, pause=PAUSE):
+def get_quotes(symbols, source="binance", offline=None, pause=PAUSE):
     """{SYM: quote} and [errors]. One request per ticker, with a pause between."""
     quotes, errors = {}, []
     for i, sym in enumerate(symbols):
-        sym = sym.upper()
+        sym = sym.upper() if offline else (to_binance(sym) if source == "binance" else sym.upper())
         try:
             if offline:
                 text = _offline_text(offline, source, sym)
+                quotes[sym] = parse_stooq(text, sym) if source == "stooq" else parse_yahoo(text, sym)
             else:
-                if i and pause:
+                if i and pause and source != "binance":
                     _sleep(pause)
-                text = fetch(stooq_url(sym)) if source == "stooq" else fetch_yahoo(sym)
-            quotes[sym] = parse_stooq(text, sym) if source == "stooq" else parse_yahoo(text, sym)
+                if source == "binance":
+                    text = fetch_binance(sym)
+                    quotes[sym] = parse_binance(text, sym)
+                elif source == "stooq":
+                    text = fetch(stooq_url(sym))
+                    quotes[sym] = parse_stooq(text, sym)
+                else:
+                    text = fetch_yahoo(sym)
+                    quotes[sym] = parse_yahoo(text, sym)
         except AlertError as e:
             errors.append(str(e))
     return quotes, errors
@@ -494,6 +561,10 @@ def evaluate(rules, quotes, status, state, now_utc):
 
 def _n(x):
     x = float(x)
+    if 0 < abs(x) < 0.0001:
+        return ("%.8f" % x).rstrip("0").rstrip(".")
+    if 0 < abs(x) < 1.0:
+        return ("%.6f" % x).rstrip("0").rstrip(".")
     return str(int(x)) if x == int(x) else "%.2f" % x
 
 
@@ -510,9 +581,9 @@ def rules_from_plan(plan, cfg_flat_by=None):
         label = plan.get("%s_label" % key)
         out.append({"id": "%s-plan-%s" % (sym.lower(), key), "symbol": sym, "type": typ, "price": float(v),
                     "note": word + (": " + label if label else "")})
-    flat = plan.get("flat_by") or cfg_flat_by or "15:55"
+    flat = plan.get("flat_by") or cfg_flat_by or "23:55"
     if _hhmm(flat) is None:
-        raise AlertError("the plan's flat_by %r is not a time like 15:55" % flat)
+        raise AlertError("the plan's flat_by %r is not a time like 23:55" % flat)
     out.append({"id": "%s-flat-by" % sym.lower(), "symbol": sym, "type": "time", "at": flat,
                 "label": "flat by close", "before_close": True})
     if plan.get("date"):
@@ -543,12 +614,12 @@ def _dedupe(items):
 
 
 def cmd_clock(a):
-    st = market_status(parse_now(a.now))
+    st = market_status(parse_now(a.now), is_binance=True)
     if a.json:
         print(json.dumps(st, indent=2))
     else:
-        print("New York %s (%s): NYSE %s, %s." % (st["now_new_york"], st["weekday"],
-                                                  "OPEN" if st["open"] else "closed", st["reason"]))
+        print("New York %s (%s): Binance Spot %s, %s." % (st["now_new_york"], st["weekday"],
+                                                          "OPEN" if st["open"] else "closed", st["reason"]))
         if st.get("opens"):
             print("Today's session: %s to %s%s." % (st["opens"], st["closes"],
                                                     (" (early close: %s)" % st["early_close"]) if st.get("early_close") else ""))
@@ -560,9 +631,10 @@ def cmd_clock(a):
 
 
 def cmd_quote(a):
-    syms = _dedupe([s.upper() for s in a.symbols] + (holdings(a) if a.holdings else []))
+    raw_syms = [s.upper() for s in a.symbols] + (holdings(a) if a.holdings else [])
+    syms = _dedupe([to_binance(s) if (a.source == "binance" and not a.offline) else s for s in raw_syms])
     if not syms:
-        raise AlertError("which tickers? alerts.py quote TSLA KO, or --holdings")
+        raise AlertError("which tickers? alerts.py quote BTC ETH, or --holdings")
     now = parse_now(a.now)
     quotes, errors = get_quotes(syms, a.source, a.offline)
     if a.write and quotes:
@@ -575,13 +647,13 @@ def cmd_quote(a):
             if q:
                 chg = ""
                 if q.get("prev_close"):
-                    chg = " (%+.2f%% vs prev close $%.2f)" % (100.0 * (q["price"] / q["prev_close"] - 1), q["prev_close"])
-                print("%-6s $%.2f%s  %s  [%s]" % (s, q["price"], chg, q.get("time", ""), q["source"]))
+                    chg = " (%+.2f%% vs 24h open $%s)" % (100.0 * (q["price"] / q["prev_close"] - 1), _n(q["prev_close"]))
+                print("%-10s $%s%s  %s  [%s]" % (s, _n(q["price"]), chg, q.get("time", ""), q["source"]))
         for e in errors:
             print("error: " + e)
         if a.write and quotes:
             print("Wrote %d price(s) to %s." % (len(quotes), a.write))
-        print("Quotes are free, delayed and unofficial: for alerts only. Your broker's price is the one that fills.")
+        print("Quotes from %s: for alerts and sizing checks. Your broker's price is the one that fills." % a.source)
     return 0 if quotes else 1
 
 
@@ -591,7 +663,7 @@ def cmd_check(a):
         raise AlertError("no rules in %s: add some with alerts.py add --from-plan" % a.rules)
     rules = doc["rules"]
     now = parse_now(a.now)
-    status = market_status(now)
+    status = market_status(now, is_binance=not bool(a.offline))
     watched = [r for r in rules if active(r, status["date"])]
     syms = _dedupe([str(r.get("symbol", "")).upper() for r in watched if r.get("type") not in NO_QUOTE])
     quotes, errors = (get_quotes(syms, a.source, a.offline) if syms else ({}, []))
@@ -605,13 +677,13 @@ def cmd_check(a):
         print(json.dumps({"market": status, "rings": rings, "errors": errors,
                           "quotes": {s: q["price"] for s, q in quotes.items()}}, indent=2))
     else:
-        print("NYSE %s (%s New York, %s)." % ("OPEN" if status["open"] else "closed", status["now_new_york"],
-                                              status["reason"]))
+        print("Market %s (%s New York, %s)." % ("OPEN" if status["open"] else "closed", status["now_new_york"],
+                                                status["reason"]))
         for r in rings:
             print("ALERT " + r["message"])
         if not rings:
             print("Nothing hit. %d rule(s) watched today%s." % (
-                len(watched), (", " + ", ".join("%s $%.2f" % (s, quotes[s]["price"]) for s in syms if s in quotes))
+                len(watched), (", " + ", ".join("%s $%s" % (s, _n(quotes[s]["price"])) for s in syms if s in quotes))
                 if quotes else ""))
         for e in errors:
             print("error: " + e)
@@ -652,13 +724,13 @@ def cmd_add(a):
         rule = {"id": a.id or ("time-%s" % a.at.replace(":", "")), "type": "time", "at": a.at,
                 "label": a.label or "time alert"}
         if a.symbol:
-            rule["symbol"] = a.symbol.upper()
+            rule["symbol"] = to_binance(a.symbol)
         if a.before_close:
             rule["before_close"] = True
     else:
         if not a.symbol:
             raise AlertError("--symbol is required (or --from-plan, --at, --opening-bell)")
-        sym = a.symbol.upper()
+        sym = to_binance(a.symbol)
         if a.above is not None:
             rule = {"type": "above", "price": a.above}
         elif a.below is not None:
@@ -720,7 +792,7 @@ def main(argv=None):
     sub = ap.add_subparsers(dest="cmd")
 
     def net(p):
-        p.add_argument("--source", default="yahoo", choices=["yahoo", "stooq"])
+        p.add_argument("--source", default="binance", choices=["binance", "yahoo", "stooq"])
         p.add_argument("--offline", metavar="DIR", help="read <source>-<TICKER>.json|csv files, no network")
         p.add_argument("--now", help="pretend it is this time (no offset = New York time)")
         p.add_argument("--json", action="store_true")

@@ -69,6 +69,7 @@ Exit code 0 when the scan found something, 1 when it did not or could not run.
 """
 
 import argparse
+import concurrent.futures
 import datetime
 import gzip
 import json
@@ -81,17 +82,21 @@ import urllib.request
 
 UA = "Mozilla/5.0 (compatible; day-trader-skill/2.0; +https://github.com/Jakeschincariol/day-trader-skill)"
 YAHOO_HOSTS = ("https://query2.finance.yahoo.com", "https://query1.finance.yahoo.com")
+BINANCE_HOSTS = ("https://api.binance.com", "https://data-api.binance.vision")
 NASDAQ_FILES = ("nasdaqlisted.txt", "otherlisted.txt")
 NASDAQ_URL = "https://www.nasdaqtrader.com/dynamic/SymDir/"
+STABLECOINS = {"USDC", "FDUSD", "TUSD", "USDP", "DAI", "BUSD", "EUR", "GBP", "EURI", "AEUR",
+               "USD1", "USDE", "RLUSD", "XUSD", "USDT", "PYUSD", "BFUSD"}
+LEVERAGED_SUFFIXES = ("UP", "DOWN", "BULL", "BEAR")
 SPARK_MAX = 20      # Yahoo's spark answers 400 above 20 symbols
-PAUSE = 0.3         # seconds between requests: be polite to free endpoints
+PAUSE = 0.05        # seconds between requests: be polite to free endpoints
 BACKOFF = 5.0       # seconds to wait before the one retry after a 429
 SLEEP = time.sleep  # tests swap this out
 BAR_MIN = 5
 MAX_CONFIRM = 200   # stage-2 v8 charts per orb scan, most traded first
 MIN_DAILY_BARS = 30
 DEFAULT_UNIVERSE = "trader/universe.txt"
-NOTE = "A scan is a list of charts that match a rule, not a list of stocks to buy."
+NOTE = "A scan is a list of charts that match a rule, not a list of coins to buy."
 
 NYSE_HOLIDAYS = {
     "2026-01-01": "New Year's Day",
@@ -269,6 +274,180 @@ def yahoo_get(path):
 
 def to_yahoo(sym):
     return sym.upper().replace(".", "-")
+
+
+def to_binance(sym):
+    s = re.sub(r"[\s/\-_]+", "", str(sym or "").upper())
+    if s.endswith(".USD"):
+        s = s[:-4] + "USDT"
+    elif s.endswith("USD") and not s.endswith(("USDT", "FDUSD", "BUSD", "TUSD", "PYUSD", "RLUSD", "XUSD", "BFUSD")):
+        s = s[:-3] + "USDT"
+    elif not s.endswith(("USDT", "USDC", "FDUSD", "BUSD")) and not (len(s) > 4 and s.endswith(("BTC", "ETH", "BNB"))):
+        s = s + "USDT"
+    return s
+
+
+def binance_get(path, timeout=20):
+    last = "no answer"
+    for attempt in (0, 1):
+        saw_429 = False
+        for host in BINANCE_HOSTS:
+            try:
+                return http_get(host + path, timeout=timeout)
+            except urllib.error.HTTPError as e:
+                last = "HTTP %d" % e.code
+                try:
+                    body = e.read().decode("utf-8", "replace")
+                except Exception:
+                    body = ""
+                finally:
+                    e.close()
+                if e.code in (429, 418):
+                    saw_429 = True
+                    continue
+                if e.code in (451, 403) or e.code >= 500:
+                    continue
+                raise ScanError("Binance answered %s for %s: %s" % (last, path.split("?")[0], body[:120]))
+            except (urllib.error.URLError, OSError) as e:
+                last = str(getattr(e, "reason", e))
+                continue
+        if attempt == 0 and saw_429:
+            SLEEP(BACKOFF)
+            continue
+        break
+    raise ScanError("Binance answered %s for %s" % (last, path.split("?")[0]))
+
+
+def build_binance_universe(quote="USDT"):
+    info = json.loads(binance_get("/api/v3/exchangeInfo?permissions=SPOT", timeout=40))
+    tickers = json.loads(binance_get("/api/v3/ticker/24hr", timeout=40))
+    vols = {}
+    for t in tickers if isinstance(tickers, list) else []:
+        sym = t.get("symbol")
+        if sym:
+            try:
+                vols[sym] = float(t.get("quoteVolume") or 0.0)
+            except (TypeError, ValueError):
+                vols[sym] = 0.0
+    symbols = info.get("symbols") or []
+    counts = {"rows": len(symbols), "keep": 0}
+    kept = []
+    q = quote.upper()
+    for row in symbols:
+        sym = (row.get("symbol") or "").strip().upper()
+        base = (row.get("baseAsset") or "").strip().upper()
+        qa = (row.get("quoteAsset") or "").strip().upper()
+        status = (row.get("status") or "").strip().upper()
+        if status != "TRADING" or not row.get("isSpotTradingAllowed", True):
+            counts["not trading"] = counts.get("not trading", 0) + 1
+            continue
+        if qa != q:
+            counts["other quote asset"] = counts.get("other quote asset", 0) + 1
+            continue
+        if base in STABLECOINS:
+            counts["stablecoin / fiat"] = counts.get("stablecoin / fiat", 0) + 1
+            continue
+        if any(base.endswith(suf) and len(base) > len(suf) for suf in LEVERAGED_SUFFIXES):
+            counts["leveraged token"] = counts.get("leveraged token", 0) + 1
+            continue
+        counts["keep"] += 1
+        qv = vols.get(sym, 0.0)
+        kept.append((sym, "%s / %s (24h vol $%s)" % (base, qa, "{:,.0f}".format(qv)), qv))
+    kept.sort(key=lambda x: (-x[2], x[0]))
+    return [(s, desc) for s, desc, _ in kept], counts
+
+
+def fetch_binance_series(sym, interval, limit=60, ticker_meta=None, funding_pct=None):
+    bsym = to_binance(sym)
+    raw = json.loads(binance_get("/api/v3/klines?symbol=%s&interval=%s&limit=%d" % (bsym, interval, limit)))
+    if not isinstance(raw, list) or not raw:
+        raise ScanError("no Binance klines for %s" % bsym)
+    now_ms = int(time.time() * 1000)
+    t, o, h, l, c, v = [], [], [], [], [], []
+    tb_ratios = []
+    for k in raw:
+        open_ms, close_ms = int(k[0]), int(k[6])
+        if interval == "1d" and close_ms > now_ms:
+            continue  # drop today's incomplete UTC daily bar
+        t.append(open_ms // 1000)
+        o.append(float(k[1]))
+        h.append(float(k[2]))
+        l.append(float(k[3]))
+        c.append(float(k[4]))
+        qv = float(k[7]) if len(k) > 7 else float(k[5])
+        tb_qv = float(k[10]) if len(k) > 10 else (0.5 * qv)
+        v.append(qv)
+        if qv > 0:
+            tb_ratios.append(100.0 * tb_qv / qv)
+    tm = ticker_meta or {}
+    last_p = float(tm.get("lastPrice") or (c[-1] if c else 0.0))
+    quote_vol = float(tm.get("quoteVolume") or (v[-1] if v else 0.0))
+    taker_buy_pct = round(tb_ratios[-1], 1) if tb_ratios else None
+    meta = {
+        "symbol": bsym,
+        "source": "binance",
+        "regularMarketPrice": last_p,
+        "regularMarketVolume": quote_vol,
+        "taker_buy_pct": taker_buy_pct,
+    }
+    if funding_pct is not None:
+        meta["funding_rate_pct"] = funding_pct
+    return {
+        "t": t, "o": o, "h": h, "l": l, "c": c, "v": v,
+        "meta": meta,
+    }
+
+
+def fetch_binance_batch(symbols, interval, limit=60, min_price=0.0, min_volume=0, a=None):
+    """Fetch 24h stats + futures funding in 1 call each, pre-filter liquid symbols, then fetch klines concurrently."""
+    data, failed = {}, {}
+    tickers_raw = json.loads(binance_get("/api/v3/ticker/24hr", timeout=40))
+    tmap = {t["symbol"]: t for t in (tickers_raw if isinstance(tickers_raw, list) else []) if "symbol" in t}
+    fmap = {}
+    try:
+        prem_raw = json.loads(http_get("https://fapi.binance.com/fapi/v1/premiumIndex", timeout=10))
+        if isinstance(prem_raw, list):
+            for row in prem_raw:
+                fsym = row.get("symbol")
+                fr = row.get("lastFundingRate")
+                if fsym and fr is not None:
+                    fmap[fsym] = round(float(fr) * 100.0, 4)
+                    if fsym.startswith("1000") and len(fsym) > 4:
+                        fmap[fsym[4:]] = round(float(fr) * 100.0, 4)
+    except Exception:
+        pass
+    to_fetch = []
+    for sym in symbols:
+        bsym = to_binance(sym)
+        tm = tmap.get(bsym)
+        if not tm:
+            failed[sym] = "not on Binance Spot (%s)" % bsym
+            continue
+        p = float(tm.get("lastPrice") or 0.0)
+        qv = float(tm.get("quoteVolume") or 0.0)
+        if p < min_price or (min_volume > 0 and qv < min_volume):
+            # Still store minimal series so scan_daily / scan_orb counts it as illiquid rather than failed
+            data[sym] = {"t": [], "o": [], "h": [], "l": [], "c": [], "v": [],
+                         "meta": {"symbol": bsym, "regularMarketPrice": p, "regularMarketVolume": qv}}
+            continue
+        to_fetch.append((sym, bsym, tm, fmap.get(bsym)))
+    if a is not None and to_fetch:
+        progress(a, "Fetching Binance %s klines for %d liquid pairs..." % (interval, len(to_fetch)))
+
+    def _one(item):
+        sym, bsym, tm, fpct = item
+        return sym, fetch_binance_series(bsym, interval, limit=limit, ticker_meta=tm, funding_pct=fpct)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as ex:
+        futs = {ex.submit(_one, item): item[0] for item in to_fetch}
+        for fut in concurrent.futures.as_completed(futs):
+            sym = futs[fut]
+            try:
+                _, ser = fut.result()
+                data[sym] = ser
+            except Exception as e:
+                failed[sym] = str(e)
+    return data, failed
 
 
 def spark_path(symbols, rng, interval):
@@ -498,6 +677,14 @@ def rsi(closes, n=14):
 def daily_closes(series, now_utc):
     """[(date, close)] of COMPLETE daily bars: null closes dropped, today's bar dropped
     until the session closes, anything dated after the clock dropped."""
+    if (series.get("meta") or {}).get("source") == "binance":
+        out = {}
+        for ts, c in zip(series["t"], series["c"]):
+            if c is None:
+                continue
+            d = (datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=int(ts))).date()
+            out[d] = float(c)
+        return sorted(out.items())
     now = to_eastern(now_utc)
     today = now.date()
     s = session(today)
@@ -539,10 +726,20 @@ def find_setups(closes):
                   "run_pct": run * 100, "range5_pct": rng5 * 100}
 
 
+def _round_p(x):
+    x = float(x)
+    if x >= 1.0:
+        return round(x, 2)
+    if x >= 0.01:
+        return round(x, 4)
+    return round(x, 8)
+
+
 def scan_daily(data, symbols, now_utc, min_price, min_volume):
     """Pure. data = {SYM: series}. Returns (hits, counts, last_date)."""
     hits, dates = [], {}
     counts = {"requested": len(symbols), "fetched": 0, "illiquid": 0, "short": 0, "scanned": 0}
+    is_binance = any(((data.get(sym) or {}).get("meta") or {}).get("source") == "binance" for sym in symbols)
     for sym in symbols:
         s = data.get(sym)
         if not s:
@@ -566,10 +763,19 @@ def scan_daily(data, symbols, now_utc, min_price, min_volume):
         closes = [c for _, c in bars]
         tags, nums = find_setups(closes)
         if tags:
-            hits.append({"symbol": sym, "setups": tags, "price": round(closes[-1], 2),
-                         "close_date": d_last.isoformat(), "rsi": round(nums["rsi"], 1),
-                         "volume": int(vol) if vol is not None else None})
-    hits.sort(key=lambda h: (-(h["price"] * (h["volume"] or 0)), h["symbol"]))  # most dollars traded first
+            p_val = _round_p(closes[-1]) if is_binance else round(closes[-1], 2)
+            hit_row = {"symbol": sym, "setups": tags, "price": p_val,
+                       "close_date": d_last.isoformat(), "rsi": round(nums["rsi"], 1),
+                       "volume": int(vol) if vol is not None else None}
+            if meta.get("funding_rate_pct") is not None:
+                hit_row["funding_rate_pct"] = meta["funding_rate_pct"]
+            if meta.get("taker_buy_pct") is not None:
+                hit_row["taker_buy_pct"] = meta["taker_buy_pct"]
+            hits.append(hit_row)
+    if is_binance:
+        hits.sort(key=lambda h: (-(h["volume"] or 0), h["symbol"]))  # volume is already 24h USDT quoteVolume
+    else:
+        hits.sort(key=lambda h: (-(h["price"] * (h["volume"] or 0)), h["symbol"]))
     last_date = max(dates, key=lambda d: (dates[d], d)) if dates else None
     counts["hits"] = len(hits)
     return hits, counts, last_date
@@ -577,15 +783,21 @@ def scan_daily(data, symbols, now_utc, min_price, min_volume):
 
 # ---------------------------------------------------------------- opening-range breakout
 
-def slot(day, k):
-    return datetime.datetime.combine(day, OPEN) + datetime.timedelta(minutes=BAR_MIN * k)
+def slot(day, k, open_t=None):
+    return datetime.datetime.combine(day, open_t or OPEN) + datetime.timedelta(minutes=BAR_MIN * k)
 
 
-def session_bars(series, day, cutoff):
+def session_bars(series, day, cutoff, open_t=None, close_t=None):
     """5-minute bars of `day` that are complete at `cutoff` (naive New York time),
     on the grid, with a close. Sorted, one per slot."""
-    s = session(day)
-    close_t = s[1] if s else CLOSE
+    is_binance = (series.get("meta") or {}).get("source") == "binance"
+    if is_binance:
+        o_t = open_t or datetime.time(0, 0)
+        c_t = close_t or datetime.time(23, 59, 59)
+    else:
+        s = session(day)
+        o_t = open_t or OPEN
+        c_t = close_t or (s[1] if s else CLOSE)
     out = {}
     hs, ls = series.get("h"), series.get("l")
     for i, ts in enumerate(series["t"]):
@@ -595,7 +807,7 @@ def session_bars(series, day, cutoff):
         et = ts_to_eastern(ts)
         if et.date() != day or et.second or et.minute % BAR_MIN:
             continue  # another day, or the live tick off the grid
-        if et.time() < OPEN or et.time() >= close_t:
+        if et.time() < o_t or (not is_binance and et.time() >= c_t):
             continue  # pre-market, after hours, the 4:00 PM closing print
         if et + datetime.timedelta(minutes=BAR_MIN) > cutoff:
             continue  # still in progress at the cutoff
@@ -607,16 +819,18 @@ def session_bars(series, day, cutoff):
     return [out[k] for k in sorted(out)]
 
 
-def usable(bars, day, cutoff, n_range):
-    """Every slot from 9:30 to the cutoff is there, and at least the range."""
-    want = int((cutoff - slot(day, 0)).total_seconds() // (BAR_MIN * 60))
-    s = session(day)
-    if s:
-        want = min(want, int((datetime.datetime.combine(day, s[1]) - slot(day, 0)).total_seconds()
-                             // (BAR_MIN * 60)))
+def usable(bars, day, cutoff, n_range, open_t=None, is_binance=False):
+    """Every slot from open_t to the cutoff is there, and at least the range."""
+    o_t = open_t or (datetime.time(0, 0) if is_binance else OPEN)
+    want = int((cutoff - slot(day, 0, o_t)).total_seconds() // (BAR_MIN * 60))
+    if not is_binance:
+        s = session(day)
+        if s:
+            want = min(want, int((datetime.datetime.combine(day, s[1]) - slot(day, 0, o_t)).total_seconds()
+                                 // (BAR_MIN * 60)))
     if want < n_range or len(bars) != want:
         return False
-    return all(b["start"] == slot(day, k) for k, b in enumerate(bars))
+    return all(b["start"] == slot(day, k, o_t) for k, b in enumerate(bars))
 
 
 def orb_candidate(bars, n_range):
@@ -626,7 +840,7 @@ def orb_candidate(bars, n_range):
     return any(b["c"] >= top for b in bars[n_range:])
 
 
-def orb_hit(bars, n_range):
+def orb_hit(bars, n_range, is_binance=False):
     """Stage 2, real highs and lows: the first completed bar to CLOSE above the range high."""
     rng = bars[:n_range]
     if any(b["h"] is None or b["l"] is None for b in rng):
@@ -637,19 +851,36 @@ def orb_hit(bars, n_range):
         b = bars[k]
         if b["c"] > oh:
             closes_at = b["start"] + datetime.timedelta(minutes=BAR_MIN)
-            return {"price": round(b["c"], 2), "at": clock_label(closes_at),
+            rp = _round_p if is_binance else (lambda v: round(v, 2))
+            return {"price": rp(b["c"]), "at": clock_label(closes_at),
                     "bar_start": b["start"].strftime("%H:%M"), "bar_index": k,
-                    "or_high": round(oh, 2), "or_low": round(ol, 2),
+                    "or_high": rp(oh), "or_low": rp(ol),
                     "pct_over": round((b["c"] / oh - 1) * 100, 2), "_t": closes_at}
     return None
 
 
-def orb_window(now_utc, at, or_minutes, until, explicit_day=None):
+def orb_window(now_utc, at, or_minutes, until, explicit_day=None, is_binance=False, open_t=None):
     """-> (day, cutoff naive ET) or raise ScanError with the plain message."""
     now = to_eastern(now_utc)
     day = explicit_day or now.date()
     if or_minutes < BAR_MIN or or_minutes % BAR_MIN or or_minutes > 120:
         raise ScanError("--or-minutes wants a multiple of 5 from 5 to 120 (15 is the classic)")
+    if is_binance:
+        o_t = open_t or datetime.time(0, 0)
+        range_end = slot(day, or_minutes // BAR_MIN, o_t)
+        first_close = range_end + datetime.timedelta(minutes=BAR_MIN)
+        if at is not None:
+            cutoff = datetime.datetime.combine(day, at)
+            if explicit_day is None and cutoff > now + datetime.timedelta(seconds=59):
+                raise ScanError("--at %s is later than now (%s ET)." % (at.strftime("%H:%M"), clock_label(now)))
+        else:
+            cutoff = now.replace(second=0, microsecond=0)
+        if cutoff < first_close:
+            raise ScanError("It is %s ET: the %d-minute opening range runs %s to %s and the first bar after it "
+                            "closes at %s. Run orb again after %s."
+                            % (clock_label(cutoff), or_minutes, clock_label(o_t), clock_label(range_end),
+                               clock_label(first_close), clock_label(first_close)))
+        return day, cutoff
     ok, why = trading_day(day)
     if not ok:
         raise ScanError("No session on %s (%s): the market is closed. Run orb on a trading day "
@@ -684,7 +915,7 @@ def orb_window(now_utc, at, or_minutes, until, explicit_day=None):
 
 
 def scan_orb(stage1, symbols, day, cutoff, or_minutes, min_price=0.0, min_volume=0, confirm=None,
-             max_confirm=None):
+             max_confirm=None, open_t=None):
     """stage1 = {SYM: series} with closes (spark or v8). confirm(sym) -> series with highs/lows
     (None = use the stage-1 series). With confirm and max_confirm, only the max_confirm most
     traded candidates (price x volume so far) are confirmed; the rest are counted as unconfirmed.
@@ -693,13 +924,14 @@ def scan_orb(stage1, symbols, day, cutoff, or_minutes, min_price=0.0, min_volume
     counts = {"requested": len(symbols), "fetched": 0, "unusable": 0, "illiquid": 0, "scanned": 0,
               "candidates": 0, "confirmed": 0, "unconfirmed": 0}
     hits, failed, cands = [], {}, []
+    is_binance = any(((stage1.get(sym) or {}).get("meta") or {}).get("source") == "binance" for sym in symbols)
     for sym in symbols:
         s = stage1.get(sym)
         if not s:
             continue
         counts["fetched"] += 1
-        bars = session_bars(s, day, cutoff)
-        if not usable(bars, day, cutoff, n_range):
+        bars = session_bars(s, day, cutoff, open_t=open_t)
+        if not usable(bars, day, cutoff, n_range, open_t=open_t, is_binance=is_binance):
             counts["unusable"] += 1
             continue
         vol = sum(b["v"] for b in bars) if s.get("v") else (s.get("meta") or {}).get("regularMarketVolume") or 0
@@ -708,7 +940,8 @@ def scan_orb(stage1, symbols, day, cutoff, or_minutes, min_price=0.0, min_volume
             continue
         counts["scanned"] += 1
         if orb_candidate(bars, n_range):
-            cands.append((sym, bars, bars[-1]["c"] * vol))
+            rank_val = vol if is_binance else (bars[-1]["c"] * vol)
+            cands.append((sym, bars, rank_val))
     counts["candidates"] = len(cands)
     if confirm is not None and max_confirm and len(cands) > max_confirm:
         cands.sort(key=lambda x: -x[2])
@@ -722,14 +955,20 @@ def scan_orb(stage1, symbols, day, cutoff, or_minutes, min_price=0.0, min_volume
             except ScanError as e:
                 failed[sym] = str(e)
                 continue
-            full = session_bars(s2, day, cutoff)
-            if not usable(full, day, cutoff, n_range):
+            full = session_bars(s2, day, cutoff, open_t=open_t)
+            if not usable(full, day, cutoff, n_range, open_t=open_t, is_binance=is_binance):
                 failed[sym] = "the v8 chart has a missing bar"
                 continue
         counts["confirmed"] += 1
-        h = orb_hit(full, n_range)
+        h = orb_hit(full, n_range, is_binance=is_binance)
         if h:
-            hits.append(dict({"symbol": sym, "setups": ["orb"]}, **h))
+            meta = (stage1.get(sym) or {}).get("meta") or {}
+            row = dict({"symbol": sym, "setups": ["orb"]}, **h)
+            if meta.get("funding_rate_pct") is not None:
+                row["funding_rate_pct"] = meta["funding_rate_pct"]
+            if meta.get("taker_buy_pct") is not None:
+                row["taker_buy_pct"] = meta["taker_buy_pct"]
+            hits.append(row)
     hits.sort(key=lambda x: (x["_t"], x["symbol"]))
     for h in hits:
         del h["_t"]
@@ -771,6 +1010,8 @@ def fetch_spark(symbols, rng, interval, pause, a=None):
 def read_symbols(a, offline_syms=None):
     if a.symbols:
         syms = [s for s in re.split(r"[,\s]+", a.symbols.upper()) if s]
+        if not a.offline:
+            syms = [to_binance(s) for s in syms]
     elif a.watchlist:
         syms = symbols_from_file(a.watchlist)
     elif offline_syms is not None and not a.universe:
@@ -832,6 +1073,11 @@ def write_json(path, doc):
 
 
 def money(x):
+    x = float(x)
+    if 0 < abs(x) < 0.0001:
+        return "${:,.8f}".format(x).rstrip("0").rstrip(".")
+    if 0 < abs(x) < 1.0:
+        return "${:,.6f}".format(x).rstrip("0").rstrip(".")
     return "${:,.2f}".format(x)
 
 
@@ -839,24 +1085,18 @@ def money(x):
 
 def cmd_universe(a):
     t0 = time.time()
-    texts = {}
-    for k, fname in enumerate(NASDAQ_FILES):
-        if a.offline:
+    if a.offline:
+        texts = {}
+        for k, fname in enumerate(NASDAQ_FILES):
             p = os.path.join(a.offline, fname)
             if not os.path.exists(p):
                 raise ScanError("no %s in %s" % (fname, a.offline))
             with open(p, encoding="utf-8", errors="replace") as fh:
                 texts[fname] = fh.read()
-        else:
-            if k and a.pause:
-                SLEEP(a.pause)
-            try:
-                texts[fname] = http_get(NASDAQ_URL + fname, timeout=60)
-            except urllib.error.HTTPError as e:
-                raise ScanError("nasdaqtrader.com answered HTTP %d for %s" % (e.code, fname))
-            except (urllib.error.URLError, OSError) as e:
-                raise ScanError("could not reach nasdaqtrader.com: %s" % getattr(e, "reason", e))
-    kept, counts, created = build_universe(texts)
+        kept, counts, created = build_universe(texts)
+    else:
+        kept, counts = build_binance_universe(getattr(a, "quote", "USDT"))
+        created = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     if not a.no_write:
         d = os.path.dirname(a.out)
         if d:
@@ -870,11 +1110,17 @@ def cmd_universe(a):
                           "dropped": dropped, "out": None if a.no_write else a.out,
                           "seconds": round(time.time() - t0, 1)}, indent=2))
     else:
-        print("Nasdaq Trader symbol directories%s: %s rows." % (
-            (", files of %s ET" % created) if created else "", "{:,}".format(counts.get("rows", 0))))
-        print("Kept %s US-listed common stocks, ordinary shares and ADRs." % "{:,}".format(len(kept)))
-        print("Dropped: " + ", ".join("%s %s" % ("{:,}".format(v), k)
-                                      for k, v in sorted(dropped.items(), key=lambda kv: -kv[1])) + ".")
+        if a.offline:
+            print("Nasdaq Trader symbol directories%s: %s rows." % (
+                (", files of %s ET" % created) if created else "", "{:,}".format(counts.get("rows", 0))))
+            print("Kept %s US-listed common stocks, ordinary shares and ADRs." % "{:,}".format(len(kept)))
+        else:
+            print("Binance Spot exchangeInfo (%s): %s total trading symbols." % (
+                created, "{:,}".format(counts.get("rows", 0))))
+            print("Kept %s active Binance USDT spot pairs (sorted by 24h volume)." % "{:,}".format(len(kept)))
+        if dropped:
+            print("Dropped: " + ", ".join("%s %s" % ("{:,}".format(v), k)
+                                          for k, v in sorted(dropped.items(), key=lambda kv: -kv[1])) + ".")
         if not a.no_write:
             print("Wrote %s (one SYMBOL|Name a line)." % a.out)
     return 0 if kept else 1
@@ -889,15 +1135,15 @@ def cmd_daily(a):
         offline_syms = sorted(set(data) | set(failed))
     symbols = read_symbols(a, offline_syms)
     if not a.offline:
-        progress(a, "Fetching daily closes for %s symbols (%d spark requests)..."
-                 % ("{:,}".format(len(symbols)), (len(symbols) + SPARK_MAX - 1) // SPARK_MAX))
-        data, failed = fetch_spark(symbols, "3mo", "1d", a.pause, a)
+        data, failed = fetch_binance_batch(symbols, "1d", limit=35, min_price=a.min_price,
+                                           min_volume=a.min_volume, a=a)
     hits, counts, last_date = scan_daily(data, symbols, now, a.min_price, a.min_volume)
     nfailed = len(symbols) - counts["fetched"]
     as_of = ("%s close" % last_date.isoformat()) if last_date else None
+    src = "yahoo" if a.offline else "binance"
     doc = {"created_by": "trader-scanner", "created_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "mode": "daily",
            "as_of": as_of, "universe": len(symbols), "scanned": counts["scanned"], "failed": nfailed,
-           "source": "yahoo", "filters": {"min_price": a.min_price, "min_volume": a.min_volume},
+           "source": src, "filters": {"min_price": a.min_price, "min_volume": a.min_volume},
            "note": NOTE, "hits": hits}
     if a.offline:
         doc["offline"] = os.path.basename(a.offline.rstrip("/"))
@@ -907,25 +1153,31 @@ def cmd_daily(a):
         print(json.dumps(dict(doc, counts=counts, seconds=round(time.time() - t0, 1)), indent=2))
         return 0 if hits else 1
     local = to_eastern(now)
-    print("Daily scan, %s ET, closes through %s (Yahoo spark, daily closes only)." % (
-        local.strftime("%a %Y-%m-%d %H:%M"), last_date.isoformat() if last_date else "nothing"))
-    print("Fetched %s of %s charts%s. %s passed the liquidity filter ($%s+ and %s+ shares)%s; "
+    print("Daily scan, %s ET, closes through %s (%s, daily closes)." % (
+        local.strftime("%a %Y-%m-%d %H:%M"), last_date.isoformat() if last_date else "nothing",
+        "Yahoo spark" if a.offline else "Binance Spot 1d klines"))
+    print("Fetched %s of %s charts%s. %s passed the liquidity filter ($%s+ and %s+ %s)%s; "
           "%s scanned." % ("{:,}".format(counts["fetched"]), "{:,}".format(len(symbols)),
                            (" (%s failed or had no data)" % "{:,}".format(nfailed)) if nfailed else "",
                            "{:,}".format(counts["fetched"] - counts["illiquid"]), _n(a.min_price),
-                           "{:,}".format(a.min_volume),
+                           "{:,}".format(a.min_volume), "shares" if a.offline else "24h USDT vol",
                            (", %d had under %d days" % (counts["short"], MIN_DAILY_BARS)) if counts["short"] else "",
                            "{:,}".format(counts["scanned"])))
     if hits:
         per = [(k, sum(1 for h in hits if k in h["setups"])) for k, _ in SETUPS]
         print("%d chart%s matched a setup: %s." % (len(hits), "" if len(hits) == 1 else "s",
                                                   ", ".join("%d %s" % (n, LABEL[k]) for k, n in per if n)))
-        print("Most traded first (price x volume):")
+        print("Most traded first (24h volume):")
     else:
         print("No setups.")
     for h in hits[:a.show]:
-        print("  %-6s %10s  RSI %5.1f  %s" % (h["symbol"], money(h["price"]), h["rsi"],
-                                              ", ".join(LABEL[t] for t in h["setups"])))
+        extra = ""
+        if h.get("taker_buy_pct") is not None:
+            extra += "  TakerBuy %4.1f%%" % h["taker_buy_pct"]
+        if h.get("funding_rate_pct") is not None:
+            extra += "  Fund %+.4f%%" % h["funding_rate_pct"]
+        print("  %-10s %12s  RSI %5.1f%s  %s" % (h["symbol"], money(h["price"]), h["rsi"], extra,
+                                                 ", ".join(LABEL[t] for t in h["setups"])))
     if len(hits) > a.show:
         print("  ... and %d more in the watchlist (--show N for more)." % (len(hits) - a.show))
     if not a.no_write:
@@ -944,10 +1196,13 @@ def cmd_orb(a):
     now = parse_now(a.now)
     at = parse_hhmm(a.at) if a.at else None
     cfg = read_config(a.config)
-    until = parse_hhmm(a.until or cfg.get("no_entries_after") or "15:30", "--until")
+    until = parse_hhmm(a.until or cfg.get("no_entries_after") or ("15:30" if a.offline else "23:59"), "--until")
     data = failed = None
     explicit_day = None
     offline_syms = None
+    is_binance = not bool(a.offline)
+    open_t = parse_hhmm(a.session_open, "--session-open") if getattr(a, "session_open", None) else (
+        datetime.time(0, 0) if is_binance else OPEN)
     if a.offline:
         data, failed = load_offline(a.offline)
         offline_syms = sorted(set(data) | set(failed))
@@ -957,35 +1212,25 @@ def cmd_orb(a):
                 explicit_day = max(days)
                 if at is None:
                     raise ScanError("offline replay: give --at HH:MM or --now \"YYYY-MM-DD HH:MM\"")
-    day, cutoff = orb_window(now, at, a.or_minutes, until, explicit_day)
+    day, cutoff = orb_window(now, at, a.or_minutes, until, explicit_day, is_binance=is_binance, open_t=open_t)
     symbols = read_symbols(a, offline_syms)
     confirm = None
     if not a.offline:
-        today = to_eastern(parse_now(None)).date()
-        if (today - day).days > 6:
-            raise ScanError("Yahoo's free 5-minute history is short: replay %s with --offline" % day.isoformat())
-        rng = "1d" if day == today else "5d"
-        progress(a, "Stage 1: 5-minute closes for %s symbols (%d spark requests)..."
-                 % ("{:,}".format(len(symbols)), (len(symbols) + SPARK_MAX - 1) // SPARK_MAX))
-        data, failed = fetch_spark(symbols, rng, "%dm" % BAR_MIN, a.pause, a)
-        done = []
-
-        def confirm(sym):
-            if a.pause:
-                SLEEP(a.pause)
-            done.append(sym)
-            if len(done) % 50 == 0:
-                progress(a, "  stage 2: %d v8 charts so far" % len(done))
-            return parse_chart(yahoo_get(chart_path(sym, rng, "%dm" % BAR_MIN)), sym)
+        # Limit default Binance orb scan to top 150 by volume unless --limit or --symbols was given
+        if not a.symbols and not a.watchlist and not a.limit and len(symbols) > 150:
+            symbols = symbols[:150]
+        data, failed = fetch_binance_batch(symbols, "%dm" % BAR_MIN, limit=300,
+                                           min_price=a.min_price, min_volume=a.min_volume, a=a)
     hits, counts, failed2 = scan_orb(data, symbols, day, cutoff, a.or_minutes, a.min_price, a.min_volume, confirm,
-                                     a.max_confirm)
+                                     a.max_confirm, open_t=open_t)
     failed = dict(failed or {})
     failed.update(failed2)
     nfailed = len([s for s in symbols if s in failed])
     as_of = "%s %s ET" % (day.isoformat(), cutoff.strftime("%H:%M"))
+    src = "binance" if is_binance else "yahoo"
     doc = {"created_by": "trader-scanner", "created_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "mode": "orb",
            "as_of": as_of, "universe": len(symbols), "scanned": counts["scanned"], "failed": nfailed,
-           "unconfirmed": counts["unconfirmed"], "source": "yahoo", "or_minutes": a.or_minutes,
+           "unconfirmed": counts["unconfirmed"], "source": src, "or_minutes": a.or_minutes,
            "interval": "%dm" % BAR_MIN,
            "filters": {"min_price": a.min_price, "min_volume": a.min_volume}, "note": NOTE, "hits": hits}
     if a.offline:
@@ -995,8 +1240,9 @@ def cmd_orb(a):
     if a.json:
         print(json.dumps(dict(doc, counts=counts, seconds=round(time.time() - t0, 1)), indent=2))
         return 0 if hits else 1
-    print("Opening-range breakout scan, %s %s ET: %d-minute range (9:30 to %s), 5-minute bars, Yahoo."
-          % (day_label(day), clock_label(cutoff), a.or_minutes, clock_label(slot(day, a.or_minutes // BAR_MIN))))
+    print("Opening-range breakout scan, %s %s ET: %d-minute range (%s to %s), 5-minute bars, %s."
+          % (day_label(day), clock_label(cutoff), a.or_minutes, clock_label(open_t),
+             clock_label(slot(day, a.or_minutes // BAR_MIN, open_t)), "Binance" if is_binance else "Yahoo"))
     print("Fetched %s of %s charts%s; %s usable%s; %s candidates, %s confirmed with real highs and lows."
           % ("{:,}".format(counts["fetched"]), "{:,}".format(len(symbols)),
              (" (%s failed or had no data)" % "{:,}".format(nfailed)) if nfailed else "",
@@ -1011,8 +1257,13 @@ def cmd_orb(a):
               % (len(hits), ("the %s checked" % "{:,}".format(counts["confirmed"])) if counts["unconfirmed"]
                  else "{:,}".format(counts["scanned"]), clock_label(cutoff)))
         for h in hits[:a.show]:
-            print("  %8s  %-6s %10s  range %s to %s  %+.2f%% over" % (
-                h["at"], h["symbol"], money(h["price"]), _p(h["or_low"]), _p(h["or_high"]), h["pct_over"]))
+            extra = ""
+            if h.get("taker_buy_pct") is not None:
+                extra += "  TakerBuy %4.1f%%" % h["taker_buy_pct"]
+            if h.get("funding_rate_pct") is not None:
+                extra += "  Fund %+.4f%%" % h["funding_rate_pct"]
+            print("  %8s  %-10s %12s  range %s to %s  %+.2f%% over%s" % (
+                h["at"], h["symbol"], money(h["price"]), _p(h["or_low"]), _p(h["or_high"]), h["pct_over"], extra))
         if len(hits) > a.show:
             print("  ... and %d more in the watchlist (--show N for more)." % (len(hits) - a.show))
     else:
@@ -1024,15 +1275,21 @@ def cmd_orb(a):
 
 
 def _p(x):
+    x = float(x)
+    if 0 < abs(x) < 0.0001:
+        return "{:,.8f}".format(x).rstrip("0").rstrip(".")
+    if 0 < abs(x) < 1.0:
+        return "{:,.6f}".format(x).rstrip("0").rstrip(".")
     return "{:,.2f}".format(x)
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Chart Scanner (trader-scanner): daily setups and opening-range breakouts.")
+    ap = argparse.ArgumentParser(description="Chart Scanner (trader-scanner): Binance crypto daily setups and opening-range breakouts.")
     sub = ap.add_subparsers(dest="cmd")
 
-    p = sub.add_parser("universe", help="download Nasdaq Trader's lists -> trader/universe.txt")
+    p = sub.add_parser("universe", help="download Binance Spot USDT pairs -> trader/universe.txt")
     p.add_argument("--out", default=DEFAULT_UNIVERSE)
+    p.add_argument("--quote", default="USDT", help="Binance quote asset (default USDT)")
     p.add_argument("--offline", metavar="DIR", help="a folder with nasdaqlisted.txt and otherlisted.txt")
     p.add_argument("--no-write", action="store_true")
     p.add_argument("--pause", type=float, default=PAUSE)
@@ -1040,7 +1297,7 @@ def main(argv=None):
 
     def common(p, min_price, min_volume):
         g = p.add_mutually_exclusive_group()
-        g.add_argument("--symbols", help="comma-separated tickers instead of the universe")
+        g.add_argument("--symbols", help="comma-separated tickers instead of the universe (e.g. BTCUSDT,ETHUSDT,SOLUSDT)")
         g.add_argument("--watchlist", metavar="FILE", help="a watchlist.json (hits) or a text file of tickers")
         p.add_argument("--universe", help="symbol list, one SYMBOL|Name a line (default %s)" % DEFAULT_UNIVERSE)
         p.add_argument("--limit", type=int, help="scan only the first N symbols")
@@ -1050,20 +1307,21 @@ def main(argv=None):
         p.add_argument("--now", help='pretend it is this time ("2026-10-19 10:15" New York, or ...Z)')
         p.add_argument("--out", default="trader/watchlist.json")
         p.add_argument("--no-write", action="store_true")
-        p.add_argument("--pause", type=float, default=PAUSE, help="seconds between requests (%.1f)" % PAUSE)
+        p.add_argument("--pause", type=float, default=PAUSE, help="seconds between requests (%.2f)" % PAUSE)
         p.add_argument("--show", type=int, default=50, help="hits to print (all are written)")
         p.add_argument("--quiet", action="store_true")
         p.add_argument("--json", action="store_true")
 
-    p = sub.add_parser("daily", help="pre-market setups from daily closes")
-    common(p, 5.0, 1000000)
-    p = sub.add_parser("orb", help="opening-range breakouts so far today")
-    common(p, 5.0, 0)
+    p = sub.add_parser("daily", help="daily setups from Binance 1d closes")
+    common(p, 0.0, 1000000)
+    p = sub.add_parser("orb", help="opening-range breakouts so far today on 5m bars")
+    common(p, 0.0, 0)
     p.add_argument("--or-minutes", type=int, default=15)
+    p.add_argument("--session-open", help="session open time HH:MM ET (default 00:00 for 24/7 crypto)")
     p.add_argument("--max-confirm", type=int, default=MAX_CONFIRM,
                    help="v8 charts to fetch in stage 2, most traded first (%d; 0 = all)" % MAX_CONFIRM)
     p.add_argument("--at", help="cut the clock at this New York time, HH:MM")
-    p.add_argument("--until", help="no new entries after HH:MM (default: config no_entries_after, 15:30)")
+    p.add_argument("--until", help="no new entries after HH:MM (default: config no_entries_after)")
     p.add_argument("--config", default="trader/config.json")
     a = ap.parse_args(argv)
     if not a.cmd:

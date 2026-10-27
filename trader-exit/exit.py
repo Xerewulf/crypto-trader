@@ -54,11 +54,12 @@ UA = "Mozilla/5.0 (compatible; day-trader-skill/2.0; +https://github.com/Jakesch
 BACKOFF = 5.0
 HOSTS = ("query2", "query1")
 INTERVALS = {"1m": 60, "5m": 300}
-DEFAULTS = {"flat_by": "15:55", "min_reward_risk": 1.0}
+DEFAULTS = {"flat_by": "23:55", "min_reward_risk": 1.0, "market": "binance"}
 ATR_BARS = 14
-MIN_RISK_PCT = Decimal("0.05")     # risk under 0.05% of the price is inside the spread's noise
+MIN_RISK_PCT = Decimal("0.02")     # risk under 0.02% of the price is inside the spread's noise
 CENT = Decimal("0.01")
 EPOCH = datetime.datetime(1970, 1, 1)
+BINANCE_HOSTS = ("https://api.binance.com", "https://data-api.binance.vision")
 NOTE = "A stop is a plan, not a guarantee: a gap or a fast market can fill past it."
 
 NYSE_HOLIDAYS = {
@@ -202,18 +203,35 @@ def D(x, what="a number"):
         raise PlanError("%s is not a number: %r" % (what, x))
 
 
-def cents(x):
-    """Round half up to the cent."""
-    return D(x).quantize(CENT, rounding=ROUND_HALF_UP)
+def tick_for(x):
+    d = abs(D(x))
+    if d == 0 or d >= Decimal("1.0"):
+        return CENT
+    if d >= Decimal("0.01"):
+        return Decimal("0.0001")
+    if d >= Decimal("0.0001"):
+        return Decimal("0.000001")
+    return Decimal("0.00000001")
 
 
-def floor_cents(x):
+def cents(x, ref=None):
+    """Round half up to the cent (or crypto tick for sub-dollar coins)."""
+    return D(x).quantize(tick_for(ref if ref is not None else x), rounding=ROUND_HALF_UP)
+
+
+def floor_cents(x, ref=None):
     """A long's stop: round down, away from the entry."""
-    return D(x).quantize(CENT, rounding=ROUND_FLOOR)
+    return D(x).quantize(tick_for(ref if ref is not None else x), rounding=ROUND_FLOOR)
 
 
 def money(x):
-    return "$%s" % format(D(x).quantize(CENT), ",f")
+    d = D(x)
+    t = tick_for(d)
+    if t == CENT and d == d.quantize(CENT):
+        return "$%s" % format(d.quantize(CENT), ",f")
+    if abs(d) < Decimal("1.0") and d != 0:
+        return "$%s" % format(d.quantize(t).normalize(), "f")
+    return "$%s" % format(d.quantize(CENT), ",f")
 
 
 def num(x):
@@ -390,6 +408,44 @@ def read_text(path):
         return fh.read()
 
 
+def to_binance(sym):
+    s = re.sub(r"[\s/\-_]+", "", str(sym or "").upper())
+    if s.endswith(".USD"):
+        s = s[:-4] + "USDT"
+    elif s.endswith("USD") and not s.endswith(("USDT", "FDUSD", "BUSD", "TUSD", "PYUSD", "RLUSD", "XUSD", "BFUSD")):
+        s = s[:-3] + "USDT"
+    elif not s.endswith(("USDT", "USDC", "FDUSD", "BUSD")) and not (len(s) > 4 and s.endswith(("BTC", "ETH", "BNB"))):
+        s = s + "USDT"
+    return s
+
+
+def binance_get(path, timeout=20):
+    last = "no answer"
+    for host in BINANCE_HOSTS:
+        for attempt in (0, 1):
+            try:
+                return _open_url(host + path, timeout=timeout)
+            except urllib.error.HTTPError as e:
+                code = e.code
+                try:
+                    body = e.read().decode("utf-8", "replace")
+                except Exception:
+                    body = ""
+                finally:
+                    e.close()
+                if code in (429, 418) and attempt == 0:
+                    _sleep(BACKOFF)
+                    continue
+                if code in (451, 403, 429, 418) or code >= 500:
+                    last = "HTTP %d" % code
+                    break
+                raise PlanError("Binance answered HTTP %d for %s: %s" % (code, path.split("?")[0], body[:120]))
+            except (urllib.error.URLError, OSError) as e:
+                last = str(getattr(e, "reason", e))
+                break
+    raise PlanError("Binance did not answer (%s): wait a moment and try again" % last)
+
+
 def load_chart(sym, interval, day, offline=None):
     ysym = sym.upper().replace(".", "-")
     if offline:
@@ -404,49 +460,55 @@ def load_chart(sym, interval, day, offline=None):
             text = read_text(path)
         except (OSError, ValueError) as e:
             raise PlanError("could not read %s: %s" % (path, e))
-    else:
-        back = (to_eastern(utc_now()).date() - day).days
-        rng = "1d" if back <= 0 else "5d" if back <= 6 else "1mo" if back <= 28 else "60d"
-        if interval == "1m" and back > 6:
-            raise PlanError("Yahoo keeps 1-minute bars for about a week")
-        text = yahoo_get("/v8/finance/chart/%s?range=%s&interval=%s" % (ysym, rng, interval))
-    try:
-        data = json.loads(text)
-        res = data["chart"]["result"]
-    except (ValueError, KeyError, TypeError):
-        raise PlanError("Yahoo returned something unexpected for %s" % sym)
-    if not res:
-        err = (data.get("chart") or {}).get("error") or {}
-        raise PlanError("Yahoo has no data for %s: %s" % (sym, err.get("description") or "unknown ticker"))
-    r = res[0] or {}
-    meta = r.get("meta") or {}
-    if str(meta.get("symbol") or ysym).upper() != ysym:
-        raise PlanError("the chart file holds %s, not %s" % (meta.get("symbol"), sym))
-    q = ((r.get("indicators") or {}).get("quote") or [{}])[0] or {}
+        try:
+            data = json.loads(text)
+            res = data["chart"]["result"]
+        except (ValueError, KeyError, TypeError):
+            raise PlanError("Yahoo returned something unexpected for %s" % sym)
+        if not res:
+            err = (data.get("chart") or {}).get("error") or {}
+            raise PlanError("Yahoo has no data for %s: %s" % (sym, err.get("description") or "unknown ticker"))
+        r = res[0] or {}
+        meta = r.get("meta") or {}
+        if str(meta.get("symbol") or ysym).upper() != ysym:
+            raise PlanError("the chart file holds %s, not %s" % (meta.get("symbol"), sym))
+        q = ((r.get("indicators") or {}).get("quote") or [{}])[0] or {}
 
-    def at(key, i):
-        arr = q.get(key) or []
-        return arr[i] if i < len(arr) else None
+        def at(key, i):
+            arr = q.get(key) or []
+            return arr[i] if i < len(arr) else None
 
+        bars = []
+        for i, t in enumerate(r.get("timestamp") or []):
+            c = at("close", i)
+            if t is None or c is None:
+                continue
+            h, lo = at("high", i), at("low", i)
+            bars.append({"t": int(t), "h": float(c if h is None else h), "l": float(c if lo is None else lo),
+                         "c": float(c)})
+        return {"bars": bars, "data_time": meta.get("regularMarketTime"), "source": "yahoo"}
+    bsym = to_binance(sym)
+    raw = json.loads(binance_get("/api/v3/klines?symbol=%s&interval=%s&limit=500" % (bsym, interval)))
+    if not isinstance(raw, list) or not raw:
+        raise PlanError("Binance returned no klines for %s" % bsym)
     bars = []
-    for i, t in enumerate(r.get("timestamp") or []):
-        c = at("close", i)
-        if t is None or c is None:
-            continue
-        h, lo = at("high", i), at("low", i)
-        bars.append({"t": int(t), "h": float(c if h is None else h), "l": float(c if lo is None else lo),
-                     "c": float(c)})
-    return {"bars": bars, "data_time": meta.get("regularMarketTime")}
+    for k in raw:
+        bars.append({"t": int(k[0]) // 1000, "h": float(k[2]), "l": float(k[3]), "c": float(k[4])})
+    return {"bars": bars, "data_time": int(time.time()), "source": "binance"}
 
 
 def session_bars(chart, day, interval, upto_slot=None, now_utc=None):
     """Closed, on-grid bars of one New York session, oldest first (the live tick is dropped)."""
     step = INTERVALS[interval]
-    s = session(day)
-    if not s:
-        return []
-    open_dt = datetime.datetime.combine(day, s[0])
-    close_dt = datetime.datetime.combine(day, s[1])
+    if chart.get("source") == "binance":
+        open_dt = datetime.datetime.combine(day, datetime.time(0, 0))
+        close_dt = open_dt + datetime.timedelta(days=1)
+    else:
+        s = session(day)
+        if not s:
+            return []
+        open_dt = datetime.datetime.combine(day, s[0])
+        close_dt = datetime.datetime.combine(day, s[1])
     if now_utc is None and chart.get("data_time"):
         now_utc = utc_of(chart["data_time"])
     local = to_eastern(now_utc) if now_utc else None
@@ -506,18 +568,19 @@ def resolve_flat_by(day, explicit, cfg, entry_time):
     """(HH:MM, note). The config's flat-by moves up with a 1:00 p.m. early close."""
     t = parse_hhmm(explicit or cfg.get("flat_by") or DEFAULTS["flat_by"], "--flat-by" if explicit else "flat_by")
     note = ""
-    s = session(day) if day else None
-    if s:
-        close_dt = datetime.datetime.combine(day, s[1])
-        at = datetime.datetime.combine(day, t)
-        if at >= close_dt:
-            if explicit:
-                raise PlanError("--flat-by %s is at or after the %s close on %s" % (hm(t), ampm(s[1]), day))
-            moved = at - (datetime.datetime.combine(day, CLOSE) - close_dt)
-            if moved.time() <= OPEN:
-                raise PlanError("flat_by %s in the config is at or after the close" % hm(t))
-            t = moved.time()
-            note = "moved up for the 1:00 p.m. early close (%s)" % NYSE_EARLY_CLOSE.get(day.isoformat(), "")
+    if str(cfg.get("market") or "").lower() != "binance":
+        s = session(day) if day else None
+        if s:
+            close_dt = datetime.datetime.combine(day, s[1])
+            at = datetime.datetime.combine(day, t)
+            if at >= close_dt:
+                if explicit:
+                    raise PlanError("--flat-by %s is at or after the %s close on %s" % (hm(t), ampm(s[1]), day))
+                moved = at - (datetime.datetime.combine(day, CLOSE) - close_dt)
+                if moved.time() <= OPEN:
+                    raise PlanError("flat_by %s in the config is at or after the close" % hm(t))
+                t = moved.time()
+                note = "moved up for the 1:00 p.m. early close (%s)" % NYSE_EARLY_CLOSE.get(day.isoformat(), "")
     if entry_time and entry_time >= t:
         raise PlanError("the entry at %s is at or after your flat-by %s: there is no time left to hold it"
                         % (ampm(entry_time), hm(t)))
@@ -535,7 +598,8 @@ def gather(a):
             raise PlanError("--symbol needs --entry PRICE")
         if (a.or_high is None) != (a.or_low is None):
             raise PlanError("give both --or-high and --or-low, or neither")
-        info = {"symbol": a.symbol.upper(), "entry": a.entry, "setup": a.setup or ("orb" if a.or_high is not None else "level"),
+        sym = a.symbol.upper() if a.offline else to_binance(a.symbol)
+        info = {"symbol": sym, "entry": a.entry, "setup": a.setup or ("orb" if a.or_high is not None else "level"),
                 "date": a.date, "entry_time": a.time, "entry_bar": a.entry_bar, "interval": a.interval or "5m",
                 "or_high": a.or_high, "or_low": a.or_low, "or_minutes": a.or_minutes, "source": "flags"}
     else:

@@ -1,20 +1,41 @@
 ---
 name: trader-analyst
 description: >-
-  The Earnings Analyst. Reads a company's reported numbers straight from SEC
-  EDGAR (XBRL company facts from its 10-Qs and 10-Ks, plus the latest earnings
-  8-K and its press release) and sums up what changed: revenue, gross,
-  operating and net margins, net income and diluted EPS, quarter by quarter,
-  each against the same quarter a year earlier, with the trailing twelve
-  months. Reads an earnings call transcript when you paste one. Use when the
-  user says "how did Tesla's earnings look", "analyze the earnings", "what
-  changed this quarter", "is revenue growing", "check the 10-Q", "compare
-  margins", "sum up the call", "does it report this week", or before trading
-  a stock around its earnings.
+  Crypto Directional Forecaster & Market Microstructure Analyst (plus SEC
+  EDGAR Earnings Analyst). For Binance crypto tokens (like BNB, BTC, ETH, SOL),
+  runs predict.py to track all 6 price drivers in real time: Perpetual Futures
+  Funding Rate, Mark-Index Basis, Open Interest regime, Whale Top-Trader L/S vs
+  Retail L/S ratio, Futures & Spot Taker Buy/Sell CVD, Order-Book Bid/Ask Depth
+  Walls, Multi-Timeframe Technicals (15m/1h/4h/1d), Relative Strength vs BTC,
+  and News/Macro Catalysts, outputting a Composite Score (-100 to +100) and
+  4h / 24h / 7d Up/Down probabilities with 80% confidence bands. Use when the
+  user asks whether a coin/token will go up or down, wants a price prediction
+  or forecast, asks "how does BNB look", "analyze BNB", "will BTC go up or
+  down", "whale positioning", "funding rate", or "order book walls".
 argument-hint: "[tickers]"
 ---
 
 # trader-analyst
+
+## 1. Crypto Directional Forecaster & Microstructure Analyst (`predict.py`)
+
+For Binance cryptocurrencies (e.g. `BNB`, `BTC`, `ETH`, `SOL`), run `predict.py` to estimate whether a token leans **UP** or **DOWN** over the next **4 hours, 24 hours, and 7 days** by combining live Binance Spot (`api.binance.com`), Binance USDⓈ-M Perpetual Futures (`fapi.binance.com`), and Yahoo Crypto RSS:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/predict.py" BNB --write
+python3 "${CLAUDE_SKILL_DIR}/predict.py" BNB BTC ETH SOL --write
+```
+
+### What `predict.py` measures and writes
+- **Perpetual Futures & Leverage (`fapi.binance.com`)**: 8h Funding Rate & annualized carry, Mark-Index Basis %, Open Interest in USD (1h/4h/24h changes & Price×OI regime: Long Build-Up, Short Covering, Short Build-Up, Long Liquidation), Top Trader Whale Position L/S Ratio vs. Global Retail Account L/S Ratio, and Futures Taker Buy/Sell Volume Ratio.
+- **Spot Order-Flow & Liquidity Walls (`api.binance.com`)**: Spot Taker Buy % and Net Cumulative Volume Delta (CVD in USD) over 1h, 4h, 24h, and 7d, plus Order-Book Bid vs. Ask Depth within `±1%` and `±2%` (5,000 depth levels) and the largest near-term Bid Support & Ask Resistance walls.
+- **Multi-Timeframe Technicals & Relative Strength**: `15m`, `1h`, `4h`, and `1d` EMA20/EMA50/SMA200 alignment, Wilder RSI-14, MACD histogram slope, ATR(14) volatility, and 24h/7d Alpha vs. `BTCUSDT`.
+- **News & Macro Catalysts**: Scans token + BTC headlines for burns/buybacks, ETF/institutional flows, upgrades/launches, token unlocks, hacks, regulatory actions, and macro rate/liquidity shifts.
+- **Probabilistic Forecast (`trader/forecast.json`)**: Runs a 5,000-path microstructure-adjusted Monte Carlo bootstrap on 1h returns to output `P(UP)`, `P(DOWN)`, expected price, and 80% confidence bands for `4h`, `24h`, and `7d`.
+
+---
+
+## 2. US Equities Earnings Analyst (`facts.py`)
 
 Earnings move stocks more than anything else on the calendar, and the press
 release is written to put the best number first. This skill reads the numbers

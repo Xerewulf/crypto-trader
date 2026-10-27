@@ -54,11 +54,13 @@ import xml.etree.ElementTree as ET
 
 YAHOO = "https://feeds.finance.yahoo.com/rss/2.0/headline?s=%s&region=US&lang=en-US"
 CHART = "https://%s.finance.yahoo.com/v8/finance/chart/%s?range=1d&interval=5m"
+BINANCE_TICKER = "https://api.binance.com/api/v3/ticker/24hr?symbol=%s"
+BINANCE_VISION_TICKER = "https://data-api.binance.vision/api/v3/ticker/24hr?symbol=%s"
 SEC_FEED = ("https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=%s&type=%s"
             "&dateb=&owner=include&count=%d&output=atom")
 TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 PLACEHOLDER = "you@example.com"
-BROWSER_UA = "Mozilla/5.0 (compatible; day-trader-skill/2.0; +https://github.com/Jakeschincariol/day-trader-skill)"
+BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 KEEP_DAYS = 30
 MOVE_PCT = 3.0  # a stock this far from yesterday's close is flagged as moving
 
@@ -79,12 +81,16 @@ KEYWORDS = [
     ("analyst", r"\bupgrade[sd]?\b|\bdowngrade[sd]?\b|price target|\boutperform\b|\bunderperform\b"),
     ("legal", r"\blawsuit\b|\bsued\b|\bprobe\b|\binvestigation\b|\bSEC charges\b|\bantitrust\b|\bjudge\b|\bcourt\b"),
     ("deal", r"\bacqui(?:re|res|red|sition)\b|\bmerger\b|\bbuyout\b|\btakeover\b|\bdeal\b"),
-    ("capital", r"\bdividend\b|\bbuyback\b|\brepurchase\b|\bstock split\b|\boffering\b"),
+    ("capital", r"\bdividend\b|\bbuyback\b|\brepurchase\b|\bstock split\b|\boffering\b|\bburn\b|\bunlock\b"),
     ("people", r"\bCEO\b|\bCFO\b|\bresign|\bsteps down\b|\bappoint"),
-    ("risk", r"\brecall\b|\bbankrupt|\bdefault\b|\bdelist|\bhack|\bbreach\b|\boutage\b"),
+    ("risk", r"\brecall\b|\bbankrupt|\bdefault\b|\bdelist|\bhack|\bbreach\b|\boutage\b|\bexploit\b"),
     ("halt", r"\bhalt(?:s|ed)?\b|\btrading (?:pause|suspen)"),
-    ("regulatory", r"\bFDA\b|\bapproval\b|\bapproves\b|\bclinical\b|\bFTC\b|\bDOJ\b"),
-    ("macro", r"\bFed\b|\bFOMC\b|\bCPI\b|\binflation\b|\bjobs report\b|\bpayrolls\b|\btariffs?\b|\bfutures\b"),
+    ("regulatory", r"\bFDA\b|\bapproval\b|\bapproves\b|\bclinical\b|\bFTC\b|\bDOJ\b|\bSEC\b|\bCFTC\b"),
+    ("fed", r"\bFederal Reserve\b|\bFed\b|\bFOMC\b|\bPowell\b|\bWaller\b|\bBowman\b|\brate cut\b|\brate hike\b|\bdiscount rate\b"),
+    ("bank", r"\bJPMorgan\b|\bBlackRock\b|\bGoldman Sachs\b|\bMorgan Stanley\b|\bStandard Chartered\b|\bCitigroup\b|\bFidelity\b|\bETF\b"),
+    ("binance", r"\bBinance Will\b|\bLaunchpool\b|\bMegadrop\b|\bbStocks\b|\bBinance Alpha\b"),
+    ("twitter-whale", r"\bLookonchain\b|\bWhale Alert\b|\bWu Blockchain\b|\bArkham\b|\bPeckShield\b|\bZachXBT\b|\bon X\b|\bCrypto Twitter\b|\bwhale\b"),
+    ("macro", r"\bCPI\b|\binflation\b|\bjobs report\b|\bpayrolls\b|\btariffs?\b|\bfutures\b|\bECB\b|\bBOJ\b"),
 ]
 
 
@@ -191,8 +197,33 @@ class Fetcher(object):
             raise NewsError("could not reach %s: %s" % (url, exc.reason))
 
 
+def to_binance(sym):
+    s = re.sub(r"[\s/\-_]+", "", str(sym or "").upper())
+    if s.endswith(".USD"):
+        s = s[:-4] + "USDT"
+    elif s.endswith("USD") and not s.endswith(("USDT", "FDUSD", "BUSD", "TUSD", "PYUSD", "RLUSD", "XUSD", "BFUSD")):
+        s = s[:-3] + "USDT"
+    elif not s.endswith(("USDT", "USDC", "FDUSD", "BUSD")) and not (len(s) > 4 and s.endswith(("BTC", "ETH", "BNB"))):
+        s = s + "USDT"
+    return s
+
+
+def base_asset(ticker):
+    s = ticker.upper()
+    for q in ("USDT", "USDC", "FDUSD", "BUSD"):
+        if s.endswith(q) and len(s) > len(q):
+            s = s[:-len(q)]
+            break
+    if s.startswith("1000") and len(s) > 4:
+        s = s[4:]
+    return s
+
+
 def yahoo_symbol(ticker):
-    return ticker.upper().replace(".", "-")
+    t = ticker.upper()
+    if any(t.endswith(q) and len(t) > len(q) for q in ("USDT", "USDC", "FDUSD", "BUSD")):
+        return base_asset(t) + "-USD"
+    return t.replace(".", "-")
 
 
 def cik_map(fetcher, state):
@@ -238,8 +269,8 @@ def parse_time(value):
     return d.astimezone(_dt.timezone.utc)
 
 
-def parse_rss(data, ticker):
-    """Yahoo headline RSS -> items."""
+def parse_rss(data, ticker, source="Yahoo Finance"):
+    """Headline RSS -> items."""
     try:
         root = ET.fromstring(data)
     except ET.ParseError as exc:
@@ -249,7 +280,7 @@ def parse_rss(data, ticker):
         title = _text(it, "title")
         link = _text(it, "link")
         guid = _text(it, "guid") or link
-        out.append({"id": "rss:" + guid, "source": "Yahoo Finance", "kind": "headline",
+        out.append({"id": "rss:" + guid, "source": source, "kind": "headline",
                     "ticker": ticker, "title": title, "summary": _text(it, "description"),
                     "link": link, "time": parse_time(_text(it, "pubDate"))})
     return out
@@ -305,19 +336,37 @@ def parse_chart(data, ticker):
             "time": _dt.datetime.fromtimestamp(when, _dt.timezone.utc) if when else None}
 
 
+def parse_binance_ticker(data, ticker):
+    try:
+        d = json.loads(data.decode("utf-8") if isinstance(data, bytes) else data)
+    except ValueError:
+        raise NewsError("Binance ticker for %s is not JSON" % ticker)
+    price = float(d.get("lastPrice") or 0)
+    prev = float(d.get("prevClosePrice") or d.get("openPrice") or 0)
+    if not price or not prev:
+        raise NewsError("Binance ticker for %s has no price" % ticker)
+    when = d.get("closeTime")
+    return {"ticker": ticker, "price": price, "prev_close": prev,
+            "pct": round(float(d.get("priceChangePercent") or ((price / prev - 1) * 100)), 2),
+            "time": _dt.datetime.fromtimestamp(int(when) / 1000.0, _dt.timezone.utc) if when else None}
+
+
 def collect_moves(fetcher, watch, errors=None):
     errors = [] if errors is None else errors
     out = []
     for t in sorted(watch):
         name = "chart-%s.json" % t
         try:
-            try:
+            if fetcher.offline:
                 data = fetcher.get(CHART % ("query2", yahoo_symbol(t)), name)
-            except NewsError as exc:
-                if fetcher.offline or not re.search(r"HTTP (429|5\d\d)", str(exc)):
-                    raise
-                data = fetcher.get(CHART % ("query1", yahoo_symbol(t)), name)
-            out.append(parse_chart(data, t))
+                out.append(parse_chart(data, t))
+            else:
+                bsym = to_binance(t)
+                try:
+                    data = fetcher.get(BINANCE_TICKER % bsym, name)
+                except NewsError:
+                    data = fetcher.get(BINANCE_VISION_TICKER % bsym, name)
+                out.append(parse_binance_ticker(data, t))
         except NewsError as exc:
             if not (fetcher.offline and "no file" in str(exc)):
                 errors.append("price for %s: %s" % (t, exc))
@@ -327,8 +376,11 @@ def collect_moves(fetcher, watch, errors=None):
 def mention_patterns(watch):
     pats = {}
     for t, name in watch.items():
+        base = base_asset(t)
         alts = [r"\(%s\)" % re.escape(t), r"\$%s\b" % re.escape(t),
-                r"\b(?:NYSE|NASDAQ|Nasdaq)\s*:\s*%s\b" % re.escape(t)]
+                r"\(%s\)" % re.escape(base), r"\$%s\b" % re.escape(base),
+                r"\b%s-USD\b" % re.escape(base),
+                r"\b(?:NYSE|NASDAQ|Nasdaq|Binance)\s*:\s*%s\b" % re.escape(t)]
         if name and len(name) >= 4:
             alts.append(r"\b%s\b" % re.escape(name).replace(r"\ ", r"[\s-]"))
         pats[t] = re.compile("|".join(alts))
@@ -378,14 +430,66 @@ def fingerprint(it):
 
 # ---------------------------------------------------------------- the check
 
+CRYPTO_MEDIA_FEEDS = (
+    ("Fed Press", "https://www.federalreserve.gov/feeds/press_all.xml"),
+    ("Fed Speeches", "https://www.federalreserve.gov/feeds/speeches.xml"),
+    ("Banks & Fed", "https://news.google.com/rss/search?q=(%22Federal+Reserve%22+OR+FOMC+OR+Powell+OR+ECB+OR+JPMorgan+OR+BlackRock+OR+%22Goldman+Sachs%22+OR+%22Morgan+Stanley%22+OR+%22Standard+Chartered%22+OR+Citigroup+OR+Fidelity+OR+SEC)+crypto+OR+bitcoin+OR+rates+when:3d&hl=en-US&gl=US&ceid=US:en"),
+    ("X/Twitter Flow", "https://news.google.com/rss/search?q=(%22Lookonchain%22+OR+%22Whale+Alert%22+OR+%22Wu+Blockchain%22+OR+%22Arkham%22+OR+%22PeckShield%22+OR+%22ZachXBT%22+OR+%22Arthur+Hayes%22+OR+%22Crypto+Twitter%22+OR+%22on+X%22)+crypto+OR+bitcoin+OR+whale+when:3d&hl=en-US&gl=US&ceid=US:en"),
+    ("Forbes/Bloomberg", "https://news.google.com/rss/search?q=(site:forbes.com+OR+site:fortune.com+OR+site:bloomberg.com+OR+site:reuters.com)+crypto+OR+bitcoin+when:3d&hl=en-US&gl=US&ceid=US:en"),
+    ("Bitcoin Magazine", "https://bitcoinmagazine.com/.rss/full/"),
+    ("The Block", "https://www.theblock.co/rss.xml"),
+    ("Blockworks", "https://blockworks.co/feed"),
+    ("CryptoSlate", "https://cryptoslate.com/feed/"),
+    ("BeInCrypto", "https://beincrypto.com/feed/"),
+    ("CoinDesk", "https://www.coindesk.com/arc/outboundfeeds/rss/"),
+    ("Cointelegraph", "https://cointelegraph.com/rss"),
+    ("Decrypt", "https://decrypt.co/feed"),
+)
+
+BINANCE_CMS_URL = "https://www.binance.com/bapi/composite/v1/public/cms/article/list/query?type=1&pageNo=1&pageSize=10"
+
+
 def collect(fetcher, watch, state, sec=True, forms=("8-K",), count=10, errors=None):
     errors = [] if errors is None else errors
     items = []
     for t in sorted(watch):
         try:
-            items += parse_rss(fetcher.get(YAHOO % yahoo_symbol(t), "yahoo-%s.xml" % t), t)
+            items += parse_rss(fetcher.get(YAHOO % yahoo_symbol(t), "yahoo-%s.xml" % t), t, source="Yahoo Finance")
         except NewsError as exc:
             errors.append("headlines for %s: %s" % (t, exc))
+    if not fetcher.offline and watch:
+        first_t = sorted(watch)[0]
+        for src_name, feed_url in CRYPTO_MEDIA_FEEDS:
+            try:
+                raw_feed = fetcher.get(feed_url, "media-%s.xml" % re.sub(r"\W+", "_", src_name.lower()))
+                for it in parse_rss(raw_feed, first_t, source=src_name)[:15]:
+                    items.append(it)
+            except Exception:
+                continue
+        try:
+            raw_bnc = fetcher.get(BINANCE_CMS_URL, "binance-cms.json")
+            bdoc = json.loads(raw_bnc.decode("utf-8") if isinstance(raw_bnc, bytes) else raw_bnc)
+            now_utc = _dt.datetime.now(_dt.timezone.utc)
+            for cat_obj in (bdoc.get("data") or {}).get("catalogs") or []:
+                cname = cat_obj.get("catalogName") or "Binance"
+                for art in (cat_obj.get("articles") or [])[:4]:
+                    title = (art.get("title") or "").strip()
+                    code = art.get("code") or title
+                    rel_ms = art.get("releaseDate")
+                    dt_pub = _dt.datetime.fromtimestamp(int(rel_ms) / 1000.0, _dt.timezone.utc) if rel_ms else now_utc
+                    if title:
+                        items.append({
+                            "id": "bnc:" + str(code),
+                            "source": "Binance CMS",
+                            "kind": "headline",
+                            "ticker": first_t,
+                            "title": "[%s] %s" % (cname, title),
+                            "summary": cname,
+                            "link": "https://www.binance.com/en/support/announcement",
+                            "time": dt_pub,
+                        })
+        except Exception:
+            pass
     if sec:
         try:
             ciks = cik_map(fetcher, state)
@@ -435,13 +539,22 @@ def remember(items, state, now):
     state["last_check"] = stamp
 
 
+def _fmt_price(x):
+    f = float(x)
+    if 0 < abs(f) < 0.0001:
+        return ("%.8f" % f).rstrip("0").rstrip(".")
+    if 0 < abs(f) < 1.0:
+        return ("%.6f" % f).rstrip("0").rstrip(".")
+    return "{:,.2f}".format(f)
+
+
 def render_moves(moves, move_pct=MOVE_PCT):
     out = []
     for m in moves:
         flag = "MOVING" if abs(m["pct"]) >= move_pct else ""
         when = (" at %s ET" % to_eastern(m["time"]).strftime("%H:%M")) if m.get("time") else ""
-        out.append("%-6s %s %+.2f%% vs yesterday's close %s%s  %s" % (
-            m["ticker"], "{:,.2f}".format(m["price"]), m["pct"], "{:,.2f}".format(m["prev_close"]),
+        out.append("%-10s %s %+.2f%% vs 24h open %s%s  %s" % (
+            m["ticker"], _fmt_price(m["price"]), m["pct"], _fmt_price(m["prev_close"]),
             when, flag))
     return out
 
@@ -499,8 +612,10 @@ def main(argv=None):
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
 
+    cfg_doc = load_json(args.config) or {}
+    is_binance = str(cfg_doc.get("market") or "binance").lower() == "binance" and not args.offline
     if args.tickers:
-        watch = {t.upper(): None for t in args.tickers}
+        watch = {(to_binance(t) if is_binance else t.upper()): None for t in args.tickers}
         known = watch_from_files(args.portfolio, args.watchlist, args.plan)
         watch.update({t: known[t] for t in watch if known.get(t)})
     else:
@@ -513,7 +628,7 @@ def main(argv=None):
     state = load_json(args.state) or {}
     errors = []
     ua = sec_user_agent(args.user_agent, args.config)
-    sec = not args.no_sec
+    sec = (not args.no_sec) and (not is_binance)
     if sec and not ua and not args.offline:
         errors.append("SEC filings skipped: set sec_user_agent in trader/config.json or "
                       "SEC_USER_AGENT (\"Your Name you@example.com\") to include them")

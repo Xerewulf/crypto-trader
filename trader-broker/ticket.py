@@ -183,7 +183,12 @@ def _money(v):
 
 
 def _p(v):
-    return "%.2f" % float(v)
+    f = float(v)
+    if 0 < abs(f) < 0.0001:
+        return ("%.8f" % f).rstrip("0").rstrip(".")
+    if 0 < abs(f) < 1.0:
+        return ("%.6f" % f).rstrip("0").rstrip(".")
+    return "%.2f" % f
 
 
 def is_bracket(order):
@@ -208,7 +213,7 @@ def max_loss(order):
     if not entry:
         return None, stop
     risk = abs(entry - stop)
-    return round(q * int(round(risk * 100)) / 100.0, 2), stop
+    return round(q * risk, 2), stop
 
 
 def plain_parts(order):
@@ -283,7 +288,7 @@ def parse_yes(reply, order, batch_symbols=()):
     if DOUBT_WORDS & set(words[1:]):
         return False, "the reply has a condition or a doubt in it; ask again"
     sym = str(order.get("symbol", "")).upper()
-    tokens = set(re.findall(r"[A-Z][A-Z.\-]{0,6}", raw.upper()))
+    tokens = set(re.findall(r"[A-Z0-9][A-Z0-9.\-]{0,14}", raw.upper()))
     others = {s.upper() for s in batch_symbols} - {sym}
     named = tokens & others
     if named:
@@ -351,10 +356,11 @@ def kind_of(order, rv):
 
 def render(order, idx, total, cfg, risk, state, today):
     ready, label, rv = status_of(order, risk, state, today)
-    broker = str(cfg.get("broker", "alpaca")).lower()
+    broker = str(cfg.get("broker", "binance")).lower()
     paper = cfg.get("paper", True)
     acct = "PAPER account" if paper else "LIVE ACCOUNT, REAL MONEY"
-    lines = ["ORDER %d of %d, %s, %s" % (idx, total, acct, "Interactive Brokers" if broker == "ibkr" else "Alpaca")]
+    bname = {"ibkr": "Interactive Brokers", "binance": "Binance Spot"}.get(broker, "Alpaca")
+    lines = ["ORDER %d of %d, %s, %s" % (idx, total, acct, bname)]
     for part in plain_parts(order):
         lines.append("  " + part)
     if order.get("why"):

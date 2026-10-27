@@ -1,0 +1,54 @@
+{
+  "created_by": "trader-budget",
+  "created_at": "2026-10-23T14:36:10Z",
+  "status": "proposed",
+  "paper": true,
+  "note": "Proposals only. Nothing is placed until trader-risk passes each order and you say yes to it in the chat.",
+  "source": "trader/plan.json (XRPUSDT Margin Long + DOGEUSDT Margin Short 2026-10-23)",
+  "orders": [
+    {
+      "symbol": "XRPUSDT",
+      "side": "buy",
+      "qty": "2500",
+      "type": "limit",
+      "time_in_force": "day",
+      "limit_price": "1.31",
+      "order_class": "bracket",
+      "take_profit_limit_price": "1.35",
+      "stop_loss_stop_price": "1.29",
+      "why": "Margin Long on XRPUSDT: 2500 units, bound by your $50 max loss per trade (2500 x 0.02 = $50 at the stop)",
+      "plan": {
+        "entry": 1.31,
+        "stop": 1.29,
+        "target": 1.35,
+        "risk_per_share": 0.02,
+        "max_loss": 50.0,
+        "setup": "level",
+        "entry_time": null,
+        "flat_by": "23:55"
+      }
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "sell",
+      "qty": "38461.5",
+      "type": "limit",
+      "time_in_force": "day",
+      "limit_price": "0.0792",
+      "order_class": "bracket",
+      "take_profit_limit_price": "0.0766",
+      "stop_loss_stop_price": "0.0805",
+      "why": "Margin Short on DOGEUSDT: 38461.5 units, bound by your $50 max loss per trade (38461.5 x 0.0013 = $50 at the stop)",
+      "plan": {
+        "entry": 0.0792,
+        "stop": 0.0805,
+        "target": 0.0766,
+        "risk_per_share": 0.0013,
+        "max_loss": 50.0,
+        "setup": "level",
+        "entry_time": null,
+        "flat_by": "23:55"
+      }
+    }
+  ]
+}

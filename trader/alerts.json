@@ -1,0 +1,54 @@
+{
+  "rules": [
+    {
+      "id": "btcusdt-plan-stop",
+      "symbol": "BTCUSDT",
+      "type": "stop",
+      "price": 81806.8,
+      "note": "plan stop: opening-range midpoint",
+      "date": "2026-10-23"
+    },
+    {
+      "id": "btcusdt-plan-target",
+      "symbol": "BTCUSDT",
+      "type": "target",
+      "price": 82116.4,
+      "note": "plan target: 2R (two times the risk)",
+      "date": "2026-10-23"
+    },
+    {
+      "id": "btcusdt-flat-by",
+      "symbol": "BTCUSDT",
+      "type": "time",
+      "at": "23:55",
+      "label": "flat by close",
+      "before_close": true,
+      "date": "2026-10-23"
+    },
+    {
+      "id": "pepeusdt-plan-stop",
+      "symbol": "PEPEUSDT",
+      "type": "stop",
+      "price": 4.88e-06,
+      "note": "plan stop: your price",
+      "date": "2026-10-23"
+    },
+    {
+      "id": "pepeusdt-plan-target",
+      "symbol": "PEPEUSDT",
+      "type": "target",
+      "price": 5.3e-06,
+      "note": "plan target: your price (2.0R)",
+      "date": "2026-10-23"
+    },
+    {
+      "id": "pepeusdt-flat-by",
+      "symbol": "PEPEUSDT",
+      "type": "time",
+      "at": "23:55",
+      "label": "flat by close",
+      "before_close": true,
+      "date": "2026-10-23"
+    }
+  ]
+}

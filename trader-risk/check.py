@@ -71,7 +71,8 @@ DEFAULTS = {
     "budget": None, "cash_buffer_pct": 10, "max_position_pct": 75, "max_order_usd": 4000,
     "min_order_usd": 5, "max_loss_per_trade_usd": 50, "max_daily_loss_usd": 150, "max_trades_per_day": 3,
     "max_orders_per_day": 10, "min_reward_risk": 1.0, "require_stop": True,
-    "no_entries_before": "09:45", "no_entries_after": "15:30", "flat_by": "15:55",
+    "no_entries_before": "00:00", "no_entries_after": "23:59", "flat_by": "23:55",
+    "fractional": True, "market": "binance", "broker": "binance",
     "paper": True, "blocked": [], "allow_options": False, "allow_margin": False, "allow_short": False,
     "pdt_guard": False,
 }
@@ -84,7 +85,7 @@ PRICE_FIELDS = ("qty", "notional", "limit_price", "stop_price", "take_profit_lim
 TYPES = {"market", "limit", "stop", "stop_limit", "trailing_stop"}
 TIFS = {"day", "gtc", "opg", "cls", "ioc", "fok"}
 OCC = re.compile(r"^[A-Z]{1,6}\d{6}[CP]\d{8}$")
-TICKER = re.compile(r"^[A-Z]{1,5}([.\-][A-Z]{1,2})?$")
+TICKER = re.compile(r"^[A-Z0-9]{2,20}([.\-][A-Z0-9]{1,5})?$")
 HHMM = re.compile(r"^([01]?\d|2[0-3]):([0-5]\d)$")
 CENT = 0.005
 FRESH_MINUTES = 15
@@ -218,21 +219,23 @@ def window_check(now_et, c):
         return [], []
     warns = []
     d, t = now_et.date(), now_et.time().replace(second=0, microsecond=0)
-    if d.year not in CALENDAR_YEARS:
-        warns.append("the holiday list covers %s only: check nyse.com for %s"
-                     % (" and ".join(map(str, CALENDAR_YEARS)), d.isoformat()))
-    ok, why = trading_day(d)
-    stamp = now_et.strftime("%a %Y-%m-%d %H:%M")
-    if not ok:
-        return ["window: the market is closed today (%s, %s New York)" % (why, stamp)], warns
-    close = EARLY if d.isoformat() in NYSE_EARLY_CLOSE else CLOSE
-    if t < OPEN or now_et.time() >= close:
-        return ["window: the market is closed (%s New York; the session is %s to %s)"
-                % (stamp, OPEN.strftime("%H:%M"), close.strftime("%H:%M"))], warns
-    if close == EARLY and after is not None:
-        after = _shift(after, 3)
-        warns.append("early close at 1:00 p.m. today (%s): no new entries after %s"
-                     % (NYSE_EARLY_CLOSE[d.isoformat()], after.strftime("%H:%M")))
+    is_binance = str(c.get("market") or "").lower() == "binance"
+    if not is_binance:
+        if d.year not in CALENDAR_YEARS:
+            warns.append("the holiday list covers %s only: check nyse.com for %s"
+                         % (" and ".join(map(str, CALENDAR_YEARS)), d.isoformat()))
+        ok, why = trading_day(d)
+        stamp = now_et.strftime("%a %Y-%m-%d %H:%M")
+        if not ok:
+            return ["window: the market is closed today (%s, %s New York)" % (why, stamp)], warns
+        close = EARLY if d.isoformat() in NYSE_EARLY_CLOSE else CLOSE
+        if t < OPEN or now_et.time() >= close:
+            return ["window: the market is closed (%s New York; the session is %s to %s)"
+                    % (stamp, OPEN.strftime("%H:%M"), close.strftime("%H:%M"))], warns
+        if close == EARLY and after is not None:
+            after = _shift(after, 3)
+            warns.append("early close at 1:00 p.m. today (%s): no new entries after %s"
+                         % (NYSE_EARLY_CLOSE[d.isoformat()], after.strftime("%H:%M")))
     if before is not None and t < before:
         return ["window: no new entries before %s New York (it is %s)" % (before.strftime("%H:%M"),
                                                                           t.strftime("%H:%M"))], warns
@@ -287,12 +290,24 @@ def money(x):
 
 
 def _cent(x):
-    """A price to the cent, half up (366.475 -> 366.48)."""
-    return int(float(x) * 100 + 0.5 + 1e-9) / 100.0
+    """A price to the cent (or crypto tick for sub-dollar coins), half up."""
+    f = float(x)
+    if 0 < abs(f) < 0.0001:
+        return int(f * 100000000 + 0.5 + 1e-9) / 100000000.0
+    if 0 < abs(f) < 0.01:
+        return int(f * 1000000 + 0.5 + 1e-9) / 1000000.0
+    if 0 < abs(f) < 1.0:
+        return int(f * 10000 + 0.5 + 1e-9) / 10000.0
+    return int(f * 100 + 0.5 + 1e-9) / 100.0
 
 
 def _p(x):
-    return "%.2f" % float(x)
+    f = float(x)
+    if 0 < abs(f) < 0.0001:
+        return ("%.8f" % f).rstrip("0").rstrip(".")
+    if 0 < abs(f) < 1.0:
+        return ("%.6f" % f).rstrip("0").rstrip(".")
+    return "%.2f" % f
 
 
 def account(cfg, portfolio, prices):
@@ -458,10 +473,11 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
             reasons.append("format: extended hours needs a limit order with time_in_force day or gtc")
         if o.get("stop_loss_limit_price") is not None and o.get("stop_loss_stop_price") is None:
             reasons.append("format: stop_loss_limit_price needs a stop_loss_stop_price")
+        allow_frac = bool(c.get("fractional", False)) or str(c.get("market") or "").lower() == "binance"
         if bracket:
             if notional is not None:
-                reasons.append("format: a bracket order needs a whole-share qty, not a notional amount")
-            elif _f(qty) is not None and abs(_f(qty) - round(_f(qty))) > 1e-9:
+                reasons.append("format: a bracket order needs a qty, not a notional amount")
+            elif not allow_frac and _f(qty) is not None and abs(_f(qty) - round(_f(qty))) > 1e-9:
                 reasons.append("format: a bracket order takes whole shares only, got qty %r" % qty)
             if tif not in ("day", "gtc"):
                 reasons.append("format: a bracket order needs time_in_force day or gtc, got %r" % tif)
@@ -480,8 +496,7 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
             else:
                 warns.append("option order: options can lose 100%% of what you pay")
         elif sym and ("/" in sym or not TICKER.match(sym)):
-            reasons.append("asset: %s does not look like a US stock or ETF ticker; "
-                           "this pack trades stocks and ETFs only" % sym)
+            reasons.append("asset: %s does not look like a valid ticker symbol" % sym)
 
         # the reference price: what one share costs to get in
         plan_entry = _f(plan.get("entry"))
@@ -574,7 +589,8 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
             leg_stop, plan_stop = _f(o.get("stop_loss_stop_price")), _f(plan.get("stop"))
             stop = leg_stop if leg_stop else plan_stop
             target = _f(o.get("take_profit_limit_price")) or _f(plan.get("target"))
-            if leg_stop and plan_stop and abs(leg_stop - plan_stop) > CENT:
+            tol = 1e-9 if (ref and abs(ref) < 1.0) else CENT
+            if leg_stop and plan_stop and abs(leg_stop - plan_stop) > tol:
                 warns.append("the bracket stop %s differs from the plan's stop %s: the bracket's is the one "
                              "the broker uses" % (_p(leg_stop), _p(plan_stop)))
             if stop and not leg_stop:
@@ -587,25 +603,25 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
                 else:
                     warns.append("no stop: the max loss is not capped, so it is not counted in the daily loss")
             elif ref:
-                if (long and stop >= ref - CENT) or (not long and stop <= ref + CENT):
+                if (long and stop >= ref - tol) or (not long and stop <= ref + tol):
                     later.append("stop: the stop %s must be %s the entry %s for a %s"
                                  % (_p(stop), "below" if long else "above", _p(ref), side))
                 else:
-                    risk_c = int(round(abs(ref - stop) * 100))
-                    risk_ps = risk_c / 100.0
+                    risk_ps = _cent(abs(ref - stop))
                     shares = q if q is not None else ((value or 0) / ref)
                     max_loss = round(shares * risk_ps, 2)
                     cap = _f(c.get("max_loss_per_trade_usd"))
                     if cap and max_loss > cap + CENT:
-                        later.append("loss: %s shares x %s risk a share = %s at the stop, over your %s max loss "
+                        later.append("loss: %s units x %s risk a unit = %s at the stop, over your %s max loss "
                                      "per trade" % (_num(shares), _p(risk_ps), money(max_loss), money(cap)))
                     min_rr = _f(c.get("min_reward_risk"))
                     if target:
-                        if (long and target <= ref + CENT) or (not long and target >= ref - CENT):
+                        if (long and target <= ref + tol) or (not long and target >= ref - tol):
                             later.append("target: the target %s must be %s the entry %s"
                                          % (_p(target), "above" if long else "below", _p(ref)))
                         else:
-                            rr = round(int(round(abs(target - ref) * 100)) / float(risk_c), 2)
+                            reward_ps = _cent(abs(target - ref))
+                            rr = round(reward_ps / float(risk_ps), 2) if risk_ps > 0 else 0.0
                             if min_rr and rr < min_rr - 1e-9:
                                 later.append("reward:risk: %.2f (target %s, entry %s, stop %s) is under your "
                                              "minimum %s" % (rr, _p(target), _p(ref), _p(stop), _num(min_rr)))
@@ -685,7 +701,7 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
             "index": i, "symbol": sym, "side": side, "kind": kind,
             "amount": money(_f(notional) or 0) if notional is not None else ("%s shares" % qty),
             "value_usd": round(value, 2) if value is not None else None,
-            "entry_ref": round(ref, 2) if ref else None, "entry_ref_from": ref_from,
+            "entry_ref": _cent(ref) if ref else None, "entry_ref_from": ref_from,
             "stop": stop, "target": target, "risk_per_share": risk_ps, "max_loss": max_loss,
             "reward_risk": rr, "fingerprint": fingerprint(o), "verdict": verdict,
             "reasons": reasons, "warnings": warns, "info": info,
