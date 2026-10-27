@@ -51,8 +51,7 @@ def run_cycle():
     """Run a single end-to-end trading and position management cycle."""
     print("[%s] Starting cloud trading cycle..." % now_iso(), flush=True)
     s = paper_trader.load_state()
-    paper_trader.manage_positions(s)
-    paper_trader.scan_market(s)
+    paper_trader.cycle(s)
     paper_trader.save(s)
     paper_trader.write_dashboard(s)
     print("[%s] Cycle complete. Equity: %s | Active positions: %d" % (

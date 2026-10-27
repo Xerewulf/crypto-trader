@@ -1950,3 +1950,7 @@ if __name__ == "__main__":
         sys.exit(main())
     except KeyboardInterrupt:
         sys.exit(0)
+
+
+# Alias for cloud and external callers
+scan_market = scan_signals
