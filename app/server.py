@@ -26,7 +26,12 @@ ANALYST_DIR = os.path.join(ROOT_DIR, "trader-analyst")
 if ANALYST_DIR not in sys.path:
     sys.path.insert(0, ANALYST_DIR)
 
+import math  # noqa: E402
 import predict  # noqa: E402
+try:
+    import margin  # noqa: E402
+except ImportError:
+    margin = None
 
 WALLET_PATH = os.path.join(ROOT_DIR, "trader", "sim_wallet.json")
 FORECAST_PATH = os.path.join(ROOT_DIR, "trader", "forecast.json")
@@ -263,6 +268,166 @@ def _exec_sell_locked(w, bsym, exec_price, sell_qty=None, sell_pct=None, reason=
     w["history"] = w["history"][:100]
     return trade_rec
 
+def _exec_margin_open_locked(w, bsym, side, exec_price, usdt_notional, leverage=3.0, stop_loss=None, take_profit=None, reason=None, setup=None):
+    side = "long" if str(side).lower().startswith("l") or str(side).upper() in ("BUY", "LONG") else "short"
+    base = predict.base_asset(bsym) if hasattr(predict, "base_asset") else bsym.replace("USDT", "")
+
+    # Tokenized stocks filter
+    if margin and hasattr(margin, "is_tokenized_stock") and margin.is_tokenized_stock(bsym):
+        raise ValueError("Tokenized equity %s is excluded from 24/7 crypto margin trading." % bsym)
+
+    # Liquidity-tiered max leverage cap
+    tier_cap = margin.leverage_cap(base) if margin and hasattr(margin, "leverage_cap") else 3.0
+    lev = max(1.0, min(float(leverage), tier_cap))
+
+    # Event risk guard
+    if margin and hasattr(margin, "event_risk"):
+        now_ms = int(time.time() * 1000)
+        ev = margin.event_risk(now_ms)
+        if ev.get("level") == "BLOCK":
+            raise ValueError("Macro Event Guard: %s" % ev.get("reason", "Event Block Active"))
+        if ev.get("level") == "CAUTION":
+            lev = max(1.0, min(lev, math.floor(tier_cap * 0.5)))
+
+    notional = float(usdt_notional)
+    if notional <= 0:
+        raise ValueError("Order notional must be greater than $0.")
+
+    margin_collateral = round(notional / lev, 4)
+    fee_usdt = round(notional * FEE_RATE, 4)
+    total_required = margin_collateral + fee_usdt
+
+    if total_required > w["cash_usdt"] + 1e-6:
+        raise ValueError("Insufficient virtual cash ($%.2f available, need $%.2f margin + fee)." % (w["cash_usdt"], total_required))
+
+    qty = notional / exec_price
+
+    # Isolated liquidation price
+    if margin and hasattr(margin, "liquidation_price"):
+        liq_px = margin.liquidation_price(exec_price, side, lev, venue="perp", base=base)
+    else:
+        mmr = 0.01
+        liq_px = exec_price * (1.0 - 1.0 / lev + mmr) if side == "long" else exec_price * (1.0 + 1.0 / lev - mmr)
+
+    # Mandatory Liquidation Buffer Check if stop is provided
+    if stop_loss is not None and float(stop_loss) > 0:
+        sl_val = float(stop_loss)
+        if (side == "long" and sl_val >= exec_price) or (side == "short" and sl_val <= exec_price):
+            raise ValueError("Stop-loss (%s) is on the wrong side for a %s position." % (predict.fmt_p(sl_val), side.upper()))
+        if margin and hasattr(margin, "stop_is_liquidation_safe"):
+            safe, _ = margin.stop_is_liquidation_safe(exec_price, sl_val, side, lev, venue="perp", base=base, buffer_mult=1.5)
+            if not safe:
+                raise ValueError("Liquidation Safety Guard: Stop-loss (%s) is too close to liquidation price (%s). Buffer must be >= 1.5x stop distance." % (predict.fmt_p(sl_val), predict.fmt_p(liq_px)))
+
+    # Book-level correlation guard
+    if margin and hasattr(margin, "correlation_guard"):
+        open_pos = [{"side": p.get("side", "long"), "notional": p.get("notional_usd", 0)} for p in w["positions"].values()]
+        tot_eq = w["cash_usdt"] + sum(float(p.get("margin_usdt") or p.get("invested_usdt", 0)) for p in w["positions"].values())
+        err = margin.correlation_guard(open_pos, side, tot_eq, notional, max_same_side=2, max_gross_leverage=2.5)
+        if err:
+            raise ValueError(err)
+
+    w["cash_usdt"] = round(max(0.0, w["cash_usdt"] - total_required), 4)
+
+    w["positions"][bsym] = {
+        "symbol": bsym,
+        "mode": "MARGIN",
+        "side": side,
+        "leverage": lev,
+        "qty": qty,
+        "avg_entry": exec_price,
+        "notional_usd": round(notional, 2),
+        "margin_usdt": round(margin_collateral, 2),
+        "invested_usdt": round(margin_collateral, 2),
+        "liquidation_price": round(liq_px, 6 if liq_px < 1.0 else 2),
+        "stop_loss": float(stop_loss) if stop_loss and float(stop_loss) > 0 else None,
+        "take_profit": float(take_profit) if take_profit and float(take_profit) > 0 else None,
+        "setup": setup or ("Institutional %dx %s Isolated Margin" % (int(lev), side.upper())),
+        "opened_at": now_iso(),
+    }
+
+    trade_rec = {
+        "id": "T%d" % int(time.time() * 1000),
+        "time": now_iso(),
+        "symbol": bsym,
+        "action": "MARGIN " + side.upper(),
+        "qty": qty,
+        "price": exec_price,
+        "usdt_total": round(notional, 2),
+        "fee_usdt": fee_usdt,
+        "leverage": lev,
+        "pnl_usdt": None,
+        "pnl_pct": None,
+        "reason": reason or ("Opened %dx %s Isolated Margin" % (int(lev), side.upper())),
+    }
+    w["history"].insert(0, trade_rec)
+    w["history"] = w["history"][:100]
+    return trade_rec
+
+
+def _exec_margin_close_locked(w, bsym, exec_price, close_pct=100.0, close_qty=None, reason="Market Close"):
+    pos = w["positions"].get(bsym)
+    if not pos:
+        raise ValueError("No open position in %s to close." % bsym)
+    total_qty = float(pos["qty"])
+    if close_pct is not None and float(close_pct) > 0:
+        qty = total_qty * min(1.0, float(close_pct) / 100.0)
+    elif close_qty is not None and float(close_qty) > 0:
+        qty = min(total_qty, float(close_qty))
+    else:
+        qty = total_qty
+
+    frac = qty / total_qty if total_qty > 0 else 1.0
+    side = pos.get("side", "long").lower()
+    margin_col = float(pos.get("margin_usdt") or pos.get("invested_usdt") or 0.0)
+    released_margin = margin_col * frac
+
+    # PnL calculation
+    if side == "long":
+        gross_pnl = (exec_price - float(pos["avg_entry"])) * qty
+    else:
+        gross_pnl = (float(pos["avg_entry"]) - exec_price) * qty
+
+    close_fee = round(qty * exec_price * FEE_RATE, 4)
+    net_pnl = round(gross_pnl - close_fee, 4)
+    pnl_pct = round((net_pnl / released_margin) * 100.0, 2) if released_margin > 0 else 0.0
+
+    returned_cash = max(0.0, released_margin + gross_pnl - close_fee)
+    w["cash_usdt"] = round(w["cash_usdt"] + returned_cash, 4)
+    w["realized_pnl_usdt"] = round(w.get("realized_pnl_usdt", 0.0) + net_pnl, 4)
+    w["total_trades"] = int(w.get("total_trades", 0)) + 1
+    if net_pnl >= 0:
+        w["winning_trades"] = int(w.get("winning_trades", 0)) + 1
+    else:
+        w["losing_trades"] = int(w.get("losing_trades", 0)) + 1
+
+    rem_qty = total_qty - qty
+    if rem_qty <= total_qty * 1e-4 or rem_qty * exec_price < 0.10:
+        del w["positions"][bsym]
+    else:
+        pos["qty"] = rem_qty
+        pos["margin_usdt"] = round(margin_col - released_margin, 4)
+        pos["invested_usdt"] = pos["margin_usdt"]
+        pos["notional_usd"] = round(rem_qty * float(pos["avg_entry"]), 2)
+
+    trade_rec = {
+        "id": "T%d" % int(time.time() * 1000),
+        "time": now_iso(),
+        "symbol": bsym,
+        "action": "CLOSE " + side.upper(),
+        "qty": qty,
+        "price": exec_price,
+        "usdt_total": round(qty * exec_price, 2),
+        "fee_usdt": close_fee,
+        "leverage": pos.get("leverage", 1.0),
+        "pnl_usdt": round(net_pnl, 2),
+        "pnl_pct": pnl_pct,
+        "reason": reason,
+    }
+    w["history"].insert(0, trade_rec)
+    w["history"] = w["history"][:100]
+    return trade_rec
+
 
 def check_triggers_and_enrich(extra_symbol=None):
     """Evaluate resting Limit Orders + Stop-Loss / Take-Profit triggers against live Binance prices,
@@ -317,20 +482,46 @@ def check_triggers_and_enrich(extra_symbol=None):
             w["open_orders"] = remaining_orders
             changed = True
 
-        # 2. Check Stop-Loss & Take-Profit on Open Positions
+        # 2. Check Stop-Loss, Take-Profit & Liquidation on Open Positions
         for bsym, pos in list(w["positions"].items()):
             tk = tickers.get(bsym)
             if not tk:
                 continue
             live_p = tk["price"]
+            side = pos.get("side", "long").lower()
             sl = pos.get("stop_loss")
             tp = pos.get("take_profit")
-            if sl and live_p <= float(sl):
-                _exec_sell_locked(w, bsym, live_p, sell_pct=100.0, reason="STOP-LOSS Triggered @ %s" % predict.fmt_p(live_p))
-                changed = True
-            elif tp and live_p >= float(tp):
-                _exec_sell_locked(w, bsym, live_p, sell_pct=100.0, reason="TAKE-PROFIT Hit @ %s" % predict.fmt_p(live_p))
-                changed = True
+            liq = pos.get("liquidation_price")
+
+            # Check Forced Liquidation
+            if liq:
+                is_liq = (side == "long" and live_p <= float(liq)) or (side == "short" and live_p >= float(liq))
+                if is_liq:
+                    _exec_margin_close_locked(w, bsym, live_p, close_pct=100.0, reason="⚠️ FORCED LIQUIDATION @ %s" % predict.fmt_p(live_p))
+                    changed = True
+                    continue
+
+            # Check Stop-Loss
+            if sl:
+                is_sl = (side == "long" and live_p <= float(sl)) or (side == "short" and live_p >= float(sl))
+                if is_sl:
+                    if pos.get("mode") == "MARGIN" or "margin_usdt" in pos:
+                        _exec_margin_close_locked(w, bsym, live_p, close_pct=100.0, reason="STOP-LOSS Triggered @ %s" % predict.fmt_p(live_p))
+                    else:
+                        _exec_sell_locked(w, bsym, live_p, sell_pct=100.0, reason="STOP-LOSS Triggered @ %s" % predict.fmt_p(live_p))
+                    changed = True
+                    continue
+
+            # Check Take-Profit
+            if tp:
+                is_tp = (side == "long" and live_p >= float(tp)) or (side == "short" and live_p <= float(tp))
+                if is_tp:
+                    if pos.get("mode") == "MARGIN" or "margin_usdt" in pos:
+                        _exec_margin_close_locked(w, bsym, live_p, close_pct=100.0, reason="TAKE-PROFIT Hit @ %s" % predict.fmt_p(live_p))
+                    else:
+                        _exec_sell_locked(w, bsym, live_p, sell_pct=100.0, reason="TAKE-PROFIT Hit @ %s" % predict.fmt_p(live_p))
+                    changed = True
+                    continue
 
         if changed:
             save_wallet(w)
@@ -343,23 +534,48 @@ def check_triggers_and_enrich(extra_symbol=None):
             tk = tickers.get(bsym) or {"price": pos["avg_entry"], "change_24h_pct": 0.0}
             live_p = float(tk["price"])
             qty = float(pos["qty"])
-            mkt_val = qty * live_p
-            inv = float(pos["invested_usdt"])
-            upnl = mkt_val - inv
-            upnl_pct = (upnl / inv * 100.0) if inv > 0 else 0.0
-            total_pos_value += mkt_val
+            side = pos.get("side", "long").lower()
+            lev = float(pos.get("leverage") or 1.0)
+            col = float(pos.get("margin_usdt") or pos.get("invested_usdt") or 0.0)
+
+            if side == "long":
+                upnl = (live_p - float(pos["avg_entry"])) * qty
+            else:
+                upnl = (float(pos["avg_entry"]) - live_p) * qty
+
+            upnl_pct = (upnl / col * 100.0) if col > 0 else 0.0
+            pos_mkt_val = max(0.0, col + upnl)
+            total_pos_value += pos_mkt_val
             total_unrealized_pnl += upnl
+
+            liq = pos.get("liquidation_price")
+            liq_dist_pct = (abs(live_p - float(liq)) / live_p * 100.0) if liq else None
+
+            # R-Multiple calculation
+            sl = pos.get("stop_loss")
+            stop_dist = abs(float(pos["avg_entry"]) - float(sl)) if sl else None
+            r_mult = round(upnl / (qty * stop_dist), 2) if (stop_dist and stop_dist > 0) else None
+
             positions_out.append({
                 "symbol": bsym,
+                "mode": pos.get("mode", "MARGIN"),
+                "side": side,
+                "leverage": lev,
                 "qty": qty,
-                "avg_entry": pos["avg_entry"],
+                "avg_entry": float(pos["avg_entry"]),
                 "live_price": live_p,
-                "market_value_usdt": round(mkt_val, 2),
-                "invested_usdt": round(inv, 2),
+                "market_value_usdt": round(pos_mkt_val, 2),
+                "margin_usdt": round(col, 2),
+                "invested_usdt": round(col, 2),
+                "notional_usd": round(qty * live_p, 2),
                 "unrealized_pnl_usdt": round(upnl, 2),
                 "unrealized_pnl_pct": round(upnl_pct, 2),
-                "stop_loss": pos.get("stop_loss"),
+                "liquidation_price": liq,
+                "liq_distance_pct": round(liq_dist_pct, 2) if liq_dist_pct is not None else None,
+                "stop_loss": sl,
                 "take_profit": pos.get("take_profit"),
+                "r_multiple": r_mult,
+                "setup": pos.get("setup", "Institutional Margin Trade"),
                 "opened_at": pos.get("opened_at"),
             })
 
@@ -392,16 +608,20 @@ def check_triggers_and_enrich(extra_symbol=None):
 
 
 def place_sim_order(payload):
-    """Place a Market or Limit Buy/Sell paper order."""
+    """Place a Market or Limit Order with Spot or Margin Isolated Leverage."""
     bsym = predict.to_binance(payload.get("symbol") or "BNBUSDT")
-    side = str(payload.get("side") or "BUY").upper()
+    side_raw = str(payload.get("side") or "BUY").upper()
     order_type = str(payload.get("type") or "MARKET").upper()
+    mode = str(payload.get("mode") or "MARGIN").upper()
+    leverage = float(payload.get("leverage") or (3.0 if mode == "MARGIN" else 1.0))
     usdt_amount = float(payload.get("usdt_amount") or 0.0)
     sell_pct = payload.get("sell_pct")
     sell_qty = payload.get("qty")
     limit_price = float(payload.get("limit_price") or 0.0)
     stop_loss = float(payload["stop_loss"]) if payload.get("stop_loss") not in (None, "", 0, "0") else None
     take_profit = float(payload["take_profit"]) if payload.get("take_profit") not in (None, "", 0, "0") else None
+    action = str(payload.get("action") or "").upper()
+    setup = payload.get("setup")
 
     tickers = fetch_live_tickers([bsym])
     tk = tickers.get(bsym)
@@ -411,25 +631,36 @@ def place_sim_order(payload):
 
     with WALLET_LOCK:
         w = load_wallet()
+        existing_pos = w["positions"].get(bsym)
+
+        # Closing an existing position
+        if action == "CLOSE" or (side_raw in ("SELL", "CLOSE") and (sell_pct is not None or sell_qty is not None or (existing_pos and mode != "MARGIN"))):
+            if not existing_pos:
+                raise ValueError("No open position in %s to close." % bsym)
+            exec_p = tk["bid"] if tk.get("bid", 0) > 0 else live_p
+            if existing_pos.get("mode") == "MARGIN" or "margin_usdt" in existing_pos:
+                rec = _exec_margin_close_locked(w, bsym, exec_p, close_pct=sell_pct, close_qty=sell_qty, reason="Market Close")
+            else:
+                rec = _exec_sell_locked(w, bsym, exec_p, sell_qty=sell_qty, sell_pct=sell_pct, reason="Market Sell")
+            save_wallet(w)
+            return {"status": "Closed Position", "trade": rec}
+
+        # Handling Limit Orders
         if order_type == "LIMIT":
             if limit_price <= 0:
                 raise ValueError("Limit order requires a valid limit_price.")
-            # If limit price is already marketable, fill immediately at live price
-            if (side == "BUY" and live_p <= limit_price) or (side == "SELL" and live_p >= limit_price):
-                order_type = "MARKET"
-            else:
-                if side == "BUY" and usdt_amount > w["cash_usdt"]:
-                    raise ValueError("Insufficient virtual cash ($%.2f available)." % w["cash_usdt"])
+            is_marketable = (side_raw in ("BUY", "LONG") and live_p <= limit_price) or (side_raw in ("SELL", "SHORT") and live_p >= limit_price)
+            if not is_marketable:
                 oid = "O%d" % int(time.time() * 1000)
                 ord_rec = {
                     "id": oid,
                     "symbol": bsym,
-                    "side": side,
+                    "side": side_raw,
+                    "mode": mode,
+                    "leverage": leverage,
                     "type": "LIMIT",
                     "limit_price": limit_price,
                     "usdt_amount": round(usdt_amount, 2),
-                    "qty": sell_qty,
-                    "sell_pct": sell_pct,
                     "stop_loss": stop_loss,
                     "take_profit": take_profit,
                     "created_at": now_iso(),
@@ -438,16 +669,24 @@ def place_sim_order(payload):
                 save_wallet(w)
                 return {"status": "Resting Limit Order Placed", "order": ord_rec}
 
-        # Market execution (uses live ask for BUY, live bid for SELL)
-        exec_p = tk["ask"] if (side == "BUY" and tk.get("ask", 0) > 0) else (
-            tk["bid"] if (side == "SELL" and tk.get("bid", 0) > 0) else live_p
+        # Market execution price
+        is_long = side_raw in ("BUY", "LONG")
+        exec_p = tk["ask"] if (is_long and tk.get("ask", 0) > 0) else (
+            tk["bid"] if (not is_long and tk.get("bid", 0) > 0) else live_p
         )
-        if side == "BUY":
-            rec = _exec_buy_locked(w, bsym, exec_p, usdt_amount, stop_loss=stop_loss, take_profit=take_profit, reason="Market Buy")
-        elif side == "SELL":
-            rec = _exec_sell_locked(w, bsym, exec_p, sell_qty=sell_qty, sell_pct=sell_pct, reason="Market Sell")
+
+        if mode == "MARGIN" or leverage > 1.0:
+            target_side = "long" if is_long else "short"
+            rec = _exec_margin_open_locked(
+                w, bsym, target_side, exec_p, usdt_amount, leverage=leverage,
+                stop_loss=stop_loss, take_profit=take_profit, reason="Market Margin Order", setup=setup
+            )
         else:
-            raise ValueError("side must be BUY or SELL.")
+            if is_long:
+                rec = _exec_buy_locked(w, bsym, exec_p, usdt_amount, stop_loss=stop_loss, take_profit=take_profit, reason="Market Buy")
+            else:
+                rec = _exec_sell_locked(w, bsym, exec_p, sell_qty=sell_qty, sell_pct=sell_pct, reason="Market Sell")
+
         save_wallet(w)
         return {"status": "Filled Immediately", "trade": rec}
 

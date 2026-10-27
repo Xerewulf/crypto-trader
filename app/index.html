@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GodTrader Pro — Local Crypto Paper-Trading & 10-Source AI Terminal</title>
+  <title>GodTrader Pro — Institutional Crypto Margin Trading & 25-Source AI Terminal</title>
   <style>
     :root {
       --bg: #070b12;
@@ -495,8 +495,8 @@
   <!-- Top Navigation & Made-Up Money Portfolio Bar -->
   <header class="topbar">
     <div class="brand-group">
-      <span class="badge-live">● LOCAL SIMULATOR</span>
-      <span class="site-title">GodTrader Institutional Crypto Terminal</span>
+      <span class="badge-live">● INSTITUTIONAL MARGIN SIMULATOR</span>
+      <span class="site-title">GodTrader Institutional Crypto Terminal (Isolated Margin & 25-Source AI)</span>
     </div>
 
     <div class="wallet-strip">
@@ -579,13 +579,16 @@
             <thead>
               <tr>
                 <th>Symbol</th>
+                <th>Side & Leverage</th>
                 <th>Qty</th>
                 <th>Entry Price</th>
-                <th>Live Price</th>
-                <th>Position Value</th>
-                <th>Unrealized PnL</th>
-                <th>Stop-Loss (SL)</th>
-                <th>Take-Profit (TP)</th>
+                <th>Live Mark</th>
+                <th>Margin Collateral</th>
+                <th>Liquidation Price</th>
+                <th>Unrealized PnL (ROE)</th>
+                <th>R-Multiple</th>
+                <th>Stop-Loss</th>
+                <th>Take-Profit</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -639,13 +642,31 @@
       <!-- Simulated Order Ticket -->
       <div class="panel">
         <div class="panel-header">
-          <span>Paper Order Ticket (<span id="ticketSymLbl">PHAUSDT</span>)</span>
-          <span style="color:var(--gold);cursor:pointer;" onclick="applyAiPlanToTicket()">⚡ Auto-Fill AI Plan</span>
+          <span>Institutional Margin Ticket (<span id="ticketSymLbl">BNBUSDT</span>)</span>
+          <span style="color:var(--gold);cursor:pointer;" onclick="applyAiPlanToTicket()">⚡ Auto-Fill AI Kelly Plan</span>
+        </div>
+
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <button class="type-btn active" id="btnModeMargin" onclick="setMode('MARGIN')" style="flex:1;">MARGIN (Isolated)</button>
+          <button class="type-btn" id="btnModeSpot" onclick="setMode('SPOT')" style="flex:1;">SPOT (1x Cash)</button>
+        </div>
+
+        <div id="leverageRow" style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px;">
+            <span>Isolated Leverage</span>
+            <span id="tierCapNote" style="color:#93c5fd;font-weight:700;">Max Cap: 3x</span>
+          </div>
+          <div style="display:flex;gap:5px;">
+            <button class="q-btn" id="levBtn1" onclick="setLeverage(1)">1x</button>
+            <button class="q-btn" id="levBtn2" onclick="setLeverage(2)">2x</button>
+            <button class="q-btn kelly" id="levBtn3" onclick="setLeverage(3)">3x</button>
+            <button class="q-btn" id="levBtn5" onclick="setLeverage(5)">5x</button>
+          </div>
         </div>
 
         <div class="side-switch">
-          <button class="side-btn buy active" id="btnSideBuy" onclick="setSide('BUY')">BUY / LONG</button>
-          <button class="side-btn sell" id="btnSideSell" onclick="setSide('SELL')">SELL / CLOSE</button>
+          <button class="side-btn buy active" id="btnSideBuy" onclick="setSide('BUY')">LONG (BUY)</button>
+          <button class="side-btn sell" id="btnSideSell" onclick="setSide('SELL')">SHORT (SELL)</button>
         </div>
 
         <div class="type-switch">
@@ -695,7 +716,21 @@
           </div>
         </div>
 
-        <button class="submit-order-btn buy" id="btnSubmitOrder" onclick="submitOrder()">SIMULATE MARKET BUY</button>
+        <div id="marginPreviewBox" style="background:#070d17;border:1px solid #1a2744;border-radius:8px;padding:8px 10px;font-size:11px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+            <span style="color:var(--muted);">Margin Collateral Locked:</span>
+            <b id="prevCollateral" style="color:#f1f5f9;">$333.33 USDT</b>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+            <span style="color:var(--muted);">Est. Liquidation Price:</span>
+            <b id="prevLiq" style="color:#f97316;">-</b>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--muted);">Liquidation Safety Buffer:</span>
+            <b id="prevBuffer" style="color:#10b981;">Safe (>= 2.0x Stop)</b>
+          </div>
+        </div>
+        <button class="submit-order-btn buy" id="btnSubmitOrder" onclick="submitOrder()">EXECUTE 3x MARGIN LONG</button>
       </div>
 
       <!-- 25-Source God-Level AI Analyst Panel -->
@@ -710,10 +745,12 @@
   </main>
 
   <script>
-    let currentSymbol = "PHAUSDT";
+    let currentSymbol = "BNBUSDT";
     let currentInterval = "15m";
     let currentSide = "BUY";
     let currentType = "MARKET";
+    let currentMode = "MARGIN";
+    let currentLeverage = 3;
     let appState = null;
     let currentForecast = null;
     let picksMap = {};
@@ -770,17 +807,79 @@
       fetchKlines();
     }
 
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById("btnModeMargin").classList.toggle("active", mode === "MARGIN");
+      document.getElementById("btnModeSpot").classList.toggle("active", mode === "SPOT");
+      document.getElementById("leverageRow").style.display = mode === "MARGIN" ? "block" : "none";
+      if (mode === "SPOT") {
+        currentLeverage = 1;
+      } else if (currentLeverage === 1) {
+        currentLeverage = 3;
+      }
+      updateLeverageButtons();
+      updateTicketUi();
+    }
+
+    function setLeverage(lev) {
+      currentLeverage = lev;
+      updateLeverageButtons();
+      updateTicketUi();
+    }
+
+    function updateLeverageButtons() {
+      [1, 2, 3, 5].forEach(l => {
+        const b = document.getElementById("levBtn" + l);
+        if (b) {
+          b.classList.toggle("active", l === currentLeverage);
+          b.classList.toggle("kelly", l === currentLeverage);
+        }
+      });
+    }
+
+    function updateTicketUi() {
+      const isBuy = currentSide === "BUY";
+      const btn = document.getElementById("btnSubmitOrder");
+      btn.className = "submit-order-btn " + (isBuy ? "buy" : "sell");
+      const levTxt = currentMode === "MARGIN" ? (currentLeverage + "x MARGIN ") : "SPOT ";
+      const sideTxt = isBuy ? "LONG" : "SHORT";
+      btn.textContent = "EXECUTE " + levTxt + sideTxt + " (" + currentSymbol + ")";
+
+      // Update margin preview
+      const notional = Number(document.getElementById("inpUsdtAmount").value || 0);
+      const lev = currentMode === "MARGIN" ? currentLeverage : 1;
+      const col = notional / lev;
+      document.getElementById("prevCollateral").textContent = "$" + col.toFixed(2) + " USDT";
+
+      const tk = (appState && appState.watchlist || []).find(t => t.symbol === currentSymbol);
+      if (tk && tk.price > 0 && currentMode === "MARGIN") {
+        const p = tk.price;
+        const mmr = 0.01;
+        const liq = isBuy ? (p * (1 - 1/lev + mmr)) : (p * (1 + 1/lev - mmr));
+        document.getElementById("prevLiq").textContent = fmtP(liq);
+
+        const sl = Number(document.getElementById("inpStopLoss").value || 0);
+        if (sl > 0) {
+          const stopDist = Math.abs(p - sl);
+          const liqDist = Math.abs(p - liq);
+          const ratio = (stopDist > 0 ? (liqDist / stopDist) : 0).toFixed(1);
+          const bufEl = document.getElementById("prevBuffer");
+          if (ratio >= 2.0) {
+            bufEl.style.color = "var(--green)";
+            bufEl.textContent = ratio + "x Stop Distance (Institutional Grade)";
+          } else {
+            bufEl.style.color = "var(--gold)";
+            bufEl.textContent = ratio + "x Stop Distance (Warning < 2.0x)";
+          }
+        }
+      }
+    }
+
     function setSide(side) {
       currentSide = side;
       document.getElementById("btnSideBuy").classList.toggle("active", side === "BUY");
       document.getElementById("btnSideSell").classList.toggle("active", side === "SELL");
-      document.getElementById("buyAmountField").style.display = side === "BUY" ? "block" : "none";
-      document.getElementById("buyQuickBtns").style.display = side === "BUY" ? "flex" : "none";
-      document.getElementById("slTpFields").style.display = side === "BUY" ? "grid" : "none";
-      document.getElementById("sellPctField").style.display = side === "SELL" ? "block" : "none";
-      const btn = document.getElementById("btnSubmitOrder");
-      btn.className = "submit-order-btn " + (side === "BUY" ? "buy" : "sell");
-      btn.textContent = "SIMULATE " + currentType + " " + side + " (" + currentSymbol + ")";
+      updateTicketUi();
     }
 
     function setOrderType(tp) {
@@ -825,15 +924,20 @@
       if (d && d.kelly_trade_plan) {
         currentForecast = d;
         const kp = d.kelly_trade_plan;
-        setSide("BUY");
-        document.getElementById("inpStopLoss").value = kp.stop_loss;
-        document.getElementById("inpTakeProfit").value = kp.tp1;
+        const bias = String(kp.bias || "").toUpperCase();
+        const isShort = bias.includes("SHORT") || bias.includes("SELL") || d.composite_score <= -12;
+        setMode("MARGIN");
+        setSide(isShort ? "SELL" : "BUY");
+        setLeverage(currentSymbol.startsWith("BTC") ? 5 : (currentSymbol.startsWith("ETH") ? 4 : 3));
+        document.getElementById("inpStopLoss").value = kp.stop_loss || "";
+        document.getElementById("inpTakeProfit").value = kp.tp1 || "";
         const eq = appState ? appState.total_equity_usdt : 10000;
-        const riskUsd = eq * 0.02;
-        const stopDistPct = Math.max(0.01, Math.abs(d.price - kp.stop_loss) / d.price);
-        const posUsd = Math.min(appState ? appState.cash_usdt : 1000, Math.round(riskUsd / stopDistPct));
-        document.getElementById("inpUsdtAmount").value = Math.max(50, posUsd);
-        toast("AI Plan Loaded: SL " + fmtP(kp.stop_loss) + " | TP " + fmtP(kp.tp1));
+        const riskUsd = eq * 0.015; // 1.5% Quarter-Kelly
+        const stopDistPct = Math.max(0.01, Math.abs(d.price - (kp.stop_loss || (d.price * 0.98))) / d.price);
+        const notionalUsd = Math.round(riskUsd / stopDistPct);
+        document.getElementById("inpUsdtAmount").value = Math.max(100, Math.min(notionalUsd, eq * 1.5));
+        toast("AI Plan Loaded: " + (isShort ? "SHORT" : "LONG") + " | SL " + fmtP(kp.stop_loss) + " | TP " + fmtP(kp.tp1));
+        updateTicketUi();
         drawChart();
       }
     }
@@ -841,6 +945,8 @@
     async function submitOrder() {
       const payload = {
         symbol: currentSymbol,
+        mode: currentMode,
+        leverage: currentLeverage,
         side: currentSide,
         type: currentType,
         usdt_amount: Number(document.getElementById("inpUsdtAmount").value || 0),
@@ -1160,9 +1266,10 @@
       };
 
       if (myPos) {
-        drawLine(myPos.avg_entry, "#3b82f6", "YOUR ENTRY");
+        drawLine(myPos.avg_entry, "#3b82f6", "ENTRY (" + (myPos.side || "long").toUpperCase() + ")");
         if (myPos.stop_loss) drawLine(myPos.stop_loss, "#f43f5e", "STOP-LOSS");
         if (myPos.take_profit) drawLine(myPos.take_profit, "#10b981", "TAKE-PROFIT");
+        if (myPos.liquidation_price) drawLine(myPos.liquidation_price, "#f97316", "⚠️ LIQUIDATION");
       }
     }
 
