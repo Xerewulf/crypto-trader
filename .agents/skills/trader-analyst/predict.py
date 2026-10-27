@@ -1557,10 +1557,14 @@ def render_report(d):
             mp.get("leverage_cap_tier", 1.0), mp.get("leverage_cap_liq_safe", 1.0),
             mp.get("leverage", 1.0), "Perp" if mp.get("venue") == "perp" else "Isolated Margin",
             fmt_usd(mp.get("margin_usd")), mp.get("margin_pct_equity", 0.0)))
-        lines.append("   Liquidation Buffer: %s (%.2f%% dist = %.1fx stop distance) | Safe: YES" % (
-            fmt_p(mp.get("liquidation_price")), mp.get("liq_distance_pct", 0.0), mp.get("liq_to_stop_ratio", 0.0)))
-        lines.append("   Financing & Carry : 24h Carry %s (%+.3fR) | Event Regime: %s" % (
-            fmt_usd(mp.get("carry_usd"), signed=True), mp.get("carry_r", 0.0), mp.get("event_level", "CLEAR")))
+        lines.append("   Liquidation & Risk: Liq %s (%.2f%% dist = %.1fx stop) | Bankrupt %s | ADL Quantile: %s" % (
+            fmt_p(mp.get("liquidation_price")), mp.get("liq_distance_pct", 0.0), mp.get("liq_to_stop_ratio", 0.0),
+            fmt_p(mp.get("bankruptcy_price")), mp.get("adl_risk_quantile", 1)))
+        lines.append("   MMR Tier & Insur. : Tier MMR %.2f%% (MM Req %s) | Est. Liq Clearance Fee %s" % (
+            (mp.get("mmr", 0.01) * 100.0), fmt_usd(mp.get("maintenance_margin_usd")), fmt_usd(mp.get("liquidation_clearance_fee_usd"))))
+        lines.append("   Financing & Carry : 24h Carry %s (%+.3fR) | Carry-Adjusted Liq %s | Event: %s" % (
+            fmt_usd(mp.get("carry_usd"), signed=True), mp.get("carry_r", 0.0),
+            fmt_p(mp.get("carry_adjusted_liq_price")), mp.get("event_level", "CLEAR")))
         if mp.get("event_reason") and mp.get("event_level") != "CLEAR":
             lines.append("   * Event Caution   : %s" % mp.get("event_reason"))
     lines.append("")
