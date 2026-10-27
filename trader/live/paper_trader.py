@@ -431,8 +431,10 @@ def evaluate_institutional(sym, bars_1h, side=None, news_sentiment=0.0):
     short_funding_ok = fut["funding_8h"] > -0.0005
 
     sig = None
-    long_valid = (is_spring or is_long_pullback) and long_ob_ok and long_funding_ok and (side in (None, "long"))
-    short_valid = (is_upthrust or is_short_rejection) and short_ob_ok and short_funding_ok and (side in (None, "short"))
+    long_vwap_ok = (b["c"] >= vwap_24h) if vwap_24h else True
+    short_vwap_ok = (b["c"] <= vwap_24h) if vwap_24h else True
+    long_valid = (is_spring or is_long_pullback) and long_ob_ok and long_funding_ok and long_vwap_ok and (side in (None, "long"))
+    short_valid = (is_upthrust or is_short_rejection) and short_ob_ok and short_funding_ok and short_vwap_ok and (side in (None, "short"))
 
     if long_valid and (not short_valid or is_spring or b["tb"] > 55.0):
         setup_name = "Wyckoff Spring (CVD Absorption at VAL/Low)" if is_spring else "Volume Profile VWAP/EMA20 Pullback"
