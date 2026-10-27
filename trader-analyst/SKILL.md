@@ -35,7 +35,23 @@ python3 "${CLAUDE_SKILL_DIR}/predict.py" BNB BTC ETH SOL --write
 
 ---
 
-## 2. US Equities Earnings Analyst (`facts.py`)
+## 2. Institutional Margin Trading Doctrine (`margin.py`)
+
+Every leveraged crypto plan adheres to strict institutional risk engineering:
+1. **Size by the STOP, Never by the Leverage**: Dollar risk is fixed strictly by $Risk = Qty \times |Entry - Stop|$. Leverage only controls collateral locked and distance to liquidation.
+2. **Mandatory Liquidation Safety Buffer**: Liquidation must sit at least $2.0\times$ the stop distance away ($|Entry - Liq| \ge 2.0 \times |Entry - Stop|$).
+3. **Liquidity-Tiered Maximum Leverage**: BTC up to 5x, ETH up to 4x, Large Caps (SOL, BNB, XRP) up to 3x, and all other altcoins capped at 2x.
+4. **Tiered Maintenance Margin (MMR & CUM)**: Maintenance margin scales with position notional brackets. $MM = (Notional \times MMR) - CUM$.
+5. **Dual-Price Mechanism & Mark Price Protection**: Binance liquidations trigger on Mark Price, not Last Price, to protect against local order-book wick stop-hunts.
+6. **Cumulative Carry Drag**: Models carry-adjusted liquidation prices after factoring in cumulative funding fee or borrow interest erosion.
+7. **Position Health & Margin Call Warnings**: Tracks Spot Margin Level and Futures Margin Ratio with proactive warnings at MARGIN CALL (<=1.30) and CRITICAL (<=1.15) before liquidation (<=1.10).
+8. **Auto-Deleveraging (ADL) Protection**: Low institutional leverage (<=5x) keeps capital in ADL Quantile 1 (lowest force-close hazard).
+9. **Macro & Scheduled Volatility Event Guards**: FOMC statements (BLOCK 2h before to 1h after; CAUTION 24h before to 6h after), CPI & NFP reports (BLOCK 1h before to 30m after), and monthly/quarterly Deribit options expiries (CAUTION 12h before to 2h after).
+10. **Book Correlation Caps**: Max 2 open positions on the same side and gross book leverage capped at 2.0x equity. Excludes tokenized bStocks.
+
+---
+
+## 3. US Equities Earnings Analyst (`facts.py`)
 
 Earnings move stocks more than anything else on the calendar, and the press
 release is written to put the best number first. This skill reads the numbers
