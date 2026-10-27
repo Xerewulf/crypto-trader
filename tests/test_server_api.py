@@ -95,6 +95,14 @@ class TestServerEndpoints(unittest.TestCase):
         self.assertTrue(close_res["ok"])
         self.assertEqual(len(close_res["state"]["positions"]), 0)
 
+    def test_html_serves_arbitrage_suite(self):
+        url = f"http://127.0.0.1:{self.port}/"
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            content = resp.read().decode("utf-8")
+        self.assertIn("deskArbitrage", content)
+        self.assertIn("Delta-Neutral Arbitrage", content)
+        self.assertIn("arbScannerTableBody", content)
+
 
 if __name__ == "__main__":
     unittest.main()
