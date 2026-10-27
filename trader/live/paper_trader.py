@@ -61,6 +61,16 @@ try:
     import margin
 except ImportError:
     margin = None
+
+try:
+    import binance_client
+except ImportError:
+    binance_client = None
+
+try:
+    import notifier
+except ImportError:
+    notifier = None
 STATE = os.path.join(HERE, "state.json")
 TRADES = os.path.join(HERE, "trades.jsonl")
 LOG = os.path.join(HERE, "events.log")
@@ -1109,10 +1119,30 @@ def scan_signals(s):
         ms = now_ms()
         liq_px = margin.liquidation_price(entry_px, side, eff_lev, "margin", base) if margin else 0.0
 
+        # Live Binance Order Execution (Testnet or Live)
+        broker_orders = None
+        if s.get("live_broker"):
+            try:
+                broker_orders = s["live_broker"].place_bracket(
+                    symbol=sym,
+                    side="BUY" if side == "long" else "SELL",
+                    qty=qty,
+                    stop_loss_price=stop_px,
+                    tp1_price=tp1_px
+                )
+                log("LIVE BINANCE ORDER PLACED %s [%s]: Entry placed with bracket stops (Stop: %s, TP1: %s)" % (
+                    sym, side.upper(), fp(stop_px), fp(tp1_px)
+                ))
+            except Exception as b_err:
+                log("LIVE BINANCE ORDER ERROR %s [%s]: %s (skipping entry)" % (sym, side.upper(), b_err))
+                s["diag"][sym]["signal"] += " (live error: %s)" % b_err
+                continue
+
         p = {
             "id": s["next_id"],
             "symbol": sym,
             "side": side,
+            "broker_orders": broker_orders,
             "setup": sig["setup"] + (" (Micro 5m)" if micro_compressed else ""),
             "score": sig["score"],
             "signal_bar": diag["bar"],
@@ -1894,6 +1924,8 @@ def main():
     ap = argparse.ArgumentParser(description="Binance Institutional Paper Trader.")
     ap.add_argument("cmd", choices=["run", "once", "status", "reset"])
     ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--live", action="store_true", help="Execute real orders on Binance Futures (requires API keys)")
+    ap.add_argument("--testnet", action="store_true", help="Execute live orders on Binance Futures Testnet")
     a = ap.parse_args()
 
     if a.cmd == "reset":
@@ -1907,6 +1939,19 @@ def main():
         return 0
 
     s = load_state()
+
+    # Initialize Live Binance Client if requested
+    if getattr(a, "live", False) or getattr(a, "testnet", False):
+        if binance_client:
+            is_testnet = not getattr(a, "live", False)
+            client = binance_client.BinanceClient(testnet=is_testnet)
+            if client.is_configured():
+                s["live_broker"] = client
+                log("Connected to Binance %s Live Execution Broker!" % ("TESTNET" if is_testnet else "PRODUCTION"))
+            else:
+                log("Warning: API credentials missing in trader/credentials.json or env vars. Running in PAPER mode.")
+        else:
+            log("Warning: binance_client module unavailable. Running in PAPER mode.")
 
     if a.cmd == "status":
         print_status(s)
