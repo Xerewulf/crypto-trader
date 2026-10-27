@@ -213,4 +213,21 @@ trader-pelosi/      SKILL.md, ptr.py
 tests/              unittest suite + offline fixtures
 ```
 
+## 24/7 Cloud Execution on GitHub Web
+
+Run the institutional crypto trading engine continuously in the cloud on GitHub without needing your local computer turned on:
+
+1. **GitHub Actions Scheduled Engine (`.github/workflows/crypto-trader.yml`)**:
+   - Runs automatically on a 15-minute cron schedule 24/7/365.
+   - Evaluates Wyckoff 2.0 structures, real-time Spot CVD, Order-Book depth imbalances, and funding rates.
+   - Manages positions with convex scale-outs (TP1 at 1.8R, TP2 at 3.5R, trailing VWAP, and liquidation protection).
+   - Automatically commits and syncs state (`state.json`, `trades.jsonl`, `dashboard.html`) to your repository.
+
+2. **GitHub Pages Live Web Dashboard**:
+   - Automatically publishes the interactive dashboard to GitHub Pages (`https://<username>.github.io/crypto-trader/`).
+   - Monitor your live portfolio, margin health, open positions, and funding arbitrage yields from any browser or mobile phone.
+
+3. **GitHub Codespaces (In-Browser Execution)**:
+   - Press `.` on github.com or click Code -> Codespaces to launch the full trading engine in your browser with port 8080 forwarded.
+
 MIT. Made by [Jake Schincariol](https://opusjake.ai).
