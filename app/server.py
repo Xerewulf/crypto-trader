@@ -34,7 +34,12 @@ ANALYST_DIR = os.path.join(ROOT_DIR, "trader-analyst")
 if ANALYST_DIR not in sys.path:
     sys.path.insert(0, ANALYST_DIR)
 
+import math  # noqa: E402
 import predict  # noqa: E402
+try:
+    import margin  # noqa: E402
+except ImportError:
+    margin = None
 
 WALLET_PATH = os.path.join(ROOT_DIR, "trader", "sim_wallet.json")
 FORECAST_PATH = os.path.join(ROOT_DIR, "trader", "forecast.json")
@@ -202,6 +207,27 @@ def _open_margin_position_locked(w, bsym, side, exec_price, notional_usdt=None, 
     total_cost = margin_req + fee_usdt
     if total_cost > w["cash_usdt"] + 1e-4:
         raise ValueError("Insufficient virtual cash ($%.2f free margin available, tried $%.2f)." % (w["cash_usdt"], total_cost))
+
+    # Institutional Risk Doctrine Guards
+    base = predict.base_asset(bsym) if hasattr(predict, "base_asset") else bsym.replace("USDT", "")
+    if margin and hasattr(margin, "is_tokenized_stock") and margin.is_tokenized_stock(bsym):
+        raise ValueError("Tokenized equity %s is excluded from 24/7 crypto margin trading." % bsym)
+
+    tier_cap = margin.leverage_cap(base) if margin and hasattr(margin, "leverage_cap") else 3.0
+    leverage = max(1.0, min(float(leverage), tier_cap))
+
+    if margin and hasattr(margin, "event_risk"):
+        now_ms = int(time.time() * 1000)
+        ev = margin.event_risk(now_ms)
+        if ev.get("level") == "BLOCK":
+            raise ValueError("Macro Risk Guard: %s" % ev.get("reason", "Event Block Active"))
+        if ev.get("level") == "CAUTION":
+            leverage = max(1.0, min(leverage, math.floor(tier_cap * 0.5)))
+
+    if stop_loss is not None and float(stop_loss) > 0:
+        sl_val = float(stop_loss)
+        if (side == "LONG" and sl_val >= exec_price) or (side == "SHORT" and sl_val <= exec_price):
+            raise ValueError("Stop-loss (%s) is on the wrong side for a %s position." % (predict.fmt_p(sl_val), side))
 
     qty = notional_usdt / exec_price
     liq_p = calc_liquidation_price(exec_price, side, leverage)
@@ -489,6 +515,11 @@ def check_triggers_and_enrich(extra_symbol=None):
             is_positive = upnl > 0.0
             is_negative = upnl < 0.0
 
+            # R-Multiple and setup
+            sl = pos.get("stop_loss")
+            stop_dist = abs(float(pos["avg_entry"]) - float(sl)) if sl else None
+            r_mult = round(upnl / (qty * stop_dist), 2) if (stop_dist and stop_dist > 0) else None
+
             positions_out.append({
                 "symbol": bsym,
                 "side": side,
@@ -502,9 +533,12 @@ def check_triggers_and_enrich(extra_symbol=None):
                 "notional_bnb": round(notional / bnb_price, 4),
                 "margin_locked_usdt": round(margin_locked, 2),
                 "margin_locked_bnb": round(margin_locked / bnb_price, 4),
+                "invested_usdt": round(margin_locked, 2),
                 "unrealized_pnl_usdt": round(upnl, 2),
                 "unrealized_pnl_bnb": round(upnl / bnb_price, 4),
                 "unrealized_pnl_pct": round(upnl_pct, 2),
+                "r_multiple": r_mult,
+                "setup": pos.get("setup", "Institutional Isolated Margin"),
                 "is_positive": is_positive,
                 "is_negative": is_negative,
                 "stop_loss": pos.get("stop_loss"),
@@ -905,3 +939,6 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+_exec_margin_open_locked = _open_margin_position_locked
+_exec_margin_close_locked = _close_margin_position_locked
