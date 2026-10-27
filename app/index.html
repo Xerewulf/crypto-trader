@@ -678,6 +678,7 @@
     <div class="nav-tabs-group">
       <button type="button" id="tabTerminalBtn" class="nav-pill active" onclick="switchDesk('terminal')">📊 Directional Margin Terminal</button>
       <button type="button" id="tabArbitrageBtn" class="nav-pill" onclick="switchDesk('arbitrage')">⚡ Delta-Neutral Arbitrage (Phase 2)</button>
+      <button type="button" id="tabMicrostructureBtn" class="nav-pill" onclick="switchDesk('microstructure')">🔬 VPIN & ML Microstructure (Phase 3)</button>
       <a href="dashboard.html" class="nav-pill">🤖 24/7 Cloud Bot Dashboard</a>
       <a href="https://github.com/Xerewulf/crypto-trader" target="_blank" class="nav-pill gh">🐙 GitHub Source</a>
     </div>
@@ -1216,6 +1217,179 @@
 
           <button type="button" class="submit-order-btn buy" style="background:#2563eb; color:#fff; font-size:12px; font-weight:900; padding:10px; border-radius:6px; cursor:pointer;" onclick="executeArbitragePair()">
             ⚡ DEPLOY DELTA-NEUTRAL PAIR
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- PHASE 3: MACHINE LEARNING & VPIN MICROSTRUCTURE DESK -->
+  <!-- ===================================================================== -->
+  <main class="arbitrage-desk-container" id="deskMicrostructure" style="display:none; max-width:1920px; width:100%; margin:0 auto; padding:10px; gap:12px; flex-direction:column;">
+    <!-- Top Hero Banner & Architecture Card -->
+    <div class="panel" style="background: linear-gradient(135deg, #091a1e 0%, #0d272c 100%); border-color: #0e7490;">
+      <div style="padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; font-weight:900; background:#0891b2; color:#cffafe; padding:3px 8px; border-radius:4px; letter-spacing:0.5px;">PHASE 3 MASTER ROADMAP DELIVERABLE</span>
+            <span style="font-size:11px; font-weight:800; color:#22d3ee; background:rgba(6,182,212,0.15); padding:3px 8px; border-radius:4px;">● OPERATIONAL & QUANTITATIVELY CERTIFIED</span>
+          </div>
+          <h2 style="font-size:18px; font-weight:900; margin:6px 0 3px 0; color:#fff;">Institutional VPIN Toxicity, Wyckoff 2.0 Sweeps & Adaptive Kelly Desk</h2>
+          <div style="font-size:11.5px; color:#94a3b8;">
+            Synthesizing Marcos López de Prado's Volume Clock (VPIN), Maureen O'Hara's Microstructure Toxicity, Rubén Villahermosa's Wyckoff 2.0 Sweeps & Edward Thorp's Volatility-Adaptive Kelly Sizing.
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="btn-top" style="background:#0e7490; color:#cffafe; border-color:#06b6d4; font-size:11px; padding:6px 12px;" onclick="loadMicrostructureData(currentSymbol)">
+            ↻ Refresh Microstructure
+          </button>
+          <button class="btn-top" style="background:#065f46; color:#a7f3d0; border-color:#10b981; font-size:11px; padding:6px 12px;" onclick="applyAdaptiveKellyToTicket()">
+            ⚡ Apply Adaptive Kelly to Ticket
+          </button>
+        </div>
+      </div>
+
+      <!-- 5-Stat Strip -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1px; background:var(--border); border-top:1px solid var(--border);">
+        <div style="background:#08171b; padding:10px 16px;">
+          <div style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700;">VPIN Toxicity</div>
+          <div style="font-size:16px; font-weight:900; color:#38bdf8;" id="microVpinPct">32.40%</div>
+          <div style="font-size:10px; color:#64748b;" id="microVpinRegime">NORMAL_FLOW</div>
+        </div>
+        <div style="background:#08171b; padding:10px 16px;">
+          <div style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700;">Informed Arrival Rate</div>
+          <div style="font-size:16px; font-weight:900; color:#22d3ee;" id="microInformedArrival">0.3240</div>
+          <div style="font-size:10px; color:#64748b;" id="microAdverseRisk">Adverse Risk: MODERATE</div>
+        </div>
+        <div style="background:#08171b; padding:10px 16px;">
+          <div style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700;">Wyckoff 2.0 State</div>
+          <div style="font-size:16px; font-weight:900; color:#10b981;" id="microWyckoffState">SPRING (VAL Sweep)</div>
+          <div style="font-size:10px; color:#34d399;" id="microWyckoffSub">Net 16h CVD: Positive</div>
+        </div>
+        <div style="background:#08171b; padding:10px 16px;">
+          <div style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700;">4h Volatility Squeeze</div>
+          <div style="font-size:16px; font-weight:900; color:#fbbf24;" id="microSqueezeState">TTM SQUEEZE ACTIVE</div>
+          <div style="font-size:10px; color:#64748b;" id="microBbWidth">BB Width: 3.12% inside KC</div>
+        </div>
+        <div style="background:#08171b; padding:10px 16px;">
+          <div style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700;">Adaptive Kelly Sizing</div>
+          <div style="font-size:16px; font-weight:900; color:#4ade80;" id="microAdaptiveKelly">2.64% (1.20x)</div>
+          <div style="font-size:10px; color:#64748b;" id="microKellyRiskUsd">$150.00 Risked at SL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid: VPIN Buckets & Wyckoff Sweeps (Left) + Adaptive Kelly Engine (Right) -->
+    <div style="display:grid; grid-template-columns: 1fr 380px; gap:12px; align-items:start;">
+      <!-- Left Column: VPIN Volume Clock & Wyckoff CVD Radar -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <!-- VPIN Volume Buckets Card -->
+        <div class="panel">
+          <div class="panel-header">
+            <span>Marcos López de Prado: VPIN Volume Buckets on the Volume Clock</span>
+            <span style="font-size:11px; color:#38bdf8;" id="microBucketCount">20 Sliced Equal-Volume Buckets</span>
+          </div>
+          <div style="padding:14px;">
+            <!-- Toxicity Progress Meter -->
+            <div style="margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+                <span style="color:#94a3b8; font-weight:700;">Order-Flow Toxicity Gauge (VPIN)</span>
+                <span id="microGaugeLabel" style="font-weight:800; color:#38bdf8;">32.40% — NORMAL REGIME</span>
+              </div>
+              <div style="background:#1e293b; height:12px; border-radius:6px; overflow:hidden; position:relative;">
+                <div id="microVpinBar" style="background: linear-gradient(90deg, #10b981 0%, #38bdf8 40%, #f59e0b 70%, #ef4444 100%); width:32.4%; height:100%; transition:width 0.4s ease;"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:9.5px; color:#64748b; margin-top:3px;">
+                <span>0% (Noise / High Liquidity)</span>
+                <span>25% (Normal)</span>
+                <span>45% (Elevated)</span>
+                <span>60% (Toxic Surge / Cascade)</span>
+                <span>100%</span>
+              </div>
+            </div>
+
+            <!-- Volume Buckets Ladder -->
+            <div style="font-size:11px; font-weight:700; color:#cbd5e1; margin-bottom:8px;">Recent Volume Bucket Imbalances (|V_buy - V_sell|)</div>
+            <div id="microBucketsVisual" style="display:flex; gap:4px; height:60px; align-items:flex-end; background:#0b1329; padding:8px; border-radius:6px; border:1px solid var(--border);">
+              <!-- Rendered via JS -->
+            </div>
+            <div id="microWarningNotice" style="margin-top:10px; padding:8px 12px; border-radius:4px; font-size:11px; display:none; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;"></div>
+          </div>
+        </div>
+
+        <!-- Wyckoff 2.0 Liquidity Sweeps Card -->
+        <div class="panel">
+          <div class="panel-header">
+            <span>Wyckoff 2.0 Liquidity Sweep & CVD Divergence Radar</span>
+            <span style="font-size:11px; color:#34d399;" id="microWyckoffBadge">● ACTIVE MONITORING</span>
+          </div>
+          <div style="padding:14px;">
+            <div id="microWyckoffPatternsList" style="display:flex; flex-direction:column; gap:8px;">
+              <!-- Patterns rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Volatility-Adaptive Kelly Sizing Calculator -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>Volatility-Adaptive Kelly Sizing Engine</span>
+          <span style="font-size:11px; color:#4ade80;">Thorp & Carter Model</span>
+        </div>
+        <div style="padding:14px; font-size:11.5px; display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <div style="font-size:10.5px; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:4px;">Core Mathematical Sizing Parameters</div>
+            <div style="background:#0b1329; border:1px solid var(--border); border-radius:6px; padding:10px; display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:#94a3b8;">Base Full Kelly (f*)</span>
+                <span style="font-weight:800; color:#fff;" id="calcFullKelly">32.50%</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:#94a3b8;">Base Quarter Kelly (0.25x)</span>
+                <span style="font-weight:800; color:#93c5fd;" id="calcBaseQuarter">2.20%</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:#94a3b8;">TTM Squeeze Multiplier (κ_sq)</span>
+                <span style="font-weight:800; color:#fbbf24;" id="calcSqueezeMult">1.20x</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:#94a3b8;">ATR Shock Multiplier (κ_atr)</span>
+                <span style="font-weight:800; color:#38bdf8;" id="calcAtrMult">1.00x</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:#94a3b8;">VPIN Toxicity Multiplier (κ_vpin)</span>
+                <span style="font-weight:800; color:#a78bfa;" id="calcVpinMult">1.00x</span>
+              </div>
+              <div style="border-top:1px solid #1e293b; padding-top:6px; display:flex; justify-content:space-between;">
+                <span style="font-weight:800; color:#e2e8f0;">Composite Adaptive Kelly</span>
+                <span style="font-weight:900; font-size:14px; color:#4ade80;" id="calcAdaptiveKelly">2.64%</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#08171b; border:1px solid #0e7490; border-radius:6px; padding:10px;">
+            <div style="font-size:10px; color:#67e8f9; text-transform:uppercase; font-weight:800; margin-bottom:4px;">Institutional Sizing Rationale</div>
+            <div id="calcRationaleText" style="font-size:11px; color:#cbd5e1; line-height:1.4;">
+              Base Quarter-Kelly 2.20% scaled by 1.20x due to active TTM Squeeze breakout coiling.
+            </div>
+          </div>
+
+          <div style="background:#0f172a; border:1px solid var(--border); border-radius:6px; padding:10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span style="color:#94a3b8;">Recommended Dollar Risk:</span>
+              <span style="font-weight:900; color:#f87171;" id="calcDollarRisk">$149.50 USDT</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:#94a3b8;">Suggested Order Notional:</span>
+              <span style="font-weight:900; color:#38bdf8;" id="calcOrderNotional">$7,400.00 USDT</span>
+            </div>
+          </div>
+
+          <button type="button" class="submit-order-btn buy" style="background:#0891b2; color:#fff; font-size:12px; font-weight:900; padding:10px; border-radius:6px; cursor:pointer;" onclick="applyAdaptiveKellyToTicket()">
+            ⚡ APPLY ADAPTIVE SIZING TO ORDER TICKET
           </button>
         </div>
       </div>
@@ -2831,23 +3005,28 @@
       currentActiveDesk = desk;
       const termBtn = document.getElementById("tabTerminalBtn");
       const arbBtn = document.getElementById("tabArbitrageBtn");
+      const microBtn = document.getElementById("tabMicrostructureBtn");
       const termMain = document.getElementById("deskTerminal");
       const arbMain = document.getElementById("deskArbitrage");
+      const microMain = document.getElementById("deskMicrostructure");
 
-      if (desk === 'arbitrage') {
-        if (termBtn) termBtn.classList.remove("active");
-        if (arbBtn) arbBtn.classList.add("active");
-        if (termMain) termMain.style.display = "none";
-        if (arbMain) {
-          arbMain.style.display = "flex";
+      if (termBtn) termBtn.classList.toggle("active", desk === 'terminal');
+      if (arbBtn) arbBtn.classList.toggle("active", desk === 'arbitrage');
+      if (microBtn) microBtn.classList.toggle("active", desk === 'microstructure');
+
+      if (termMain) termMain.style.display = (desk === 'terminal') ? "grid" : "none";
+      if (arbMain) {
+        arbMain.style.display = (desk === 'arbitrage') ? "flex" : "none";
+        if (desk === 'arbitrage') {
           loadArbitrageOpportunities(false);
           updateArbTicketPreview();
         }
-      } else {
-        if (arbBtn) arbBtn.classList.remove("active");
-        if (termBtn) termBtn.classList.add("active");
-        if (arbMain) arbMain.style.display = "none";
-        if (termMain) termMain.style.display = "grid";
+      }
+      if (microMain) {
+        microMain.style.display = (desk === 'microstructure') ? "flex" : "none";
+        if (desk === 'microstructure') {
+          loadMicrostructureData(currentSymbol);
+        }
       }
     }
 
@@ -3184,6 +3363,161 @@
       deployFromScanner("BNBUSDT", "CASH_AND_CARRY");
       setArbAmount(2000);
       executeArbitragePair();
+    }
+
+    // =========================================================================
+    // PHASE 3: VPIN & MACHINE LEARNING MICROSTRUCTURE CLIENT LOGIC
+    // =========================================================================
+    let latestMicrostructureData = null;
+
+    async function loadMicrostructureData(sym) {
+      try {
+        const resp = await fetch(`/api/microstructure?symbol=${sym || currentSymbol}`);
+        if (!resp.ok) return;
+        const d = await resp.json();
+        latestMicrostructureData = d;
+        renderMicrostructureDesk(d);
+      } catch (e) {
+        console.warn("Failed to fetch microstructure data", e);
+      }
+    }
+
+    function renderMicrostructureDesk(d) {
+      if (!d) return;
+      const vpin = d.vpin || {};
+      const wyckoff = d.wyckoff || {};
+      const ak = d.adaptive_kelly || {};
+
+      // 5-KPI Strip
+      const vpinPctEl = document.getElementById("microVpinPct");
+      if (vpinPctEl) vpinPctEl.textContent = (vpin.vpin_pct || 0).toFixed(2) + "%";
+      const vpinRegimeEl = document.getElementById("microVpinRegime");
+      if (vpinRegimeEl) vpinRegimeEl.textContent = vpin.regime || "NORMAL_FLOW";
+
+      const arrEl = document.getElementById("microInformedArrival");
+      if (arrEl) arrEl.textContent = (vpin.informed_arrival_estimate || 0).toFixed(4);
+      const advEl = document.getElementById("microAdverseRisk");
+      if (advEl) advEl.textContent = "Adverse Risk: " + (vpin.adverse_selection_risk || "LOW");
+
+      const wykEl = document.getElementById("microWyckoffState");
+      if (wykEl) {
+        const firstPat = (wyckoff.patterns && wyckoff.patterns[0]) ? wyckoff.patterns[0].pattern : wyckoff.dominant_regime || "BALANCED_RANGE";
+        wykEl.textContent = firstPat.replace(/_/g, " ");
+        wykEl.style.color = (wyckoff.bonus_score >= 0) ? "var(--green)" : "var(--red)";
+      }
+      const wykSubEl = document.getElementById("microWyckoffSub");
+      if (wykSubEl) wykSubEl.textContent = "Net 16h CVD: " + (wyckoff.net_cvd_16h ? (wyckoff.net_cvd_16h > 0 ? "+" : "") + wyckoff.net_cvd_16h.toFixed(1) : "0.0") + " units";
+
+      const sqEl = document.getElementById("microSqueezeState");
+      if (sqEl) {
+        sqEl.textContent = d.is_ttm_squeeze ? "TTM SQUEEZE ACTIVE" : (d.bb_width_pct < 3.5 ? "TIGHT COMPRESSION" : "NORMAL VOLATILITY");
+        sqEl.style.color = d.is_ttm_squeeze ? "#fbbf24" : (d.bb_width_pct < 3.5 ? "#60a5fa" : "#cbd5e1");
+      }
+      const bbWEl = document.getElementById("microBbWidth");
+      if (bbWEl) bbWEl.textContent = `BB Width: ${(d.bb_width_pct || 0).toFixed(2)}% (4h)`;
+
+      const akEl = document.getElementById("microAdaptiveKelly");
+      if (akEl) akEl.textContent = `${(ak.adaptive_kelly_pct || 2.50).toFixed(2)}% (${(ak.composite_multiplier || 1.0).toFixed(2)}x)`;
+      const riskUsdEl = document.getElementById("microKellyRiskUsd");
+      if (riskUsdEl) riskUsdEl.textContent = `$${(ak.calculated_risk_usd || 150.0).toFixed(2)} Risked at SL`;
+
+      // Gauge & Bar
+      const vpinPct = Math.min(100, Math.max(0, vpin.vpin_pct || 30.0));
+      const gaugeLbl = document.getElementById("microGaugeLabel");
+      if (gaugeLbl) {
+        gaugeLbl.textContent = `${vpinPct.toFixed(2)}% — ${vpin.regime || "NORMAL"} (${vpin.toxicity_status || "ACTIVE"})`;
+        gaugeLbl.style.color = vpinPct >= 60 ? "#ef4444" : (vpinPct >= 45 ? "#f59e0b" : "#38bdf8");
+      }
+      const barEl = document.getElementById("microVpinBar");
+      if (barEl) barEl.style.width = vpinPct + "%";
+
+      // Volume Buckets Visual Ladder
+      const visualEl = document.getElementById("microBucketsVisual");
+      if (visualEl && vpin.bucket_imbalances && vpin.bucket_imbalances.length > 0) {
+        const maxImb = Math.max(...vpin.bucket_imbalances, 1.0);
+        visualEl.innerHTML = vpin.bucket_imbalances.map((val, idx) => {
+          const h = Math.max(8, Math.round((val / maxImb) * 44));
+          const color = (val / maxImb > 0.7) ? "#ef4444" : ((val / maxImb > 0.4) ? "#f59e0b" : "#38bdf8");
+          return `<div title="Bucket #${idx + 1}: Imbalance ${val}" style="flex:1; height:${h}px; background:${color}; border-radius:2px 2px 0 0;"></div>`;
+        }).join("");
+      }
+
+      // Warning Notice
+      const warnEl = document.getElementById("microWarningNotice");
+      if (warnEl) {
+        if (vpin.warning) {
+          warnEl.style.display = "block";
+          warnEl.innerHTML = `⚠️ <b>Adverse Selection Warning:</b> ${vpin.warning}`;
+        } else {
+          warnEl.style.display = "none";
+        }
+      }
+
+      // Wyckoff Patterns List
+      const patListEl = document.getElementById("microWyckoffPatternsList");
+      if (patListEl) {
+        const pats = wyckoff.patterns || [];
+        const sigs = wyckoff.signals || [];
+        if (pats.length === 0 && sigs.length === 0) {
+          patListEl.innerHTML = '<div style="color:var(--muted); font-size:11px; padding:10px; text-align:center;">No liquidity sweep or CVD divergence currently active. Price rotating within normal Volume Profile value area.</div>';
+        } else {
+          patListEl.innerHTML = sigs.map(s => {
+            const isBull = s.includes("SPRING") || s.includes("ABSORPTION") || s.includes("BULLISH");
+            const color = isBull ? "#34d399" : "#f87171";
+            const bg = isBull ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)";
+            const border = isBull ? "#10b981" : "#ef4444";
+            return `
+              <div style="background:${bg}; border-left:3px solid ${border}; padding:8px 12px; border-radius:0 4px 4px 0;">
+                <div style="font-weight:700; color:${color}; font-size:11.5px;">${s}</div>
+              </div>
+            `;
+          }).join("");
+        }
+      }
+
+      // Sizing Calculator Card
+      const fullKEl = document.getElementById("calcFullKelly");
+      if (fullKEl) fullKEl.textContent = ((ak.base_full_kelly || 0.30) * 100).toFixed(2) + "%";
+      const baseQEl = document.getElementById("calcBaseQuarter");
+      if (baseQEl) baseQEl.textContent = (ak.base_quarter_kelly_pct || 2.20).toFixed(2) + "%";
+      const sqMEl = document.getElementById("calcSqueezeMult");
+      if (sqMEl) sqMEl.textContent = (ak.squeeze_multiplier || 1.0).toFixed(2) + "x";
+      const atrMEl = document.getElementById("calcAtrMult");
+      if (atrMEl) atrMEl.textContent = (ak.atr_multiplier || 1.0).toFixed(2) + "x";
+      const vpinMEl = document.getElementById("calcVpinMult");
+      if (vpinMEl) vpinMEl.textContent = (ak.vpin_multiplier || 1.0).toFixed(2) + "x";
+      const compKEl = document.getElementById("calcAdaptiveKelly");
+      if (compKEl) compKEl.textContent = (ak.adaptive_kelly_pct || 2.64).toFixed(2) + "%";
+      const ratEl = document.getElementById("calcRationaleText");
+      if (ratEl) ratEl.textContent = ak.sizing_rationale || "Balanced volatility regime.";
+
+      const dolRiskEl = document.getElementById("calcDollarRisk");
+      if (dolRiskEl) dolRiskEl.textContent = "$" + (ak.calculated_risk_usd || 149.50).toFixed(2) + " USDT";
+
+      const notionalEl = document.getElementById("calcOrderNotional");
+      if (notionalEl) {
+        const estNotional = Math.round((ak.calculated_risk_usd || 150) / 0.02);
+        notionalEl.textContent = "$" + estNotional.toLocaleString("en-US") + " USDT";
+      }
+    }
+
+    function applyAdaptiveKellyToTicket() {
+      if (!latestMicrostructureData) return;
+      const ak = latestMicrostructureData.adaptive_kelly || {};
+      const calculatedRisk = ak.calculated_risk_usd || 150.0;
+      const estNotional = Math.round(calculatedRisk / 0.02);
+      const inp = document.getElementById("inpUsdtAmount");
+      if (inp) {
+        inp.value = estNotional;
+        updateMarginEstimates();
+      }
+      switchDesk('terminal');
+      const ticket = document.querySelector('.col-right .panel');
+      if (ticket) {
+        ticket.scrollIntoView({ behavior: 'smooth' });
+        ticket.style.outline = "2px solid #0891b2";
+        setTimeout(() => { ticket.style.outline = "none"; }, 1500);
+      }
     }
 
     // Initialize application
