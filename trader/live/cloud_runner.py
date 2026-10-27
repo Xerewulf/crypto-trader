@@ -105,15 +105,16 @@ def build_static_site(dest_dir="_site"):
     os.makedirs(dest_dir, exist_ok=True)
     print("[%s] Building GitHub Pages static site in '%s'..." % (now_iso(), dest_dir), flush=True)
 
-    # 1. Main Dashboard -> index.html
-    if os.path.isfile(DASHBOARD_FILE):
-        shutil.copyfile(DASHBOARD_FILE, os.path.join(dest_dir, "index.html"))
-    elif os.path.isfile(APP_HTML_FILE):
-        shutil.copyfile(APP_HTML_FILE, os.path.join(dest_dir, "index.html"))
-
-    # 2. iPhone Mobile Web App -> app.html
+    # 1. Main Interactive Simulation Terminal -> index.html & app.html
     if os.path.isfile(APP_HTML_FILE):
+        shutil.copyfile(APP_HTML_FILE, os.path.join(dest_dir, "index.html"))
         shutil.copyfile(APP_HTML_FILE, os.path.join(dest_dir, "app.html"))
+    elif os.path.isfile(DASHBOARD_FILE):
+        shutil.copyfile(DASHBOARD_FILE, os.path.join(dest_dir, "index.html"))
+
+    # 2. Automated 24/7 Cloud Bot Dashboard -> dashboard.html
+    if os.path.isfile(DASHBOARD_FILE):
+        shutil.copyfile(DASHBOARD_FILE, os.path.join(dest_dir, "dashboard.html"))
 
     # 3. JSON data feeds for dynamic client queries
     for src in (STATE_FILE, TRADES_FILE, NEWS_FILE, FORECAST_FILE):

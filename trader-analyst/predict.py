@@ -1408,6 +1408,31 @@ def forecast_symbol(sym):
     }
 
 
+def forecast_tokens(symbols, write_path=None):
+    """Forecast multiple tokens across crypto markets and optionally persist to JSON."""
+    tokens = []
+    plans = {}
+    for sym in symbols:
+        try:
+            fc = forecast_symbol(sym)
+            tokens.append(fc)
+            if "kelly_trade_plan" in fc:
+                plans[base_asset(sym)] = fc["kelly_trade_plan"]
+        except Exception as e:
+            print("Microstructure forecast error for %s: %s" % (sym, e), file=sys.stderr)
+    out = {
+        "as_of": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "tokens": tokens,
+        "kelly_trade_plans": plans,
+    }
+    if write_path:
+        os.makedirs(os.path.dirname(os.path.abspath(write_path)), exist_ok=True)
+        with open(write_path, "w", encoding="utf-8") as fh:
+            json.dump(out, fh, indent=2)
+            fh.write("\n")
+    return out
+
+
 def render_report(d):
     lines = []
     lines.append("=" * 78)
