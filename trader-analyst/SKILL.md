@@ -93,7 +93,27 @@ Phase 3 quantitative microstructure engine for predicting order-flow toxicity, i
 
 ---
 
-## 5. US Equities Earnings Analyst (`facts.py`)
+## 5. Phase 4 Smart Order Routing (SOR) & Multi-Venue Risk Guard (`sor.py`)
+
+Phase 4 multi-venue execution and portfolio circuit breaker engine:
+1. **Cross-Exchange Smart Order Router (`smart_route_order`)**:
+   - Compares live execution across Binance (Spot & USDⓈ-M Perp), Bybit (Linear Perp), and OKX (Linear Swap).
+   - Simulates CLOB depth ladder walking to estimate volume-weighted fill price (VWAP) and market impact slippage.
+   - Calculates all-in execution cost including exchange maker/taker fee schedules and 24h projected funding carry.
+   - Computes optimal multi-venue child-order splits for large notionals ($\ge \$5,000$) to minimize adverse selection and price impact.
+2. **Institutional Portfolio Circuit Breakers (`evaluate_circuit_breakers`)**:
+   - **Hard Drawdown Shutdown ($\ge 3.0\%$)**: Automatically blocks all new leveraged orders when portfolio drawdown touches 3.0% from the high-water mark (HWM).
+   - **Caution Drawdown ($\ge 1.5\%$)**: Halves position sizing and enforces 50% leverage reduction.
+   - **Consecutive Stop Runs Guard**: Enforces mandatory 60-minute cooling-off period upon 2 consecutive stop-outs within 4 hours.
+   - **Gross Book Leverage Cap**: Enforces hard 2.0x portfolio equity ceiling across all active margin positions.
+3. **Deribit Options Gamma Exposure (GEX) & Max Pain Engine (`fetch_deribit_options_analytics`)**:
+   - Slices Deribit BTC and ETH options chains across all strikes to compute the **Max Pain Price Strike** where buyer payout is minimized.
+   - Tracks Put/Call Open Interest Ratio (PCR) and dealer net gamma exposure ($M per 1% move).
+   - Flags gravitational pinning hazards when spot prices rotate near Max Pain into monthly/quarterly expiries.
+
+---
+
+## 6. US Equities Earnings Analyst (`facts.py`)
 
 Earnings move stocks more than anything else on the calendar, and the press
 release is written to put the best number first. This skill reads the numbers

@@ -57,6 +57,10 @@ try:
     import microstructure  # noqa: E402
 except ImportError:
     microstructure = None
+try:
+    import sor  # noqa: E402
+except ImportError:
+    sor = None
 
 WALLET_PATH = os.path.join(ROOT_DIR, "trader", "sim_wallet.json")
 FORECAST_PATH = os.path.join(ROOT_DIR, "trader", "forecast.json")
@@ -436,6 +440,11 @@ def _open_arbitrage_pair_locked(w, symbol, strategy="CASH_AND_CARRY", capital_us
     """Open a synthetic delta-neutral arbitrage pair (Spot leg + 1x Perp hedge leg)."""
     if not arbitrage:
         raise ValueError("Arbitrage module not available.")
+    if sor:
+        cb = sor.evaluate_circuit_breakers(w)
+        if not cb.get("allowed_to_trade", True):
+            reasons = "; ".join(cb.get("reasons", ["Circuit breaker active"]))
+            raise ValueError("CIRCUIT BREAKER BLOCKED ARBITRAGE: %s" % reasons)
     bsym = predict.to_binance(symbol)
     capital_usdt = float(capital_usdt)
     if capital_usdt <= 0:
@@ -883,6 +892,7 @@ def check_triggers_and_enrich(extra_symbol=None):
             "open_orders": w["open_orders"],
             "history": w["history"][:40],
             "watchlist": watchlist_out,
+            "circuit_breakers": sor.evaluate_circuit_breakers(w) if sor else {"status": "CLEAR", "allowed_to_trade": True},
             "ws_stats": dict(WS_STATS),
         }
 
@@ -913,6 +923,15 @@ def place_sim_order(payload):
             rec = _close_margin_position_locked(w, bsym, live_p, close_pct=sell_pct, reason="Manual Market Close (%d%%)" % int(sell_pct))
             save_wallet(w)
         return {"status": "Closed %d%% of %s" % (int(sell_pct), bsym), "trade": rec}
+
+    # Phase 4 Institutional Circuit Breakers Guard
+    if sor:
+        with WALLET_LOCK:
+            w_snap = load_wallet()
+        cb = sor.evaluate_circuit_breakers(w_snap)
+        if not cb.get("allowed_to_trade", True):
+            reasons = "; ".join(cb.get("reasons", ["Circuit breaker active"]))
+            raise ValueError("CIRCUIT BREAKER BLOCKED ORDER: %s" % reasons)
 
     side = "LONG" if raw_side in ("BUY", "LONG") else "SHORT"
 
@@ -1175,6 +1194,40 @@ class AppHandler(BaseHTTPRequestHandler):
                     "bb_width_pct": bb_width,
                     "is_ttm_squeeze": is_squeeze,
                 })
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/sor/quote":
+            try:
+                sym = predict.to_binance((qs.get("symbol") or ["BNBUSDT"])[0])
+                side = (qs.get("side") or ["BUY"])[0].upper()
+                notional = float((qs.get("notional") or ["1000.0"])[0])
+                is_limit = (qs.get("is_limit") or ["0"])[0] == "1"
+
+                venue_quotes = sor.fetch_multivenue_quotes(sym) if sor else {}
+                routing = sor.smart_route_order(sym, side, notional, venue_quotes, is_limit=is_limit) if sor else {}
+                return self._send_json(routing)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/deribit/options":
+            try:
+                curr = (qs.get("currency") or ["BTC"])[0].upper().replace("USDT", "")
+                spot = float((qs.get("spot_price") or ["0.0"])[0])
+                if spot <= 0:
+                    tickers = fetch_live_tickers([curr + "USDT"])
+                    spot = float((tickers.get(curr + "USDT") or {}).get("price", 0.0))
+                analytics = sor.fetch_deribit_options_analytics(curr, spot_price=spot if spot > 0 else None) if sor else {}
+                return self._send_json(analytics)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/risk/circuit-breakers":
+            try:
+                with WALLET_LOCK:
+                    w = load_wallet()
+                cb = sor.evaluate_circuit_breakers(w) if sor else {"status": "CLEAR", "allowed_to_trade": True}
+                return self._send_json(cb)
             except Exception as e:
                 return self._send_json({"error": str(e)}, status=500)
 
