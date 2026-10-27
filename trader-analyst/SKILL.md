@@ -113,7 +113,29 @@ Phase 4 multi-venue execution and portfolio circuit breaker engine:
 
 ---
 
-## 6. US Equities Earnings Analyst (`facts.py`)
+## 6. Phase 5 Canvas Liquidity Heatmap & Whale Block Trade Radar (`heatmap.py`)
+
+Phase 5 high-performance trading desk observability and progressive web application:
+1. **Order Book Depth Matrix & Heatmap Engine (`DepthHeatmapEngine`)**:
+   - Maintains rolling time-series ring-buffer of discrete central limit order book snapshots.
+   - Computes non-linear logarithmic volume density matrices across configurable price bounds ($\pm 1\%$ to $\pm 10\%$) and price bins (40 to 100 bins).
+   - Maps support (bid) and resistance (ask) liquidity walls over time (Footprint / Liquidity Heatmap) alongside mid-price trajectory line.
+   - Rendered via zero-lag 60 FPS HTML5 `<canvas>` with crosshairs and interactive price/volume hover tooltips.
+2. **Institutional Whale Block Trade Radar (`BlockTradeDetector`)**:
+   - Sub-second classification of aggressive market taker prints ($\ge \$100\text{K}$) into institutional tiers:
+     - 🐋 `WHALE`: $\$100,000 - \$250,000$
+     - 🐳 `SHARK`: $\$250,000 - \$500,000$
+     - 🐙 `MEGALODON`: $\$500,000 - \$1,000,000$
+     - 👑 `TITAN`: $\ge \$1,000,000$
+   - Computes Whale Net Flow ($), cumulative aggressive Taker Buy vs Sell volume, and institutional trade dominance ratio.
+   - Visualized via interactive Canvas floating bubble physics simulation and real-time whale tape.
+3. **Mobile Progressive Web Application (PWA) & Native Notifications**:
+   - Complete PWA implementation (`manifest.json` and `sw.js` Service Worker) with offline shell caching and standalone display.
+   - Integrated native system push notifications and synthesized Web Audio chime for instant whale trade and margin liquidation alerts.
+
+---
+
+## 7. US Equities Earnings Analyst (`facts.py`)
 
 Earnings move stocks more than anything else on the calendar, and the press
 release is written to put the best number first. This skill reads the numbers

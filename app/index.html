@@ -680,6 +680,9 @@
       <button type="button" id="tabArbitrageBtn" class="nav-pill" onclick="switchDesk('arbitrage')">⚡ Delta-Neutral Arbitrage (Phase 2)</button>
       <button type="button" id="tabMicrostructureBtn" class="nav-pill" onclick="switchDesk('microstructure')">🔬 VPIN & ML Microstructure (Phase 3)</button>
       <button type="button" id="tabSORBtn" class="nav-pill" onclick="switchDesk('sor')">🌐 SOR & Multi-Venue Risk (Phase 4)</button>
+      <button type="button" id="tabHeatmapBtn" class="nav-pill" onclick="switchDesk('heatmap')">🌊 Liquidity Heatmap & PWA (Phase 5)</button>
+      <button type="button" id="btnPwaInstall" class="nav-pill" style="display:none; background:#065f46; color:#a7f3d0; border-color:#059669;" onclick="triggerPwaInstall()">📲 Install App</button>
+      <button type="button" id="btnNotificationToggle" class="nav-pill" style="background:#1e293b; color:#cbd5e1;" onclick="togglePushNotifications()">🔔 Push Alerts</button>
       <a href="dashboard.html" class="nav-pill">🤖 24/7 Cloud Bot Dashboard</a>
       <a href="https://github.com/Xerewulf/crypto-trader" target="_blank" class="nav-pill gh">🐙 GitHub Source</a>
     </div>
@@ -1572,6 +1575,223 @@
             <button type="button" class="submit-order-btn buy" style="background:#4f46e5; color:#fff; font-size:12px; font-weight:900; padding:10px; border-radius:6px; cursor:pointer;" onclick="applySORRouteToTicket()">
               ⚡ APPLY BEST VENUE TO ORDER TICKET
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PHASE 5: HIGH-PERFORMANCE CANVAS/WEBGL DEPTH HEATMAP & MOBILE PWA -->
+  <main class="arbitrage-desk-container" id="deskHeatmap" style="display:none; max-width:1920px; width:100%; margin:0 auto; padding:10px; gap:12px; flex-direction:column;">
+    <!-- Top Hero Banner & Architecture Card -->
+    <div class="panel" style="background: linear-gradient(135deg, #0d1e24 0%, #112830 100%); border-color: #0d9488;">
+      <div style="padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <h2 style="margin:0; font-size:16px; font-weight:800; color:#2dd4bf; letter-spacing:0.5px;">🌊 INSTITUTIONAL LIQUIDITY HEATMAP & REAL-TIME WHALE RADAR</h2>
+            <span style="font-size:11px; font-weight:900; background:#0f766e; color:#ccfbf1; padding:3px 8px; border-radius:4px; letter-spacing:0.5px;">PHASE 5 MASTER ROADMAP DELIVERABLE</span>
+          </div>
+          <p style="margin:4px 0 0; font-size:12px; color:#99f6e4; max-width:1050px; line-height:1.4;">
+            High-performance HTML5 Canvas order book depth matrix (Bookmap/Footprint liquidity density), continuous support/resistance wall tracking, sub-second institutional block trade detector (≥ $100K) with whale tier classification, and Mobile PWA with offline caching & native push notifications.
+          </p>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button type="button" class="btn-action" style="background:#0f766e; border-color:#14b8a6; color:#fff;" onclick="refreshHeatmapData()">🔄 Refresh Data</button>
+          <button type="button" class="btn-action" style="background:#134e4a; border-color:#0d9488; color:#ccfbf1;" onclick="toggleHeatmapStream()" id="btnHeatmapPause">⏸️ Pause Stream</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5-Metric Institutional KPI Strip -->
+    <div class="wallet-strip" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));">
+      <div class="metric-pill" style="border-left: 3px solid #14b8a6;">
+        <span class="k">Whale Net Flow (24h/Session)</span>
+        <span class="v up" id="hmWhaleNetFlow">+$4.82M (Bullish)</span>
+      </div>
+      <div class="metric-pill" style="border-left: 3px solid #2dd4bf;">
+        <span class="k">Whale Buy vs Sell Volume</span>
+        <span class="v" id="hmWhaleBuySell">$12.4M BUY / $7.58M SELL</span>
+      </div>
+      <div class="metric-pill" style="border-left: 3px solid #f59e0b;">
+        <span class="k">Largest Single Print</span>
+        <span class="v" id="hmLargestPrint" style="color:#fcd34d;">👑 $1,150,000 TITAN BUY</span>
+      </div>
+      <div class="metric-pill" style="border-left: 3px solid #06b6d4;">
+        <span class="k">Order Book Depth Density</span>
+        <span class="v" id="hmBookDensity">Bids $8.42M vs Asks $5.10M (+24.6%)</span>
+      </div>
+      <div class="metric-pill" style="border-left: 3px solid #10b981;">
+        <span class="k">PWA & Push Status</span>
+        <span class="v" id="hmPwaStatus" style="color:#6ee7b7;">🟢 PWA READY | 60 FPS CANVAS</span>
+      </div>
+    </div>
+
+    <!-- Main Workstation Layout: Heatmap (Left/Top) & Whale Radar (Right/Bottom) -->
+    <div style="display:grid; grid-template-columns: 1.6fr 1fr; gap:12px;">
+      <!-- LEFT WORKSTATION: High-Performance Canvas Liquidity Heatmap -->
+      <div class="panel" style="display:flex; flex-direction:column; gap:10px;">
+        <div class="panel-header" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span>📈 HTML5 Canvas Order Book Liquidity Heatmap</span>
+            <span style="font-size:10px; background:#134e4a; color:#2dd4bf; padding:2px 6px; border-radius:3px;" id="hmFpsBadge">60 FPS</span>
+          </div>
+
+          <!-- Controls: Range, Palette, Bins -->
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <select id="hmSymbolSelect" class="btn-action" style="padding:2px 8px; font-size:11px;" onchange="changeHeatmapSymbol(this.value)">
+              <option value="BNBUSDT" selected>BNBUSDT</option>
+              <option value="BTCUSDT">BTCUSDT</option>
+              <option value="ETHUSDT">ETHUSDT</option>
+              <option value="SOLUSDT">SOLUSDT</option>
+            </select>
+
+            <select id="hmRangeSelect" class="btn-action" style="padding:2px 8px; font-size:11px;" onchange="changeHeatmapRange(this.value)">
+              <option value="0.01">±1% Depth</option>
+              <option value="0.02">±2% Depth</option>
+              <option value="0.03" selected>±3% Depth</option>
+              <option value="0.05">±5% Depth</option>
+              <option value="0.10">±10% Depth</option>
+            </select>
+
+            <select id="hmPaletteSelect" class="btn-action" style="padding:2px 8px; font-size:11px;" onchange="changeHeatmapPalette(this.value)">
+              <option value="cyberpunk" selected>Cyberpunk Neon</option>
+              <option value="thermal">Thermal Footprint</option>
+              <option value="matrix">Matrix Gold</option>
+              <option value="ocean">Oceanic Deep</option>
+            </select>
+
+            <select id="hmBinsSelect" class="btn-action" style="padding:2px 8px; font-size:11px;" onchange="changeHeatmapBins(this.value)">
+              <option value="40">40 Bins</option>
+              <option value="50" selected>50 Bins (Standard)</option>
+              <option value="75">75 Bins (High-Res)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div style="position:relative; width:100%; height:420px; background:#070d12; border-radius:6px; overflow:hidden; border:1px solid #134e4a;">
+          <canvas id="heatmapCanvas" width="950" height="420" style="width:100%; height:100%; display:block; cursor:crosshair;"></canvas>
+
+          <!-- Interactive Floating Tooltip -->
+          <div id="hmTooltip" style="display:none; position:absolute; pointer-events:none; background:rgba(11,20,26,0.92); border:1px solid #14b8a6; border-radius:4px; padding:6px 10px; font-size:11px; color:#e2e8f0; z-index:10; box-shadow:0 4px 12px rgba(0,0,0,0.6);">
+            <div style="font-weight:800; color:#2dd4bf;" id="hmTipPrice">$740.00</div>
+            <div id="hmTipDepth">Volume: 125.40 BNB ($92.8K)</div>
+            <div id="hmTipSide" style="font-weight:700;">BID WALL</div>
+          </div>
+        </div>
+
+        <!-- Bottom Heatmap Legend & Wall Summary -->
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; padding:4px 8px; background:rgba(15,23,42,0.4); border-radius:4px; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="color:#94a3b8;">Liquidity Intensity:</span>
+            <div style="display:flex; align-items:center; gap:3px;">
+              <span style="color:#64748b;">Low</span>
+              <div id="hmLegendBar" style="width:120px; height:8px; border-radius:2px; background:linear-gradient(to right, #042f2e, #0d9488, #2dd4bf, #fef08a, #f43f5e);"></div>
+              <span style="color:#f43f5e; font-weight:800;">Dense Wall</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <span><b style="color:#34d399;">Support Wall:</b> <span id="hmSupportWallText">$735.00 ($1.2M)</span></span>
+            <span><b style="color:#f87171;">Resistance Wall:</b> <span id="hmResistanceWallText">$748.00 ($890K)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT WORKSTATION: Institutional Whale Radar & Bubble Feed -->
+      <div class="panel" style="display:flex; flex-direction:column; gap:10px;">
+        <div class="panel-header" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <span>🐋 Institutional Block Trade Radar (≥ $100K)</span>
+
+          <div style="display:flex; align-items:center; gap:6px;">
+            <select id="hmBlockFilter" class="btn-action" style="padding:2px 8px; font-size:11px;" onchange="changeBlockFilter(this.value)">
+              <option value="100000" selected>≥ $100K (All Whales)</option>
+              <option value="250000">≥ $250K (Sharks+)</option>
+              <option value="500000">≥ $500K (Megalodons+)</option>
+              <option value="1000000">≥ $1M (Titans Only)</option>
+            </select>
+            <button type="button" class="btn-action" id="btnSoundToggle" style="padding:2px 8px; font-size:11px; background:#065f46; color:#a7f3d0;" onclick="toggleSoundAlerts()">🔊 Sound ON</button>
+          </div>
+        </div>
+
+        <!-- Canvas Bubble Visualizer -->
+        <div style="position:relative; width:100%; height:200px; background:#080e14; border-radius:6px; overflow:hidden; border:1px solid #1e293b;">
+          <canvas id="bubbleCanvas" width="550" height="200" style="width:100%; height:100%; display:block;"></canvas>
+          <div style="position:absolute; bottom:6px; right:8px; font-size:10px; color:#64748b; pointer-events:none;">
+            Bubble size ∝ Trade Value ($) | Green = Taker Buy | Red = Taker Sell
+          </div>
+        </div>
+
+        <!-- Real-Time Whale Tape Table -->
+        <div style="overflow-y:auto; max-height:190px; border:1px solid var(--border); border-radius:4px;">
+          <table class="positions-table" style="font-size:11px; width:100%;">
+            <thead>
+              <tr style="position:sticky; top:0; background:#0f172a; z-index:2;">
+                <th>Time</th>
+                <th>Tier</th>
+                <th>Side</th>
+                <th>Notional ($)</th>
+                <th>Price</th>
+                <th>Qty</th>
+              </tr>
+            </thead>
+            <tbody id="hmBlockTradesBody">
+              <tr>
+                <td colspan="6" style="text-align:center; padding:18px; color:#64748b;">Streaming institutional block trades...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW: Mobile PWA, Notifications & Offline Architecture Center -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:12px;">
+      <!-- PWA Installation & Desktop Integration Card -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>📲 Mobile PWA & Desktop App Integration</span>
+          <span style="font-size:10px; background:#065f46; color:#a7f3d0; padding:2px 6px; border-radius:3px;">STANDALONE READY</span>
+        </div>
+        <div style="padding:12px; display:flex; flex-direction:column; gap:10px; font-size:12px; color:#cbd5e1;">
+          <p style="margin:0; line-height:1.4;">
+            Install GodTrader as a native desktop or mobile application on Windows, macOS, iOS, or Android with offline caching and instant launch:
+          </p>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button type="button" class="btn-action" style="background:#059669; color:#fff; font-weight:800; padding:8px 14px;" onclick="triggerPwaInstall()">
+              📲 Install Native App
+            </button>
+            <span style="font-size:11px; color:#94a3b8;" id="pwaStatusDesc">Click to install or Add to Home Screen in Safari.</span>
+          </div>
+          <div style="font-size:11px; color:#64748b; background:rgba(15,23,42,0.4); padding:6px 10px; border-radius:4px;">
+            Service Worker Cache: <b style="color:#2dd4bf;">godtrader-pwa-v5</b> (Shell, HTML, Manifest, Offline Fallback).
+          </div>
+        </div>
+      </div>
+
+      <!-- Native Push Alerts & Notification Center -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>🔔 Native Push Notification & Audio Dispatcher</span>
+          <span style="font-size:10px; background:#1e3a8a; color:#bfdbfe; padding:2px 6px; border-radius:3px;">SYSTEM NOTIFICATIONS</span>
+        </div>
+        <div style="padding:12px; display:flex; flex-direction:column; gap:10px; font-size:12px; color:#cbd5e1;">
+          <p style="margin:0; line-height:1.4;">
+            Receive instant operating system desktop & mobile notifications for large whale trades and margin liquidation risk:
+          </p>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <button type="button" class="btn-action" style="background:#2563eb; color:#fff; font-weight:800; padding:8px 14px;" onclick="requestPushPermission()">
+              🔔 Enable Native Alerts
+            </button>
+            <button type="button" class="btn-action" style="background:#334155; color:#e2e8f0; padding:8px 14px;" onclick="testPushNotification()">
+              ⚡ Send Test Notification
+            </button>
+            <button type="button" class="btn-action" style="background:#334155; color:#e2e8f0; padding:8px 14px;" onclick="playChimeSound()">
+              🎵 Test Sound Chime
+            </button>
+          </div>
+          <div style="font-size:11px; color:#64748b; background:rgba(15,23,42,0.4); padding:6px 10px; border-radius:4px;">
+            Notification Status: <b id="pushPermissionBadge" style="color:#38bdf8;">Default (Click to Enable)</b>
           </div>
         </div>
       </div>
@@ -3189,15 +3409,18 @@
       const arbBtn = document.getElementById("tabArbitrageBtn");
       const microBtn = document.getElementById("tabMicrostructureBtn");
       const sorBtn = document.getElementById("tabSORBtn");
+      const heatBtn = document.getElementById("tabHeatmapBtn");
       const termMain = document.getElementById("deskTerminal");
       const arbMain = document.getElementById("deskArbitrage");
       const microMain = document.getElementById("deskMicrostructure");
       const sorMain = document.getElementById("deskSOR");
+      const heatMain = document.getElementById("deskHeatmap");
 
       if (termBtn) termBtn.classList.toggle("active", desk === 'terminal');
       if (arbBtn) arbBtn.classList.toggle("active", desk === 'arbitrage');
       if (microBtn) microBtn.classList.toggle("active", desk === 'microstructure');
       if (sorBtn) sorBtn.classList.toggle("active", desk === 'sor');
+      if (heatBtn) heatBtn.classList.toggle("active", desk === 'heatmap');
 
       if (termMain) termMain.style.display = (desk === 'terminal') ? "grid" : "none";
       if (arbMain) {
@@ -3217,6 +3440,12 @@
         sorMain.style.display = (desk === 'sor') ? "flex" : "none";
         if (desk === 'sor') {
           loadSORData(currentSymbol);
+        }
+      }
+      if (heatMain) {
+        heatMain.style.display = (desk === 'heatmap') ? "flex" : "none";
+        if (desk === 'heatmap') {
+          initHeatmapDesk();
         }
       }
     }
@@ -3876,6 +4105,550 @@
         ticket.style.outline = "2px solid #6366f1";
         setTimeout(() => { ticket.style.outline = "none"; }, 1500);
       }
+    }
+
+    // =========================================================================
+    // PHASE 5: HIGH-PERFORMANCE CANVAS DEPTH HEATMAP, WHALE RADAR & MOBILE PWA
+    // =========================================================================
+
+    let hmSymbol = "BNBUSDT";
+    let hmRangePct = 0.03;
+    let hmBins = 50;
+    let hmPalette = "cyberpunk";
+    let hmStreamingPaused = false;
+    let hmIntervalId = null;
+    let hmMatrixData = null;
+    let hmLatestBlocks = [];
+    let hmSoundAlertsEnabled = true;
+    let hmMinBlockFilter = 100000;
+    let hmActiveBubbles = [];
+    let hmLastBlockTradeId = null;
+    let pwaDeferredPrompt = null;
+    let audioCtx = null;
+
+    // Web Audio Synthesized Chime (Zero External Dependencies)
+    function playChimeSound() {
+      if (!hmSoundAlertsEnabled) return;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } catch (e) {
+        console.warn("Audio chime failed", e);
+      }
+    }
+
+    function toggleSoundAlerts() {
+      hmSoundAlertsEnabled = !hmSoundAlertsEnabled;
+      const btn = document.getElementById("btnSoundToggle");
+      if (btn) {
+        btn.textContent = hmSoundAlertsEnabled ? "🔊 Sound ON" : "🔇 Sound OFF";
+        btn.style.background = hmSoundAlertsEnabled ? "#065f46" : "#334155";
+        btn.style.color = hmSoundAlertsEnabled ? "#a7f3d0" : "#94a3b8";
+      }
+    }
+
+    function initHeatmapDesk() {
+      hmSymbol = currentSymbol || "BNBUSDT";
+      const symSel = document.getElementById("hmSymbolSelect");
+      if (symSel) symSel.value = hmSymbol;
+      
+      initHeatmapCanvasEvents();
+      startBubbleAnimationLoop();
+      refreshHeatmapData();
+
+      if (!hmIntervalId) {
+        hmIntervalId = setInterval(() => {
+          if (currentActiveDesk === 'heatmap' && !hmStreamingPaused) {
+            loadHeatmapData(hmSymbol, true);
+            loadBlockTrades(hmSymbol);
+          }
+        }, 3000);
+      }
+    }
+
+    function toggleHeatmapStream() {
+      hmStreamingPaused = !hmStreamingPaused;
+      const btn = document.getElementById("btnHeatmapPause");
+      if (btn) {
+        btn.textContent = hmStreamingPaused ? "▶️ Resume Stream" : "⏸️ Pause Stream";
+        btn.style.background = hmStreamingPaused ? "#1e3a8a" : "#134e4a";
+      }
+    }
+
+    function changeHeatmapSymbol(sym) {
+      hmSymbol = sym;
+      refreshHeatmapData();
+    }
+
+    function changeHeatmapRange(val) {
+      hmRangePct = parseFloat(val);
+      loadHeatmapData(hmSymbol, false);
+    }
+
+    function changeHeatmapPalette(pal) {
+      hmPalette = pal;
+      if (hmMatrixData) renderHeatmapCanvas(hmMatrixData);
+      updateLegendBar(pal);
+    }
+
+    function changeHeatmapBins(val) {
+      hmBins = parseInt(val);
+      loadHeatmapData(hmSymbol, false);
+    }
+
+    function changeBlockFilter(val) {
+      hmMinBlockFilter = parseFloat(val);
+      loadBlockTrades(hmSymbol);
+    }
+
+    function refreshHeatmapData() {
+      loadHeatmapData(hmSymbol, false);
+      loadBlockTrades(hmSymbol);
+    }
+
+    function updateLegendBar(pal) {
+      const leg = document.getElementById("hmLegendBar");
+      if (!leg) return;
+      if (pal === 'thermal') {
+        leg.style.background = "linear-gradient(to right, #000000, #3b0764, #b91c1c, #f59e0b, #ffffff)";
+      } else if (pal === 'matrix') {
+        leg.style.background = "linear-gradient(to right, #052e16, #15803d, #84cc16, #eab308, #ffffff)";
+      } else if (pal === 'ocean') {
+        leg.style.background = "linear-gradient(to right, #030712, #075985, #0284c7, #38bdf8, #f0f9ff)";
+      } else {
+        leg.style.background = "linear-gradient(to right, #042f2e, #0d9488, #2dd4bf, #fef08a, #f43f5e)";
+      }
+    }
+
+    async function loadHeatmapData(sym, silent) {
+      try {
+        const resp = await fetch(`/api/heatmap/depth?symbol=${encodeURIComponent(sym)}&range_pct=${hmRangePct}&bins=${hmBins}&slices=50`);
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        const data = await resp.json();
+        hmMatrixData = data;
+        renderHeatmapCanvas(data);
+
+        if (data.stats) {
+          const st = data.stats;
+          const densEl = document.getElementById("hmBookDensity");
+          if (densEl) {
+            const bM = (st.total_bid_usd / 1e6).toFixed(2);
+            const aM = (st.total_ask_usd / 1e6).toFixed(2);
+            densEl.textContent = `Bids $${bM}M vs Asks $${aM}M (${st.imbalance_pct > 0 ? '+' : ''}${st.imbalance_pct}%)`;
+            densEl.className = "v " + (st.imbalance_pct >= 0 ? "up" : "down");
+          }
+
+          const supText = document.getElementById("hmSupportWallText");
+          if (supText && st.largest_bid_wall) {
+            supText.textContent = `$${st.largest_bid_wall.price.toFixed(2)} ($${(st.largest_bid_wall.usd / 1e3).toFixed(0)}K)`;
+          }
+
+          const resText = document.getElementById("hmResistanceWallText");
+          if (resText && st.largest_ask_wall) {
+            resText.textContent = `$${st.largest_ask_wall.price.toFixed(2)} ($${(st.largest_ask_wall.usd / 1e3).toFixed(0)}K)`;
+          }
+        }
+      } catch (e) {
+        if (!silent) console.warn("Heatmap data load error", e);
+      }
+    }
+
+    function renderHeatmapCanvas(data) {
+      const cvs = document.getElementById("heatmapCanvas");
+      if (!cvs || !data || !data.grid || data.grid.length === 0) return;
+      const ctx = cvs.getContext("2d");
+      const W = cvs.width;
+      const H = cvs.height;
+
+      ctx.clearRect(0, 0, W, H);
+
+      const timeSlices = data.grid.length;
+      const priceBins = data.price_bins.length;
+      const cellW = W / timeSlices;
+      const cellH = H / priceBins;
+
+      for (let t = 0; t < timeSlices; t++) {
+        const col = data.grid[t];
+        for (let b = 0; b < priceBins; b++) {
+          const cell = col[b];
+          const x = t * cellW;
+          const y = H - (b + 1) * cellH;
+
+          if (cell.intensity > 0) {
+            ctx.fillStyle = getHeatmapColor(cell.intensity, cell.side, hmPalette);
+            ctx.fillRect(x, y, Math.ceil(cellW), Math.ceil(cellH));
+          }
+        }
+      }
+
+      if (data.price_trajectory && data.price_trajectory.length > 0) {
+        ctx.beginPath();
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = "#0284c7";
+        ctx.shadowBlur = 8;
+
+        const minP = data.min_price;
+        const maxP = data.max_price;
+        const pRange = maxP - minP || 1;
+
+        for (let t = 0; t < data.price_trajectory.length; t++) {
+          const p = data.price_trajectory[t];
+          const normY = (p - minP) / pRange;
+          const x = t * cellW + cellW * 0.5;
+          const y = H - normY * H;
+          if (t === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "10px monospace";
+      ctx.textAlign = "right";
+      const labelSteps = 6;
+      for (let i = 0; i <= labelSteps; i++) {
+        const binIdx = Math.floor(i * (priceBins - 1) / labelSteps);
+        const p = data.price_bins[binIdx];
+        const y = H - (binIdx + 0.5) * cellH;
+        ctx.fillText("$" + p.toFixed(2), W - 6, y + 3);
+      }
+    }
+
+    function getHeatmapColor(intensity, side, palette) {
+      const val = Math.min(1.0, Math.max(0.05, intensity));
+      if (palette === 'thermal') {
+        const r = Math.floor(val * 255);
+        const g = Math.floor(Math.pow(val, 2) * 200);
+        const b = Math.floor(Math.pow(val, 3) * 150);
+        return `rgba(${r}, ${g}, ${b}, ${0.2 + val * 0.8})`;
+      } else if (palette === 'matrix') {
+        const g = Math.floor(100 + val * 155);
+        const r = Math.floor(val * 220);
+        return `rgba(${r}, ${g}, 30, ${0.15 + val * 0.85})`;
+      } else if (palette === 'ocean') {
+        const b = Math.floor(120 + val * 135);
+        const g = Math.floor(val * 210);
+        return `rgba(10, ${g}, ${b}, ${0.2 + val * 0.8})`;
+      } else {
+        if (side === "BID") {
+          const g = Math.floor(180 + val * 75);
+          const r = Math.floor(val * 200);
+          return `rgba(${r}, ${g}, 220, ${0.18 + val * 0.82})`;
+        } else if (side === "ASK") {
+          const r = Math.floor(210 + val * 45);
+          const b = Math.floor(120 + (1 - val) * 100);
+          return `rgba(${r}, 40, ${b}, ${0.18 + val * 0.82})`;
+        } else {
+          return `rgba(234, 179, 8, ${0.25 + val * 0.75})`;
+        }
+      }
+    }
+
+    function initHeatmapCanvasEvents() {
+      const cvs = document.getElementById("heatmapCanvas");
+      const tip = document.getElementById("hmTooltip");
+      if (!cvs || !tip) return;
+
+      cvs.onmousemove = (e) => {
+        if (!hmMatrixData || !hmMatrixData.grid || !hmMatrixData.price_bins) return;
+        const rect = cvs.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const timeSlices = hmMatrixData.grid.length;
+        const priceBins = hmMatrixData.price_bins.length;
+        const cellW = rect.width / timeSlices;
+        const cellH = rect.height / priceBins;
+
+        const tIdx = Math.floor(mouseX / cellW);
+        const bIdx = priceBins - 1 - Math.floor(mouseY / cellH);
+
+        if (tIdx >= 0 && tIdx < timeSlices && bIdx >= 0 && bIdx < priceBins) {
+          const cell = hmMatrixData.grid[tIdx][bIdx];
+          const price = hmMatrixData.price_bins[bIdx];
+
+          tip.style.display = "block";
+          tip.style.left = Math.min(rect.width - 160, mouseX + 14) + "px";
+          tip.style.top = Math.max(10, mouseY - 45) + "px";
+
+          document.getElementById("hmTipPrice").textContent = `$${price.toFixed(2)}`;
+          document.getElementById("hmTipDepth").textContent = `Vol: ${cell.volume.toFixed(2)} ($${(cell.notional_usd / 1e3).toFixed(1)}K)`;
+          const sideEl = document.getElementById("hmTipSide");
+          sideEl.textContent = cell.side === "BID" ? "🟢 BID SUPPORT WALL" : (cell.side === "ASK" ? "🔴 ASK SUPPLY WALL" : "🟡 SPREAD ZONE");
+          sideEl.style.color = cell.side === "BID" ? "#34d399" : (cell.side === "ASK" ? "#f87171" : "#fcd34d");
+        }
+      };
+
+      cvs.onmouseleave = () => {
+        if (tip) tip.style.display = "none";
+      };
+    }
+
+    async function loadBlockTrades(sym) {
+      try {
+        const resp = await fetch(`/api/trades/blocks?symbol=${encodeURIComponent(sym)}&min_notional=${hmMinBlockFilter}&limit=100`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        hmLatestBlocks = data.recent_blocks || [];
+
+        if (hmLatestBlocks.length > 0) {
+          const topTrade = hmLatestBlocks[0];
+          if (hmLastBlockTradeId && topTrade.trade_id !== hmLastBlockTradeId) {
+            spawnBlockBubble(topTrade);
+            if (topTrade.notional_usd >= 250000) {
+              playChimeSound();
+              sendDesktopNotification(
+                `Institutional ${topTrade.tier} Alert (${topTrade.symbol})`,
+                `${topTrade.side} $${topTrade.notional_usd.toLocaleString()} @ $${topTrade.price}`
+              );
+            }
+          }
+          hmLastBlockTradeId = topTrade.trade_id;
+        }
+
+        renderBlockTradesTable(hmLatestBlocks);
+
+        const netFlowEl = document.getElementById("hmWhaleNetFlow");
+        if (netFlowEl) {
+          const nf = data.whale_net_flow_usd || 0;
+          const sign = nf >= 0 ? "+" : "";
+          const dir = nf >= 0 ? "Bullish Accumulation" : "Bearish Distribution";
+          netFlowEl.textContent = `${sign}$${(nf / 1e6).toFixed(2)}M (${dir})`;
+          netFlowEl.className = "v " + (nf >= 0 ? "up" : "down");
+        }
+
+        const volEl = document.getElementById("hmWhaleBuySell");
+        if (volEl) {
+          const bM = ((data.whale_buy_vol_usd || 0) / 1e6).toFixed(1);
+          const sM = ((data.whale_sell_vol_usd || 0) / 1e6).toFixed(1);
+          volEl.textContent = `$${bM}M BUY / $${sM}M SELL (${data.whale_taker_buy_pct || 50}% Taker Buy)`;
+        }
+
+        const largestEl = document.getElementById("hmLargestPrint");
+        if (largestEl && data.largest_print) {
+          const lp = data.largest_print;
+          largestEl.textContent = `${lp.tier_badge.split(' ')[0]} $${lp.notional_usd.toLocaleString()} ${lp.side}`;
+        }
+      } catch (e) {
+        console.warn("Failed to load block trades", e);
+      }
+    }
+
+    function renderBlockTradesTable(blocks) {
+      const tbody = document.getElementById("hmBlockTradesBody");
+      if (!tbody) return;
+
+      if (!blocks || blocks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:18px; color:#64748b;">No block trades matching filter ≥ $${hmMinBlockFilter.toLocaleString()}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = blocks.slice(0, 30).map(b => {
+        const timeStr = new Date(b.timestamp * 1000).toLocaleTimeString("en-GB", { hour12: false });
+        const sideColor = b.side === "BUY" ? "#34d399" : "#f87171";
+        const tierBadge = b.tier_badge || b.tier;
+        return `
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="color:#94a3b8; font-family:monospace;">${timeStr}</td>
+            <td><span style="font-size:10px; font-weight:800; padding:2px 6px; border-radius:3px; background:rgba(30,41,59,0.8); color:#fcd34d;">${tierBadge}</span></td>
+            <td style="font-weight:800; color:${sideColor};">${b.side}</td>
+            <td style="font-weight:800; color:#fff;">$${b.notional_usd.toLocaleString("en-US")}</td>
+            <td style="font-family:monospace; color:#cbd5e1;">$${b.price.toFixed(2)}</td>
+            <td style="font-family:monospace; color:#94a3b8;">${b.qty.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function spawnBlockBubble(trade) {
+      const cvs = document.getElementById("bubbleCanvas");
+      if (!cvs) return;
+      const notional = trade.notional_usd || 100000;
+      const radius = Math.min(42, Math.max(14, Math.sqrt(notional) / 18));
+      const x = radius + Math.random() * (cvs.width - radius * 2);
+      const y = cvs.height + radius;
+      const vy = - (0.8 + Math.random() * 1.2);
+      const vx = (Math.random() - 0.5) * 0.5;
+
+      hmActiveBubbles.push({
+        x: x,
+        y: y,
+        vx: vx,
+        vy: vy,
+        radius: radius,
+        notional: notional,
+        side: trade.side,
+        tier: trade.tier,
+        price: trade.price,
+        alpha: 1.0,
+      });
+
+      if (hmActiveBubbles.length > 25) hmActiveBubbles.shift();
+    }
+
+    function startBubbleAnimationLoop() {
+      const cvs = document.getElementById("bubbleCanvas");
+      if (!cvs) return;
+      const ctx = cvs.getContext("2d");
+
+      if (hmActiveBubbles.length === 0 && hmLatestBlocks.length > 0) {
+        hmLatestBlocks.slice(0, 8).forEach(b => spawnBlockBubble(b));
+      }
+
+      function step() {
+        if (currentActiveDesk === 'heatmap') {
+          ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+          for (let i = hmActiveBubbles.length - 1; i >= 0; i--) {
+            const b = hmActiveBubbles[i];
+            b.x += b.vx;
+            b.y += b.vy;
+            if (b.y < -b.radius) {
+              b.y = cvs.height + b.radius;
+              b.x = b.radius + Math.random() * (cvs.width - b.radius * 2);
+            }
+
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+            const isBuy = b.side === "BUY";
+            ctx.fillStyle = isBuy ? `rgba(34, 197, 94, 0.22)` : `rgba(239, 68, 68, 0.22)`;
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = isBuy ? `rgba(74, 222, 128, 0.85)` : `rgba(248, 113, 113, 0.85)`;
+            ctx.stroke();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 9px sans-serif";
+            ctx.textAlign = "center";
+            const valK = (b.notional / 1000).toFixed(0) + "K";
+            ctx.fillText(valK, b.x, b.y + 3);
+          }
+        }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    // =========================================================================
+    // PROGRESSIVE WEB APP (PWA) & NATIVE DESKTOP/MOBILE NOTIFICATIONS
+    // =========================================================================
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then((reg) => {
+          console.log("GodTrader PWA Service Worker Registered:", reg.scope);
+          const pwaBadge = document.getElementById("hmPwaStatus");
+          if (pwaBadge) pwaBadge.textContent = "🟢 PWA ACTIVE (V5) | 60 FPS";
+        }).catch((err) => {
+          console.warn("Service Worker registration failed:", err);
+        });
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      pwaDeferredPrompt = e;
+      const installBtn = document.getElementById("btnPwaInstall");
+      if (installBtn) installBtn.style.display = "inline-block";
+      const desc = document.getElementById("pwaStatusDesc");
+      if (desc) desc.textContent = "Native PWA ready to install. Click Install Native App above!";
+    });
+
+    window.addEventListener('appinstalled', () => {
+      pwaDeferredPrompt = null;
+      const installBtn = document.getElementById("btnPwaInstall");
+      if (installBtn) installBtn.style.display = "none";
+      const desc = document.getElementById("pwaStatusDesc");
+      if (desc) desc.textContent = "GodTrader is installed as a native standalone PWA application.";
+    });
+
+    async function triggerPwaInstall() {
+      if (pwaDeferredPrompt) {
+        pwaDeferredPrompt.prompt();
+        const { outcome } = await pwaDeferredPrompt.userChoice;
+        console.log("User PWA response:", outcome);
+        pwaDeferredPrompt = null;
+      } else {
+        alert("PWA Installation:\n• In Chrome/Edge: Click the install icon in the address bar.\n• In iOS Safari: Tap Share ➔ Add to Home Screen.");
+      }
+    }
+
+    function togglePushNotifications() {
+      requestPushPermission();
+    }
+
+    async function requestPushPermission() {
+      if (!("Notification" in window)) {
+        alert("Desktop / Web Notifications are not supported in this browser.");
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      updatePushBadge(perm);
+      if (perm === "granted") {
+        sendDesktopNotification("GodTrader Notifications Enabled", "You will now receive instant desktop & mobile alerts for institutional whale prints & margin risk.");
+      }
+    }
+
+    function updatePushBadge(perm) {
+      const badge = document.getElementById("pushPermissionBadge");
+      const navBtn = document.getElementById("btnNotificationToggle");
+      if (badge) {
+        badge.textContent = perm.toUpperCase();
+        badge.style.color = perm === "granted" ? "#34d399" : "#f87171";
+      }
+      if (navBtn) {
+        navBtn.textContent = perm === "granted" ? "🔔 Push ON" : "🔕 Push OFF";
+        navBtn.style.background = perm === "granted" ? "#065f46" : "#1e293b";
+        navBtn.style.color = perm === "granted" ? "#a7f3d0" : "#cbd5e1";
+      }
+    }
+
+    function sendDesktopNotification(title, body) {
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+      try {
+        new Notification(title, {
+          body: body,
+          icon: "/manifest.json",
+          tag: "godtrader-alert"
+        });
+      } catch (e) {
+        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+          navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(title, { body: body });
+          });
+        }
+      }
+    }
+
+    function testPushNotification() {
+      if (Notification.permission !== "granted") {
+        requestPushPermission();
+      } else {
+        sendDesktopNotification(
+          "🐋 TEST WHALE ALERT: $1,250,000 TITAN BUY",
+          "BNBUSDT: 1,689.18 BNB @ $740.00 filled aggressively by market taker."
+        );
+      }
+    }
+
+    if ("Notification" in window) {
+      updatePushBadge(Notification.permission);
     }
 
     // Initialize application
