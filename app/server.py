@@ -48,12 +48,18 @@ try:
     import margin  # noqa: E402
 except ImportError:
     margin = None
+try:
+    import arbitrage  # noqa: E402
+except ImportError:
+    arbitrage = None
 
 WALLET_PATH = os.path.join(ROOT_DIR, "trader", "sim_wallet.json")
 FORECAST_PATH = os.path.join(ROOT_DIR, "trader", "forecast.json")
 WALLET_LOCK = threading.Lock()
 PRICE_CACHE = {}
 PRICE_CACHE_TS = 0.0
+FUTURES_PREMIUM_CACHE = []
+FUTURES_PREMIUM_CACHE_TS = 0.0
 FORECAST_CACHE = {}
 WS_STATS = {
     "connected": False,
@@ -112,6 +118,7 @@ def default_wallet(starting_cash=10000.0):
         "winning_trades": 0,
         "losing_trades": 0,
         "positions": {},       # symbol -> {symbol, side, qty, avg_entry, leverage, margin_locked_usdt, notional_usdt, liquidation_price, stop_loss, take_profit, opened_at}
+        "arbitrage_pairs": {}, # pair_id -> {pair_id, symbol, strategy, spot_leg, perp_leg, delta, metrics, ...}
         "open_orders": [],     # [{id, symbol, side, type, leverage, limit_price, usdt_amount, margin_usdt, stop_loss, take_profit, created_at}]
         "history": [],         # [{id, time, symbol, side, action, qty, price, leverage, margin_usdt, usdt_total, fee_usdt, pnl_usdt, pnl_pct, reason}]
         "simulation_running": True,
@@ -131,6 +138,7 @@ def load_wallet():
         if not isinstance(w, dict) or "cash_usdt" not in w:
             w = default_wallet(10000.0)
         w.setdefault("positions", {})
+        w.setdefault("arbitrage_pairs", {})
         w.setdefault("open_orders", [])
         w.setdefault("history", [])
         w.setdefault("simulation_running", True)
@@ -384,6 +392,183 @@ def _exec_sell_locked(w, bsym, exec_price, sell_qty=None, sell_pct=None, reason=
     return _close_margin_position_locked(w, bsym, exec_price, close_pct=pct, reason=reason)
 
 
+def fetch_live_futures_premium_index():
+    """Fetch all Binance Perpetual Futures mark prices and 8h funding rates with memory cache."""
+    global FUTURES_PREMIUM_CACHE, FUTURES_PREMIUM_CACHE_TS
+    now = time.time()
+    if now - FUTURES_PREMIUM_CACHE_TS > 4.0 or not FUTURES_PREMIUM_CACHE:
+        try:
+            req = urllib.request.Request(
+                "https://fapi.binance.com/fapi/v1/premiumIndex",
+                headers={"User-Agent": "Mozilla/5.0"}
+            )
+            with urllib.request.urlopen(req, timeout=3.5) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if isinstance(data, list) and data:
+                    FUTURES_PREMIUM_CACHE = data
+                    FUTURES_PREMIUM_CACHE_TS = now
+        except Exception:
+            pass
+    if not FUTURES_PREMIUM_CACHE:
+        # High-fidelity offline simulation fallback
+        now_ms = int(now * 1000)
+        next_8h = now_ms + 14400000
+        FUTURES_PREMIUM_CACHE = [
+            {"symbol": "BNBUSDT", "markPrice": "740.10", "lastFundingRate": "0.00020", "nextFundingTime": next_8h},
+            {"symbol": "BTCUSDT", "markPrice": "90050.00", "lastFundingRate": "0.00010", "nextFundingTime": next_8h},
+            {"symbol": "ETHUSDT", "markPrice": "2502.50", "lastFundingRate": "0.00015", "nextFundingTime": next_8h},
+            {"symbol": "SOLUSDT", "markPrice": "180.20", "lastFundingRate": "0.00025", "nextFundingTime": next_8h},
+            {"symbol": "ENAUSDT", "markPrice": "0.4520", "lastFundingRate": "0.00045", "nextFundingTime": next_8h},
+            {"symbol": "PEPEUSDT", "markPrice": "0.0000105", "lastFundingRate": "-0.00350", "nextFundingTime": next_8h},
+            {"symbol": "SUIUSDT", "markPrice": "2.1050", "lastFundingRate": "-0.00080", "nextFundingTime": next_8h},
+            {"symbol": "DOGEUSDT", "markPrice": "0.1450", "lastFundingRate": "0.00010", "nextFundingTime": next_8h},
+            {"symbol": "XRPUSDT", "markPrice": "0.5420", "lastFundingRate": "0.00012", "nextFundingTime": next_8h},
+        ]
+    return FUTURES_PREMIUM_CACHE
+
+
+def _open_arbitrage_pair_locked(w, symbol, strategy="CASH_AND_CARRY", capital_usdt=2000.0, spot_price=None, perp_mark=None, funding_rate=None, reason="Delta-Neutral Execution"):
+    """Open a synthetic delta-neutral arbitrage pair (Spot leg + 1x Perp hedge leg)."""
+    if not arbitrage:
+        raise ValueError("Arbitrage module not available.")
+    bsym = predict.to_binance(symbol)
+    capital_usdt = float(capital_usdt)
+    if capital_usdt <= 0:
+        raise ValueError("Capital must be greater than $0.")
+
+    if spot_price is None or float(spot_price) <= 0:
+        tk = fetch_live_tickers([bsym]).get(bsym) or {}
+        spot_price = float(tk.get("price") or 0.0)
+    if spot_price <= 0:
+        spot_price = 739.95 if bsym == "BNBUSDT" else 100.0
+
+    if perp_mark is None or funding_rate is None:
+        p_list = fetch_live_futures_premium_index()
+        f_match = next((item for item in p_list if item.get("symbol") == bsym or item.get("symbol") == "1000" + bsym), None)
+        if f_match:
+            perp_mark = float(f_match.get("markPrice") or spot_price)
+            funding_rate = float(f_match.get("lastFundingRate") or 0.0001)
+        else:
+            perp_mark = spot_price
+            funding_rate = 0.0002 if strategy == "CASH_AND_CARRY" else -0.0010
+
+    pair = arbitrage.build_delta_neutral_pair(
+        symbol=bsym,
+        strategy=strategy,
+        capital_usdt=capital_usdt,
+        spot_price=spot_price,
+        perp_mark=perp_mark,
+        funding_rate_8h=funding_rate,
+        leverage=1.0,
+        taker_fee_rate=FEE_RATE,
+    )
+
+    total_cost = pair["total_capital_usdt"] + pair["metrics"]["initial_entry_fees_usdt"]
+    if total_cost > w["cash_usdt"] + 1e-4:
+        raise ValueError("Insufficient virtual cash ($%.2f available, tried $%.2f for arbitrage)." % (w["cash_usdt"], total_cost))
+
+    pair_id = "ARB-%s-%d" % (bsym, int(time.time() * 1000))
+    pair["id"] = pair_id
+    pair["opened_at"] = now_iso()
+    pair["last_accrual_ts"] = time.time()
+    pair["accrued_funding_usdt"] = 0.0
+
+    w.setdefault("arbitrage_pairs", {})
+    w["arbitrage_pairs"][pair_id] = pair
+    w["cash_usdt"] = round(max(0.0, w["cash_usdt"] - total_cost), 4)
+
+    trade_rec = {
+        "id": "T%d" % int(time.time() * 1000),
+        "time": now_iso(),
+        "symbol": bsym,
+        "side": "DELTA-NEUTRAL",
+        "action": "OPEN ARB %s" % pair["strategy"],
+        "qty": pair["spot_leg"]["qty"],
+        "price": spot_price,
+        "leverage": 1.0,
+        "margin_usdt": pair["total_capital_usdt"],
+        "usdt_total": pair["total_capital_usdt"],
+        "fee_usdt": pair["metrics"]["initial_entry_fees_usdt"],
+        "pnl_usdt": None,
+        "pnl_pct": None,
+        "reason": "%s (%+.2f%% APY)" % (pair["strategy"], pair["metrics"]["annualized_apy"]),
+    }
+    w["history"].insert(0, trade_rec)
+    w["history"] = w["history"][:200]
+    return pair
+
+
+def _close_arbitrage_pair_locked(w, pair_id, spot_price=None, perp_mark=None, reason="Manual Unwind"):
+    """Simultaneously close both legs of an active delta-neutral arbitrage pair."""
+    if not arbitrage:
+        raise ValueError("Arbitrage module not available.")
+    w.setdefault("arbitrage_pairs", {})
+    pair = w["arbitrage_pairs"].get(pair_id)
+    if not pair:
+        raise ValueError("Arbitrage pair %s not found." % pair_id)
+
+    bsym = pair["symbol"]
+    if spot_price is None or float(spot_price) <= 0:
+        tk = fetch_live_tickers([bsym]).get(bsym) or {}
+        spot_price = float(tk.get("price") or pair["spot_leg"]["price"])
+    if perp_mark is None or float(perp_mark) <= 0:
+        p_list = fetch_live_futures_premium_index()
+        f_match = next((item for item in p_list if item.get("symbol") == bsym or item.get("symbol") == "1000" + bsym), None)
+        perp_mark = float(f_match.get("markPrice") or spot_price) if f_match else spot_price
+
+    now_t = time.time()
+    dt = max(0.0, now_t - float(pair.get("last_accrual_ts", now_t)))
+    pnl_info = arbitrage.compute_pair_realtime_pnl(
+        pair,
+        current_spot_price=spot_price,
+        current_perp_mark=perp_mark,
+        elapsed_seconds=dt,
+    )
+
+    exit_fees = round((float(pair["spot_leg"]["qty"]) * spot_price + float(pair["perp_leg"]["qty"]) * perp_mark) * FEE_RATE, 4)
+    net_realized_pnl = round(pnl_info["total_net_pnl_usdt"] - exit_fees, 4)
+    total_capital = float(pair["total_capital_usdt"])
+    cash_returned = max(0.0, total_capital + net_realized_pnl)
+
+    w["cash_usdt"] = round(w["cash_usdt"] + cash_returned, 4)
+    w["realized_pnl_usdt"] = round(float(w.get("realized_pnl_usdt", 0.0)) + net_realized_pnl, 2)
+    w["total_trades"] = int(w.get("total_trades", 0)) + 1
+    if net_realized_pnl >= 0:
+        w["winning_trades"] = int(w.get("winning_trades", 0)) + 1
+    else:
+        w["losing_trades"] = int(w.get("losing_trades", 0)) + 1
+
+    del w["arbitrage_pairs"][pair_id]
+
+    trade_rec = {
+        "id": "T%d" % int(time.time() * 1000),
+        "time": now_iso(),
+        "symbol": bsym,
+        "side": "DELTA-NEUTRAL",
+        "action": "CLOSE ARB %s" % pair["strategy"],
+        "qty": pair["spot_leg"]["qty"],
+        "price": spot_price,
+        "leverage": 1.0,
+        "margin_usdt": total_capital,
+        "usdt_total": round(cash_returned, 2),
+        "fee_usdt": exit_fees,
+        "pnl_usdt": net_realized_pnl,
+        "pnl_pct": round(net_realized_pnl / total_capital * 100.0, 2) if total_capital > 0 else 0.0,
+        "reason": reason,
+    }
+    w["history"].insert(0, trade_rec)
+    w["history"] = w["history"][:200]
+    return {
+        "pair_id": pair_id,
+        "symbol": bsym,
+        "strategy": pair["strategy"],
+        "realized_pnl_usdt": net_realized_pnl,
+        "accrued_funding_usdt": pnl_info["accrued_funding_usdt"],
+        "basis_pnl_usdt": pnl_info["basis_pnl_usdt"],
+        "cash_returned": cash_returned,
+    }
+
+
 def check_triggers_and_enrich(extra_symbol=None):
     """Evaluate resting Limit Orders + Stop-Loss / Take-Profit / Liquidation triggers against live Binance prices,
     and return the enriched portfolio state with dual USDT and Binance Coin (BNB) values."""
@@ -562,7 +747,76 @@ def check_triggers_and_enrich(extra_symbol=None):
                 "opened_at": pos.get("opened_at"),
             })
 
-        total_equity_usdt = w["cash_usdt"] + total_margin_locked + total_unrealized_pnl
+        # Process active delta-neutral arbitrage pairs
+        arbitrage_out = []
+        total_arb_capital = 0.0
+        total_arb_accrued_funding = 0.0
+        total_arb_basis_pnl = 0.0
+        total_arb_net_pnl = 0.0
+        now_time = time.time()
+        futures_indices = fetch_live_futures_premium_index()
+        f_map = {item.get("symbol"): item for item in futures_indices if item.get("symbol")}
+
+        for pair_id, pair in list(w.get("arbitrage_pairs", {}).items()):
+            sym = pair["symbol"]
+            spot_tk = tickers.get(sym) or {"price": pair["spot_leg"]["price"]}
+            live_spot = float(spot_tk["price"])
+            f_entry = f_map.get(sym) or f_map.get("1000" + sym) or {}
+            live_perp = float(f_entry.get("markPrice") or pair["perp_leg"]["mark_price"])
+            cur_fr = float(f_entry.get("lastFundingRate") or pair["metrics"]["funding_rate_8h"])
+
+            # Elapsed time since last accrual check
+            last_ts = float(pair.get("last_accrual_ts", now_time))
+            elapsed = max(0.0, now_time - last_ts)
+            if sim_running and elapsed >= 1.0:
+                perp_notional = float(pair["perp_leg"]["notional_usdt"])
+                dt_funding = perp_notional * abs(cur_fr) * (elapsed / 28800.0)
+                pair["accrued_funding_usdt"] = round(float(pair.get("accrued_funding_usdt", 0.0)) + dt_funding, 6)
+                pair["last_accrual_ts"] = now_time
+
+            pnl_info = arbitrage.compute_pair_realtime_pnl(
+                pair,
+                current_spot_price=live_spot,
+                current_perp_mark=live_perp,
+                elapsed_seconds=0.0,
+                current_funding_rate=cur_fr,
+            ) if arbitrage else {
+                "basis_pnl_usdt": 0.0,
+                "accrued_funding_usdt": float(pair.get("accrued_funding_usdt", 0.0)),
+                "accrued_borrow_cost_usdt": 0.0,
+                "total_net_pnl_usdt": float(pair.get("accrued_funding_usdt", 0.0)),
+                "roe_pct": 0.0,
+                "current_net_delta_usdt": 0.0,
+                "spot_pnl_usdt": 0.0,
+                "perp_pnl_usdt": 0.0,
+            }
+
+            total_cap = float(pair["total_capital_usdt"])
+            total_arb_capital += total_cap
+            total_arb_accrued_funding += pnl_info["accrued_funding_usdt"]
+            total_arb_basis_pnl += pnl_info["basis_pnl_usdt"]
+            total_arb_net_pnl += pnl_info["total_net_pnl_usdt"]
+
+            arbitrage_out.append({
+                "pair_id": pair_id,
+                "symbol": sym,
+                "strategy": pair["strategy"],
+                "total_capital_usdt": total_cap,
+                "spot_leg": dict(pair["spot_leg"], live_price=live_spot, pnl_usdt=pnl_info["spot_pnl_usdt"]),
+                "perp_leg": dict(pair["perp_leg"], live_mark=live_perp, pnl_usdt=pnl_info["perp_pnl_usdt"]),
+                "delta": dict(pair["delta"], current_net_delta_usdt=pnl_info["current_net_delta_usdt"]),
+                "metrics": pair["metrics"],
+                "live_metrics": {
+                    "basis_pnl_usdt": pnl_info["basis_pnl_usdt"],
+                    "accrued_funding_usdt": pnl_info["accrued_funding_usdt"],
+                    "accrued_borrow_cost_usdt": pnl_info["accrued_borrow_cost_usdt"],
+                    "total_net_pnl_usdt": pnl_info["total_net_pnl_usdt"],
+                    "roe_pct": pnl_info["roe_pct"],
+                },
+                "opened_at": pair.get("opened_at"),
+            })
+
+        total_equity_usdt = w["cash_usdt"] + total_margin_locked + total_unrealized_pnl + total_arb_capital + total_arb_net_pnl
         total_equity_bnb = round(total_equity_usdt / bnb_price, 4)
         cash_bnb = round(w["cash_usdt"] / bnb_price, 4)
         total_return_usdt = total_equity_usdt - w["starting_cash"]
@@ -613,6 +867,14 @@ def check_triggers_and_enrich(extra_symbol=None):
             "losing_trades": int(w.get("losing_trades", 0)),
             "win_rate_pct": win_rate,
             "positions": positions_out,
+            "arbitrage_pairs": arbitrage_out,
+            "arbitrage_summary": {
+                "total_capital_usdt": round(total_arb_capital, 2),
+                "total_accrued_funding_usdt": round(total_arb_accrued_funding, 4),
+                "total_basis_pnl_usdt": round(total_arb_basis_pnl, 4),
+                "total_net_pnl_usdt": round(total_arb_net_pnl, 4),
+                "active_pairs_count": len(arbitrage_out),
+            },
             "open_orders": w["open_orders"],
             "history": w["history"][:40],
             "watchlist": watchlist_out,
@@ -834,6 +1096,30 @@ class AppHandler(BaseHTTPRequestHandler):
             picks = sorted(cached.values(), key=lambda x: -float(x.get("composite_score") or 0.0))
             return self._send_json({"picks": picks})
 
+        if p == "/api/arbitrage/opportunities":
+            try:
+                min_apy = float((qs.get("min_apy") or ["5.0"])[0])
+                spots = {s: t["price"] for s, t in fetch_live_tickers().items()}
+                prems = fetch_live_futures_premium_index()
+                scanned = arbitrage.scan_funding_arbitrage(
+                    min_apy=min_apy,
+                    spot_prices_cache=spots,
+                    premium_indices_cache=prems,
+                ) if arbitrage else {"opportunities": []}
+                return self._send_json(scanned)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/arbitrage/positions":
+            try:
+                state = check_triggers_and_enrich()
+                return self._send_json({
+                    "pairs": state.get("arbitrage_pairs", []),
+                    "summary": state.get("arbitrage_summary", {}),
+                })
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
         return self._send_json({"error": "Not found"}, status=404)
 
     def do_POST(self):
@@ -906,6 +1192,24 @@ class AppHandler(BaseHTTPRequestHandler):
                 return self._send_json({"ok": True, "result": res, "state": check_triggers_and_enrich()})
             if p == "/api/cancel":
                 res = cancel_open_order(payload.get("id"))
+                return self._send_json({"ok": True, "result": res, "state": check_triggers_and_enrich()})
+            if p == "/api/arbitrage/execute":
+                sym = payload.get("symbol") or "BNBUSDT"
+                strat = payload.get("strategy") or "CASH_AND_CARRY"
+                cap = float(payload.get("capital_usdt") or 2000.0)
+                with WALLET_LOCK:
+                    w = load_wallet()
+                    res = _open_arbitrage_pair_locked(w, symbol=sym, strategy=strat, capital_usdt=cap)
+                    save_wallet(w)
+                return self._send_json({"ok": True, "result": res, "state": check_triggers_and_enrich()})
+            if p == "/api/arbitrage/close":
+                pair_id = payload.get("pair_id")
+                if not pair_id:
+                    raise ValueError("Must provide pair_id to unwind.")
+                with WALLET_LOCK:
+                    w = load_wallet()
+                    res = _close_arbitrage_pair_locked(w, pair_id=pair_id, reason="Manual Unwind")
+                    save_wallet(w)
                 return self._send_json({"ok": True, "result": res, "state": check_triggers_and_enrich()})
             if p == "/api/reset":
                 cash = float(payload.get("starting_cash") or 10000.0)
@@ -1042,3 +1346,5 @@ if __name__ == "__main__":
 
 _exec_margin_open_locked = _open_margin_position_locked
 _exec_margin_close_locked = _close_margin_position_locked
+_exec_arbitrage_open_locked = _open_arbitrage_pair_locked
+_exec_arbitrage_close_locked = _close_arbitrage_pair_locked

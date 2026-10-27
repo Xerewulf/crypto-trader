@@ -51,7 +51,27 @@ Every leveraged crypto plan adheres to strict institutional risk engineering:
 
 ---
 
-## 3. US Equities Earnings Analyst (`facts.py`)
+## 3. Delta-Neutral Funding & Cash-Carry Arbitrage Suite (`arbitrage.py`)
+
+Phase 2 systematic yield engine for generating consistent cashflow during sideways or ranging crypto markets with zero price directional risk:
+1. **Automated Spot vs. Perpetual Basis & Funding Scanner**:
+   - Computes absolute basis ($Perp_{mark} - Spot_{price}$) and basis percentage spread.
+   - Converts 8-hour funding rate into simple and compound annualized yield (APY).
+   - Scans Binance Spot and USDⓈ-M Perps in real time.
+2. **Cash & Carry Synthetic Dollar (Long Spot + 1x Short Perp)**:
+   - When 8h funding rate is positive ($fr \ge +0.01\%$/8h or $\ge +10.95\%$ APY): Desk allocates 50% capital to buy Spot and locks 50% capital in 1x Short Perp.
+   - Collects 8-hour funding cashflows paid by leveraged long traders directly into equity.
+   - Net delta exposure is zero ($Delta_{spot} + Delta_{perp} \approx \$0.00$), rendering capital immune to price crashes or rallies.
+3. **Negative Funding Rate Short Squeeze Harvester (Short Spot + Long 1x Perp)**:
+   - When funding plunges deeply negative ($fr \le -0.30\%$/8h or $\le -328.5\%$ APY): Desk borrows Spot on Isolated Margin to Sell Short, and buys 1x Perpetual Futures.
+   - Harvests forced funding payments from aggressive perp short sellers while retaining net zero directional exposure.
+4. **Real-Time Continuous Funding Accrual & Basis Convergence Engine**:
+   - Incrementally accrues funding yield tick-by-tick and models Mark-to-Market basis convergence PnL.
+   - 1-click simultaneous unwinding closes both Spot and Perp legs atomically.
+
+---
+
+## 4. US Equities Earnings Analyst (`facts.py`)
 
 Earnings move stocks more than anything else on the calendar, and the press
 release is written to put the best number first. This skill reads the numbers
