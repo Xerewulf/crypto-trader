@@ -1457,7 +1457,26 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 .pos{color:#22c55e}.neg{color:#ef4444}.muted{color:#64748b}
 #hb.ok{color:#22c55e;font-weight:600}#hb.bad{color:#ef4444;font-weight:700}
 .log{background:#020617;border:1px solid #1e293b;border-radius:8px;padding:10px;font:12px Consolas,monospace;max-height:420px;overflow:auto}
+.nav-switcher{display:flex;justify-content:space-between;align-items:center;background:#060a12;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.nav-tabs{display:flex;align-items:center;gap:8px}
+.nav-tab{background:#0f172a;border:1px solid #1e293b;color:#94a3b8;padding:7px 14px;border-radius:6px;font-weight:700;font-size:13px;text-decoration:none;transition:0.15s;display:inline-flex;align-items:center;gap:6px}
+.nav-tab:hover{border-color:#38bdf8;color:#f8fafc}
+.nav-tab.active{background:#1d4ed8;border-color:#3b82f6;color:#ffffff;box-shadow:0 0 12px rgba(59,130,246,0.35)}
+.nav-tab.gh{background:#0b1120;border-color:#334155;color:#cbd5e1}
+.nav-status{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#22c55e;font-family:monospace}
+.status-dot{width:8px;height:8px;border-radius:50%%;background:#22c55e;box-shadow:0 0 8px #22c55e}
 </style></head><body>
+<nav class="nav-switcher">
+  <div class="nav-tabs">
+    <a href="index.html" class="nav-tab">🎮 Interactive Simulator</a>
+    <a href="dashboard.html" class="nav-tab active">⚡ 24/7 Cloud Bot Dashboard</a>
+    <a href="https://github.com/Xerewulf/crypto-trader" target="_blank" class="nav-tab gh">🐙 GitHub Source</a>
+  </div>
+  <div class="nav-status">
+    <span class="status-dot"></span>
+    <span id="nav-mode-text">24/7 CLOUD AUTOMATION ACTIVE</span>
+  </div>
+</nav>
 <h1>Binance Institutional Paper Trader &amp; Millisecond Execution Monitor</h1>
 <div class="banner">
   <b>MARKET-WIDE QUANT ENGINE ACTIVE:</b> Scanning dynamically across all liquid Binance USDT pairs (%d coins). Executing 7-Day Volume Profile (VAL/POC/VAH), 24h Rolling VWAP, Spot Taker CVD Absorption, and Order-Book Depth Imbalances (&plusmn;1%%) with Convex Multi-Tier Exits (TP1 1.8R, TP2 3.5R, Trailing Runner) and Conviction Kelly Sizing. Paper trading only: no real capital risked.
@@ -1676,18 +1695,26 @@ setInterval(function() {
   wsClock.textContent = d.toTimeString().split(' ')[0] + '.' + ms + ' UTC';
 }, 33);
 
-// Background state sync (every 3 seconds)
+// Background state sync (every 3 seconds, handles static state.json on GitHub Pages)
 var initialPosCount = %d;
-setInterval(function() {
-  fetch('/api/state?_t=' + Date.now())
+function syncState() {
+  var url = (window.location.protocol === 'file:' || window.location.hostname.includes('github.io')) ? 'state.json?_t=' : '/api/state?_t=';
+  fetch(url + Date.now())
     .then(function(res){ return res.json(); })
     .then(function(s){
       if (s && s.positions && Object.keys(s.positions).length !== initialPosCount) {
         location.reload();
       }
     })
-    .catch(function(){});
-}, 3000);
+    .catch(function(){
+      if (url.startsWith('/api')) {
+        fetch('state.json?_t=' + Date.now()).then(function(r){ return r.json(); }).then(function(s){
+          if (s && s.positions && Object.keys(s.positions).length !== initialPosCount) location.reload();
+        }).catch(function(){});
+      }
+    });
+}
+setInterval(syncState, 3000);
 </script>
 </body></html>""" % (
         len(s.get("universe", [])),
