@@ -551,7 +551,8 @@ def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     hours = max(1, math.ceil((ms - p["opened_ms"]) / HOUR_MS))
     prop = close_qty / (p.get("initial_qty") or p["qty"])
     initial_notional = (p.get("initial_qty") or p["qty"]) * p["entry"]
-    borrowed = (initial_notional * (1.0 - 1.0 / CFG["leverage"]) if p["side"] == "long" else initial_notional) * prop
+    lev = p.get("leverage") or CFG["leverage"]
+    borrowed = (initial_notional * (1.0 - 1.0 / lev) if p["side"] == "long" else initial_notional) * prop
     interest = borrowed * CFG["borrow_rate_hourly"] * hours
     prop_entry_fee = p["entry_fee"] * prop
     net = gross - prop_entry_fee - exit_fee - interest
@@ -561,7 +562,7 @@ def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     p["partial_costs"] = p.get("partial_costs", 0.0) + (prop_entry_fee + exit_fee + interest)
     p["qty"] -= close_qty
     p["notional"] = p["qty"] * p["entry"]
-    p["margin"] = p["notional"] / CFG["leverage"]
+    p["margin"] = p["notional"] / lev
 
     r_gain = net / (p["risk_usd"] * prop) if (p["risk_usd"] * prop) > 0 else 0.0
     log("CONVEX SCALE-OUT #%d %s %s [%s] at %s: Qty %s (%.0f%%), Net %s (%+.2fR). Remaining: %s. Account: %s" % (
@@ -572,21 +573,26 @@ def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     return net
 
 
-def close_position(s, p, exit_px, ms, outcome):
+def close_position(s, p, exit_px, ms, outcome, is_liquidation=False):
     rem_qty = p["qty"]
     gross = (exit_px - p["entry"]) * rem_qty if p["side"] == "long" else (p["entry"] - exit_px) * rem_qty
     exit_fee = rem_qty * exit_px * CFG["fee_rate"]
     hours = max(1, math.ceil((ms - p["opened_ms"]) / HOUR_MS))
     prop = rem_qty / (p.get("initial_qty") or rem_qty)
     initial_notional = (p.get("initial_qty") or rem_qty) * p["entry"]
-    borrowed = (initial_notional * (1.0 - 1.0 / CFG["leverage"]) if p["side"] == "long" else initial_notional) * prop
+    lev = p.get("leverage") or CFG["leverage"]
+    borrowed = (initial_notional * (1.0 - 1.0 / lev) if p["side"] == "long" else initial_notional) * prop
     interest = borrowed * CFG["borrow_rate_hourly"] * hours
     rem_entry_fee = p["entry_fee"] * prop
-    rem_net = gross - rem_entry_fee - exit_fee - interest
+    liq_fee = 0.0
+    if is_liquidation:
+        base = base_asset(p["symbol"])
+        liq_fee = margin.liquidation_clearance_fee(rem_qty * exit_px, base) if margin else (rem_qty * exit_px * 0.015)
+    rem_net = gross - rem_entry_fee - exit_fee - interest - liq_fee
 
     s["realized"] += rem_net
     total_net = rem_net + p.get("partial_realized", 0.0)
-    total_costs = p.get("partial_costs", 0.0) + rem_entry_fee + exit_fee + interest
+    total_costs = p.get("partial_costs", 0.0) + rem_entry_fee + exit_fee + interest + liq_fee
     total_r = total_net / p["risk_usd"] if p["risk_usd"] > 0 else 0.0
 
     t = dict(
@@ -595,6 +601,8 @@ def close_position(s, p, exit_px, ms, outcome):
         closed=iso(ms),
         closed_ms=ms,
         outcome=outcome,
+        is_liquidation=is_liquidation,
+        liquidation_fee=round(liq_fee, 2),
         gross=round(gross, 2),
         costs=round(total_costs, 2),
         net=round(total_net, 2),
@@ -639,8 +647,12 @@ def manage_positions(s):
                             p["stop"] = vwap * 1.002
 
                 if p["side"] == "long":
+                    # Check Liquidation first
+                    if p.get("liq_px") and b["l"] <= p["liq_px"]:
+                        close_position(s, p, p["liq_px"], max(b["t"], p["opened_ms"]), "LIQUIDATION [MARGIN EXHAUSTION]", is_liquidation=True)
+                        done = True
                     # TP1 Check (40% scale-out at 1.8R + move stop to Breakeven)
-                    if not p.get("tp1_hit") and b["h"] >= p["tp1_px"]:
+                    elif not p.get("tp1_hit") and b["h"] >= p["tp1_px"]:
                         p["tp1_hit"] = True
                         be_stop = p["entry"] * (1.0 + CFG["fee_rate"] * 2.5)
                         p["stop"] = max(p["stop"], be_stop)
@@ -655,7 +667,7 @@ def manage_positions(s):
                         partial_close_position(s, p, close_qty, p["tp2_px"], b["t"], "TP2 (+3.5R Scale-Out)")
 
                     # Stop-Loss / Breakeven / Trailing Exit
-                    if b["l"] <= p["stop"]:
+                    elif b["l"] <= p["stop"]:
                         px = min(p["stop"], b["o"]) * (1 - slip)
                         lbl = "TRAILING-VWAP-EXIT" if p.get("trail_vwap") else (
                             "BREAKEVEN-EXIT (+0.72R Locked)" if p.get("tp1_hit") else "STOP-LOSS (-1.0R)"
@@ -663,8 +675,12 @@ def manage_positions(s):
                         close_position(s, p, px, max(b["t"], p["opened_ms"]), lbl)
                         done = True
                 else: # Short
+                    # Check Liquidation first
+                    if p.get("liq_px") and b["h"] >= p["liq_px"]:
+                        close_position(s, p, p["liq_px"], max(b["t"], p["opened_ms"]), "LIQUIDATION [MARGIN EXHAUSTION]", is_liquidation=True)
+                        done = True
                     # TP1 Check (40% scale-out at 1.8R + move stop to Breakeven)
-                    if not p.get("tp1_hit") and b["l"] <= p["tp1_px"]:
+                    elif not p.get("tp1_hit") and b["l"] <= p["tp1_px"]:
                         p["tp1_hit"] = True
                         be_stop = p["entry"] * (1.0 - CFG["fee_rate"] * 2.5)
                         p["stop"] = min(p["stop"], be_stop)
@@ -679,13 +695,22 @@ def manage_positions(s):
                         partial_close_position(s, p, close_qty, p["tp2_px"], b["t"], "TP2 (+3.5R Scale-Out)")
 
                     # Stop-Loss / Breakeven / Trailing Exit
-                    if b["h"] >= p["stop"]:
+                    elif b["h"] >= p["stop"]:
                         px = max(p["stop"], b["o"]) * (1 + slip)
                         lbl = "TRAILING-VWAP-EXIT" if p.get("trail_vwap") else (
                             "BREAKEVEN-EXIT (+0.72R Locked)" if p.get("tp1_hit") else "STOP-LOSS (-1.0R)"
                         )
                         close_position(s, p, px, max(b["t"], p["opened_ms"]), lbl)
                         done = True
+
+                if not done and margin and not p.get("margin_call_warned"):
+                    base = base_asset(sym)
+                    h_stat = margin.position_health(p["entry"], b["c"], p["side"], p.get("leverage", CFG["leverage"]), venue="margin", base=base, stop_price=p["stop"])
+                    if h_stat["status"] in ("MARGIN_CALL", "CRITICAL"):
+                        p["margin_call_warned"] = True
+                        log("MARGIN CALL WARNING #%d %s %s: Status %s | Margin Level %.2f | Liq buffer %.2f%%!" % (
+                            p["id"], p["side"].upper(), sym, h_stat["status"], h_stat["margin_level"], h_stat["distance_to_liq_pct"]
+                        ))
 
                 if done:
                     break
@@ -739,7 +764,10 @@ def process_live_tick(s, sym, px, ms=None):
             changed = True
 
         # Stop-Loss / Breakeven / Trailing Exit Check
-        if px <= p["stop"]:
+        if p.get("liq_px") and px <= p["liq_px"]:
+            close_position(s, p, p["liq_px"], ms, "LIQUIDATION [MARGIN EXHAUSTION] [MILLI-SEC WS]", is_liquidation=True)
+            changed = True
+        elif px <= p["stop"]:
             exit_px = min(p["stop"], px) * (1.0 - slip)
             lbl = "TRAILING-VWAP-EXIT [MILLI-SEC WS]" if p.get("trail_vwap") else (
                 "BREAKEVEN-EXIT (+0.72R Locked) [MILLI-SEC WS]" if p.get("tp1_hit") else "STOP-LOSS (-1.0R) [MILLI-SEC WS]"
@@ -768,12 +796,25 @@ def process_live_tick(s, sym, px, ms=None):
             changed = True
 
         # Stop-Loss / Breakeven / Trailing Exit Check
-        if px >= p["stop"]:
+        if p.get("liq_px") and px >= p["liq_px"]:
+            close_position(s, p, p["liq_px"], ms, "LIQUIDATION [MARGIN EXHAUSTION] [MILLI-SEC WS]", is_liquidation=True)
+            changed = True
+        elif px >= p["stop"]:
             exit_px = max(p["stop"], px) * (1.0 + slip)
             lbl = "TRAILING-VWAP-EXIT [MILLI-SEC WS]" if p.get("trail_vwap") else (
                 "BREAKEVEN-EXIT (+0.72R Locked) [MILLI-SEC WS]" if p.get("tp1_hit") else "STOP-LOSS (-1.0R) [MILLI-SEC WS]"
             )
             close_position(s, p, exit_px, ms, lbl)
+            changed = True
+
+    if not changed and margin and not p.get("margin_call_warned"):
+        base = base_asset(sym)
+        h_stat = margin.position_health(p["entry"], px, side, p.get("leverage", CFG["leverage"]), venue="margin", base=base, stop_price=p["stop"])
+        if h_stat["status"] in ("MARGIN_CALL", "CRITICAL"):
+            p["margin_call_warned"] = True
+            log("MARGIN CALL WARNING #%d %s %s: Status %s | Margin Level %.2f | Liq buffer %.2f%%!" % (
+                p["id"], side.upper(), sym, h_stat["status"], h_stat["margin_level"], h_stat["distance_to_liq_pct"]
+            ))
             changed = True
 
     if changed:
@@ -1416,7 +1457,26 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 .pos{color:#22c55e}.neg{color:#ef4444}.muted{color:#64748b}
 #hb.ok{color:#22c55e;font-weight:600}#hb.bad{color:#ef4444;font-weight:700}
 .log{background:#020617;border:1px solid #1e293b;border-radius:8px;padding:10px;font:12px Consolas,monospace;max-height:420px;overflow:auto}
+.nav-switcher{display:flex;justify-content:space-between;align-items:center;background:#060a12;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.nav-tabs{display:flex;align-items:center;gap:8px}
+.nav-tab{background:#0f172a;border:1px solid #1e293b;color:#94a3b8;padding:7px 14px;border-radius:6px;font-weight:700;font-size:13px;text-decoration:none;transition:0.15s;display:inline-flex;align-items:center;gap:6px}
+.nav-tab:hover{border-color:#38bdf8;color:#f8fafc}
+.nav-tab.active{background:#1d4ed8;border-color:#3b82f6;color:#ffffff;box-shadow:0 0 12px rgba(59,130,246,0.35)}
+.nav-tab.gh{background:#0b1120;border-color:#334155;color:#cbd5e1}
+.nav-status{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#22c55e;font-family:monospace}
+.status-dot{width:8px;height:8px;border-radius:50%%;background:#22c55e;box-shadow:0 0 8px #22c55e}
 </style></head><body>
+<nav class="nav-switcher">
+  <div class="nav-tabs">
+    <a href="index.html" class="nav-tab">🎮 Interactive Simulator</a>
+    <a href="dashboard.html" class="nav-tab active">⚡ 24/7 Cloud Bot Dashboard</a>
+    <a href="https://github.com/Xerewulf/crypto-trader" target="_blank" class="nav-tab gh">🐙 GitHub Source</a>
+  </div>
+  <div class="nav-status">
+    <span class="status-dot"></span>
+    <span id="nav-mode-text">24/7 CLOUD AUTOMATION ACTIVE</span>
+  </div>
+</nav>
 <h1>Binance Institutional Paper Trader &amp; Millisecond Execution Monitor</h1>
 <div class="banner">
   <b>MARKET-WIDE QUANT ENGINE ACTIVE:</b> Scanning dynamically across all liquid Binance USDT pairs (%d coins). Executing 7-Day Volume Profile (VAL/POC/VAH), 24h Rolling VWAP, Spot Taker CVD Absorption, and Order-Book Depth Imbalances (&plusmn;1%%) with Convex Multi-Tier Exits (TP1 1.8R, TP2 3.5R, Trailing Runner) and Conviction Kelly Sizing. Paper trading only: no real capital risked.
@@ -1635,18 +1695,26 @@ setInterval(function() {
   wsClock.textContent = d.toTimeString().split(' ')[0] + '.' + ms + ' UTC';
 }, 33);
 
-// Background state sync (every 3 seconds)
+// Background state sync (every 3 seconds, handles static state.json on GitHub Pages)
 var initialPosCount = %d;
-setInterval(function() {
-  fetch('/api/state?_t=' + Date.now())
+function syncState() {
+  var url = (window.location.protocol === 'file:' || window.location.hostname.includes('github.io')) ? 'state.json?_t=' : '/api/state?_t=';
+  fetch(url + Date.now())
     .then(function(res){ return res.json(); })
     .then(function(s){
       if (s && s.positions && Object.keys(s.positions).length !== initialPosCount) {
         location.reload();
       }
     })
-    .catch(function(){});
-}, 3000);
+    .catch(function(){
+      if (url.startsWith('/api')) {
+        fetch('state.json?_t=' + Date.now()).then(function(r){ return r.json(); }).then(function(s){
+          if (s && s.positions && Object.keys(s.positions).length !== initialPosCount) location.reload();
+        }).catch(function(){});
+      }
+    });
+}
+setInterval(syncState, 3000);
 </script>
 </body></html>""" % (
         len(s.get("universe", [])),
@@ -1909,3 +1977,7 @@ if __name__ == "__main__":
         sys.exit(main())
     except KeyboardInterrupt:
         sys.exit(0)
+
+
+# Alias for cloud and external callers
+scan_market = scan_signals
