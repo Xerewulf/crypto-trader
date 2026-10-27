@@ -98,7 +98,17 @@ jobs:
           path: _site/
           retention-days: 7
 
-      - name: Setup GitHub Pages
+      - name: Deploy to gh-pages Branch
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.deploy_pages != 'false' }}
+        continue-on-error: true
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          keep_files: false
+          force_orphan: true
+
+      - name: Setup GitHub Pages (Actions Native)
         if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.deploy_pages != 'false' }}
         continue-on-error: true
         uses: actions/configure-pages@v5
