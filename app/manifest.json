@@ -1,10 +1,52 @@
 {
-  "name": "GodTrader Local Crypto Simulator",
+  "name": "GodTrader Institutional Crypto Terminal & Heatmap",
   "short_name": "GodTrader",
-  "description": "Local iPhone 13 Crypto Paper-Trading Simulator & 10-Source Institutional Analyst",
+  "description": "Institutional Crypto Margin Trading, Order Book Depth Heatmap, Whale Block Radar & Multi-Venue SOR Desk",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#090d16",
-  "theme_color": "#090d16",
-  "orientation": "portrait"
+  "orientation": "any",
+  "background_color": "#070a10",
+  "theme_color": "#0b0f19",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' width='192' height='192'%3E%3Crect width='192' height='192' rx='40' fill='%230b0f19'/%3E%3Ccircle cx='96' cy='96' r='60' fill='none' stroke='%2338bdf8' stroke-width='8'/%3E%3Cpolygon points='96,56 128,126 64,126' fill='%2322c55e'/%3E%3Cpath d='M76,110 L116,110' stroke='%23ffffff' stroke-width='6'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='512' height='512'%3E%3Crect width='512' height='512' rx='100' fill='%230b0f19'/%3E%3Ccircle cx='256' cy='256' r='160' fill='none' stroke='%2338bdf8' stroke-width='20'/%3E%3Cpolygon points='256,150 340,340 172,340' fill='%2322c55e'/%3E%3Cpath d='M200,300 L312,300' stroke='%23ffffff' stroke-width='16'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Directional Margin Terminal",
+      "short_name": "Margin Desk",
+      "description": "Open Institutional Margin Trading Terminal",
+      "url": "/?desk=terminal"
+    },
+    {
+      "name": "Delta-Neutral Arbitrage Desk",
+      "short_name": "Arbitrage",
+      "description": "Open Cash & Carry Synthetic Dollar Desk",
+      "url": "/?desk=arbitrage"
+    },
+    {
+      "name": "Liquidity Depth Heatmap & Whale Radar",
+      "short_name": "Heatmap & Whales",
+      "description": "Open Canvas Liquidity Heatmap & Block Trades",
+      "url": "/?desk=heatmap"
+    },
+    {
+      "name": "Smart Order Routing (SOR)",
+      "short_name": "SOR Desk",
+      "description": "Open Multi-Venue SOR & Deribit GEX Desk",
+      "url": "/?desk=sor"
+    }
+  ]
 }

@@ -61,6 +61,13 @@ try:
     import sor  # noqa: E402
 except ImportError:
     sor = None
+try:
+    import heatmap  # noqa: E402
+except ImportError:
+    heatmap = None
+
+HEATMAP_ENGINE = heatmap.DepthHeatmapEngine(max_snapshots=120) if heatmap else None
+BLOCK_DETECTOR = heatmap.BlockTradeDetector(max_history=200) if heatmap else None
 
 WALLET_PATH = os.path.join(ROOT_DIR, "trader", "sim_wallet.json")
 FORECAST_PATH = os.path.join(ROOT_DIR, "trader", "forecast.json")
@@ -1047,13 +1054,16 @@ class AppHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _send_file(self, path, content_type):
+    def _send_file(self, path, content_type, extra_headers=None):
         with open(path, "rb") as fh:
             body = fh.read()
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(body)))
+        if extra_headers:
+            for k, v in extra_headers.items():
+                self.send_header(k, v)
         self.end_headers()
         self.wfile.write(body)
 
@@ -1066,6 +1076,12 @@ class AppHandler(BaseHTTPRequestHandler):
             return self._send_file(os.path.join(APP_DIR, "index.html"), "text/html; charset=utf-8")
         if p == "/manifest.json":
             return self._send_file(os.path.join(APP_DIR, "manifest.json"), "application/manifest+json; charset=utf-8")
+        if p == "/sw.js":
+            return self._send_file(
+                os.path.join(APP_DIR, "sw.js"),
+                "application/javascript; charset=utf-8",
+                extra_headers={"Service-Worker-Allowed": "/"},
+            )
 
         if p == "/api/ws/status":
             return self._send_json(WS_STATS)
@@ -1228,6 +1244,42 @@ class AppHandler(BaseHTTPRequestHandler):
                     w = load_wallet()
                 cb = sor.evaluate_circuit_breakers(w) if sor else {"status": "CLEAR", "allowed_to_trade": True}
                 return self._send_json(cb)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/heatmap/depth":
+            try:
+                sym = predict.to_binance((qs.get("symbol") or ["BNBUSDT"])[0])
+                range_pct = float((qs.get("range_pct") or ["0.03"])[0])
+                bins = int((qs.get("bins") or ["50"])[0])
+                slices = int((qs.get("slices") or ["50"])[0])
+
+                if heatmap and HEATMAP_ENGINE:
+                    heatmap.fetch_live_depth_and_record(HEATMAP_ENGINE, sym, limit=100)
+                    t_info = fetch_live_tickers([sym]).get(sym) or {}
+                    cur_spot = float(t_info.get("price") or 0.0)
+                    matrix_doc = HEATMAP_ENGINE.generate_heatmap_matrix(
+                        sym, range_pct=range_pct, price_bins=bins, time_slices=slices, current_spot=cur_spot
+                    )
+                    return self._send_json(matrix_doc)
+                else:
+                    return self._send_json({"error": "Heatmap module unavailable"}, status=503)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/trades/blocks":
+            try:
+                sym = predict.to_binance((qs.get("symbol") or ["BNBUSDT"])[0])
+                min_notional = float((qs.get("min_notional") or ["100000.0"])[0])
+                limit = min(500, int((qs.get("limit") or ["200"])[0]))
+
+                if heatmap and BLOCK_DETECTOR:
+                    metrics = heatmap.fetch_live_block_trades(
+                        BLOCK_DETECTOR, sym, min_notional=min_notional, limit=limit
+                    )
+                    return self._send_json(metrics)
+                else:
+                    return self._send_json({"error": "Heatmap module unavailable"}, status=503)
             except Exception as e:
                 return self._send_json({"error": str(e)}, status=500)
 
@@ -1410,6 +1462,7 @@ def start_ws_feeder_thread():
 
 def background_trigger_worker():
     """Continuously monitor open positions & resting limit orders every 2.5 seconds when simulation is running."""
+    loop_count = 0
     while True:
         try:
             with WALLET_LOCK:
@@ -1417,6 +1470,12 @@ def background_trigger_worker():
                 sim_on = w.get("simulation_running", True)
             if sim_on:
                 check_triggers_and_enrich()
+                loop_count += 1
+                if loop_count % 2 == 0 and heatmap and HEATMAP_ENGINE:
+                    try:
+                        heatmap.fetch_live_depth_and_record(HEATMAP_ENGINE, "BNBUSDT", limit=50)
+                    except Exception:
+                        pass
         except Exception:
             pass
         time.sleep(2.5)
