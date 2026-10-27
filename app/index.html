@@ -3,236 +3,176 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GodTrader Pro — Binance Margin Crypto Simulation & AI Terminal</title>
-  <title>GodTrader Pro -- Institutional Crypto Paper-Trading & 25-Source AI Terminal</title>
+  <title>GodTrader Institutional Crypto Terminal -- Binance Margin Simulator</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="manifest" href="manifest.json" />
   <style>
     :root {
-      --bg: #070b12;
-      --panel: #0e1524;
-      --panel-2: #141e33;
-      --border: #1e2d4a;
-      --text: #f1f5f9;
-      --muted: #8b9bb4;
+      --bg: #070b14;
+      --card-bg: #0f172a;
+      --card-alt: #0a0f1d;
+      --border: #1e293b;
+      --border-focus: #3b82f6;
+      --text: #f8fafc;
+      --muted: #94a3b8;
       --green: #10b981;
-      --green-bg: rgba(16, 185, 129, 0.16);
-      --red: #f43f5e;
-      --red-bg: rgba(244, 63, 94, 0.16);
-      --accent: #3b82f6;
+      --green-bg: rgba(16, 185, 129, 0.14);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.14);
       --gold: #f59e0b;
-      --cyan: #06b6d4;
-      --purple: #a855f7;
+      --gold-bg: rgba(245, 158, 11, 0.14);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
+      background-color: var(--bg);
       color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      line-height: 1.4;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* Top Navbar & Virtual Wallet Bar */
+    /* Topbar */
     .topbar {
-      background: #0a101d;
+      background: #0b1120;
       border-bottom: 1px solid var(--border);
       padding: 8px 16px;
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
+      gap: 12px;
       position: sticky;
       top: 0;
       z-index: 50;
     }
-
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
-
     .site-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 800;
       letter-spacing: -0.3px;
+      color: #fff;
     }
-
-    /* Simulation Control Buttons */
+    .badge-sim {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .badge-sim.live { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--green); }
+    .badge-sim.paused { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid var(--red); }
     .sim-controls {
       display: flex;
+      gap: 4px;
       align-items: center;
-      gap: 6px;
-      background: #060a12;
-      border: 1px solid var(--border);
-      padding: 3px 6px;
-      border-radius: 8px;
     }
-
-    .badge-sim {
-      font-size: 11px;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 6px;
-      letter-spacing: 0.3px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .badge-sim.live {
-      background: rgba(16, 185, 129, 0.18);
-      color: #34d399;
-      border: 1px solid #059669;
-    }
-    .badge-sim.paused {
-      background: rgba(244, 63, 94, 0.18);
-      color: #f87171;
-      border: 1px solid #dc2626;
-    }
-
     .btn-sim {
-      border: none;
-      font-size: 11px;
+      padding: 3px 9px;
+      font-size: 10.5px;
       font-weight: 800;
-      padding: 5px 9px;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
-      transition: 0.15s;
-    }
-    .btn-sim.start {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #032218;
-    }
-    .btn-sim.stop {
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      border: 1px solid var(--border);
+      background: #1e293b;
       color: #fff;
+      transition: all 0.15s;
     }
-    .btn-sim:hover {
-      opacity: 0.9;
-      transform: scale(1.02);
-    }
+    .btn-sim:hover { filter: brightness(1.2); }
+    .btn-sim.start { background: #065f46; border-color: #10b981; color: #a7f3d0; }
+    .btn-sim.stop { background: #7f1d1d; border-color: #ef4444; color: #fecaca; }
 
-    /* BNB Price Ticker & Currency Toggle */
     .bnb-pill {
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      color: #fde68a;
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 800;
+      background: #141c2e;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
       display: flex;
       align-items: center;
       gap: 6px;
     }
-
     .cur-toggle-group {
       display: flex;
+      background: #101726;
       border: 1px solid var(--border);
-      border-radius: 7px;
+      border-radius: 6px;
       overflow: hidden;
-      background: #070c16;
     }
     .cur-btn {
-      background: transparent;
-      border: none;
-      color: var(--muted);
+      padding: 4px 10px;
       font-size: 11px;
       font-weight: 700;
-      padding: 5px 9px;
       cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.15s;
     }
     .cur-btn.active {
-      background: var(--accent);
+      background: #2563eb;
       color: #fff;
     }
 
-    /* Metric Pills */
     .nav-tabs-group {
       display: flex;
-      align-items: center;
       gap: 6px;
+      align-items: center;
     }
     .nav-pill {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
       color: var(--muted);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 6px 12px;
-      border-radius: 7px;
       text-decoration: none;
-      transition: 0.15s;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #101726;
+      border: 1px solid var(--border);
+      transition: all 0.15s;
     }
-    .nav-pill:hover {
-      border-color: var(--accent);
+    .nav-pill:hover, .nav-pill.active {
       color: #fff;
-    }
-    .nav-pill.active {
-      background: #1d4ed8;
+      background: #1e293b;
       border-color: #3b82f6;
-      color: #fff;
-      box-shadow: 0 0 10px rgba(59,130,246,0.3);
     }
-    .nav-pill.gh {
-      border-color: #334155;
-      color: #cbd5e1;
-    }
+    .nav-pill.gh { border-color: #475569; }
 
     .wallet-strip {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
-
     .metric-pill {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      padding: 5px 10px;
-      border-radius: 8px;
       display: flex;
       flex-direction: column;
+      align-items: flex-end;
     }
-    .metric-pill .k {
-      font-size: 9px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-    .metric-pill .v {
-      font-size: 13px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      margin-top: 1px;
-    }
+    .metric-pill .k { font-size: 9.5px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+    .metric-pill .v { font-size: 12.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
 
     .btn-top {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      color: #e2e8f0;
-      font-size: 11px;
+      padding: 3px 8px;
+      font-size: 10.5px;
       font-weight: 700;
-      padding: 6px 9px;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
+      border: 1px solid var(--border);
+      background: #1e293b;
+      color: #cbd5e1;
     }
-    .btn-top:hover {
-      border-color: var(--accent);
-      color: #fff;
-    }
+    .btn-top:hover { background: #334155; }
 
-    /* Main 3-Column Terminal Grid */
+    /* Layout Grid */
     .terminal-grid {
       display: grid;
       grid-template-columns: 240px 1fr 340px;
@@ -243,617 +183,465 @@
       width: 100%;
       margin: 0 auto;
     }
-
-    @media (max-width: 1180px) {
-      .terminal-grid {
-        grid-template-columns: 1fr 340px;
-      }
-      .col-left {
-        grid-column: 1 / -1;
-      }
+    @media (max-width: 1200px) {
+      .terminal-grid { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 780px) {
-      .terminal-grid {
-        grid-template-columns: 1fr;
-      }
+    .col-left, .col-center, .col-right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
+    /* Common Card / Panel */
     .panel {
-      background: var(--panel);
+      background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 8px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
     }
-
     .panel-header {
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--muted);
-      padding-bottom: 8px;
-      margin-bottom: 8px;
+      padding: 9px 12px;
+      background: #0d1527;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-
-    .up { color: var(--green) !important; }
-    .down { color: var(--red) !important; }
-
-    /* Left Watchlist */
-    .sym-search {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 8px;
-    }
-    .sym-search input {
-      flex: 1;
-      background: #080d17;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 6px 8px;
-      color: #fff;
       font-size: 12px;
-      outline: none;
-    }
-    .sym-search button {
-      background: var(--accent);
-      border: none;
-      color: #fff;
-      font-weight: 700;
-      font-size: 11px;
-      padding: 0 9px;
-      border-radius: 7px;
-      cursor: pointer;
+      font-weight: 800;
+      color: #e2e8f0;
     }
 
+    /* Watchlist */
     .watch-list {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      max-height: calc(100vh - 180px);
       overflow-y: auto;
-      max-height: 760px;
     }
-
     .watch-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 7px 8px;
-      border-radius: 7px;
-      background: #0b111e;
-      border: 1px solid transparent;
+      padding: 7px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       cursor: pointer;
-      transition: 0.12s;
+      transition: background 0.15s;
     }
-    .watch-row:hover {
-      border-color: #2b3f66;
-    }
+    .watch-row:hover { background: #162036; }
     .watch-row.active {
-      background: rgba(59, 130, 246, 0.15);
-      border-color: var(--accent);
+      background: #1b2844;
+      border-left: 3px solid #3b82f6;
     }
-    .watch-sym {
-      font-weight: 800;
-      font-size: 12px;
-    }
+    .watch-sym { font-weight: 800; font-size: 12px; display: flex; align-items: center; gap: 4px; }
     .score-tag {
       font-size: 9px;
+      font-weight: 800;
       padding: 1px 4px;
-      border-radius: 4px;
-      font-weight: 700;
-      margin-left: 4px;
+      border-radius: 3px;
     }
     .score-tag.up { background: var(--green-bg); color: var(--green); }
     .score-tag.down { background: var(--red-bg); color: var(--red); }
 
-    /* Center Column */
-    .col-center {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    /* ======================================================== */
-    /* HERO "WHERE THE TRADE STANDS & ARE WE IN POSITIVE" CARD */
-    /* ======================================================== */
+    /* Hero Stand Card */
     .trade-stand-card {
-      background: linear-gradient(180deg, #10192d 0%, #0d1527 100%);
-      border: 1px solid #233557;
-      border-radius: 12px;
-      padding: 14px 16px;
-      position: relative;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      background: linear-gradient(135deg, #0e172a 0%, #0a1122 100%);
+      border: 1px solid #1e3a5f;
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
-
-    .trade-stand-card.is-positive {
-      border-color: #059669;
-      background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, #0c1626 100%);
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
-    }
-    .trade-stand-card.is-negative {
-      border-color: #dc2626;
-      background: linear-gradient(180deg, rgba(244, 63, 94, 0.12) 0%, #0c1626 100%);
-      box-shadow: 0 0 20px rgba(244, 63, 94, 0.15);
-    }
-
-    .stand-header-row {
+    .stand-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-
-    .hero-coin-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .hero-coin-badge .coin-name {
-      font-size: 20px;
-      font-weight: 900;
-      letter-spacing: -0.2px;
-    }
-    .side-pill {
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 6px;
-    }
-    .side-pill.long {
-      background: var(--green);
-      color: #02241b;
-    }
-    .side-pill.short {
-      background: var(--red);
-      color: #fff;
-    }
-
-    /* "ARE WE IN POSITIVE?" BIG STATUS BANNER */
     .positive-status-banner {
+      border-radius: 7px;
       padding: 10px 14px;
-      border-radius: 9px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      text-align: center;
+      gap: 2px;
     }
     .positive-status-banner.positive {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.35));
+      background: linear-gradient(90deg, rgba(16,185,129,0.18) 0%, rgba(16,185,129,0.06) 100%);
       border: 1px solid #10b981;
       color: #a7f3d0;
     }
     .positive-status-banner.negative {
-      background: linear-gradient(135deg, rgba(244, 63, 94, 0.22), rgba(225, 29, 72, 0.32));
-      border: 1px solid #f43f5e;
-      color: #fecdd3;
+      background: linear-gradient(90deg, rgba(239,68,68,0.18) 0%, rgba(239,68,68,0.06) 100%);
+      border: 1px solid #ef4444;
+      color: #fecaca;
     }
     .positive-status-banner.neutral {
-      background: rgba(30, 41, 59, 0.6);
-      border: 1px solid var(--border);
-      color: #cbd5e1;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid #3b82f6;
+      color: #bfdbfe;
     }
+    .pos-status-title { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+    .pos-status-val { font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .pos-status-sub { font-size: 11px; opacity: 0.9; }
 
-    .pos-status-title {
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .pos-status-val {
-      font-size: 22px;
-      font-weight: 900;
-      margin: 2px 0;
-      font-variant-numeric: tabular-nums;
-    }
-    .pos-status-sub {
-      font-size: 11px;
-      opacity: 0.85;
-      font-weight: 600;
-    }
-
-    /* Metric Pillars Grid */
     .stand-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 8px;
-      margin-bottom: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+      gap: 6px;
+      margin-bottom: 10px;
     }
     .stand-pillar {
-      background: rgba(8, 13, 23, 0.8);
+      background: rgba(8, 13, 23, 0.7);
       border: 1px solid var(--border);
-      padding: 8px 10px;
-      border-radius: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
     }
-    .stand-pillar .k {
-      font-size: 10px;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .stand-pillar .v {
-      font-size: 14px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-    }
+    .stand-pillar .k { font-size: 9.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 2px; }
+    .stand-pillar .v { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
 
-    /* Graphical Stand Meter Bar */
     .stand-meter-wrap {
       background: #080d17;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
     }
     .stand-meter-labels {
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .stand-meter-track {
-      height: 12px;
+      height: 10px;
       background: #141f33;
-      border-radius: 6px;
+      border-radius: 5px;
       position: relative;
       overflow: hidden;
     }
     .stand-meter-fill {
       height: 100%;
-      border-radius: 6px;
+      border-radius: 5px;
       transition: width 0.3s ease;
     }
     .stand-meter-pin {
       position: absolute;
       top: -3px;
-      width: 6px;
-      height: 18px;
+      width: 5px;
+      height: 16px;
       background: #fff;
-      border-radius: 3px;
-      box-shadow: 0 0 8px #fff;
+      border-radius: 2px;
+      box-shadow: 0 0 6px #fff;
       transform: translateX(-50%);
     }
 
-    /* Quick Action Buttons on Hero Card */
     .stand-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
     .btn-quick-act {
       flex: 1;
-      min-width: 100px;
-      padding: 8px 10px;
-      border-radius: 7px;
-      font-size: 12px;
+      min-width: 90px;
+      padding: 6px 8px;
+      border-radius: 5px;
+      font-size: 11px;
       font-weight: 800;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: #fff;
       cursor: pointer;
-      text-align: center;
-      transition: 0.15s;
+      border: 1px solid var(--border);
+      background: #1e293b;
+      color: #fff;
+      transition: all 0.15s;
     }
-    .btn-quick-act:hover {
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
-    .btn-quick-act.add {
-      background: rgba(16, 185, 129, 0.18);
-      border-color: #10b981;
-      color: #6ee7b7;
-    }
-    .btn-quick-act.close-half {
-      background: rgba(245, 158, 11, 0.18);
-      border-color: #f59e0b;
-      color: #fde68a;
-    }
-    .btn-quick-act.close-full {
-      background: rgba(244, 63, 94, 0.22);
-      border-color: #f43f5e;
-      color: #fecdd3;
-    }
-    .btn-quick-act.reverse {
-      background: rgba(168, 85, 247, 0.18);
-      border-color: #a855f7;
-      color: #e9d5ff;
-    }
+    .btn-quick-act:hover { filter: brightness(1.2); }
+    .btn-quick-act.close-full { background: #7f1d1d; border-color: #ef4444; color: #fecaca; }
+    .btn-quick-act.reverse { background: #4c1d95; border-color: #8b5cf6; color: #ddd6fe; }
 
     /* Chart */
     .chart-top {
+      padding: 8px 12px;
+      background: #0b1220;
+      border-bottom: 1px solid var(--border);
       display: flex;
-      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 8px;
     }
-    .hero-pair {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-    }
-    .hero-pair .sym {
-      font-size: 20px;
-      font-weight: 900;
-    }
-    .hero-pair .prc {
-      font-size: 20px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-    }
-    .tf-group {
-      display: flex;
-      gap: 3px;
-    }
+    .hero-pair { display: flex; align-items: baseline; gap: 8px; }
+    .hero-pair .sym { font-size: 16px; font-weight: 900; }
+    .hero-pair .prc { font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .tf-group { display: flex; gap: 4px; }
     .tf-btn {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      color: var(--muted);
+      padding: 2px 7px;
       font-size: 11px;
       font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .tf-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    canvas#mainChart {
-      width: 100%;
-      height: 310px;
-      background: #080d17;
-      border: 1px solid #182338;
-      border-radius: 8px;
-      display: block;
-    }
-
-    /* Trade Tables */
-    .table-wrap {
-      overflow-x: auto;
-    }
-    table.trade-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11.5px;
-    }
-    table.trade-table th {
-      text-align: left;
-      color: var(--muted);
-      font-weight: 700;
-      padding: 6px 7px;
-      border-bottom: 1px solid var(--border);
-      font-size: 10px;
-      text-transform: uppercase;
-    }
-    table.trade-table td {
-      padding: 7px;
-      border-bottom: 1px solid #152036;
-      font-variant-numeric: tabular-nums;
-    }
-    .btn-action {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      color: #e2e8f0;
-      padding: 3px 6px;
       border-radius: 4px;
-      font-size: 10px;
-      font-weight: 700;
+      border: 1px solid var(--border);
+      background: #141e30;
+      color: var(--muted);
       cursor: pointer;
-      margin-right: 3px;
     }
-    .btn-action.danger {
-      background: var(--red-bg);
-      border-color: var(--red);
-      color: #fecdd3;
-    }
+    .tf-btn.active, .tf-btn:hover { background: #2563eb; color: #fff; border-color: #3b82f6; }
+    #mainChart { width: 100%; height: 300px; display: block; background: #070c16; }
 
-    /* Right Column: Order Ticket */
-    .col-right {
+    /* CLOB Depth Ladder & Real-Time Tape Panel */
+    .clob-panel {
+      background: #0a101f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .clob-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 8px;
+    }
+    @media (max-width: 800px) {
+      .clob-grid { grid-template-columns: 1fr; }
+    }
+    .clob-ladder-wrap, .clob-tape-wrap {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      background: #060a14;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      padding: 6px 8px;
+      height: 250px;
+      overflow: hidden;
     }
-
-    .side-switch {
+    .clob-col-header {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-    .side-btn {
-      padding: 9px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
+      grid-template-columns: 1fr 1fr 1fr;
+      font-size: 9.5px;
       color: var(--muted);
-      font-weight: 800;
-      font-size: 12px;
-      cursor: pointer;
+      font-weight: 700;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 4px;
+      text-transform: uppercase;
     }
-    .side-btn.buy.active {
-      background: var(--green);
-      border-color: var(--green);
-      color: #032218;
+    .clob-tape-wrap .clob-col-header {
+      grid-template-columns: 65px 1fr 1fr 50px;
     }
-    .side-btn.sell.active {
-      background: var(--red);
-      border-color: var(--red);
-      color: #fff;
-    }
-
-    .lev-switch {
+    .clob-side {
       display: flex;
-      gap: 4px;
-      margin-bottom: 8px;
-    }
-    .lev-btn {
+      flex-direction: column;
+      gap: 1px;
       flex: 1;
-      padding: 6px 2px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: #090f1c;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
+      overflow: hidden;
+      justify-content: flex-end;
     }
-    .lev-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
+    .clob-side.bids {
+      justify-content: flex-start;
     }
-
-    .type-switch {
+    .clob-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-    .type-btn {
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: #090f1c;
-      color: var(--muted);
-      font-weight: 700;
+      grid-template-columns: 1fr 1fr 1fr;
       font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      position: relative;
+      padding: 1.5px 3px;
+      align-items: center;
       cursor: pointer;
     }
-    .type-btn.active {
-      border-color: var(--accent);
-      color: #fff;
-      background: rgba(59, 130, 246, 0.18);
+    .clob-row:hover { background: rgba(255, 255, 255, 0.05); }
+    .clob-depth-bar {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      opacity: 0.22;
+      pointer-events: none;
+      transition: width 0.1s ease;
     }
-
-    .field {
-      margin-bottom: 7px;
-    }
-    .field label {
+    .clob-row.ask .clob-depth-bar { background: var(--red); }
+    .clob-row.bid .clob-depth-bar { background: var(--green); }
+    .clob-row.ask .p { color: var(--red); font-weight: 700; }
+    .clob-row.bid .p { color: var(--green); font-weight: 700; }
+    .clob-mid-market {
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 3px;
+      align-items: center;
+      padding: 3px 6px;
+      margin: 3px 0;
+      background: rgba(255, 255, 255, 0.03);
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
     }
-    .field input {
-      width: 100%;
-      background: #080d17;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 8px 9px;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      outline: none;
-    }
-    .field input:focus {
-      border-color: var(--accent);
-    }
-
-    .quick-row {
+    .clob-tape-rows {
       display: flex;
-      gap: 4px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
-    .q-btn {
+      flex-direction: column;
+      gap: 1.5px;
       flex: 1;
-      min-width: 40px;
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      color: #cbd5e1;
+      overflow-y: hidden;
+    }
+    .tape-row {
+      display: grid;
+      grid-template-columns: 65px 1fr 1fr 50px;
+      font-size: 10.5px;
+      font-variant-numeric: tabular-nums;
+      padding: 1.5px 3px;
+      align-items: center;
+      animation: tapeFadeIn 0.2s ease;
+    }
+    @keyframes tapeFadeIn {
+      from { opacity: 0; transform: translateY(-2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tape-row.buy .p { color: var(--green); font-weight: 700; }
+    .tape-row.sell .p { color: var(--red); font-weight: 700; }
+    .tape-row .tag {
+      font-size: 8.5px;
+      padding: 1px 3px;
+      border-radius: 3px;
+      font-weight: 800;
+      text-align: center;
+    }
+    .tape-row.buy .tag { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+    .tape-row.sell .tag { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; width: 100%; }
+    .trade-table { width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: left; }
+    .trade-table th {
+      background: #090e1c;
+      padding: 7px 9px;
+      font-weight: 700;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .trade-table td {
+      padding: 7px 9px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .trade-table tr:hover { background: rgba(255, 255, 255, 0.02); }
+    .side-pill {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    .side-pill.long { background: var(--green-bg); color: var(--green); }
+    .side-pill.short { background: var(--red-bg); color: var(--red); }
+    .btn-action {
+      padding: 2px 6px;
       font-size: 10.5px;
       font-weight: 700;
-      padding: 5px 3px;
-      border-radius: 5px;
-      cursor: pointer;
-      text-align: center;
-    }
-    .q-btn.kelly {
-      background: rgba(245, 158, 11, 0.16);
-      border-color: var(--gold);
-      color: #fde68a;
-    }
-
-    .lev-btn {
-      background: #090f1c;
+      border-radius: 4px;
       border: 1px solid var(--border);
+      background: #141f33;
+      color: #cbd5e1;
+      cursor: pointer;
+    }
+    .btn-action:hover { filter: brightness(1.2); }
+    .btn-action.danger { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5; }
+
+    /* Order Ticket */
+    .ticket-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .toggle-row { display: flex; background: #070c18; border-radius: 6px; padding: 2px; }
+    .toggle-btn {
+      flex: 1;
+      padding: 6px;
+      font-size: 11.5px;
+      font-weight: 800;
+      border: none;
+      border-radius: 5px;
+      background: transparent;
       color: var(--muted);
       cursor: pointer;
-      font-size: 11px;
-      padding: 6px 4px;
-      text-align: center;
-      border-radius: 6px;
-      font-weight: 700;
-      transition: 0.15s;
+      transition: all 0.15s;
     }
-    .lev-btn.active {
-      background: rgba(245, 158, 11, 0.2);
-      border-color: var(--gold);
-      color: #fde68a;
-    }
+    .toggle-btn.buy.active { background: var(--green); color: #fff; }
+    .toggle-btn.sell.active { background: var(--red); color: #fff; }
+    .toggle-btn.active:not(.buy):not(.sell) { background: #2563eb; color: #fff; }
 
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    .lev-selector { display: flex; gap: 4px; }
+    .lev-btn {
+      flex: 1;
+      padding: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #090e1c;
+      color: var(--muted);
+      cursor: pointer;
     }
+    .lev-btn.active { background: #3b82f6; border-color: #60a5fa; color: #fff; }
+
+    .field { display: flex; flex-direction: column; gap: 2px; }
+    .field label { font-size: 10px; font-weight: 700; color: var(--muted); display: flex; justify-content: space-between; }
+    .field input {
+      background: #070c16;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 6px 8px;
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .field input:focus { border-color: var(--border-focus); outline: none; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+    .quick-row { display: flex; gap: 4px; }
+    .q-btn {
+      flex: 1;
+      background: #101828;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .q-btn:hover { background: #1e293b; color: #fff; }
 
     .submit-order-btn {
-      width: 100%;
-      padding: 11px;
-      border-radius: 8px;
-      border: none;
+      padding: 10px;
+      border-radius: 6px;
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 900;
+      border: none;
       cursor: pointer;
-      margin-top: 4px;
-      transition: 0.15s;
-    }
-    .submit-order-btn.buy {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #032218;
-    }
-    .submit-order-btn.sell {
-      background: linear-gradient(135deg, #f43f5e, #e11d48);
       color: #fff;
+      transition: filter 0.15s;
+      letter-spacing: 0.3px;
     }
-    .submit-order-btn:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
-    }
+    .submit-order-btn.buy { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .submit-order-btn.sell { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .submit-order-btn:hover { filter: brightness(1.15); }
 
+    /* Utilities */
+    .up { color: var(--green) !important; }
+    .down { color: var(--red) !important; }
     #toast {
       position: fixed;
-      top: 14px;
-      right: 18px;
+      bottom: 20px;
+      right: 20px;
       background: #1e293b;
-      border: 1px solid var(--accent);
+      border: 1px solid #3b82f6;
       color: #fff;
-      padding: 9px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      z-index: 200;
+      padding: 10px 16px;
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      z-index: 9999;
       display: none;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.6);
+      font-weight: 700;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -863,13 +651,13 @@
   <!-- Top Navigation Bar & Simulation Controls -->
   <header class="topbar">
     <div class="brand-group">
-      <span class="site-title">GodTrader Binance Margin Simulator</span>
-      <!-- START & STOP CONTROLS -->
+      <span class="site-title">GodTrader Binance Margin Terminal</span>
       <div class="sim-controls">
         <span class="badge-sim live" id="simStatusBadge">● SIMULATION RUNNING</span>
         <button class="btn-sim start" id="btnStartSim" onclick="setSimState(true)">▶ START</button>
         <button class="btn-sim stop" id="btnStopSim" onclick="setSimState(false)">⏹ STOP</button>
       </div>
+      <span class="badge-sim live" id="wsClobBadge" style="background:rgba(16,185,129,0.15);border:1px solid var(--green);color:#34d399;">⚡ WS CLOB: <span id="wsTickRate">0.0</span> ticks/s</span>
     </div>
 
     <!-- Dual Currency & Live BNB Ticker -->
@@ -884,11 +672,6 @@
         <button class="cur-btn active" id="btnCurUsdt" onclick="setDenomination('USDT')">USDT ($)</button>
         <button class="cur-btn" id="btnCurBnb" onclick="setDenomination('BNB')">BNB Values</button>
       </div>
-    </div>
-
-    <!-- Virtual Wallet Bar -->
-      <span class="badge-live" id="simBadge">● GITHUB PAGES LIVE</span>
-      <span class="site-title">GodTrader Institutional Crypto Terminal</span>
     </div>
 
     <!-- Navigation Tabs Switcher -->
@@ -928,108 +711,94 @@
     </div>
   </header>
 
-  <!-- Main 3-Column Layout -->
+  <!-- Main 3-Column Terminal Grid -->
   <main class="terminal-grid">
     <!-- LEFT COLUMN: WATCHLIST -->
     <section class="panel col-left">
       <div class="panel-header">
-        <span>Binance Markets</span>
-        <span style="color:var(--accent);font-size:10px;">Live Prices</span>
-      </div>
-      <div class="sym-search">
-        <input type="text" id="customSymInput" placeholder="Symbol (e.g. BNB, BTC)..." onkeydown="if(event.key==='Enter')addCustomSymbol()" />
-        <button onclick="addCustomSymbol()">Go</button>
+        <span>Binance Spot & Perps Watchlist</span>
+        <button class="btn-action" onclick="addCustomSymbol()">+ Add</button>
       </div>
       <div class="watch-list" id="watchListContainer"></div>
     </section>
 
-    <!-- CENTER COLUMN: HERO TRADE STAND + CHART + POSITIONS + HISTORY -->
+    <!-- CENTER COLUMN: HERO STAND CARD, CHART, CLOB DEPTH & TAPE, POSITIONS, ORDERS, HISTORY -->
     <section class="col-center">
-      <!-- ======================================================== -->
-      <!-- HERO CARD: WHICH COIN IS BOUGHT, WHERE TRADE STANDS, ARE WE IN POSITIVE -->
-      <!-- ======================================================== -->
-      <div class="trade-stand-card" id="heroTradeCard">
-        <div class="stand-header-row">
-          <div class="hero-coin-badge">
-            <span id="heroCoinIcon" style="font-size:22px;">🔶</span>
-            <span class="coin-name" id="heroSymTitle">NO ACTIVE MARGIN TRADE</span>
-            <span class="side-pill long" id="heroSideBadge" style="display:none;">LONG 3x</span>
-            <span style="font-size:12px;color:var(--muted);" id="heroLeverageLbl"></span>
-          </div>
-
-          <!-- Quick Test Trades when no trade is active -->
-          <div id="heroEmptyActions" style="display:flex;gap:6px;">
-            <button class="btn-action" style="background:#065f46;border-color:#10b981;" onclick="quickSimTrade('BNBUSDT', 'BUY', 3, 1000)">⚡ 3x Long BNB</button>
-            <button class="btn-action" style="background:#1e3a8a;border-color:#3b82f6;" onclick="quickSimTrade('BTCUSDT', 'BUY', 3, 1000)">⚡ 3x Long BTC</button>
-            <button class="btn-action" style="background:#7f1d1d;border-color:#ef4444;" onclick="quickSimTrade('ETHUSDT', 'SELL', 3, 1000)">⚡ 3x Short ETH</button>
-          </div>
-        </div>
-
-        <!-- "ARE WE IN POSITIVE?" UNMISTAKABLE STATUS BANNER -->
-        <div class="positive-status-banner neutral" id="heroStatusBanner">
-          <div class="pos-status-title" id="heroStatusTitle">⚪ NO OPEN TRADE POSITION</div>
-          <div class="pos-status-val" id="heroStatusVal">$0.00 (0.00% ROI)</div>
-          <div class="pos-status-sub" id="heroStatusSub">Select a coin from the left or order ticket to enter a simulated margin trade.</div>
-        </div>
-
-        <!-- WHERE THE TRADE STANDS: 4 KEY PILLARS -->
-        <div class="stand-grid" id="heroMetricsGrid" style="display:none;">
-          <div class="stand-pillar">
-            <div class="k">Entry Price</div>
-            <div class="v" id="heroEntryPrice">-</div>
-          </div>
-          <div class="stand-pillar">
-            <div class="k">Live Market Price</div>
-            <div class="v" id="heroLivePrice" style="color:#60a5fa;">-</div>
-          </div>
-          <div class="stand-pillar">
-            <div class="k">Liquidation Price</div>
-            <div class="v" id="heroLiqPrice" style="color:#f43f5e;">-</div>
-            <div style="font-size:10px;color:var(--muted);" id="heroLiqDist">-</div>
-          </div>
-          <div class="stand-pillar">
-            <div class="k">Margin Collateral</div>
-            <div class="v" id="heroMarginLocked">-</div>
-          </div>
-          <div class="stand-pillar">
-            <div class="k">Position Notional</div>
-            <div class="v" id="heroNotional">-</div>
-          </div>
-          <div class="stand-pillar">
-            <div class="k">Stop-Loss / Take-Profit</div>
-            <div class="v" style="font-size:12px;">
-              <span style="color:var(--red);" id="heroSlLbl">SL: None</span> | <span style="color:var(--green);" id="heroTpLbl">TP: None</span>
+      <!-- INSTITUTIONAL TRADE STAND CARD -->
+      <div class="trade-stand-card" id="tradeHeroCard">
+        <div class="stand-header">
+          <div>
+            <span style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:0.5px;text-transform:uppercase;">Institutional Live Margin Position</span>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+              <span id="heroSymbol" style="font-size:18px;font-weight:900;">BNBUSDT</span>
+              <span id="heroSideBadge" class="side-pill long" style="font-size:11px;padding:3px 7px;">LONG 3x</span>
+              <span id="heroLevBadge" style="font-size:11px;font-weight:800;color:var(--muted);">Isolated Margin</span>
             </div>
           </div>
+          <div style="text-align:right;">
+            <span style="font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:600;">Unrealized Return</span>
+            <div id="heroRoeVal" style="font-size:18px;font-weight:900;" class="up">+0.00%</div>
+          </div>
         </div>
 
-        <!-- VISUAL TRADE STAND GAUGE / METER -->
-        <div class="stand-meter-wrap" id="heroMeterWrap" style="display:none;">
+        <div id="heroStatusBanner" class="positive-status-banner neutral">
+          <div class="pos-status-title" id="heroStatusTitle">⚪ TRADE AT BREAKEVEN</div>
+          <div class="pos-status-val" id="heroStatusVal">$0.00 (0.00% ROI)</div>
+          <div class="pos-status-sub" id="heroStatusSub">Trading at entry price. Take-profit and stop-loss active.</div>
+        </div>
+
+        <div class="stand-grid" id="heroMetricsGrid">
+          <div class="stand-pillar">
+            <div class="k">Entry Price</div>
+            <div class="v" id="heroEntryPrice">$0.00</div>
+          </div>
+          <div class="stand-pillar">
+            <div class="k">Live Mark Price</div>
+            <div class="v" id="heroLivePrice" style="color:#60a5fa;">$0.00</div>
+          </div>
+          <div class="stand-pillar">
+            <div class="k">Liquidation Buffer</div>
+            <div class="v" id="heroLiqPrice" style="color:var(--red);">$0.00</div>
+            <div style="font-size:9.5px;color:var(--muted);" id="heroLiqDist"></div>
+          </div>
+          <div class="stand-pillar">
+            <div class="k">Margin / Notional</div>
+            <div class="v" id="heroMarginLocked">$0.00</div>
+            <div style="font-size:9.5px;color:var(--muted);" id="heroNotional"></div>
+          </div>
+          <div class="stand-pillar">
+            <div class="k">Stop-Loss (SL)</div>
+            <div class="v" id="heroSlLbl" style="color:var(--red);">None</div>
+          </div>
+          <div class="stand-pillar">
+            <div class="k">Take-Profit (TP)</div>
+            <div class="v" id="heroTpLbl" style="color:var(--green);">None</div>
+          </div>
+        </div>
+
+        <div class="stand-meter-wrap" id="heroMeterWrap">
           <div class="stand-meter-labels">
-            <span style="color:var(--red);" id="meterLeftLbl">🛑 STOP LOSS: -</span>
-            <span style="color:#60a5fa;" id="meterCenterLbl">🎯 ENTRY: -</span>
-            <span style="color:var(--green);" id="meterRightLbl">💰 TAKE PROFIT: -</span>
+            <span id="meterLeftLbl" style="color:var(--red);">🛑 SL: $0.00</span>
+            <span id="meterCenterLbl" style="color:#94a3b8;">🎯 ENTRY: $0.00</span>
+            <span id="meterRightLbl" style="color:var(--green);">💰 TP: $0.00</span>
           </div>
           <div class="stand-meter-track">
             <div class="stand-meter-fill" id="meterFill" style="width:50%;background:#3b82f6;"></div>
-            <div class="stand-meter-pin" id="meterPin" style="left:50%;" title="Current Price Stand"></div>
+            <div class="stand-meter-pin" id="meterPin" style="left:50%;"></div>
           </div>
-          <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px;" id="meterStatusText">
-            Trade Stand: Price tracking live Binance ticks
-          </div>
+          <div style="font-size:10.5px;color:var(--muted);text-align:center;margin-top:4px;" id="meterStatusText">Position Live</div>
         </div>
 
-        <!-- DIRECT 1-CLICK TRADE ACTIONS ON ACTIVE CARD -->
-        <div class="stand-actions" id="heroActionsRow" style="display:none;">
-          <button class="btn-quick-act add" onclick="quickAddCurrent()">➕ Buy / Add More</button>
-          <button class="btn-quick-act close-half" onclick="quickCloseCurrent(50)">📉 Close 50%</button>
-          <button class="btn-quick-act close-full" onclick="quickCloseCurrent(100)">🛑 Close 100% (Market)</button>
+        <div class="stand-actions" id="heroActionsRow">
+          <button class="btn-quick-act" onclick="quickCloseCurrent(50)">Close 50%</button>
+          <button class="btn-quick-act close-full" onclick="quickCloseCurrent(100)">Close 100%</button>
           <button class="btn-quick-act reverse" onclick="quickReverseCurrent()">🔄 Reverse Position</button>
           <button class="btn-quick-act" onclick="quickEditBracketsCurrent()">⚙️ Edit SL/TP</button>
+          <button class="btn-quick-act" onclick="quickAddCurrent()">+ Add 50% Size</button>
         </div>
       </div>
 
-      <!-- Chart Panel -->
+      <!-- Candlestick Chart Panel -->
       <div class="panel">
         <div class="chart-top">
           <div class="hero-pair">
@@ -1047,7 +816,51 @@
             <button class="tf-btn" onclick="changeTf('1d', this)">1d</button>
           </div>
         </div>
-        <canvas id="mainChart" width="860" height="310"></canvas>
+        <canvas id="mainChart" width="860" height="300"></canvas>
+      </div>
+
+      <!-- CLOB Millisecond Order Book Depth & Live Tape Panel -->
+      <div class="panel clob-panel">
+        <div class="panel-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-weight:800;color:#f8fafc;">⚡ Institutional CLOB Order Book & Tape</span>
+            <span class="badge-sim live" id="clobStreamStatus" style="font-size:9.5px;padding:2px 6px;">● DIRECT STREAM</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:11px;">
+            <span>Spread: <b id="clobSpreadVal" style="color:#f8fafc;">$0.01 (0.1 bps)</b></span>
+            <span>Imbalance: <b id="clobImbalanceVal" style="color:var(--green);">Bid 50% / Ask 50%</b></span>
+          </div>
+        </div>
+        <div class="clob-grid">
+          <!-- Left: Order Book Depth Ladder -->
+          <div class="clob-ladder-wrap">
+            <div class="clob-col-header">
+              <span>Price (USDT)</span>
+              <span>Size (<span id="clobBaseSym">BNB</span>)</span>
+              <span>Total Depth</span>
+            </div>
+            <!-- Asks (red, ordered highest to lowest ask) -->
+            <div id="clobAsksContainer" class="clob-side asks"></div>
+            <!-- Mid Market Price & Spread Banner -->
+            <div class="clob-mid-market" id="clobMidMarket">
+              <span id="clobMidPrice" style="font-size:13px;font-weight:800;">$739.64</span>
+              <span id="clobSpreadTag" style="font-size:10px;color:var(--muted);">Spread: $0.01</span>
+            </div>
+            <!-- Bids (green, ordered highest to lowest bid) -->
+            <div id="clobBidsContainer" class="clob-side bids"></div>
+          </div>
+
+          <!-- Right: Real-Time Trade Tape (aggTrade) -->
+          <div class="clob-tape-wrap">
+            <div class="clob-col-header">
+              <span>Time</span>
+              <span>Price</span>
+              <span>Size</span>
+              <span>Aggressor</span>
+            </div>
+            <div id="clobTapeContainer" class="clob-tape-rows"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Open Positions Table -->
@@ -1055,22 +868,11 @@
         <div class="panel-header">
           <span>Active Isolated Margin Positions (<span id="posCount">0</span>)</span>
           <span style="font-size:11px;color:var(--muted);" id="simStateTag">Auto SL/TP & Liq Live</span>
-          <span>Active Paper Positions (<span id="posCount">0</span>) -- Mark-to-Market, 1x-5x Margin & Auto SL/TP</span>
-          <span style="font-size:11px;color:var(--muted);">Auto-triggers evaluated live</span>
         </div>
         <div class="table-wrap">
           <table class="trade-table">
             <thead>
               <tr>
-                <th>Symbol & Side</th>
-                <th>Lev</th>
-                <th>Qty</th>
-                <th>Entry</th>
-                <th>Live</th>
-                <th>Liquidation</th>
-                <th>Margin</th>
-                <th>Unrealized PnL & Status</th>
-                <th>SL / TP</th>
                 <th>Symbol</th>
                 <th>Side / Lev</th>
                 <th>Qty</th>
@@ -1092,7 +894,7 @@
       <!-- Resting Orders & Execution History -->
       <div class="grid-2">
         <div class="panel">
-          <div class="panel-header"><span>Resting Orders (<span id="ordCount">0</span>)</span></div>
+          <div class="panel-header"><span>Resting Limit Orders (<span id="ordCount">0</span>)</span></div>
           <div class="table-wrap">
             <table class="trade-table">
               <thead>
@@ -1129,99 +931,82 @@
       </div>
     </section>
 
-    <!-- RIGHT COLUMN: ORDER TICKET + AI FORECAST -->
-    <!-- RIGHT COLUMN: SIMULATED ORDER TICKET + 25-SOURCE AI ANALYST -->
+    <!-- RIGHT COLUMN: ORDER TICKET + 25-SOURCE AI ANALYST -->
     <section class="col-right">
       <!-- Order Ticket -->
       <div class="panel">
         <div class="panel-header">
-          <span>Margin Order Ticket (<span id="ticketSymLbl">BNBUSDT</span>)</span>
-          <span style="color:var(--gold);cursor:pointer;" onclick="applyAiPlanToTicket()">⚡ AI Plan</span>
+          <span>Institutional Margin Ticket</span>
+          <span id="ticketAvailCash" style="color:var(--muted);font-size:11px;">$10,000.00 Available</span>
         </div>
-
-        <div class="side-switch">
-          <button class="side-btn buy active" id="btnSideBuy" onclick="setSide('BUY')">BUY / LONG</button>
-          <button class="side-btn sell" id="btnSideSell" onclick="setSide('SELL')">SELL / SHORT</button>
-        </div>
-
-        <div class="type-switch">
-          <button class="type-btn active" id="btnTypeMarket" onclick="setOrderType('MARKET')">MARKET (Instant)</button>
-          <button class="type-btn" id="btnTypeLimit" onclick="setOrderType('LIMIT')">LIMIT (Target)</button>
-        </div>
-
-        <!-- Margin Leverage Selector -->
-        <div class="field" id="leverageField">
-          <label>
-            <span>Margin Leverage</span>
-            <span id="liqEstimateLbl" style="color:var(--gold);font-weight:700;">Spot (1x) -- No Liquidation Risk</span>
-          </label>
-          <div class="quick-row" style="margin-bottom:4px;">
-            <div class="q-btn lev-btn active" id="lev1" onclick="setLeverage(1)">1x (Spot)</div>
-            <div class="q-btn lev-btn" id="lev2" onclick="setLeverage(2)">2x Margin</div>
-            <div class="q-btn lev-btn" id="lev3" onclick="setLeverage(3)">3x Margin</div>
-            <div class="q-btn lev-btn" id="lev5" onclick="setLeverage(5)">5x Max (BTC/ETH)</div>
+        <div class="ticket-body">
+          <div class="toggle-row">
+            <button class="toggle-btn buy active" id="btnSideBuy" onclick="setSide('BUY')">BUY / LONG</button>
+            <button class="toggle-btn sell" id="btnSideSell" onclick="setSide('SELL')">SELL / SHORT</button>
           </div>
-          <div style="font-size:10px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span>Collateral: <b id="lblMarginReq" style="color:#cbd5e1;">$1,000.00</b></span>
-            <span>Est. Liq: <b id="lblLiqPrice" style="color:#f43f5e;">None (1x)</b></span>
+
+          <div class="toggle-row">
+            <button class="toggle-btn active" id="btnTypeMarket" onclick="setOrderType('MARKET')">MARKET</button>
+            <button class="toggle-btn" id="btnTypeLimit" onclick="setOrderType('LIMIT')">LIMIT</button>
           </div>
-        </div>
 
-        <div class="field" id="limitField" style="display:none;">
-          <label><span>Limit Price</span><span style="color:var(--accent);cursor:pointer;" onclick="fillLiveLimit()">Use Live Price</span></label>
-          <input type="number" step="any" id="inpLimitPrice" placeholder="0.00" />
-        </div>
-
-        <div class="field">
-          <label>
-            <span>Position Size (Notional USDT)</span>
-            <span>Free Margin: <b id="ticketAvailCash" style="color:#fff;">$10,000</b></span>
-            <span>Order Notional Size (USDT)</span>
-            <span>Available: <b id="ticketAvailCash" style="color:#fff;">$10,000.00</b></span>
-          </label>
-          <input type="number" step="any" id="inpUsdtAmount" value="1000" oninput="updateMarginEstimates()" />
-        </div>
-
-        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px;background:#080d17;padding:5px 8px;border-radius:6px;border:1px solid var(--border);" id="ticketMarginCalc">
-          Margin Required: <b style="color:#60a5fa;" id="estMarginVal">$333.33</b> (~<span id="estBnbVal">0.453 BNB</span>)
-        <div class="field" id="sellPctField" style="display:none;">
-          <label>
-            <span>Close Existing Position (%)</span>
-            <span id="ticketHoldingLbl">Holding: $0.00</span>
-          </label>
-          <input type="number" step="any" id="inpSellPct" value="100" />
-        </div>
-
-        <div class="quick-row">
-          <div class="q-btn" onclick="setAmt(250)">$250</div>
-          <div class="q-btn" onclick="setAmt(500)">$500</div>
-          <div class="q-btn" onclick="setAmt(1000)">$1,000</div>
-          <div class="q-btn" onclick="setMarginPct(0.25)">25%</div>
-          <div class="q-btn" onclick="setMarginPct(0.50)">50%</div>
-          <div class="q-btn" onclick="setMarginPct(1.0)">MAX</div>
-        </div>
-
-        <div class="grid-2">
           <div class="field">
-            <label><span>Stop-Loss (SL)</span><span style="color:var(--red);cursor:pointer;" onclick="setPresetSlTp()">Auto SL</span></label>
-            <input type="number" step="any" id="inpStopLoss" placeholder="Optional SL" />
+            <label><span>Isolated Leverage</span><span id="lblLiqPrice" style="color:var(--red);">None (1x)</span></label>
+            <div class="lev-selector">
+              <button class="lev-btn" id="lev1" onclick="setLev(1, this)">1x</button>
+              <button class="lev-btn" id="lev2" onclick="setLev(2, this)">2x</button>
+              <button class="lev-btn active" id="lev3" onclick="setLev(3, this)">3x</button>
+              <button class="lev-btn" id="lev4" onclick="setLev(4, this)">4x</button>
+              <button class="lev-btn" id="lev5" onclick="setLev(5, this)">5x</button>
+            </div>
+            <div style="font-size:9.5px;color:var(--muted);margin-top:2px;" id="liqEstimateLbl">3x Institutional Margin</div>
           </div>
-          <div class="field">
-            <label><span>Take-Profit (TP)</span><span style="color:var(--green);cursor:pointer;" onclick="setPresetSlTp()">Auto TP</span></label>
-            <input type="number" step="any" id="inpTakeProfit" placeholder="Optional TP" />
-          </div>
-        </div>
 
-        <button class="submit-order-btn buy" id="btnSubmitOrder" onclick="submitOrder()">SIMULATE 3x MARGIN BUY (LONG)</button>
+          <div class="field" id="limitPriceGroup" style="display:none;">
+            <label><span>Limit Price (USDT)</span><span style="color:#60a5fa;cursor:pointer;" onclick="fillLiveLimit()">Fill Live</span></label>
+            <input type="number" step="any" id="inpLimitPrice" placeholder="0.00" />
+          </div>
+
+          <div class="field">
+            <label><span>Order Notional (USDT)</span><span id="estMarginVal" style="color:var(--muted);">Margin: $0.00</span></label>
+            <input type="number" step="any" id="inpUsdtAmount" value="1000" oninput="updateMarginEstimates()" />
+            <div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted);margin-top:2px;">
+              <span>BNB Equiv: <b id="estBnbVal" style="color:#cbd5e1;">-</b></span>
+              <span id="ticketHoldingLbl">Holding: No position</span>
+            </div>
+          </div>
+
+          <div class="quick-row">
+            <div class="q-btn" onclick="setAmt(250)">$250</div>
+            <div class="q-btn" onclick="setAmt(500)">$500</div>
+            <div class="q-btn" onclick="setAmt(1000)">$1,000</div>
+            <div class="q-btn" onclick="setMarginPct(0.25)">25%</div>
+            <div class="q-btn" onclick="setMarginPct(0.50)">50%</div>
+            <div class="q-btn" onclick="setMarginPct(1.0)">MAX</div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label><span>Stop-Loss (SL)</span><span style="color:var(--red);cursor:pointer;" onclick="setPresetSlTp()">Auto SL</span></label>
+              <input type="number" step="any" id="inpStopLoss" placeholder="Optional SL" />
+            </div>
+            <div class="field">
+              <label><span>Take-Profit (TP)</span><span style="color:var(--green);cursor:pointer;" onclick="setPresetSlTp()">Auto TP</span></label>
+              <input type="number" step="any" id="inpTakeProfit" placeholder="Optional TP" />
+            </div>
+          </div>
+
+          <button class="submit-order-btn buy" id="btnSubmitOrder" onclick="submitOrder()">SIMULATE 3x MARGIN BUY (LONG)</button>
+        </div>
       </div>
 
       <!-- 25-Source AI Analyst Panel -->
-      <div class="panel" style="flex:1;max-height:500px;overflow-y:auto;">
+      <div class="panel" style="flex:1;max-height:550px;overflow-y:auto;">
         <div class="panel-header">
           <span>25-Source Quantitative AI Analyst</span>
           <button class="btn-action" onclick="loadForecast(currentSymbol, true)">↻ Refresh</button>
         </div>
-        <div id="aiReportContainer" style="font-size:11.5px;line-height:1.5;">Loading institutional signals...</div>
+        <div id="aiReportContainer" style="padding:10px;font-size:11.5px;line-height:1.5;">Loading institutional signals...</div>
       </div>
     </section>
   </main>
@@ -1231,20 +1016,23 @@
     let currentInterval = "15m";
     let currentSide = "BUY";
     let currentType = "MARKET";
-    let currentLev = 3;
+    let currentLeverage = 3;
     let currentDenom = "USDT"; // "USDT" or "BNB"
-    let currentSymbol = "BTCUSDT";
-    let currentInterval = "15m";
-    let currentSide = "BUY";
-    let currentType = "MARKET";
-    let currentLeverage = 1;
     let appState = null;
     let currentForecast = null;
     let picksMap = {};
     let klineBars = [];
     let liveTickers = {};
-    let ws = null;
+    let wsMarket = null;
+    let wsSymbol = null;
     let isClientSideMode = (window.location.protocol === 'file:' || window.location.hostname.includes('github.io'));
+
+    // CLOB and Trade Tape State
+    let clobBids = [];
+    let clobAsks = [];
+    let tradeTape = [];
+    let wsTickCount = 0;
+    let lastTickCalc = Date.now();
 
     const STORAGE_KEY = "binance_sim_wallet_v2";
     const FEE_RATE = 0.001; // 0.10% taker fee
@@ -1311,6 +1099,8 @@
       } catch (e) {
         toast("❌ Failed to update simulation state");
       }
+    }
+
     function getLocalWallet() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -1348,24 +1138,29 @@
     }
 
     function selectSymbol(sym) {
-      currentSymbol = sym.toUpperCase();
-      document.getElementById("ticketSymLbl").textContent = currentSymbol;
-      updateMarginEstimates();
-      fetchState();
+      currentSymbol = sym;
+      document.getElementById("chartSym").textContent = sym;
+      document.getElementById("clobBaseSym").textContent = sym.replace(/USDT$/, "");
+      document.querySelectorAll(".watch-row").forEach(r => r.classList.remove("active"));
+      const r = document.getElementById("wl-row-" + sym);
+      if (r) r.classList.add("active");
       fetchKlines();
-      loadForecast(currentSymbol, false);
+      loadForecast(sym, false);
       updateMarginEstimates();
+      connectSymbolWS(sym);
+      if (appState) renderState(appState);
     }
 
     function addCustomSymbol() {
-      const raw = document.getElementById("customSymInput").value.trim().toUpperCase();
-      if (!raw) return;
-      const sym = raw.endsWith("USDT") ? raw : (raw + "USDT");
-      document.getElementById("customSymInput").value = "";
-      if (!liveTickers[sym]) {
-        liveTickers[sym] = { symbol: sym, price: 0, change_24h_pct: 0, high_24h: 0, low_24h: 0, volume_24h_usd: 0 };
+      const s = prompt("Enter Binance Symbol (e.g. ADAUSDT, DOGEUSDT, XRPUSDT):");
+      if (!s) return;
+      const clean = s.trim().toUpperCase();
+      if (!clean.endsWith("USDT")) {
+        toast("Symbol should end with USDT (e.g. ADAUSDT)");
+        return;
       }
-      selectSymbol(sym);
+      selectSymbol(clean);
+      toast(`Added ${clean} to terminal`);
     }
 
     function changeTf(tf, btn) {
@@ -1375,110 +1170,47 @@
       fetchKlines();
     }
 
-    function setLeverage(lev) {
-      currentLeverage = lev;
-      document.querySelectorAll(".lev-btn").forEach(b => b.classList.remove("active"));
-      const btn = document.getElementById("lev" + lev);
-      if (btn) btn.classList.add("active");
-      updateMarginEstimates();
-      updateOrderButtonText();
-    }
-
-    function updateMarginEstimates() {
-      const tk = liveTickers[currentSymbol];
-      const p = tk ? tk.price : 0;
-      const amt = Number(document.getElementById("inpUsdtAmount").value || 0);
-      const marginReq = currentLeverage > 0 ? (amt / currentLeverage) : amt;
-      document.getElementById("lblMarginReq").textContent = fmtUsd(marginReq);
-
-      const isBtcEth = currentSymbol.startsWith("BTC") || currentSymbol.startsWith("ETH");
-      const mmr = isBtcEth ? 0.005 : 0.010;
-
-      const lbl = document.getElementById("liqEstimateLbl");
-      const liqVal = document.getElementById("lblLiqPrice");
-
-      if (currentLeverage <= 1) {
-        lbl.textContent = "Spot (1x) -- No Liquidation Risk";
-        liqVal.textContent = "None (1x)";
-      } else {
-        if (p > 0) {
-          const isLong = (currentSide === "BUY");
-          let liqPrice = 0;
-          if (isLong) {
-            liqPrice = p * (1 - (1 - mmr) / currentLeverage);
-          } else {
-            liqPrice = p * (1 + (1 - mmr) / currentLeverage);
-          }
-          lbl.textContent = `${currentLeverage}x Institutional Margin`;
-          liqVal.textContent = fmtP(liqPrice);
-        } else {
-          liqVal.textContent = `${currentLeverage}x Margin Active`;
-        }
-      }
-    }
-
     function setSide(side) {
       currentSide = side;
       document.getElementById("btnSideBuy").classList.toggle("active", side === "BUY");
       document.getElementById("btnSideSell").classList.toggle("active", side === "SELL");
-      const btn = document.getElementById("btnSubmitOrder");
-      btn.className = "submit-order-btn " + (side === "BUY" ? "buy" : "sell");
-      const actionName = side === "BUY" ? "BUY (LONG)" : "SELL (SHORT)";
-      btn.textContent = `SIMULATE ${currentLev}x MARGIN ${actionName} (${currentSymbol})`;
-      setPresetSlTp();
+      updateOrderButtonText();
+      updateMarginEstimates();
     }
 
     function setLev(lev, el) {
-      currentLev = lev;
+      currentLeverage = lev;
       document.querySelectorAll(".lev-btn").forEach(b => b.classList.remove("active"));
       if (el) el.classList.add("active");
-      const actionName = currentSide === "BUY" ? "BUY (LONG)" : "SELL (SHORT)";
-      document.getElementById("btnSubmitOrder").textContent = `SIMULATE ${currentLev}x MARGIN ${actionName} (${currentSymbol})`;
-      updateMarginEstimates();
-
-      const myPos = (appState && appState.positions || []).find(p => p.symbol === currentSymbol);
-      if (side === "SELL" && myPos) {
-        document.getElementById("sellPctField").style.display = "block";
-        document.getElementById("buyAmountField").style.display = "none";
-        document.getElementById("buyQuickBtns").style.display = "none";
-        document.getElementById("slTpFields").style.display = "none";
-      } else {
-        document.getElementById("sellPctField").style.display = "none";
-        document.getElementById("buyAmountField").style.display = "block";
-        document.getElementById("buyQuickBtns").style.display = "flex";
-        document.getElementById("slTpFields").style.display = "grid";
+      else {
+        const b = document.getElementById("lev" + lev);
+        if (b) b.classList.add("active");
       }
-      updateMarginEstimates();
       updateOrderButtonText();
+      updateMarginEstimates();
     }
 
     function setOrderType(tp) {
       currentType = tp;
       document.getElementById("btnTypeMarket").classList.toggle("active", tp === "MARKET");
       document.getElementById("btnTypeLimit").classList.toggle("active", tp === "LIMIT");
-      document.getElementById("limitField").style.display = tp === "LIMIT" ? "block" : "none";
-      if (tp === "LIMIT" && !document.getElementById("inpLimitPrice").value) fillLiveLimit();
-      if (tp === "LIMIT" && !document.getElementById("inpLimitPrice").value) {
-        fillLiveLimit();
-      }
+      document.getElementById("limitPriceGroup").style.display = (tp === "LIMIT") ? "flex" : "none";
+      if (tp === "LIMIT") fillLiveLimit();
       updateOrderButtonText();
     }
 
     function updateOrderButtonText() {
       const btn = document.getElementById("btnSubmitOrder");
       btn.className = "submit-order-btn " + (currentSide === "BUY" ? "buy" : "sell");
-      const levStr = currentLeverage > 1 ? (` ${currentLeverage}x MARGIN `) : " ";
-      const myPos = (appState && appState.positions || []).find(p => p.symbol === currentSymbol);
-      if (currentSide === "SELL" && myPos) {
-        btn.textContent = `CLOSE POSITION (${currentSymbol})`;
-      } else {
-        btn.textContent = `SIMULATE ${currentType}${levStr}${currentSide} (${currentSymbol})`;
-      }
+      const action = currentSide === "BUY" ? "BUY (LONG)" : "SELL (SHORT)";
+      btn.textContent = `SIMULATE ${currentLeverage}x MARGIN ${action}`;
     }
 
     function fillLiveLimit() {
       const tk = liveTickers[currentSymbol];
-      if (tk && tk.price > 0) document.getElementById("inpLimitPrice").value = tk.price;
+      if (tk && tk.price > 0) {
+        document.getElementById("inpLimitPrice").value = tk.price;
+      }
     }
 
     function setAmt(val) {
@@ -1487,85 +1219,85 @@
     }
 
     function setMarginPct(pct) {
-      if (!appState) return;
-      const free = appState.cash_usdt;
+      const free = appState ? (appState.cash_usdt || 10000) : 10000;
       const marginAmt = free * pct;
-      const notional = marginAmt * currentLev;
+      const notional = marginAmt * currentLeverage;
       document.getElementById("inpUsdtAmount").value = Math.floor(notional);
       updateMarginEstimates();
     }
 
     function updateMarginEstimates() {
+      const tk = liveTickers[currentSymbol];
+      const p = (tk && tk.price > 0) ? tk.price : 0;
       const notional = Number(document.getElementById("inpUsdtAmount").value || 0);
-      const margin = notional / currentLev;
-      const bnbP = appState ? (appState.bnb_price || 735.0) : 735.0;
-      const marginBnb = margin / bnbP;
-      document.getElementById("estMarginVal").textContent = fmtUsd(margin);
-      document.getElementById("estBnbVal").textContent = fmtBnb(marginBnb);
-      document.getElementById("inpUsdtAmount").value = Math.floor(appState.cash_usdt * currentLeverage * pct * 100) / 100;
-      updateMarginEstimates();
+      const lev = currentLeverage || 1;
+      const marginReq = lev > 0 ? (notional / lev) : notional;
+      const bnbP = (liveTickers["BNBUSDT"] && liveTickers["BNBUSDT"].price > 0)
+        ? liveTickers["BNBUSDT"].price
+        : (appState ? (appState.bnb_price || 735.0) : 735.0);
+      const marginBnb = marginReq / bnbP;
+
+      const elEstMargin = document.getElementById("estMarginVal");
+      if (elEstMargin) elEstMargin.textContent = "Margin: " + fmtUsd(marginReq);
+      const elBnb = document.getElementById("estBnbVal");
+      if (elBnb) elBnb.textContent = fmtBnb(marginBnb);
+
+      const isBtcEth = currentSymbol.startsWith("BTC") || currentSymbol.startsWith("ETH");
+      const mmr = isBtcEth ? 0.005 : 0.010;
+
+      const lbl = document.getElementById("liqEstimateLbl");
+      const liqVal = document.getElementById("lblLiqPrice");
+
+      if (lev <= 1) {
+        if (lbl) lbl.textContent = "Spot (1x) -- No Liquidation Risk";
+        if (liqVal) liqVal.textContent = "None (1x)";
+      } else {
+        if (p > 0) {
+          const isLong = (currentSide === "BUY");
+          let liqPrice = isLong ? p * (1 - (1 - mmr) / lev) : p * (1 + (1 - mmr) / lev);
+          if (lbl) lbl.textContent = `${lev}x Institutional Margin`;
+          if (liqVal) liqVal.textContent = fmtP(liqPrice);
+        } else {
+          if (liqVal) liqVal.textContent = `${lev}x Margin Active`;
+        }
+      }
     }
 
     function setPresetSlTp() {
       const tk = liveTickers[currentSymbol];
       if (!tk || tk.price <= 0) return;
       const p = tk.price;
-      const dec = p < 0.0001 ? 8 : (p < 0.01 ? 6 : (p < 1 ? 4 : 2));
-      if (currentSide === "BUY") {
-        document.getElementById("inpStopLoss").value = (p * 0.97).toFixed(dec);
-        document.getElementById("inpTakeProfit").value = (p * 1.06).toFixed(dec);
-      } else {
-        document.getElementById("inpStopLoss").value = (p * 1.03).toFixed(dec);
-        document.getElementById("inpTakeProfit").value = (p * 0.94).toFixed(dec);
-        toast("Set -3% Stop-Loss & +6% (2R) Take-Profit");
-      } else {
-        document.getElementById("inpStopLoss").value = (p * 1.03).toFixed(dec);
-        document.getElementById("inpTakeProfit").value = (p * 0.94).toFixed(dec);
-        toast("Set +3% SL (Short) & -6% TP (Short 2R)");
-      }
+      const isLong = (currentSide === "BUY");
+      const slDist = p * 0.02; // 2% stop
+      const tpDist = p * 0.04; // 4% take profit (2:1 reward:risk)
+      const sl = isLong ? (p - slDist) : (p + slDist);
+      const tp = isLong ? (p + tpDist) : (p - tpDist);
+      document.getElementById("inpStopLoss").value = Math.round(sl * 100) / 100;
+      document.getElementById("inpTakeProfit").value = Math.round(tp * 100) / 100;
+      toast("🎯 Preset 2:1 RR Brackets Calculated");
     }
 
     async function applyAiPlanToTicket() {
-      toast("Loading AI Trade Plan for " + currentSymbol + "...");
-      const r = await fetch("/api/forecast?symbol=" + encodeURIComponent(currentSymbol));
-      const d = await r.json();
-      if (d && d.kelly_trade_plan) {
-        currentForecast = d;
-        const kp = d.kelly_trade_plan;
-        setSide(kp.bias === "SHORT" ? "SELL" : "BUY");
-        document.getElementById("inpStopLoss").value = kp.stop_loss;
-        document.getElementById("inpTakeProfit").value = kp.tp1;
-        const eq = appState ? appState.total_equity_usdt : 10000;
-        const riskUsd = eq * 0.02;
-        const stopDistPct = Math.max(0.01, Math.abs(d.price - kp.stop_loss) / d.price);
-        const posUsd = Math.min(appState ? appState.cash_usdt * currentLev : 1000, Math.round(riskUsd / stopDistPct));
-        document.getElementById("inpUsdtAmount").value = Math.max(100, posUsd);
-        updateMarginEstimates();
-        toast("Loaded AI Plan: SL " + fmtP(kp.stop_loss) + " | TP " + fmtP(kp.tp1));
-      toast("Loading 25-Source AI Kelly Trade Plan for " + currentSymbol + "...");
-      let kp = null;
-      let d = currentForecast;
-      if (!d || d.symbol !== currentSymbol) {
-        await loadForecast(currentSymbol, false);
-        d = currentForecast;
+      if (!currentForecast) {
+        toast("No forecast available yet. Click Refresh in AI panel.");
+        return;
       }
-      if (d && d.kelly_trade_plan) {
-        kp = d.kelly_trade_plan;
-        setSide(kp.bias === "BEARISH" ? "SELL" : "BUY");
-        if (kp.stop_loss) document.getElementById("inpStopLoss").value = kp.stop_loss;
-        if (kp.tp1) document.getElementById("inpTakeProfit").value = kp.tp1;
-        if (kp.suggested_leverage) setLeverage(kp.suggested_leverage);
-
-        const eq = appState ? appState.total_equity_usdt : 10000;
-        const riskUsd = eq * 0.02; // 2% risk
-        const liveP = (liveTickers[currentSymbol] && liveTickers[currentSymbol].price) || d.price || 1;
-        const stopDistPct = Math.max(0.015, Math.abs(liveP - (kp.stop_loss || liveP * 0.97)) / liveP);
-        const posUsd = Math.min(appState ? appState.cash_usdt * currentLeverage : 2000, Math.round(riskUsd / stopDistPct));
-        document.getElementById("inpUsdtAmount").value = Math.max(50, posUsd);
-        updateMarginEstimates();
-        toast("AI Plan Loaded: " + kp.bias + " | SL " + fmtP(kp.stop_loss) + " | TP " + fmtP(kp.tp1));
-        drawChart();
+      const kp = currentForecast.kelly_trade_plan;
+      if (!kp) {
+        toast("No Kelly trade plan generated for this coin.");
+        return;
       }
+      selectSymbol(currentForecast.symbol);
+      setSide(kp.bias === "BEARISH" ? "SELL" : "BUY");
+      if (kp.suggested_leverage) {
+        setLev(kp.suggested_leverage);
+      }
+      if (kp.limit_pullback_entry && currentType === "LIMIT") {
+        document.getElementById("inpLimitPrice").value = kp.limit_pullback_entry;
+      }
+      if (kp.stop_loss) document.getElementById("inpStopLoss").value = kp.stop_loss;
+      if (kp.tp1) document.getElementById("inpTakeProfit").value = kp.tp1;
+      toast(`✅ Loaded Institutional Plan into Ticket`);
     }
 
     async function submitOrder() {
@@ -1573,7 +1305,6 @@
         symbol: currentSymbol,
         side: currentSide === "BUY" ? "LONG" : "SHORT",
         type: currentType,
-        leverage: currentLev,
         leverage: currentLeverage,
         usdt_amount: Number(document.getElementById("inpUsdtAmount").value || 0),
         limit_price: Number(document.getElementById("inpLimitPrice").value || 0),
@@ -1594,10 +1325,12 @@
             renderState(doc.state);
             drawChart();
             return;
+          } else {
+            toast("❌ " + (doc.error || "Order rejected"));
+            return;
           }
         } catch (e) {
           isClientSideMode = true;
-          document.getElementById("simBadge").textContent = "● GITHUB PAGES LIVE";
         }
       }
 
@@ -1609,7 +1342,6 @@
       const w = getLocalWallet();
       const tk = liveTickers[payload.symbol];
       const liveP = (tk && tk.price > 0) ? tk.price : 100.0;
-      const execP = payload.type === "LIMIT" ? payload.limit_price : liveP;
       const bsym = payload.symbol;
 
       if (payload.type === "LIMIT") {
@@ -1691,59 +1423,12 @@
         toast(`❌ Insufficient cash ($${w.cash_usdt.toFixed(2)} available, requires $${(marginReq + fee).toFixed(2)})`);
         return;
       }
-      toast("✅ " + doc.result.status);
-      renderState(doc.state);
-      drawChart();
-    }
-
-    async function quickSimTrade(sym, side, lev, notional) {
-      selectSymbol(sym);
-      setSide(side);
-      setLev(lev);
-      document.getElementById("inpUsdtAmount").value = notional;
-      setPresetSlTp();
-      await submitOrder();
-    }
-
-    async function quickCloseCurrent(pct) {
-      if (!appState || !appState.positions || !appState.positions.length) return;
-      const pos = appState.positions.find(p => p.symbol === currentSymbol) || appState.positions[0];
-      const r = await fetch("/api/position/close", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: pos.symbol, pct }),
-      });
-      const doc = await r.json();
-      if (doc.ok) {
-        toast(`✅ Closed ${pct}% of ${pos.symbol}`);
-        renderState(doc.state);
-        drawChart();
-      } else {
-        toast("❌ " + doc.error);
-      }
-    }
-
-    async function quickReverseCurrent() {
-      if (!appState || !appState.positions || !appState.positions.length) return;
-      const pos = appState.positions.find(p => p.symbol === currentSymbol) || appState.positions[0];
-      const r = await fetch("/api/position/reverse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: pos.symbol }),
-      });
-      const doc = await r.json();
-      if (doc.ok) {
-        toast(`🔄 Reversed Position for ${pos.symbol}`);
-        renderState(doc.state);
-        drawChart();
-      } else {
-        toast("❌ " + doc.error);
 
       w.cash_usdt = Math.round((w.cash_usdt - marginReq - fee) * 100) / 100;
       const qty = notional / liveP;
       const isBtcEth = bsym.startsWith("BTC") || bsym.startsWith("ETH");
       const mmr = isBtcEth ? 0.005 : 0.010;
-      const isLong = (payload.side === "BUY");
+      const isLong = (payload.side === "BUY" || payload.side === "LONG");
       const liqPrice = lev > 1 ? (isLong ? liveP * (1 - (1 - mmr) / lev) : liveP * (1 + (1 - mmr) / lev)) : null;
 
       w.positions[bsym] = {
@@ -1779,26 +1464,22 @@
       drawChart();
     }
 
-    async function quickClose(sym, pct) {
-      if (!isClientSideMode) {
-        try {
-          const r = await fetch("/api/order", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ symbol: sym, side: "SELL", type: "MARKET", sell_pct: pct }),
-          });
-          const doc = await r.json();
-          if (doc.ok) {
-            toast("✅ Sold " + pct + "% of " + sym);
-            renderState(doc.state);
-            drawChart();
-            return;
-          }
-        } catch (e) {
-          isClientSideMode = true;
-        }
-      }
-      executeOrderClientSide({ symbol: sym, side: "SELL", type: "MARKET", sell_pct: pct });
+    async function quickCloseCurrent(pct) {
+      if (!appState || !appState.positions || !appState.positions.length) return;
+      const pos = appState.positions.find(p => p.symbol === currentSymbol) || appState.positions[0];
+      await quickClose(pos.symbol, pct);
+    }
+
+    async function quickReverseCurrent() {
+      if (!appState || !appState.positions || !appState.positions.length) return;
+      const pos = appState.positions.find(p => p.symbol === currentSymbol) || appState.positions[0];
+      await quickReverse(pos.symbol);
+    }
+
+    async function quickEditBracketsCurrent() {
+      if (!appState || !appState.positions || !appState.positions.length) return;
+      const pos = appState.positions.find(p => p.symbol === currentSymbol) || appState.positions[0];
+      await editBrackets(pos.symbol, pos.stop_loss, pos.take_profit);
     }
 
     async function quickAddCurrent() {
@@ -1811,26 +1492,55 @@
       await submitOrder();
     }
 
-    async function quickEditBracketsCurrent() {
-      if (!appState || !appState.positions || !appState.positions.length) return;
-      const pos = appState.positions.find(p => p.symbol === currentSymbol) || appState.positions[0];
-      const slIn = prompt(`Set Stop-Loss for ${pos.symbol} (leave blank to clear):`, pos.stop_loss || "");
+    async function quickClose(sym, pct) {
+      if (!isClientSideMode) {
+        try {
+          const r = await fetch("/api/position/close", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ symbol: sym, pct }),
+          });
+          const doc = await r.json();
+          if (doc.ok) {
+            toast(`✅ Closed ${pct}% of ${sym}`);
+            renderState(doc.state);
+            drawChart();
+            return;
+          }
+        } catch (e) {
+          isClientSideMode = true;
+        }
+      }
+      executeOrderClientSide({ symbol: sym, side: "SELL", type: "MARKET", sell_pct: pct });
+    }
+
+    async function quickReverse(sym) {
+      if (!isClientSideMode) {
+        try {
+          const r = await fetch("/api/position/reverse", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ symbol: sym }),
+          });
+          const doc = await r.json();
+          if (doc.ok) {
+            toast(`🔄 Reversed position for ${sym}`);
+            renderState(doc.state);
+            drawChart();
+            return;
+          }
+        } catch (e) {
+          isClientSideMode = true;
+        }
+      }
+      toast("Reverse requires active backend connection");
+    }
+
+    async function editBrackets(sym, currentSl, currentTp) {
+      const slIn = prompt("Set Stop-Loss for " + sym + " (leave blank to clear):", currentSl || "");
       if (slIn === null) return;
-      const tpIn = prompt(`Set Take-Profit for ${pos.symbol} (leave blank to clear):`, pos.take_profit || "");
+      const tpIn = prompt("Set Take-Profit for " + sym + " (leave blank to clear):", currentTp || "");
       if (tpIn === null) return;
-      const r = await fetch("/api/brackets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          symbol: pos.symbol,
-          stop_loss: slIn.trim() ? Number(slIn) : null,
-          take_profit: tpIn.trim() ? Number(tpIn) : null,
-        }),
-      });
-      const doc = await r.json();
-      if (doc.ok) {
-        toast(`✅ Updated SL/TP for ${pos.symbol}`);
-        renderState(doc.state);
 
       const slVal = slIn.trim() ? Number(slIn) : null;
       const tpVal = tpIn.trim() ? Number(tpIn) : null;
@@ -1866,15 +1576,6 @@
     }
 
     async function cancelOrder(id) {
-      const r = await fetch("/api/cancel", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
-      const doc = await r.json();
-      if (doc.ok) {
-        toast("Cancelled order " + id);
-        renderState(doc.state);
       if (!isClientSideMode) {
         try {
           const r = await fetch("/api/cancel", {
@@ -1907,214 +1608,147 @@
       });
       const doc = await r.json();
       if (doc.ok) {
-        toast("✅ Reset wallet to $" + Number(amount).toLocaleString());
+        toast(`Reset balance to $${amount.toLocaleString()}`);
         renderState(doc.state);
-        drawChart();
-      const amt = Number(amount);
-      if (!isClientSideMode) {
-        try {
-          const r = await fetch("/api/reset", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ starting_cash: amt }),
-          });
-          const doc = await r.json();
-          if (doc.ok) {
-            toast("✅ Virtual Wallet Reset to $" + amt.toLocaleString());
-            renderState(doc.state);
-            drawChart();
-            return;
-          }
-        } catch (e) {
-          isClientSideMode = true;
-        }
       }
-
-      const w = {
-        starting_cash: amt,
-        cash_usdt: amt,
-        realized_pnl_usdt: 0.0,
-        total_trades: 0,
-        winning_trades: 0,
-        losing_trades: 0,
-        positions: {},
-        open_orders: [],
-        history: [{
-          id: "R" + Date.now(),
-          time: new Date().toISOString(),
-          symbol: "WALLET",
-          action: "RESET",
-          price: 0,
-          usdt_total: amt,
-          fee_usdt: 0,
-          pnl_usdt: 0,
-          pnl_pct: "0.00",
-          reason: "Virtual Balance Set to $" + amt.toLocaleString()
-        }],
-        updated_at: new Date().toISOString()
-      };
-      saveLocalWallet(w);
-      toast("✅ Virtual Wallet Reset to $" + amt.toLocaleString());
-      buildAndRenderState();
-      drawChart();
     }
 
     function promptCustomBalance() {
-      const v = prompt("Enter starting virtual balance (USDT):", "25000");
-      if (v && !isNaN(v) && Number(v) > 0) resetWalletTo(Number(v));
+      const v = prompt("Enter new virtual USDT margin starting balance:", "10000");
+      if (!v) return;
+      const n = parseFloat(v.replace(/,/g, ''));
+      if (isNaN(n) || n <= 0) {
+        toast("Please enter a valid positive number.");
+        return;
+      }
+      resetWalletTo(n);
     }
 
-    /* ======================================================== */
-    /* STATE RENDERING (HERO STAND, POSITIVE BADGES, BNB VALUES) */
-    /* ======================================================== */
     function evaluateTriggers() {
       const w = getLocalWallet();
       let changed = false;
 
-      // 1. Evaluate Limit Orders
+      // Check resting limit orders
       const remainingOrders = [];
-      for (const o of w.open_orders) {
-        const tk = liveTickers[o.symbol];
+      for (const ord of w.open_orders) {
+        const tk = liveTickers[ord.symbol];
         if (!tk || tk.price <= 0) {
-          remainingOrders.append ? remainingOrders.append(o) : remainingOrders.push(o);
+          remainingOrders.push(ord);
           continue;
         }
-        const liveP = tk.price;
-        const limP = Number(o.limit_price);
-        if (o.side === "BUY" && liveP <= limP) {
-          executeOrderClientSide({
-            symbol: o.symbol,
-            side: "BUY",
-            type: "MARKET",
-            leverage: o.leverage || 1,
-            usdt_amount: o.usdt_amount,
-            stop_loss: o.stop_loss,
-            take_profit: o.take_profit
-          });
-          toast(`⚡ Limit Buy Filled for ${o.symbol} @ ${fmtP(liveP)}`);
+        const p = tk.price;
+        let filled = false;
+        if (ord.side === "BUY" && p <= ord.limit_price) filled = true;
+        else if (ord.side === "SELL" && p >= ord.limit_price) filled = true;
+
+        if (filled) {
           changed = true;
-        } else if (o.side === "SELL" && liveP >= limP) {
-          executeOrderClientSide({
-            symbol: o.symbol,
-            side: "SELL",
-            type: "MARKET",
-            leverage: o.leverage || 1,
-            usdt_amount: o.usdt_amount,
-            stop_loss: o.stop_loss,
-            take_profit: o.take_profit
-          });
-          toast(`⚡ Limit Sell Filled for ${o.symbol} @ ${fmtP(liveP)}`);
-          changed = true;
+          const lev = ord.leverage || 1;
+          const notional = Number(ord.usdt_amount || 0);
+          const marginReq = notional / lev;
+          const fee = notional * FEE_RATE;
+          if (marginReq + fee <= w.cash_usdt) {
+            w.cash_usdt = Math.round((w.cash_usdt - marginReq - fee) * 100) / 100;
+            const qty = notional / p;
+            const isBtcEth = ord.symbol.startsWith("BTC") || ord.symbol.startsWith("ETH");
+            const mmr = isBtcEth ? 0.005 : 0.010;
+            const isLong = (ord.side === "BUY" || ord.side === "LONG");
+            const liqPrice = lev > 1 ? (isLong ? p * (1 - (1 - mmr) / lev) : p * (1 + (1 - mmr) / lev)) : null;
+
+            w.positions[ord.symbol] = {
+              symbol: ord.symbol,
+              side: isLong ? "LONG" : "SHORT",
+              leverage: lev,
+              qty: qty,
+              avg_entry: p,
+              margin_usdt: marginReq,
+              notional_usdt: notional,
+              stop_loss: ord.stop_loss,
+              take_profit: ord.take_profit,
+              liq_price: liqPrice,
+              opened_at: new Date().toISOString()
+            };
+            w.history.unshift({
+              id: "T" + Date.now(),
+              time: new Date().toISOString(),
+              symbol: ord.symbol,
+              action: `${ord.side} LIMIT FILL`,
+              price: p,
+              usdt_total: notional,
+              fee_usdt: fee,
+              pnl_usdt: null,
+              pnl_pct: null,
+              reason: `Limit Trigger Hit @ ${fmtP(ord.limit_price)}`
+            });
+            toast(`⚡ Limit order FILLED for ${ord.symbol} @ ${fmtP(p)}`);
+          }
         } else {
-          remainingOrders.push(o);
+          remainingOrders.push(ord);
         }
       }
-      if (changed) {
-        w.open_orders = remainingOrders;
-        saveLocalWallet(w);
-      }
+      w.open_orders = remainingOrders;
 
-      // 2. Evaluate Open Positions (SL, TP, Liquidation)
-      for (const bsym of Object.keys(w.positions)) {
-        const pos = w.positions[bsym];
-        const tk = liveTickers[bsym];
+      // Check open positions for SL, TP, or Liquidation
+      for (const [sym, pos] of Object.entries(w.positions)) {
+        const tk = liveTickers[sym];
         if (!tk || tk.price <= 0) continue;
-        const liveP = tk.price;
-        const isLong = (pos.side === "LONG");
+        const p = tk.price;
+        const isLong = pos.side === "LONG";
+        let exitReason = null;
 
-        // Check Liquidation
+        // Liquidation check
         if (pos.liq_price) {
-          const isLiq = isLong ? (liveP <= pos.liq_price) : (liveP >= pos.liq_price);
-          if (isLiq) {
-            delete w.positions[bsym];
-            w.realized_pnl_usdt -= pos.margin_usdt;
-            w.total_trades += 1;
-            w.losing_trades += 1;
-            w.history.unshift({
-              id: "LIQ" + Date.now(),
-              time: new Date().toISOString(),
-              symbol: bsym,
-              action: "LIQUIDATED",
-              price: liveP,
-              usdt_total: 0,
-              fee_usdt: 0,
-              pnl_usdt: -pos.margin_usdt,
-              pnl_pct: "-100.00",
-              reason: `MARGIN LIQUIDATION triggered @ ${fmtP(liveP)} (Buffer Breached)`
-            });
-            saveLocalWallet(w);
-            toast(`🚨 MARGIN LIQUIDATION: ${bsym} position liquidated @ ${fmtP(liveP)}!`);
-            changed = true;
-            continue;
-          }
+          if (isLong && p <= pos.liq_price) exitReason = "LIQUIDATION";
+          else if (!isLong && p >= pos.liq_price) exitReason = "LIQUIDATION";
+        }
+        // Stop Loss check
+        if (!exitReason && pos.stop_loss) {
+          if (isLong && p <= pos.stop_loss) exitReason = "STOP LOSS";
+          else if (!isLong && p >= pos.stop_loss) exitReason = "STOP LOSS";
+        }
+        // Take Profit check
+        if (!exitReason && pos.take_profit) {
+          if (isLong && p >= pos.take_profit) exitReason = "TAKE PROFIT";
+          else if (!isLong && p <= pos.take_profit) exitReason = "TAKE PROFIT";
         }
 
-        // Check Stop-Loss
-        if (pos.stop_loss) {
-          const slHit = isLong ? (liveP <= pos.stop_loss) : (liveP >= pos.stop_loss);
-          if (slHit) {
-            const notional = pos.qty * liveP;
-            const fee = notional * FEE_RATE;
-            const pnl = isLong ? ((liveP - pos.avg_entry) * pos.qty - fee) : ((pos.avg_entry - liveP) * pos.qty - fee);
-            const pnlPct = pos.margin_usdt > 0 ? (pnl / pos.margin_usdt) * 100 : 0;
-            w.cash_usdt += (pos.margin_usdt + pnl);
-            w.realized_pnl_usdt += pnl;
-            w.total_trades += 1;
-            if (pnl >= 0) w.winning_trades += 1; else w.losing_trades += 1;
-            delete w.positions[bsym];
-            w.history.unshift({
-              id: "SL" + Date.now(),
-              time: new Date().toISOString(),
-              symbol: bsym,
-              action: "STOP-LOSS",
-              price: liveP,
-              usdt_total: notional,
-              fee_usdt: fee,
-              pnl_usdt: pnl,
-              pnl_pct: pnlPct.toFixed(2),
-              reason: `Stop-Loss filled @ ${fmtP(liveP)}`
-            });
-            saveLocalWallet(w);
-            toast(`🛑 Stop-Loss triggered for ${bsym} @ ${fmtP(liveP)} (PnL: ${fmtUsd(pnl, true)})`);
-            changed = true;
-            continue;
+        if (exitReason) {
+          changed = true;
+          const notional = pos.qty * p;
+          const fee = notional * FEE_RATE;
+          let pnl = 0;
+          if (exitReason === "LIQUIDATION") {
+            pnl = -pos.margin_usdt;
+          } else {
+            pnl = isLong ? ((p - pos.avg_entry) * pos.qty - fee) : ((pos.avg_entry - p) * pos.qty - fee);
           }
-        }
+          const pnlPct = (pnl / pos.margin_usdt) * 100.0;
+          const returnCash = (exitReason === "LIQUIDATION") ? 0 : Math.max(0, pos.margin_usdt + pnl);
 
-        // Check Take-Profit
-        if (pos.take_profit) {
-          const tpHit = isLong ? (liveP >= pos.take_profit) : (liveP <= pos.take_profit);
-          if (tpHit) {
-            const notional = pos.qty * liveP;
-            const fee = notional * FEE_RATE;
-            const pnl = isLong ? ((liveP - pos.avg_entry) * pos.qty - fee) : ((pos.avg_entry - liveP) * pos.qty - fee);
-            const pnlPct = pos.margin_usdt > 0 ? (pnl / pos.margin_usdt) * 100 : 0;
-            w.cash_usdt += (pos.margin_usdt + pnl);
-            w.realized_pnl_usdt += pnl;
-            w.total_trades += 1;
-            if (pnl >= 0) w.winning_trades += 1; else w.losing_trades += 1;
-            delete w.positions[bsym];
-            w.history.unshift({
-              id: "TP" + Date.now(),
-              time: new Date().toISOString(),
-              symbol: bsym,
-              action: "TAKE-PROFIT",
-              price: liveP,
-              usdt_total: notional,
-              fee_usdt: fee,
-              pnl_usdt: pnl,
-              pnl_pct: pnlPct.toFixed(2),
-              reason: `Take-Profit target hit @ ${fmtP(liveP)}`
-            });
-            saveLocalWallet(w);
-            toast(`🎯 Take-Profit filled for ${bsym} @ ${fmtP(liveP)} (PnL: ${fmtUsd(pnl, true)})`);
-            changed = true;
-            continue;
-          }
+          w.cash_usdt = Math.round((w.cash_usdt + returnCash) * 100) / 100;
+          w.realized_pnl_usdt = Math.round((w.realized_pnl_usdt + pnl) * 100) / 100;
+          w.total_trades += 1;
+          if (pnl >= 0) w.winning_trades += 1; else w.losing_trades += 1;
+
+          delete w.positions[sym];
+          w.history.unshift({
+            id: "T" + Date.now(),
+            time: new Date().toISOString(),
+            symbol: sym,
+            action: exitReason,
+            price: p,
+            usdt_total: notional,
+            fee_usdt: fee,
+            pnl_usdt: pnl,
+            pnl_pct: pnlPct.toFixed(2),
+            reason: `${exitReason} triggered @ ${fmtP(p)}`
+          });
+          toast(`🚨 ${exitReason} TRIGGERED on ${sym} @ ${fmtP(p)} (PnL: ${fmtUsd(pnl, true)})`);
         }
       }
 
       if (changed) {
+        saveLocalWallet(w);
         buildAndRenderState();
         drawChart();
       }
@@ -2122,68 +1756,85 @@
 
     function buildAndRenderState() {
       const w = getLocalWallet();
-      let totalPosVal = 0.0;
-      let totalUnrealized = 0.0;
+      const bnbP = (liveTickers["BNBUSDT"] && liveTickers["BNBUSDT"].price > 0) ? liveTickers["BNBUSDT"].price : 735.0;
+
+      let totalMarginLocked = 0;
+      let totalUpnl = 0;
       const posArray = [];
 
-      for (const bsym of Object.keys(w.positions)) {
-        const p = w.positions[bsym];
-        const tk = liveTickers[bsym] || { price: p.avg_entry, change_24h_pct: 0 };
-        const liveP = tk.price > 0 ? tk.price : p.avg_entry;
-        const isLong = (p.side === "LONG");
-        const notional = p.qty * liveP;
+      for (const [sym, pos] of Object.entries(w.positions)) {
+        const tk = liveTickers[sym];
+        const liveP = (tk && tk.price > 0) ? tk.price : pos.avg_entry;
+        const isLong = pos.side === "LONG";
+        const notional = pos.qty * liveP;
         const fee = notional * FEE_RATE;
-        const upnl = isLong ? ((liveP - p.avg_entry) * p.qty - fee) : ((p.avg_entry - liveP) * p.qty - fee);
-        const roe = p.margin_usdt > 0 ? (upnl / p.margin_usdt) * 100.0 : 0.0;
+        const upnl = isLong ? ((liveP - pos.avg_entry) * pos.qty - fee) : ((pos.avg_entry - liveP) * pos.qty - fee);
+        const upnlPct = pos.margin_usdt > 0 ? (upnl / pos.margin_usdt) * 100.0 : 0.0;
 
-        totalPosVal += (p.margin_usdt + upnl);
-        totalUnrealized += upnl;
+        totalMarginLocked += pos.margin_usdt;
+        totalUpnl += upnl;
+
+        let liqDistPct = 999;
+        if (pos.liq_price && pos.avg_entry > 0) {
+          liqDistPct = Math.abs(pos.avg_entry - pos.liq_price) / pos.avg_entry * 100.0;
+        }
 
         posArray.push({
-          symbol: bsym,
-          side: p.side,
-          leverage: p.leverage || 1,
-          qty: p.qty,
-          avg_entry: p.avg_entry,
+          symbol: sym,
+          side: pos.side,
+          leverage: pos.leverage,
+          qty: pos.qty,
+          avg_entry: pos.avg_entry,
           live_price: liveP,
-          margin_usdt: p.margin_usdt,
+          margin_locked_usdt: pos.margin_usdt,
+          margin_locked_bnb: pos.margin_usdt / bnbP,
           notional_usdt: notional,
+          notional_bnb: notional / bnbP,
           unrealized_pnl_usdt: upnl,
-          unrealized_pnl_pct: roe,
-          liq_price: p.liq_price,
-          stop_loss: p.stop_loss,
-          take_profit: p.take_profit,
-          opened_at: p.opened_at
+          unrealized_pnl_bnb: upnl / bnbP,
+          unrealized_pnl_pct: upnlPct,
+          liquidation_price: pos.liq_price,
+          liquidation_dist_pct: liqDistPct.toFixed(1),
+          stop_loss: pos.stop_loss,
+          take_profit: pos.take_profit,
         });
       }
 
-      const totalEquity = Math.round((w.cash_usdt + totalPosVal) * 100) / 100;
+      const totalEquity = w.cash_usdt + totalMarginLocked + totalUpnl;
       const totalReturn = totalEquity - w.starting_cash;
       const totalReturnPct = w.starting_cash > 0 ? (totalReturn / w.starting_cash) * 100.0 : 0.0;
-      const winRate = w.total_trades > 0 ? ((w.winning_trades / w.total_trades) * 100.0).toFixed(1) : "0.0";
+      const winRate = w.total_trades > 0 ? Math.round((w.winning_trades / w.total_trades) * 100) : 0;
 
-      const wl = Object.values(liveTickers);
-
-      const stateDoc = {
-        as_of: new Date().toISOString(),
-        starting_cash: w.starting_cash,
+      const stateObj = {
+        simulation_running: true,
+        bnb_price: bnbP,
+        bnb_change_24h_pct: (liveTickers["BNBUSDT"] ? liveTickers["BNBUSDT"].change_24h_pct : 1.2),
         cash_usdt: w.cash_usdt,
+        cash_bnb: w.cash_usdt / bnbP,
+        margin_locked_usdt: totalMarginLocked,
+        margin_locked_bnb: totalMarginLocked / bnbP,
         total_equity_usdt: totalEquity,
-        unrealized_pnl_usdt: totalUnrealized,
-        realized_pnl_usdt: w.realized_pnl_usdt,
+        total_equity_bnb: totalEquity / bnbP,
+        unrealized_pnl_usdt: totalUpnl,
+        unrealized_pnl_bnb: totalUpnl / bnbP,
         total_return_usdt: totalReturn,
         total_return_pct: totalReturnPct,
-        total_trades: w.total_trades,
+        win_rate_pct: winRate,
         winning_trades: w.winning_trades,
         losing_trades: w.losing_trades,
-        win_rate_pct: winRate,
         positions: posArray,
         open_orders: w.open_orders,
-        history: w.history.slice(0, 30),
-        watchlist: wl
+        history: w.history,
+        watchlist: Object.values(liveTickers).map(t => ({
+          symbol: t.symbol,
+          price: t.price,
+          price_bnb: t.price / bnbP,
+          change_24h_pct: t.change_24h_pct,
+          volume_24h_usd: t.volume_24h_usd || 50000000
+        }))
       };
 
-      renderState(stateDoc);
+      renderState(stateObj);
     }
 
     function renderState(s) {
@@ -2210,7 +1861,7 @@
       eqEl.className = "v " + (s.total_return_usdt >= 0 ? "up" : "down");
 
       document.getElementById("topCash").textContent = fmtVal(s.cash_usdt, s.cash_bnb);
-      document.getElementById("ticketAvailCash").textContent = fmtVal(s.cash_usdt, s.cash_bnb);
+      document.getElementById("ticketAvailCash").textContent = fmtVal(s.cash_usdt, s.cash_bnb) + " Available";
       document.getElementById("topMarginInUse").textContent = fmtVal(s.margin_locked_usdt, s.margin_locked_bnb);
 
       const upnlEl = document.getElementById("topUpnl");
@@ -2224,22 +1875,6 @@
 
       // Left Watchlist
       const wl = document.getElementById("watchListContainer");
-      wl.innerHTML = (s.watchlist || []).map(t => {
-        const isUp = t.change_24h_pct >= 0;
-        const pick = picksMap[t.symbol];
-        const scoreBadge = pick
-          ? `<span class="score-tag ${pick.composite_score >= 0 ? 'up' : 'down'}">${pick.composite_score >= 0 ? '+' : ''}${pick.composite_score}</span>`
-          : "";
-        const priceDisp = currentDenom === "BNB" ? fmtBnb(t.price_bnb) : fmtP(t.price);
-        return `
-          <div class="watch-row ${t.symbol === currentSymbol ? 'active' : ''}" onclick="selectSymbol('${t.symbol}')">
-            <div>
-              <div class="watch-sym">${t.symbol.replace(/USDT$/, '')}<span style="color:var(--muted);font-weight:500;font-size:10px;">/USDT</span> ${scoreBadge}</div>
-              <div style="font-size:10px;color:var(--muted);">Vol ${fmtUsd(t.volume_24h_usd)}</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-weight:800;font-size:12px;">${priceDisp}</div>
-              <div class="${isUp ? 'up' : 'down'}" style="font-size:10px;font-weight:700;">${isUp ? '+' : ''}${t.change_24h_pct.toFixed(2)}%</div>
       if (s.watchlist && s.watchlist.length > 0) {
         wl.innerHTML = s.watchlist.map(t => {
           const isUp = t.change_24h_pct >= 0;
@@ -2247,15 +1882,16 @@
           const scoreBadge = pick
             ? `<span class="score-tag ${pick.composite_score >= 0 ? 'up' : 'down'}">${pick.composite_score >= 0 ? '+' : ''}${pick.composite_score}</span>`
             : "";
+          const priceDisp = currentDenom === "BNB" ? fmtBnb(t.price_bnb) : fmtP(t.price);
           return `
-            <div class="watch-row ${t.symbol === currentSymbol ? 'active' : ''}" onclick="selectSymbol('${t.symbol}')">
+            <div class="watch-row ${t.symbol === currentSymbol ? 'active' : ''}" id="wl-row-${t.symbol}" onclick="selectSymbol('${t.symbol}')">
               <div>
-                <div class="watch-sym">${t.symbol.replace(/USDT$/, '')}<span style="color:var(--muted);font-weight:500;font-size:11px;">/USDT</span> ${scoreBadge}</div>
+                <div class="watch-sym">${t.symbol.replace(/USDT$/, '')}<span style="color:var(--muted);font-weight:500;font-size:10px;">/USDT</span> ${scoreBadge}</div>
                 <div style="font-size:10px;color:var(--muted);">Vol ${fmtUsd(t.volume_24h_usd)}</div>
               </div>
               <div style="text-align:right;">
-                <div style="font-weight:800;font-size:13px;">${fmtP(t.price)}</div>
-                <div class="${isUp ? 'up' : 'down'}" style="font-size:11px;font-weight:700;">${isUp ? '+' : ''}${Number(t.change_24h_pct).toFixed(2)}%</div>
+                <div style="font-weight:800;font-size:12px;" id="wl-price-${t.symbol}">${priceDisp}</div>
+                <div class="${isUp ? 'up' : 'down'}" style="font-size:10px;font-weight:700;">${isUp ? '+' : ''}${t.change_24h_pct.toFixed(2)}%</div>
               </div>
             </div>
           `;
@@ -2263,8 +1899,7 @@
       }
 
       // Active Pair Header
-      const activeTk = (s.watchlist || []).find(t => t.symbol === currentSymbol);
-      const activeTk = liveTickers[currentSymbol];
+      const activeTk = (s.watchlist || []).find(t => t.symbol === currentSymbol) || liveTickers[currentSymbol];
       if (activeTk) {
         document.getElementById("chartSym").textContent = activeTk.symbol;
         document.getElementById("chartPrice").textContent = currentDenom === "BNB" ? fmtBnb(activeTk.price_bnb) : fmtP(activeTk.price);
@@ -2274,49 +1909,42 @@
         document.getElementById("chartVol").textContent = fmtUsd(activeTk.volume_24h_usd);
       }
 
-      /* ======================================================== */
-      /* RENDER HERO CARD: WHICH COIN IS BOUGHT & ARE WE IN POSITIVE */
-      /* ======================================================== */
-      const heroCard = document.getElementById("heroTradeCard");
-      const heroPos = (s.positions || []).find(p => p.symbol === currentSymbol) || (s.positions || [])[0];
+      // HERO CARD RENDERING
+      const heroPos = (s.positions && s.positions.length)
+        ? (s.positions.find(p => p.symbol === currentSymbol) || s.positions[0])
+        : null;
 
       if (!heroPos) {
-        // No active position
-        heroCard.className = "trade-stand-card";
-        document.getElementById("heroCoinIcon").textContent = "🔶";
-        document.getElementById("heroSymTitle").textContent = "NO ACTIVE MARGIN TRADE";
-        document.getElementById("heroSideBadge").style.display = "none";
-        document.getElementById("heroLeverageLbl").textContent = "";
-        document.getElementById("heroEmptyActions").style.display = "flex";
+        document.getElementById("heroSymbol").textContent = currentSymbol;
+        document.getElementById("heroSideBadge").textContent = "NO POSITION";
+        document.getElementById("heroSideBadge").className = "side-pill";
+        document.getElementById("heroLevBadge").textContent = "Flat / In Cash";
+        document.getElementById("heroRoeVal").textContent = "0.00%";
+        document.getElementById("heroRoeVal").className = "";
 
         const banner = document.getElementById("heroStatusBanner");
         banner.className = "positive-status-banner neutral";
-        document.getElementById("heroStatusTitle").textContent = "⚪ NO ACTIVE TRADE OPEN";
-        document.getElementById("heroStatusVal").textContent = "$0.00 (0.00% ROI)";
-        document.getElementById("heroStatusSub").textContent = "Select any coin on the left or click ⚡ Quick Long/Short to open a simulated trade!";
+        document.getElementById("heroStatusTitle").textContent = "⚪ FLAT / CASH ONLY (NO ACTIVE EXPOSURE)";
+        document.getElementById("heroStatusVal").textContent = "Margin 100% Free";
+        document.getElementById("heroStatusSub").textContent = "Submit a trade using the ticket to begin simulating isolated margin execution.";
 
         document.getElementById("heroMetricsGrid").style.display = "none";
         document.getElementById("heroMeterWrap").style.display = "none";
         document.getElementById("heroActionsRow").style.display = "none";
       } else {
-        // Active position exists!
-        const isLong = heroPos.side === "LONG";
         const isUp = heroPos.unrealized_pnl_usdt > 0;
         const isDown = heroPos.unrealized_pnl_usdt < 0;
+        const isLong = heroPos.side === "LONG";
 
-        heroCard.className = "trade-stand-card " + (isUp ? "is-positive" : (isDown ? "is-negative" : ""));
-        document.getElementById("heroCoinIcon").textContent = heroPos.symbol.startsWith("BNB") ? "🔶" : (heroPos.symbol.startsWith("BTC") ? "₿" : (heroPos.symbol.startsWith("ETH") ? "Ξ" : "🪙"));
-        document.getElementById("heroSymTitle").textContent = `${heroPos.symbol} MARGIN TRADE`;
+        document.getElementById("heroSymbol").textContent = heroPos.symbol;
+        document.getElementById("heroSideBadge").textContent = `${heroPos.side} ${heroPos.leverage}x`;
+        document.getElementById("heroSideBadge").className = "side-pill " + (isLong ? "long" : "short");
+        document.getElementById("heroLevBadge").textContent = "Isolated Margin Active";
 
-        const sideBadge = document.getElementById("heroSideBadge");
-        sideBadge.style.display = "inline-block";
-        sideBadge.className = "side-pill " + (isLong ? "long" : "short");
-        sideBadge.textContent = `${heroPos.side} ${heroPos.leverage}x`;
+        const roeEl = document.getElementById("heroRoeVal");
+        roeEl.textContent = `${heroPos.unrealized_pnl_pct >= 0 ? '+' : ''}${heroPos.unrealized_pnl_pct.toFixed(2)}% ROI`;
+        roeEl.className = isUp ? "up" : (isDown ? "down" : "");
 
-        document.getElementById("heroLeverageLbl").textContent = `Qty: ${Number(heroPos.qty).toPrecision(4)} coins`;
-        document.getElementById("heroEmptyActions").style.display = "none";
-
-        // "ARE WE IN POSITIVE?" BANNER
         const banner = document.getElementById("heroStatusBanner");
         const titleEl = document.getElementById("heroStatusTitle");
         const valEl = document.getElementById("heroStatusVal");
@@ -2324,14 +1952,14 @@
 
         if (isUp) {
           banner.className = "positive-status-banner positive";
-          titleEl.innerHTML = "🟢 WE ARE IN POSITIVE! (PROFITABLE TRADE)";
+          titleEl.innerHTML = "🟢 WE ARE IN POSITIVE! (PROFITABLE POSITION)";
           valEl.innerHTML = `+${fmtVal(heroPos.unrealized_pnl_usdt, heroPos.unrealized_pnl_bnb)} &nbsp;<span style="font-size:16px;">(+${heroPos.unrealized_pnl_pct.toFixed(2)}% ROI)</span>`;
-          subEl.textContent = `▲ Market is trading ABOVE your entry price (${fmtP(heroPos.avg_entry)}). Profit target is active.`;
+          subEl.textContent = `▲ Market trading ABOVE entry price (${fmtP(heroPos.avg_entry)}). Profit target is active.`;
         } else if (isDown) {
           banner.className = "positive-status-banner negative";
           titleEl.innerHTML = "🔴 WE ARE IN NEGATIVE (DRAWDOWN)";
           valEl.innerHTML = `${fmtVal(heroPos.unrealized_pnl_usdt, heroPos.unrealized_pnl_bnb)} &nbsp;<span style="font-size:16px;">(${heroPos.unrealized_pnl_pct.toFixed(2)}% ROI)</span>`;
-          subEl.textContent = `▼ Market is currently in drawdown. Protected by Stop-Loss at ${heroPos.stop_loss ? fmtP(heroPos.stop_loss) : 'None'}.`;
+          subEl.textContent = `▼ Market in drawdown. Protected by Stop-Loss at ${heroPos.stop_loss ? fmtP(heroPos.stop_loss) : 'None'}.`;
         } else {
           banner.className = "positive-status-banner neutral";
           titleEl.innerHTML = "⚪ TRADE AT BREAKEVEN";
@@ -2339,7 +1967,6 @@
           subEl.textContent = `Trading at exactly your entry price (${fmtP(heroPos.avg_entry)}).`;
         }
 
-        // WHERE THE TRADE STANDS: PILLARS
         document.getElementById("heroMetricsGrid").style.display = "grid";
         document.getElementById("heroEntryPrice").textContent = fmtP(heroPos.avg_entry);
         document.getElementById("heroLivePrice").textContent = fmtP(heroPos.live_price);
@@ -2347,10 +1974,9 @@
         document.getElementById("heroLiqDist").textContent = heroPos.liquidation_price > 0 ? `${heroPos.liquidation_dist_pct}% buffer` : "";
         document.getElementById("heroMarginLocked").textContent = fmtVal(heroPos.margin_locked_usdt, heroPos.margin_locked_bnb);
         document.getElementById("heroNotional").textContent = fmtVal(heroPos.notional_usdt, heroPos.notional_bnb);
-        document.getElementById("heroSlLbl").textContent = heroPos.stop_loss ? `SL: ${fmtP(heroPos.stop_loss)}` : "SL: None";
-        document.getElementById("heroTpLbl").textContent = heroPos.take_profit ? `TP: ${fmtP(heroPos.take_profit)}` : "TP: None";
+        document.getElementById("heroSlLbl").textContent = heroPos.stop_loss ? fmtP(heroPos.stop_loss) : "None";
+        document.getElementById("heroTpLbl").textContent = heroPos.take_profit ? fmtP(heroPos.take_profit) : "None";
 
-        // VISUAL PRICE GAUGE
         document.getElementById("heroMeterWrap").style.display = "block";
         const entry = heroPos.avg_entry;
         const live = heroPos.live_price;
@@ -2377,25 +2003,23 @@
         }
         progressPct = Math.max(3, Math.min(97, progressPct));
         document.getElementById("meterFill").style.width = progressPct + "%";
-        document.getElementById("meterFill").style.background = isUp ? "#10b981" : (isDown ? "#f43f5e" : "#3b82f6");
+        document.getElementById("meterFill").style.background = isUp ? "#10b981" : (isDown ? "#ef4444" : "#3b82f6");
         document.getElementById("meterPin").style.left = progressPct + "%";
         document.getElementById("meterStatusText").textContent = `Live Stand: ${fmtP(live)} (${progressPct > 50 ? 'Standing closer to Take-Profit 🟢' : 'Standing closer to Stop-Loss 🔴'})`;
 
         document.getElementById("heroActionsRow").style.display = "flex";
       }
-        document.getElementById("chartRange").textContent = fmtP(activeTk.low_24h) + " -- " + fmtP(activeTk.high_24h);
-        document.getElementById("chartVol").textContent = fmtUsd(activeTk.volume_24h_usd);
-      }
 
       const myPos = (s.positions || []).find(p => p.symbol === currentSymbol);
-      document.getElementById("ticketHoldingLbl").textContent = myPos ? (`Holding: ${myPos.side} ${myPos.leverage}x ($${myPos.notional_usdt ? myPos.notional_usdt.toFixed(2) : 0})`) : "No position";
+      document.getElementById("ticketHoldingLbl").textContent = myPos
+        ? (`Holding: ${myPos.side} ${myPos.leverage}x ($${myPos.notional_usdt ? myPos.notional_usdt.toFixed(2) : 0})`)
+        : "No position";
 
       // Positions Table
       document.getElementById("posCount").textContent = (s.positions || []).length;
       const pBody = document.getElementById("positionsTableBody");
       if (!s.positions || !s.positions.length) {
-        pBody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:14px;">No active margin positions. Use the Ticket to BUY / SELL or start the simulation!</td></tr>`;
-        pBody.innerHTML = `<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:16px;">No active paper positions. Use the Paper Order Ticket on the right to simulate a 1x-5x trade!</td></tr>`;
+        pBody.innerHTML = `<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:14px;">No active margin positions. Use the Ticket to BUY / SELL or start the simulation!</td></tr>`;
       } else {
         pBody.innerHTML = s.positions.map(p => {
           const isUp = p.unrealized_pnl_usdt > 0;
@@ -2415,37 +2039,19 @@
               <td>${Number(p.qty).toPrecision(4)}</td>
               <td>${fmtP(p.avg_entry)}</td>
               <td><b>${fmtP(p.live_price)}</b></td>
-              <td style="color:#f43f5e;font-weight:700;">${p.liquidation_price > 0 ? fmtP(p.liquidation_price) : '-'}</td>
               <td>${fmtVal(p.margin_locked_usdt, p.margin_locked_bnb)}</td>
               <td class="${isUp ? 'up' : (isDown ? 'down' : '')}">
                 <b>${sign}${fmtVal(p.unrealized_pnl_usdt, p.unrealized_pnl_bnb)} (${sign}${p.unrealized_pnl_pct.toFixed(2)}%)</b>
                 ${statusBadge}
               </td>
+              <td style="color:#f43f5e;font-weight:700;">${p.liquidation_price > 0 ? fmtP(p.liquidation_price) : '-'}</td>
+              <td style="color:var(--red);">${p.stop_loss ? fmtP(p.stop_loss) : '-'}</td>
+              <td style="color:var(--green);">${p.take_profit ? fmtP(p.take_profit) : '-'}</td>
               <td>
-                <span style="color:var(--red);">${p.stop_loss ? fmtP(p.stop_loss) : '-'}</span> /
-                <span style="color:var(--green);">${p.take_profit ? fmtP(p.take_profit) : '-'}</span>
-              </td>
-              <td>
+                <button class="btn-action" onclick="editBrackets('${p.symbol}', ${p.stop_loss || 'null'}, ${p.take_profit || 'null'})">SL/TP</button>
                 <button class="btn-action" onclick="quickClose('${p.symbol}', 50)">50%</button>
                 <button class="btn-action danger" onclick="quickClose('${p.symbol}', 100)">Close</button>
                 <button class="btn-action" onclick="quickReverse('${p.symbol}')">Rev</button>
-          const sideColor = p.side === "LONG" ? "var(--green)" : "var(--red)";
-          return `
-            <tr>
-              <td><b style="cursor:pointer;color:#60a5fa;" onclick="selectSymbol('${p.symbol}')">${p.symbol}</b></td>
-              <td><span style="font-weight:800;color:${sideColor};">${p.side} ${p.leverage}x</span></td>
-              <td>${Number(p.qty).toPrecision(5)}</td>
-              <td>${fmtP(p.avg_entry)}</td>
-              <td><b>${fmtP(p.live_price)}</b></td>
-              <td>$${Number(p.margin_usdt || 0).toFixed(2)} / $${Number(p.notional_usdt || 0).toFixed(2)}</td>
-              <td class="${isUp ? 'up' : 'down'}"><b>${sign}$${p.unrealized_pnl_usdt.toFixed(2)} (${sign}${Number(p.unrealized_pnl_pct).toFixed(2)}%)</b></td>
-              <td style="color:var(--red);font-weight:700;">${p.liq_price ? fmtP(p.liq_price) : 'None (1x)'}</td>
-              <td style="color:var(--red);font-weight:700;">${p.stop_loss ? fmtP(p.stop_loss) : '-'}</td>
-              <td style="color:var(--green);font-weight:700;">${p.take_profit ? fmtP(p.take_profit) : '-'}</td>
-              <td>
-                <button class="btn-action" onclick="editBrackets('${p.symbol}', ${p.stop_loss || 'null'}, ${p.take_profit || 'null'})">SL/TP</button>
-                <button class="btn-action" onclick="quickClose('${p.symbol}', 50)">Close 50%</button>
-                <button class="btn-action danger" onclick="quickClose('${p.symbol}', 100)">Close 100%</button>
               </td>
             </tr>
           `;
@@ -2462,7 +2068,6 @@
           <tr>
             <td><b>${o.symbol}</b></td>
             <td class="${o.side === 'LONG' || o.side === 'BUY' ? 'up' : 'down'}"><b>${o.side} ${o.leverage || 3}x</b></td>
-            <td class="${o.side === 'BUY' ? 'up' : 'down'}"><b>${o.side} ${o.leverage || 1}x</b></td>
             <td>${fmtP(o.limit_price)}</td>
             <td>$${o.usdt_amount}</td>
             <td><button class="btn-action danger" onclick="cancelOrder('${o.id}')">Cancel</button></td>
@@ -2481,8 +2086,6 @@
             : `<span style="color:var(--muted);">${h.reason || '-'}</span>`;
           return `
             <tr>
-              <td style="color:var(--muted);">${h.time.slice(11, 19)}</td>
-              <td><b>${h.action}</b> <b>${h.symbol}</b></td>
               <td style="color:var(--muted);">${(h.time || '').slice(11, 19)}</td>
               <td><b class="${(h.action || '').includes('BUY') ? 'up' : 'down'}">${h.action}</b> <b>${h.symbol}</b></td>
               <td>${fmtP(h.price)}</td>
@@ -2491,38 +2094,6 @@
             </tr>
           `;
         }).join("");
-      }
-    }
-
-    async function quickClose(sym, pct) {
-      const r = await fetch("/api/position/close", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: sym, pct }),
-      });
-      const doc = await r.json();
-      if (doc.ok) {
-        toast(`✅ Closed ${pct}% of ${sym}`);
-        renderState(doc.state);
-        drawChart();
-      } else {
-        toast("❌ " + doc.error);
-      }
-    }
-
-    async function quickReverse(sym) {
-      const r = await fetch("/api/position/reverse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: sym }),
-      });
-      const doc = await r.json();
-      if (doc.ok) {
-        toast(`🔄 Reversed position for ${sym}`);
-        renderState(doc.state);
-        drawChart();
-      } else {
-        toast("❌ " + doc.error);
       }
     }
 
@@ -2535,7 +2106,6 @@
           return;
         } catch (e) {
           isClientSideMode = true;
-          document.getElementById("simBadge").textContent = "● GITHUB PAGES LIVE";
         }
       }
       buildAndRenderState();
@@ -2545,199 +2115,134 @@
       try {
         const r = await fetch("https://api.binance.com/api/v3/ticker/24hr");
         const list = await r.json();
-        if (Array.isArray(list)) {
-          const needed = new Set(["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "PHAUSDT", "PEPEUSDT", "ENAUSDT", "ERAUSDT", "DOGEUSDT", "SUIUSDT", "XRPUSDT", "ADAUSDT", currentSymbol]);
-          list.forEach(t => {
-            if (needed.has(t.symbol)) {
-              liveTickers[t.symbol] = {
-                symbol: t.symbol,
-                price: parseFloat(t.lastPrice),
-                change_24h_pct: parseFloat(t.priceChangePercent),
-                high_24h: parseFloat(t.highPrice),
-                low_24h: parseFloat(t.lowPrice),
-                volume_24h_usd: parseFloat(t.quoteVolume)
-              };
-            }
-          });
-          evaluateTriggers();
-          buildAndRenderState();
+        for (const it of list) {
+          liveTickers[it.symbol] = {
+            symbol: it.symbol,
+            price: parseFloat(it.lastPrice),
+            change_24h_pct: parseFloat(it.priceChangePercent),
+            high_24h: parseFloat(it.highPrice),
+            low_24h: parseFloat(it.lowPrice),
+            volume_24h_usd: parseFloat(it.quoteVolume),
+          };
         }
       } catch (e) {}
     }
 
     async function fetchKlines() {
       try {
-        let bars = [];
-        if (!isClientSideMode) {
-          try {
-            const r = await fetch(`/api/klines?symbol=${encodeURIComponent(currentSymbol)}&interval=${encodeURIComponent(currentInterval)}&limit=100`);
-            const doc = await r.json();
-            if (doc && doc.bars) bars = doc.bars;
-          } catch (e) {}
-        }
-        if (!bars.length) {
-          const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${encodeURIComponent(currentSymbol)}&interval=${encodeURIComponent(currentInterval)}&limit=100`);
-          const raw = await r.json();
-          if (Array.isArray(raw)) {
-            bars = raw.map(b => ({
-              t: b[0],
-              o: parseFloat(b[1]),
-              h: parseFloat(b[2]),
-              l: parseFloat(b[3]),
-              c: parseFloat(b[4]),
-              v: parseFloat(b[5])
-            }));
-          }
-        }
-        if (bars.length) {
-          klineBars = bars;
-          drawChart();
-        }
+        const url = `https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${currentInterval}&limit=60`;
+        const r = await fetch(url);
+        const data = await r.json();
+        klineBars = data.map(d => ({
+          time: d[0],
+          open: parseFloat(d[1]),
+          high: parseFloat(d[2]),
+          low: parseFloat(d[3]),
+          close: parseFloat(d[4]),
+          volume: parseFloat(d[5])
+        }));
+        drawChart();
       } catch (e) {}
     }
 
     function drawChart() {
       const canvas = document.getElementById("mainChart");
-      if (!canvas || !klineBars.length) return;
+      if (!canvas) return;
       const ctx = canvas.getContext("2d");
-      const W = canvas.width;
-      const H = canvas.height;
-      ctx.clearRect(0, 0, W, H);
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
 
-      let minP = Math.min(...klineBars.map(b => b.l));
-      let maxP = Math.max(...klineBars.map(b => b.h));
-      const maxV = Math.max(...klineBars.map(b => b.v)) || 1;
-
-      const myPos = (appState && appState.positions || []).find(p => p.symbol === currentSymbol);
-      if (myPos) {
-        if (myPos.stop_loss && myPos.stop_loss > minP * 0.90) minP = Math.min(minP, myPos.stop_loss * 0.997);
-        if (myPos.take_profit && myPos.take_profit < maxP * 1.10) maxP = Math.max(maxP, myPos.take_profit * 1.003);
-        if (myPos.liquidation_price && myPos.liquidation_price > 0 && myPos.liquidation_price > minP * 0.85) {
-          minP = Math.min(minP, myPos.liquidation_price * 0.997);
-        }
-      }
-      const pad = (maxP - minP) * 0.08 || maxP * 0.01;
-      minP -= pad;
-      maxP += pad;
-
-      const chartH = H - 48;
-      const yOf = p => 12 + (1 - (p - minP) / (maxP - minP)) * (chartH - 18);
-
-      // Grid
-      ctx.strokeStyle = "#142038";
-      ctx.fillStyle = "#64748b";
-      ctx.font = "10.5px sans-serif";
-      for (let i = 0; i < 5; i++) {
-        const gy = 14 + (chartH - 22) * (i / 4);
-        const gp = maxP - (maxP - minP) * (i / 4);
-        ctx.beginPath();
-        ctx.moveTo(0, gy);
-        ctx.lineTo(W - 70, gy);
-        ctx.stroke();
-        ctx.fillText(fmtP(gp), W - 66, gy + 4);
+      if (!klineBars.length) {
+        ctx.fillStyle = "#64748b";
+        ctx.font = "13px sans-serif";
+        ctx.fillText("Loading candlestick stream for " + currentSymbol + "...", 20, h / 2);
+        return;
       }
 
-      const n = klineBars.length;
-      const step = (W - 76) / n;
-      const cw = Math.max(2.5, step * 0.68);
+      let minP = Infinity;
+      let maxP = -Infinity;
+      for (const b of klineBars) {
+        if (b.low < minP) minP = b.low;
+        if (b.high > maxP) maxP = b.high;
+      }
 
-      // Candles
-      klineBars.forEach((b, idx) => {
-        const x = 8 + idx * step;
-        const isUp = b.c >= b.o;
-        ctx.fillStyle = isUp ? "rgba(16,185,129,0.22)" : "rgba(244,63,94,0.22)";
-        const vh = (b.v / maxV) * 35;
-        ctx.fillRect(x, H - vh - 4, cw, vh);
+      const pRange = (maxP - minP) || 1.0;
+      const padY = 20;
+      const padX = 10;
+      const plotH = h - padY * 2;
+      const plotW = w - padX * 2 - 70;
+      const barW = Math.max(3, (plotW / klineBars.length) - 3);
 
-        ctx.strokeStyle = isUp ? "#10b981" : "#f43f5e";
-        ctx.fillStyle = isUp ? "#10b981" : "#f43f5e";
+      const yP = (p) => h - padY - ((p - minP) / pRange) * plotH;
+
+      // Draw Grid Lines
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const price = minP + (pRange * i / 4);
+        const y = yP(price);
         ctx.beginPath();
-        ctx.moveTo(x + cw / 2, yOf(b.h));
-        ctx.lineTo(x + cw / 2, yOf(b.l));
+        ctx.moveTo(padX, y);
+        ctx.lineTo(w - 70, y);
         ctx.stroke();
 
-        const yOpen = yOf(b.o);
-        const yClose = yOf(b.c);
-        ctx.fillRect(x, Math.min(yOpen, yClose), cw, Math.max(1.5, Math.abs(yClose - yOpen)));
-      });
+        ctx.fillStyle = "#64748b";
+        ctx.font = "10px sans-serif";
+        ctx.fillText(fmtP(price), w - 65, y + 3);
+      }
 
-      const drawLine = (price, color, label) => {
-        if (!price || price < minP || price > maxP) return;
-        const y = yOf(price);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([5, 4]);
+      // Draw Candlesticks
+      for (let i = 0; i < klineBars.length; i++) {
+        const b = klineBars[i];
+        const x = padX + i * (plotW / klineBars.length) + (plotW / klineBars.length - barW) / 2;
+        const isGreen = b.close >= b.open;
+
+        ctx.strokeStyle = isGreen ? "#10b981" : "#ef4444";
+        ctx.fillStyle = isGreen ? "#10b981" : "#ef4444";
+        ctx.lineWidth = 1.2;
+
+        // Wick
         ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(W - 70, y);
+        ctx.moveTo(x + barW / 2, yP(b.high));
+        ctx.lineTo(x + barW / 2, yP(b.low));
         ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = color;
-        ctx.font = "bold 10.5px sans-serif";
-        ctx.fillText(label + ": " + fmtP(price), 10, Math.max(14, y - 4));
-      };
 
+        // Body
+        const topY = yP(Math.max(b.open, b.close));
+        const botY = yP(Math.min(b.open, b.close));
+        const bodyH = Math.max(2, botY - topY);
+        ctx.fillRect(x, topY, barW, bodyH);
+      }
+
+      // Draw active position lines if present
+      const myPos = appState && appState.positions ? appState.positions.find(p => p.symbol === currentSymbol) : null;
       if (myPos) {
-        drawLine(myPos.avg_entry, "#3b82f6", `YOUR ENTRY (${myPos.side} ${myPos.leverage}x)`);
-        if (myPos.stop_loss) drawLine(myPos.stop_loss, "#f43f5e", "STOP-LOSS");
-        if (myPos.take_profit) drawLine(myPos.take_profit, "#10b981", "TAKE-PROFIT");
-        if (myPos.liquidation_price > 0) drawLine(myPos.liquidation_price, "#c084fc", "LIQUIDATION");
-        drawLine(myPos.avg_entry, "#3b82f6", `${myPos.side} ENTRY`);
-        if (myPos.stop_loss) drawLine(myPos.stop_loss, "#f43f5e", "STOP-LOSS");
-        if (myPos.take_profit) drawLine(myPos.take_profit, "#10b981", "TAKE-PROFIT");
-        if (myPos.liq_price) drawLine(myPos.liq_price, "#dc2626", "LIQUIDATION");
+        const drawLine = (price, color, label) => {
+          if (!price || price < minP || price > maxP) return;
+          const y = yP(price);
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(padX, y);
+          ctx.lineTo(w - 70, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.fillStyle = color;
+          ctx.font = "bold 9.5px sans-serif";
+          ctx.fillText(`${label} ${fmtP(price)}`, padX + 6, y - 4);
+        };
+        drawLine(myPos.avg_entry, "#3b82f6", "ENTRY");
+        if (myPos.stop_loss) drawLine(myPos.stop_loss, "#ef4444", "STOP");
+        if (myPos.take_profit) drawLine(myPos.take_profit, "#10b981", "TARGET");
+        if (myPos.liquidation_price) drawLine(myPos.liquidation_price, "#dc2626", "LIQ");
       }
     }
 
     async function loadForecast(sym, refresh=false) {
       const box = document.getElementById("aiReportContainer");
-      if (refresh) box.innerHTML = "Running live quantitative analysis on " + sym + "...";
-      try {
-        const r = await fetch(`/api/forecast?symbol=${encodeURIComponent(sym)}&refresh=${refresh ? '1' : '0'}`);
-        const d = await r.json();
-        if (d.error) {
-          box.innerHTML = `<span class="down">${d.error}</span>`;
-          return;
-        }
-        currentForecast = d;
-        picksMap[d.symbol] = d;
-        const h4 = d.horizons["4h"];
-        const h24 = d.horizons["24h"];
-        const fut = d.futures || {};
-        const vp = d.volume_profile || {};
-        const kp = d.kelly_trade_plan || {};
-        const scCls = d.composite_score >= 12 ? "up" : (d.composite_score <= -12 ? "down" : "");
-
-        box.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <span style="font-size:14px;font-weight:800;">${d.symbol}</span>
-            <span class="score-tag ${d.composite_score >= 0 ? 'up' : 'down'}" style="font-size:11px;padding:2px 7px;">Score: ${d.composite_score >= 0 ? '+' : ''}${d.composite_score} / 100</span>
-          </div>
-          <div class="${scCls}" style="font-weight:800;margin-bottom:6px;">${d.verdict}</div>
-
-          <div class="grid-2" style="margin-bottom:6px;">
-            <div style="background:#080d17;border:1px solid var(--border);padding:6px;border-radius:6px;">
-              <div style="font-size:9.5px;color:var(--muted);">Next 4h Prob(UP)</div>
-              <div style="font-size:12px;font-weight:800;" class="${h4.prob_up_pct>=53?'up':''}">${h4.prob_up_pct}% → ${fmtP(h4.expected_price)}</div>
-            </div>
-            <div style="background:#080d17;border:1px solid var(--border);padding:6px;border-radius:6px;">
-              <div style="font-size:9.5px;color:var(--muted);">Next 24h Prob(UP)</div>
-              <div style="font-size:12px;font-weight:800;" class="${h24.prob_up_pct>=53?'up':''}">${h24.prob_up_pct}% → ${fmtP(h24.expected_price)}</div>
-            </div>
-          </div>
-
-          <div style="background:#080d17;border:1px solid var(--border);padding:7px;border-radius:7px;margin-bottom:6px;">
-            <div>• <b>Perp OI:</b> ${fmtUsd(fut.global_oi_usd || fut.open_interest_usd)}</div>
-            <div>• <b>8h Funding Consensus:</b> ${fut.consensus_funding_pct || fut.funding_rate_pct || 0}%</div>
-            <div>• <b>Whales vs Retail:</b> Whales ${fut.whale_long_pct || 50}% Long vs Retail ${fut.retail_long_pct || 50}% Long</div>
-            <div>• <b>7d Volume Profile:</b> VAL ${fmtP(vp.val)} | POC ${fmtP(vp.poc)} | VAH ${fmtP(vp.vah)}</div>
-            <div>• <b>Kelly Sizing (${kp.bias}):</b> SL ${fmtP(kp.stop_loss)} | TP ${fmtP(kp.tp1)}</div>
-          </div>
-
-          <button class="submit-order-btn buy" style="padding:8px;font-size:11px;" onclick="applyAiPlanToTicket()">⚡ Load AI Plan Into Ticket</button>
-        `;
-      } catch (e) {
-        box.innerHTML = "Could not load forecast.";
       if (refresh) box.innerHTML = "Running live 25-source institutional, Fed, Bank, X/Twitter & Magazine analysis on " + sym + "...";
 
       let d = null;
@@ -2750,7 +2255,7 @@
       }
 
       if (!d) {
-        // Fallback: load static forecast.json generated by GitHub Actions
+        // Fallback: load static forecast.json
         try {
           const r = await fetch("forecast.json?_t=" + Date.now());
           const jsonDoc = await r.json();
@@ -2765,7 +2270,7 @@
         } catch (e) {}
       }
 
-      // If still not available, compute dynamic client-side technical & microstructure forecast
+      // Client-side fallback dynamic microstructure model
       if (!d) {
         const tk = liveTickers[sym] || { price: 100, change_24h_pct: 0 };
         const p = tk.price || 100;
@@ -2874,34 +2379,220 @@
       `;
     }
 
+    // CLOB Depth Ladder & Real-Time Tape Renderers
+    function renderClobDepth(bids, asks) {
+      clobBids = bids || [];
+      clobAsks = asks || [];
+
+      // Sort asks high-to-low so lowest ask is at the bottom next to mid price
+      const sortedAsks = [...clobAsks].slice(0, 7).sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
+      const sortedBids = [...clobBids].slice(0, 7).sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
+
+      let maxAskVol = Math.max(...sortedAsks.map(a => parseFloat(a[1])), 0.001);
+      let maxBidVol = Math.max(...sortedBids.map(b => parseFloat(b[1])), 0.001);
+      const maxVol = Math.max(maxAskVol, maxBidVol);
+
+      let totalBidDepth = sortedBids.reduce((sum, b) => sum + parseFloat(b[1]), 0);
+      let totalAskDepth = sortedAsks.reduce((sum, a) => sum + parseFloat(a[1]), 0);
+      const depthSum = totalBidDepth + totalAskDepth || 1;
+      const bidPct = Math.round((totalBidDepth / depthSum) * 100);
+      const askPct = 100 - bidPct;
+
+      const imbEl = document.getElementById("clobImbalanceVal");
+      if (imbEl) {
+        imbEl.textContent = `Bid ${bidPct}% / Ask ${askPct}%`;
+        imbEl.className = bidPct >= 50 ? "up" : "down";
+      }
+
+      // Best bid and best ask for spread
+      const bestAsk = sortedAsks.length ? parseFloat(sortedAsks[sortedAsks.length - 1][0]) : 0;
+      const bestBid = sortedBids.length ? parseFloat(sortedBids[0][0]) : 0;
+      if (bestAsk > 0 && bestBid > 0) {
+        const spread = bestAsk - bestBid;
+        const bps = ((spread / bestAsk) * 10000).toFixed(1);
+        const spEl = document.getElementById("clobSpreadVal");
+        if (spEl) spEl.textContent = `${fmtP(spread)} (${bps} bps)`;
+        const midP = (bestAsk + bestBid) / 2;
+        const midEl = document.getElementById("clobMidPrice");
+        if (midEl) midEl.textContent = fmtP(midP);
+        const tagEl = document.getElementById("clobSpreadTag");
+        if (tagEl) tagEl.textContent = `Spread: ${fmtP(spread)}`;
+      }
+
+      // Render Asks
+      const asksContainer = document.getElementById("clobAsksContainer");
+      if (asksContainer) {
+        asksContainer.innerHTML = sortedAsks.map(a => {
+          const p = parseFloat(a[0]);
+          const q = parseFloat(a[1]);
+          const barW = Math.min(100, Math.round((q / maxVol) * 100));
+          return `
+            <div class="clob-row ask" onclick="document.getElementById('inpLimitPrice').value=${p}">
+              <div class="clob-depth-bar" style="width:${barW}%;"></div>
+              <span class="p">${fmtP(p)}</span>
+              <span>${q.toFixed(3)}</span>
+              <span style="color:var(--muted);">${(p * q).toFixed(0)} $</span>
+            </div>
+          `;
+        }).join("");
+      }
+
+      // Render Bids
+      const bidsContainer = document.getElementById("clobBidsContainer");
+      if (bidsContainer) {
+        bidsContainer.innerHTML = sortedBids.map(b => {
+          const p = parseFloat(b[0]);
+          const q = parseFloat(b[1]);
+          const barW = Math.min(100, Math.round((q / maxVol) * 100));
+          return `
+            <div class="clob-row bid" onclick="document.getElementById('inpLimitPrice').value=${p}">
+              <div class="clob-depth-bar" style="width:${barW}%;"></div>
+              <span class="p">${fmtP(p)}</span>
+              <span>${q.toFixed(3)}</span>
+              <span style="color:var(--muted);">${(p * q).toFixed(0)} $</span>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+
+    function addTradeToTape(trade) {
+      // trade: { p: price, q: qty, T: time, m: isBuyerMaker }
+      // If m == true, buyer was maker -> aggressive SELLER took liquidity (SELL)
+      // If m == false, seller was maker -> aggressive BUYER took liquidity (BUY)
+      const isAggBuy = !trade.m;
+      tradeTape.unshift({
+        price: parseFloat(trade.p),
+        qty: parseFloat(trade.q),
+        time: new Date(trade.T).toTimeString().slice(0, 8),
+        side: isAggBuy ? "BUY" : "SELL",
+      });
+      if (tradeTape.length > 12) tradeTape.pop();
+
+      const container = document.getElementById("clobTapeContainer");
+      if (!container) return;
+      container.innerHTML = tradeTape.map(t => {
+        const total = t.price * t.qty;
+        const totalStr = total >= 1000 ? (total / 1000).toFixed(1) + "k" : total.toFixed(0);
+        return `
+          <div class="tape-row ${t.side.toLowerCase()}">
+            <span style="color:var(--muted);">${t.time}</span>
+            <span class="p">${fmtP(t.price)}</span>
+            <span>${t.qty.toFixed(3)} ($${totalStr})</span>
+            <span class="tag">${t.side}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Direct Millisecond Binance WebSocket Engine
     function connectBinanceWS() {
       try {
-        ws = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr');
-        ws.onopen = function() {
-          document.getElementById("simBadge").textContent = "● BINANCE CLOB STREAM LIVE";
+        if (wsMarket) wsMarket.close();
+        wsMarket = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr');
+
+        wsMarket.onopen = function() {
+          const b = document.getElementById("wsClobBadge");
+          if (b) b.style.borderColor = "#10b981";
         };
-        ws.onclose = function() {
-          setTimeout(connectBinanceWS, 2000);
+
+        wsMarket.onclose = function() {
+          setTimeout(connectBinanceWS, 2500);
         };
-        ws.onmessage = function(ev) {
+
+        wsMarket.onmessage = function(ev) {
           try {
             const arr = JSON.parse(ev.data);
+            const now = Date.now();
+            wsTickCount += arr.length;
+
+            if (now - lastTickCalc >= 1000) {
+              const r = (wsTickCount / ((now - lastTickCalc) / 1000)).toFixed(1);
+              const trEl = document.getElementById("wsTickRate");
+              if (trEl) trEl.textContent = r;
+              wsTickCount = 0;
+              lastTickCalc = now;
+            }
+
             for (let i = 0; i < arr.length; i++) {
               const it = arr[i];
-              if (liveTickers[it.s]) {
-                liveTickers[it.s].price = parseFloat(it.c);
+              const s = it.s;
+              const c = parseFloat(it.c);
+              const o = parseFloat(it.o);
+              const chg = o > 0 ? ((c - o) / o * 100) : 0;
+
+              if (!liveTickers[s]) {
+                liveTickers[s] = {
+                  symbol: s,
+                  price: c,
+                  change_24h_pct: chg,
+                  high_24h: parseFloat(it.h),
+                  low_24h: parseFloat(it.l),
+                  volume_24h_usd: parseFloat(it.q),
+                };
+              } else {
+                liveTickers[s].price = c;
+                liveTickers[s].change_24h_pct = chg;
+              }
+
+              // Update watchlist cell
+              const wlPrice = document.getElementById("wl-price-" + s);
+              if (wlPrice) {
+                wlPrice.textContent = fmtP(c);
               }
             }
-            evaluateTriggers();
+
+            // Real-time mark revaluation for active symbol
             const activeTk = liveTickers[currentSymbol];
             if (activeTk) {
-              document.getElementById("chartPrice").textContent = fmtP(activeTk.price);
+              const pEl = document.getElementById("chartPrice");
+              if (pEl) pEl.textContent = fmtP(activeTk.price);
             }
+
+            evaluateTriggers();
           } catch (e) {}
         };
       } catch (e) {
         setTimeout(connectBinanceWS, 3000);
       }
+    }
+
+    function connectSymbolWS(sym) {
+      try {
+        if (wsSymbol) wsSymbol.close();
+        tradeTape = [];
+        const clean = sym.toLowerCase();
+        const url = `wss://stream.binance.com:9443/stream?streams=${clean}@depth10@100ms/${clean}@aggTrade`;
+        wsSymbol = new WebSocket(url);
+
+        wsSymbol.onopen = function() {
+          const st = document.getElementById("clobStreamStatus");
+          if (st) st.textContent = "● 0ms STREAM LIVE";
+        };
+
+        wsSymbol.onclose = function() {
+          const st = document.getElementById("clobStreamStatus");
+          if (st) st.textContent = "○ RECONNECTING";
+        };
+
+        wsSymbol.onmessage = function(ev) {
+          try {
+            const data = JSON.parse(ev.data);
+            const stream = data.stream || "";
+            const payload = data.data || {};
+
+            if (stream.includes("@depth")) {
+              renderClobDepth(payload.bids, payload.asks);
+            } else if (stream.includes("@aggTrade")) {
+              addTradeToTape(payload);
+              const prc = parseFloat(payload.p);
+              if (liveTickers[sym]) liveTickers[sym].price = prc;
+              const pEl = document.getElementById("chartPrice");
+              if (pEl) pEl.textContent = fmtP(prc);
+            }
+          } catch (e) {}
+        };
+      } catch (e) {}
     }
 
     // Initialize application
@@ -2910,14 +2601,11 @@
       fetchKlines();
       loadForecast(currentSymbol, false);
       updateMarginEstimates();
+      connectBinanceWS();
+      connectSymbolWS(currentSymbol);
     });
 
     setInterval(fetchState, 2500);
-      connectBinanceWS();
-    });
-
-    setInterval(fetchTickers, 4000);
-    setInterval(fetchState, 3000);
     setInterval(fetchKlines, 8000);
   </script>
 </body>

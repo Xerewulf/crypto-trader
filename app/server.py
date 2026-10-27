@@ -23,8 +23,16 @@ import json
 import os
 import socket
 import sys
+import asyncio
 import threading
 import time
+
+try:
+    import aiohttp
+    HAS_AIOHTTP = True
+except ImportError:
+    aiohttp = None
+    HAS_AIOHTTP = False
 import urllib.parse
 import urllib.request
 
@@ -47,6 +55,14 @@ WALLET_LOCK = threading.Lock()
 PRICE_CACHE = {}
 PRICE_CACHE_TS = 0.0
 FORECAST_CACHE = {}
+WS_STATS = {
+    "connected": False,
+    "ticks_received": 0,
+    "rate_per_sec": 0.0,
+    "last_tick_iso": None,
+    "stream": "wss://stream.binance.com:9443/ws/!miniTicker@arr",
+    "mode": "WebSocket (Live 0ms Relay)",
+}
 
 DEFAULT_WATCHLIST = [
     "BNBUSDT", "BTCUSDT", "ETHUSDT", "SOLUSDT",
@@ -600,6 +616,7 @@ def check_triggers_and_enrich(extra_symbol=None):
             "open_orders": w["open_orders"],
             "history": w["history"][:40],
             "watchlist": watchlist_out,
+            "ws_stats": dict(WS_STATS),
         }
 
 
@@ -764,6 +781,9 @@ class AppHandler(BaseHTTPRequestHandler):
         if p == "/manifest.json":
             return self._send_file(os.path.join(APP_DIR, "manifest.json"), "application/manifest+json; charset=utf-8")
 
+        if p == "/api/ws/status":
+            return self._send_json(WS_STATS)
+
         if p == "/api/state":
             try:
                 extra_sym = (qs.get("symbol") or [None])[0]
@@ -897,6 +917,82 @@ class AppHandler(BaseHTTPRequestHandler):
         return self._send_json({"ok": False, "error": "Unknown endpoint"}, status=404)
 
 
+
+async def _async_binance_ws_loop():
+    global PRICE_CACHE, PRICE_CACHE_TS, WS_STATS
+    url = "wss://stream.binance.com:9443/ws/!miniTicker@arr"
+    last_rate_calc = time.time()
+    tick_counter = 0
+
+    while True:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.ws_connect(url, timeout=12.0) as ws:
+                    WS_STATS["connected"] = True
+                    WS_STATS["stream"] = url
+                    async for msg in ws:
+                        if msg.type == aiohttp.WSMsgType.TEXT:
+                            data = json.loads(msg.data)
+                            now = time.time()
+                            PRICE_CACHE_TS = now
+                            WS_STATS["last_tick_iso"] = now_iso()
+                            n_ticks = len(data) if isinstance(data, list) else 1
+                            WS_STATS["ticks_received"] += n_ticks
+                            tick_counter += n_ticks
+
+                            dt = now - last_rate_calc
+                            if dt >= 1.0:
+                                WS_STATS["rate_per_sec"] = round(tick_counter / dt, 1)
+                                tick_counter = 0
+                                last_rate_calc = now
+
+                            trigger_check_needed = False
+                            with WALLET_LOCK:
+                                w = load_wallet()
+                                active_symbols = set(w["positions"].keys()) | {o["symbol"] for o in w["open_orders"]}
+                                sim_on = w.get("simulation_running", True)
+
+                            if isinstance(data, list):
+                                for item in data:
+                                    s = item.get("s")
+                                    if not s:
+                                        continue
+                                    c = float(item.get("c") or 0.0)
+                                    o = float(item.get("o") or 0.0)
+                                    chg = ((c - o) / o * 100.0) if o > 0 else 0.0
+                                    PRICE_CACHE[s] = {
+                                        "symbol": s,
+                                        "price": c,
+                                        "change_24h_pct": round(chg, 2),
+                                        "high_24h": float(item.get("h") or 0.0),
+                                        "low_24h": float(item.get("l") or 0.0),
+                                        "volume_24h_usd": float(item.get("q") or 0.0),
+                                        "bid": c,
+                                        "ask": c,
+                                        "source": "websocket_clob_live",
+                                    }
+                                    if sim_on and s in active_symbols:
+                                        trigger_check_needed = True
+
+                            if trigger_check_needed:
+                                check_triggers_and_enrich()
+
+                        elif msg.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
+                            WS_STATS["connected"] = False
+                            break
+        except Exception:
+            WS_STATS["connected"] = False
+            await asyncio.sleep(2.0)
+
+
+def start_ws_feeder_thread():
+    if not HAS_AIOHTTP:
+        return
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(_async_binance_ws_loop())
+
+
 def background_trigger_worker():
     """Continuously monitor open positions & resting limit orders every 2.5 seconds when simulation is running."""
     while True:
@@ -921,6 +1017,10 @@ def main():
 
     t = threading.Thread(target=background_trigger_worker, daemon=True)
     t.start()
+
+    if HAS_AIOHTTP:
+        ws_t = threading.Thread(target=start_ws_feeder_thread, daemon=True)
+        ws_t.start()
 
     lan_ip = get_lan_ip()
     srv = ThreadingHTTPServer((args.host, args.port), AppHandler)
