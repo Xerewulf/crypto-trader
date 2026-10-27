@@ -49,6 +49,10 @@ try:
     import margin
 except ImportError:
     margin = None
+try:
+    import microstructure
+except ImportError:
+    microstructure = None
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 SPOT_HOSTS = ("https://api.binance.com", "https://data-api.binance.vision")
@@ -369,8 +373,8 @@ def detect_institutional_signals(klines_1h, klines_4h, price):
     }
 
 
-def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
-    """Build an institutional execution plan with Quarter-Kelly (0.25x) position sizing."""
+def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite, tf_4h=None, vpin_info=None, is_squeeze=False, bb_width_pct=0.0):
+    """Build an institutional execution plan with Volatility-Adaptive Quarter-Kelly position sizing."""
     atr = tf_1h["atr14"] or (price * 0.01)
     h24 = horizons["24h"]
     bias = "LONG" if composite >= 10 else ("SHORT / HEDGE" if composite <= -10 else "WAIT / RANGE SCALP")
@@ -401,6 +405,27 @@ def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
         full_kelly = max(0.0, win_prob - (1.0 - win_prob) / max(rr, 0.5))
         quarter_kelly_pct = round(min(2.5, full_kelly * 0.25 * 100.0), 2)
         ev_r = round(win_prob * rr - (1.0 - win_prob) * 1.0, 2)
+
+        adaptive = None
+        if microstructure:
+            try:
+                atr_base = tf_4h.get("atr14") if tf_4h else atr
+                adaptive = microstructure.compute_adaptive_kelly(
+                    win_prob=win_prob,
+                    reward_risk=rr,
+                    atr_1h=atr,
+                    atr_baseline=atr_base or atr,
+                    bb_width_pct=bb_width_pct,
+                    is_ttm_squeeze=is_squeeze,
+                    vpin=(vpin_info.get("vpin") if vpin_info else 0.35),
+                    bias=bias,
+                    capital_usdt=10000.0,
+                    max_loss_cap=150.0,
+                )
+                quarter_kelly_pct = min(2.5, adaptive["adaptive_kelly_pct"])
+            except Exception:
+                adaptive = None
+
         return {
             "bias": bias,
             "spot_entry": round(price, 8),
@@ -412,6 +437,7 @@ def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
             "win_prob_pct": round(win_prob * 100.0, 1),
             "expected_value_R": ev_r,
             "quarter_kelly_risk_pct": quarter_kelly_pct,
+            "adaptive_kelly": adaptive,
         }
 
     reward = abs(tp1 - price)
@@ -420,6 +446,27 @@ def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
     full_kelly = max(0.0, win_prob - (1.0 - win_prob) / max(rr, 0.5))
     quarter_kelly_pct = round(min(5.0, full_kelly * 0.25 * 100.0), 2)
     ev_r = round(win_prob * rr - (1.0 - win_prob) * 1.0, 2)
+
+    adaptive = None
+    if microstructure:
+        try:
+            atr_base = tf_4h.get("atr14") if tf_4h else atr
+            adaptive = microstructure.compute_adaptive_kelly(
+                win_prob=win_prob,
+                reward_risk=rr,
+                atr_1h=atr,
+                atr_baseline=atr_base or atr,
+                bb_width_pct=bb_width_pct,
+                is_ttm_squeeze=is_squeeze,
+                vpin=(vpin_info.get("vpin") if vpin_info else 0.35),
+                bias=bias,
+                capital_usdt=10000.0,
+                max_loss_cap=150.0,
+            )
+            quarter_kelly_pct = min(5.0, adaptive["adaptive_kelly_pct"])
+        except Exception:
+            adaptive = None
+
     return {
         "bias": bias,
         "spot_entry": round(price, 8),
@@ -431,6 +478,7 @@ def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
         "win_prob_pct": round(win_prob * 100.0, 1),
         "expected_value_R": ev_r,
         "quarter_kelly_risk_pct": quarter_kelly_pct,
+        "adaptive_kelly": adaptive,
     }
 
 
@@ -1304,6 +1352,24 @@ def forecast_symbol(sym):
     vp = compute_volume_profile(k1h, price, n_bars=168, bins=40)
     inst = detect_institutional_signals(k1h, k4h, price)
 
+    # Phase 3 Microstructure: Marcos López de Prado's VPIN & Wyckoff 2.0 Detector
+    vpin_metrics = None
+    wyckoff_micro = None
+    if microstructure:
+        try:
+            vpin_metrics = microstructure.compute_vpin(k15m if k15m else k1h, num_buckets=20)
+        except Exception:
+            vpin_metrics = None
+        try:
+            wyckoff_micro = microstructure.detect_wyckoff_cvd_divergence(k1h, klines_15m=k15m, vp=vp, current_price=price)
+            if wyckoff_micro and wyckoff_micro.get("signals"):
+                for wsig in wyckoff_micro["signals"]:
+                    if wsig not in inst["signals"]:
+                        inst["signals"].append(wsig)
+                inst["bonus_score"] = round(max(-10.0, min(10.0, inst["bonus_score"] + wyckoff_micro.get("bonus_score", 0.0) * 0.5)), 1)
+        except Exception:
+            wyckoff_micro = None
+
     # 5. Composite Score (-100 to +100)
     inst_and_macro_bonus = round(max(-10.0, min(10.0, inst["bonus_score"] + macro_onchain["macro_bonus"])), 1)
     raw_total = tech_score + flow_score + fut_score + rel_score + news["score"] + inst_and_macro_bonus
@@ -1321,7 +1387,12 @@ def forecast_symbol(sym):
         verdict = "NEUTRAL / RANGE-BOUND (Mixed Signals - Wait for Breakout)"
 
     horizons = simulate_horizons(k1h, price, composite)
-    kelly_plan = compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite)
+    is_squeeze = ("TTM SQUEEZE ACTIVE" in inst.get("squeeze_4h", ""))
+    bb_width = inst.get("bb_width_4h_pct", 0.0)
+    kelly_plan = compute_kelly_trade_plan(
+        price, horizons, vp, ob, tf_1h, composite,
+        tf_4h=tf_4h, vpin_info=vpin_metrics, is_squeeze=is_squeeze, bb_width_pct=bb_width
+    )
 
     # Institutional Margin Execution Plan (Leverage tiering, safe liquidation buffer, financing carry, event risk)
     margin_exec = None
@@ -1388,6 +1459,8 @@ def forecast_symbol(sym):
         "horizons": horizons,
         "volume_profile": vp,
         "institutional": inst,
+        "vpin": vpin_metrics,
+        "wyckoff_microstructure": wyckoff_micro,
         "macro_onchain": macro_onchain,
         "kelly_trade_plan": kelly_plan,
         "timeframes": {"15m": tf_15m, "1h": tf_1h, "4h": tf_4h, "1d": tf_1d},
@@ -1547,6 +1620,26 @@ def render_report(d):
         lines.append("   * Quant Signal    : %s" % sig)
     lines.append("")
 
+    # 6.5. Phase 3 Microstructure & VPIN Toxicity (López de Prado & Wyckoff 2.0)
+    vp_vpin = d.get("vpin")
+    vp_wyckoff = d.get("wyckoff_microstructure")
+    if vp_vpin or vp_wyckoff:
+        lines.append("6.5. PHASE 3 MICROSTRUCTURE, VPIN TOXICITY & WYCKOFF ORDER FLOW")
+        if vp_vpin:
+            lines.append("   VPIN Toxicity     : %.2f%% (%s) | Status: %s" % (
+                vp_vpin.get("vpin_pct", 0.0), vp_vpin.get("regime", "-"), vp_vpin.get("toxicity_status", "-")))
+            lines.append("   Informed Flow Rate: %.4f informed arrival rate | Adverse Selection: %s" % (
+                vp_vpin.get("informed_arrival_estimate", 0.0), vp_vpin.get("adverse_selection_risk", "LOW")))
+            if vp_vpin.get("warning"):
+                lines.append("   * Toxicity Guard  : %s" % vp_vpin.get("warning"))
+        if vp_wyckoff:
+            lines.append("   Wyckoff Structure : %s (Bonus %+.1f) | Net 16h CVD: %+.1f" % (
+                vp_wyckoff.get("dominant_regime", "-"), vp_wyckoff.get("bonus_score", 0.0), vp_wyckoff.get("net_cvd_16h", 0.0)))
+            for pat in vp_wyckoff.get("patterns", []):
+                lines.append("   * Pattern Alert   : %s (Type: %s | Conf: %d%%)" % (
+                    pat.get("pattern"), pat.get("type"), pat.get("confidence_score", 0)))
+        lines.append("")
+
     # 7. Global On-Chain TVL, Stablecoin Liquidity & Macro Sentiment
     mc = d.get("macro_onchain") or {}
     lines.append("7. ON-CHAIN TVL, STABLECOIN LIQUIDITY & MACRO REGIME (DefiLlama + CoinGecko + Alternative.me)")
@@ -1576,6 +1669,11 @@ def render_report(d):
     lines.append("   Profit Targets    : TP1 %s (Scale 50%%) | TP2 %s (Runner)" % (
         fmt_p(kp.get("tp1")), fmt_p(kp.get("tp2"))))
     lines.append("   Quarter-Kelly Risk: %.2f%% of total bankroll risked at Stop-Loss" % kp.get("quarter_kelly_risk_pct", 0.0))
+    ak = kp.get("adaptive_kelly")
+    if ak:
+        lines.append("   Adaptive Sizing   : Base %.2f%% -> Adaptive %.2f%% (Multiplier: %.2fx | %s)" % (
+            ak.get("base_quarter_kelly_pct", 0.0), ak.get("adaptive_kelly_pct", 0.0),
+            ak.get("composite_multiplier", 1.0), ak.get("sizing_rationale", "-")))
     mp = kp.get("margin_plan") or {}
     if mp.get("ok"):
         lines.append("   Leveraged Margin  : Cap %.0fx (Liquidation Safe %.1fx) -> Suggested %.0fx %s | Margin: %s (%.1f%% eq)" % (

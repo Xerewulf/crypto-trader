@@ -43,6 +43,7 @@ if ANALYST_DIR not in sys.path:
     sys.path.insert(0, ANALYST_DIR)
 
 import math  # noqa: E402
+import statistics  # noqa: E402
 import predict  # noqa: E402
 try:
     import margin  # noqa: E402
@@ -52,6 +53,10 @@ try:
     import arbitrage  # noqa: E402
 except ImportError:
     arbitrage = None
+try:
+    import microstructure  # noqa: E402
+except ImportError:
+    microstructure = None
 
 WALLET_PATH = os.path.join(ROOT_DIR, "trader", "sim_wallet.json")
 FORECAST_PATH = os.path.join(ROOT_DIR, "trader", "forecast.json")
@@ -1116,6 +1121,59 @@ class AppHandler(BaseHTTPRequestHandler):
                 return self._send_json({
                     "pairs": state.get("arbitrage_pairs", []),
                     "summary": state.get("arbitrage_summary", {}),
+                })
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/microstructure":
+            try:
+                sym = predict.to_binance((qs.get("symbol") or ["BNBUSDT"])[0])
+                raw_1h = predict.spot_get("/api/v3/klines?symbol=%s&interval=1h&limit=100" % sym)
+                raw_15m = predict.spot_get("/api/v3/klines?symbol=%s&interval=15m&limit=100" % sym)
+                price = float(raw_1h[-1][4]) if raw_1h else 0.0
+
+                vpin_data = microstructure.compute_vpin(raw_15m or raw_1h, num_buckets=20) if microstructure else {}
+                wyckoff_data = microstructure.detect_wyckoff_cvd_divergence(raw_1h, klines_15m=raw_15m, current_price=price) if microstructure else {}
+
+                # 1h and baseline ATR
+                atr_1h = predict.atr_14(raw_1h, 14) if (raw_1h and len(raw_1h) >= 15) else (price * 0.01)
+                atr_base = predict.atr_14(raw_1h, 30) if (raw_1h and len(raw_1h) >= 35) else atr_1h
+
+                # 4h BB Squeeze check
+                raw_4h = predict.spot_get("/api/v3/klines?symbol=%s&interval=4h&limit=30" % sym)
+                is_squeeze = False
+                bb_width = 5.0
+                if raw_4h and len(raw_4h) >= 20:
+                    c4 = [float(k[4]) for k in raw_4h[-20:]]
+                    m20 = statistics.mean(c4)
+                    s20 = statistics.pstdev(c4)
+                    a4 = predict.atr_14(raw_4h, 20)
+                    bb_up, bb_lo = m20 + 2.0 * s20, m20 - 2.0 * s20
+                    kc_up, kc_lo = m20 + 1.5 * a4, m20 - 1.5 * a4
+                    bb_width = round((bb_up - bb_lo) / max(m20, 1e-6) * 100.0, 2)
+                    is_squeeze = (bb_up <= kc_up and bb_lo >= kc_lo)
+
+                adaptive_sizing = microstructure.compute_adaptive_kelly(
+                    win_prob=0.55,
+                    reward_risk=2.0,
+                    atr_1h=atr_1h,
+                    atr_baseline=atr_base,
+                    bb_width_pct=bb_width,
+                    is_ttm_squeeze=is_squeeze,
+                    vpin=vpin_data.get("vpin", 0.35),
+                    bias="LONG",
+                    capital_usdt=10000.0,
+                    max_loss_cap=150.0,
+                ) if microstructure else {}
+
+                return self._send_json({
+                    "symbol": sym,
+                    "price": price,
+                    "vpin": vpin_data,
+                    "wyckoff": wyckoff_data,
+                    "adaptive_kelly": adaptive_sizing,
+                    "bb_width_pct": bb_width,
+                    "is_ttm_squeeze": is_squeeze,
                 })
             except Exception as e:
                 return self._send_json({"error": str(e)}, status=500)

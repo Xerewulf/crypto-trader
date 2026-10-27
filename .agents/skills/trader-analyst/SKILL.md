@@ -71,7 +71,29 @@ Phase 2 systematic yield engine for generating consistent cashflow during sidewa
 
 ---
 
-## 4. US Equities Earnings Analyst (`facts.py`)
+## 4. Phase 3 Machine Learning & VPIN Order-Flow Toxicity Suite (`microstructure.py`)
+
+Phase 3 quantitative microstructure engine for predicting order-flow toxicity, informed trader arrival rates, and dynamic volatility adaptation:
+1. **Marcos López de Prado's VPIN Engine (`compute_vpin`)**:
+   - Volume-Clock Bucketing: Slices continuous transaction volume into equal volume buckets ($V = V_{total} / N$).
+   - Decomposes order flow via Bulk Volume Classification (BVC) and exact taker buy/sell execution.
+   - Calculates rolling order-flow toxicity:
+     $$VPIN = \frac{\sum_{\tau=1}^N |V_\tau^B - V_\tau^S|}{N \times V}$$
+   - Classifies toxicity regimes: `LOW_TOXICITY` ($<25\%$), `NORMAL_FLOW` ($25\%-45\%$), `ELEVATED_TOXICITY` ($45\%-60\%$), and `TOXIC_SURGE` ($\ge 60\%$).
+   - Estimates informed trader arrival rate ($\alpha \times \mu$) and issues proactive adverse selection warnings.
+2. **Wyckoff 2.0 Order-Flow & CVD Divergence Detector (`detect_wyckoff_cvd_divergence`)**:
+   - **Wyckoff Spring**: Detects liquidity sweeps hunting retail stop-losses below 24h lows or Value Area Low (`VAL`), confirming aggressive selling absorption ($\ge 51\%$ taker buy) and rapid reclaim back into value.
+   - **Wyckoff Upthrust / SFP**: Detects institutional distribution sweeps above 24h highs or Value Area High (`VAH`), confirming buy exhaustion ($<48\%$ taker buy) and immediate rejection below resistance.
+   - **CVD Absorption / Exhaustion Divergences**: Evaluates 16h Cumulative Volume Delta slopes against price action to detect smart-money accumulation or distribution.
+3. **Volatility-Adaptive Kelly Sizing Engine (`compute_adaptive_kelly`)**:
+   - Dynamically scales standard Quarter-Kelly ($0.25 \times f^*$) based on real-time market regimes:
+     - **TTM Squeeze Factor ($\kappa_{squeeze}$)**: Boosts sizing ($1.15x - 1.20x$) during Bollinger-inside-Keltner compression to harness explosive coiling energy; discounts ($0.70x$) during hyper-expansion to prevent whipsaws.
+     - **ATR Expansion Ratio ($\kappa_{ATR}$)**: Inversely dampens risk ($\kappa_{ATR} = 1 / \sqrt{R_{ATR}}$) when candle volatility spikes ($R_{ATR} > 1.25$).
+     - **VPIN Toxicity Adjustment ($\kappa_{VPIN}$)**: Slashes counter-trend risk ($0.50x$) when order-flow toxicity surges ($\ge 0.60$).
+
+---
+
+## 5. US Equities Earnings Analyst (`facts.py`)
 
 Earnings move stocks more than anything else on the calendar, and the press
 release is written to put the best number first. This skill reads the numbers
