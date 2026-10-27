@@ -53,6 +53,10 @@ try:
     import microstructure
 except ImportError:
     microstructure = None
+try:
+    import sor
+except ImportError:
+    sor = None
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 SPOT_HOSTS = ("https://api.binance.com", "https://data-api.binance.vision")
@@ -1418,6 +1422,21 @@ def forecast_symbol(sym):
             margin_exec = None
     kelly_plan["margin_plan"] = margin_exec
 
+    # Phase 4: Deribit Options GEX / Max Pain & Cross-Exchange Smart Order Routing (SOR)
+    deribit_analytics = None
+    sor_quote = None
+    if sor:
+        try:
+            deribit_analytics = sor.fetch_deribit_options_analytics(base_asset(bsym), spot_price=price)
+        except Exception:
+            deribit_analytics = None
+        try:
+            side_order = "BUY" if composite >= 0 else "SELL"
+            venue_q = sor.fetch_multivenue_quotes(bsym)
+            sor_quote = sor.smart_route_order(bsym, side_order, 2000.0, venue_q)
+        except Exception:
+            sor_quote = None
+
     # Key support & resistance levels
     atr_1h = tf_1h["atr14"]
     atr_1d = tf_1d["atr14"]
@@ -1461,6 +1480,8 @@ def forecast_symbol(sym):
         "institutional": inst,
         "vpin": vpin_metrics,
         "wyckoff_microstructure": wyckoff_micro,
+        "deribit_options": deribit_analytics,
+        "smart_order_routing": sor_quote,
         "macro_onchain": macro_onchain,
         "kelly_trade_plan": kelly_plan,
         "timeframes": {"15m": tf_15m, "1h": tf_1h, "4h": tf_4h, "1d": tf_1d},
@@ -1638,6 +1659,23 @@ def render_report(d):
             for pat in vp_wyckoff.get("patterns", []):
                 lines.append("   * Pattern Alert   : %s (Type: %s | Conf: %d%%)" % (
                     pat.get("pattern"), pat.get("type"), pat.get("confidence_score", 0)))
+        lines.append("")
+
+    # 6.7. Phase 4: Deribit Options GEX / Max Pain & Smart Order Routing
+    d_opt = d.get("deribit_options")
+    d_sor = d.get("smart_order_routing")
+    if d_opt or d_sor:
+        lines.append("6.7. PHASE 4: OPTIONS MAX PAIN, GEX & SMART ORDER ROUTING (SOR)")
+        if d_opt:
+            lines.append("   Deribit Options   : Max Pain %s (%+.2f%% dist) | PCR %.2f | Net Dealer Gamma %s" % (
+                fmt_p(d_opt.get("max_pain_strike")), d_opt.get("dist_to_max_pain_pct", 0.0),
+                d_opt.get("put_call_ratio", 1.0), fmt_usd(d_opt.get("dealer_net_gamma_usd_m", 0.0) * 1e6, signed=True)))
+            lines.append("   Expiry Pinning    : %s (%s to monthly expiry)" % (
+                d_opt.get("pinning_hazard", "-"), "%.1fh" % d_opt.get("hours_to_monthly_expiry", 0.0)))
+        if d_sor:
+            lines.append("   SOR Best Execution: Primary Venue %s | Cost Savings %s vs worst venue" % (
+                d_sor.get("primary_venue", "BINANCE"), fmt_usd(d_sor.get("cost_savings_usd", 0.0))))
+            lines.append("   Execution Plan    : %s" % d_sor.get("rationale", "-"))
         lines.append("")
 
     # 7. Global On-Chain TVL, Stablecoin Liquidity & Macro Sentiment
