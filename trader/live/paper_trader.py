@@ -1873,7 +1873,8 @@ async def async_local_server(s, port=8765):
             return web.Response(text="Dashboard initializing...", content_type="text/plain")
 
         async def handle_state(req):
-            return web.json_response(s, headers={"Access-Control-Allow-Origin": "*"})
+            s_clean = {k: v for k, v in s.items() if k != "live_broker"}
+            return web.json_response(s_clean, headers={"Access-Control-Allow-Origin": "*"})
 
         async def handle_news(req):
             return web.json_response(s.get("news", {}), headers={"Access-Control-Allow-Origin": "*"})
