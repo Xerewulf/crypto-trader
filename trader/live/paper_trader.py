@@ -1776,7 +1776,8 @@ setInterval(syncState, 3000);
 
 
 def save(s):
-    write_atomic(STATE, json.dumps(s, indent=1))
+    s_clean = {k: v for k, v in s.items() if k != "live_broker"}
+    write_atomic(STATE, json.dumps(s_clean, indent=1))
 
 
 def print_status(s):

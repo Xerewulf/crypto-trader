@@ -12,7 +12,8 @@ Supports:
   5. Position management:
      - Leverage setting (e.g. 2x, 3x, 5x)
      - Margin type configuration (ISOLATED / CROSSED)
-     - Bracket order creation (Entry + Native Stop-Market + Take-Profit Market)
+     - Algo Orders API integration (native conditional STOP_MARKET & TAKE_PROFIT_MARKET)
+     - Bracket order creation (Entry + Native Algo Stop-Market + Algo Take-Profit Market)
      - Emergency Position Flattening (reduceOnly Market)
   6. Account metrics:
      - Real-time USDT equity, available balance, unrealized P&L, liquidation distance.
@@ -251,8 +252,8 @@ class BinanceClient:
     # ---------------------------------------------------------------- order execution
 
     def place_order(self, symbol, side, order_type="MARKET", qty=None, price=None,
-                    stop_price=None, reduce_only=False, time_in_force=None):
-        """Sends an order to Binance Futures."""
+                    reduce_only=False, time_in_force=None):
+        """Sends a standard order (MARKET / LIMIT) to Binance Futures."""
         self._sync_time()
         params = {
             "symbol": symbol,
@@ -263,8 +264,6 @@ class BinanceClient:
             params["quantity"] = self.format_qty(symbol, float(qty))
         if price is not None:
             params["price"] = self.format_price(symbol, float(price))
-        if stop_price is not None:
-            params["stopPrice"] = self.format_price(symbol, float(stop_price))
         if reduce_only:
             params["reduceOnly"] = "true"
         if time_in_force:
@@ -274,8 +273,25 @@ class BinanceClient:
 
         return self._request("POST", "/fapi/v1/order", params=params, signed=True)
 
+    def place_algo_order(self, symbol, side, order_type="STOP_MARKET", trigger_price=None, qty=None, reduce_only=True):
+        """Places conditional algorithmic order (e.g. STOP_MARKET, TAKE_PROFIT_MARKET) via /fapi/v1/algoOrder."""
+        self._sync_time()
+        params = {
+            "symbol": symbol,
+            "side": side.upper(),
+            "type": order_type.upper(),
+            "algoType": "CONDITIONAL",
+            "triggerPrice": self.format_price(symbol, float(trigger_price)),
+            "workingType": "MARK_PRICE",
+            "reduceOnly": "true" if reduce_only else "false",
+        }
+        if qty is not None:
+            params["quantity"] = self.format_qty(symbol, float(qty))
+
+        return self._request("POST", "/fapi/v1/algoOrder", params=params, signed=True)
+
     def place_bracket(self, symbol, side, qty, stop_loss_price, tp1_price=None, entry_type="MARKET", limit_price=None):
-        """Places an entry order with native conditional stop-loss and take-profit orders."""
+        """Places an entry order with native conditional algo stop-loss and take-profit orders."""
         self._sync_time()
         # 1. Ensure isolated margin & leverage
         try:
@@ -294,27 +310,31 @@ class BinanceClient:
 
         exit_side = "SELL" if side.upper() == "BUY" else "BUY"
 
-        # 3. Place Native Algorithmic STOP_MARKET
-        stop_order = self.place_order(
+        # 3. Place Native Algorithmic STOP_MARKET via Algo Order API
+        stop_order = self.place_algo_order(
             symbol=symbol,
             side=exit_side,
             order_type="STOP_MARKET",
             qty=qty,
-            stop_price=stop_loss_price,
+            trigger_price=stop_loss_price,
             reduce_only=True
         )
 
-        # 4. Optional TAKE_PROFIT_MARKET
+        # 4. Optional TAKE_PROFIT_MARKET via Algo Order API
         tp_order = None
         if tp1_price is not None:
-            tp_order = self.place_order(
-                symbol=symbol,
-                side=exit_side,
-                order_type="TAKE_PROFIT_MARKET",
-                qty=qty,
-                stop_price=tp1_price,
-                reduce_only=True
-            )
+            try:
+                tp_order = self.place_algo_order(
+                    symbol=symbol,
+                    side=exit_side,
+                    order_type="TAKE_PROFIT_MARKET",
+                    qty=qty,
+                    trigger_price=tp1_price,
+                    reduce_only=True
+                )
+            except Exception as tp_err:
+                # If TP fails, keep stop order active
+                pass
 
         return {
             "entry": entry_order,
@@ -340,9 +360,25 @@ class BinanceClient:
         return {"msg": f"No open position found for {symbol}"}
 
     def cancel_all_orders(self, symbol):
-        """Cancels all open conditional and limit orders for symbol."""
+        """Cancels all open conditional and regular limit orders for symbol."""
         self._sync_time()
-        return self._request("DELETE", "/fapi/v1/allOpenOrders", params={"symbol": symbol}, signed=True)
+        res = {"regular": None, "algo": []}
+        try:
+            res["regular"] = self._request("DELETE", "/fapi/v1/allOpenOrders", params={"symbol": symbol}, signed=True)
+        except Exception:
+            pass
+
+        try:
+            open_algos = self._request("GET", "/fapi/v1/openAlgoOrders", params={"symbol": symbol}, signed=True)
+            for algo in open_algos:
+                algo_id = algo.get("algoId")
+                if algo_id:
+                    del_res = self._request("DELETE", "/fapi/v1/algoOrder", params={"algoId": algo_id}, signed=True)
+                    res["algo"].append(del_res)
+        except Exception:
+            pass
+
+        return res
 
 
 # ---------------------------------------------------------------- CLI
