@@ -135,7 +135,51 @@ Phase 5 high-performance trading desk observability and progressive web applicat
 
 ---
 
-## 7. US Equities Earnings Analyst (`facts.py`)
+## 7. Phase 6 Multi-Agent AI Dialectical Debate, HMM Regimes & Pairs Stat-Arb (`ai_agent.py`, `regime_hmm.py`, `stat_arb.py`)
+
+Phase 6 institutional artificial intelligence and advanced quantitative modeling:
+1. **Multi-Agent Dialectical Debate Engine (`ai_agent.py`)**:
+   - Synthesizes the **TradingAgents** multi-agent architecture (MIT / UCLA / Tauric Research):
+     - **Quant Analyst Agent**: Evaluates order-book depth imbalance, VPIN flow toxicity, 7d Volume Profile (VAL/POC/VAH), 24h VWAP, and multi-timeframe indicators.
+     - **Macro Catalyst Agent**: Scans Federal Reserve rates, ETF flows, on-chain whale transactions, and token cliff unlocks.
+     - **Bull Advocate Agent**: Builds the affirmative case (CVD absorption, liquidity sweep reclaims, short squeeze pressure).
+     - **Bear Advocate Agent**: Builds the adversarial counter-case (overhead supply walls, toxic flow adverse selection, liquidation cascades below).
+     - **Chief Risk Officer Agent**: Synthesizes the debate into a Consensus Verdict (`STRONG BUY`, `TACTICAL LONG`, `NEUTRAL`, `TACTICAL SHORT`, `STRONG SELL`, `DE-RISK / HALT`), Net Conviction Score (-100 to +100), Crucial Thesis Invalidation Level, and Kelly Position Sizing Multiplier.
+   - Run via CLI:
+     ```bash
+     python3 "${CLAUDE_SKILL_DIR}/ai_agent.py" BTCUSDT
+     python3 "${CLAUDE_SKILL_DIR}/ai_agent.py" ETHUSDT --json
+     ```
+
+2. **3-State Gaussian Hidden Markov Model (HMM) Market Regime Classifier (`regime_hmm.py`)**:
+   - Implements James D. Hamilton & Lawrence Rabiner's discrete-time regime-switching framework:
+     - **Regime 0: Low-Vol Bullish Momentum / Trend Expansion**: Positive drift, tight spreads. Policy: Trend-following, ride to VWAP/VAH, 2.5R targets, 1.0x Kelly sizing.
+     - **Regime 1: Mean-Reverting Range / Rotational Auction**: Bounded oscillation inside Value Area. Policy: Mean-reversion to POC, fade VAL/VAH extremes, 1.5R targets.
+     - **Regime 2: Toxic Volatility Shock / Liquidation Cascade**: High variance, spiking VPIN, wide spreads. Policy: Defensive capital preservation, 0.25x half-Kelly or safety halt.
+   - Computes Baum-Welch (EM) parameter estimation, Viterbi global path decoding, and Forward-Backward posterior probabilities P(S_t = k | O_{1:T}).
+   - Run via CLI:
+     ```bash
+     python3 "${CLAUDE_SKILL_DIR}/regime_hmm.py" BTCUSDT --interval 1h --limit 150
+     ```
+
+3. **Dynamic Kalman Filter & Ornstein-Uhlenbeck (OU) Pairs Statistical Arbitrage (`stat_arb.py`)**:
+   - Implements online state-space Kalman filtering and stochastic differential spread modeling:
+     - **Online Kalman Filter**: Dynamically tracks time-varying hedge ratio beta_t and level offset alpha_t between cointegrated crypto pairs with zero look-ahead bias.
+     - **Ornstein-Uhlenbeck SDE Calibration**: Models spread mean-reversion speed (theta), spread half-life (tau_1/2 = ln(2)/theta), equilibrium mean (mu), and stationary variance (sigma_eq^2).
+     - **Actionable Execution Signals**:
+       - Z <= -2.0: LONG_SPREAD (Buy Asset A, Sell beta Asset B)
+       - Z >= +2.0: SHORT_SPREAD (Sell Asset A, Buy beta Asset B)
+       - |Z| <= 0.25: MEAN_REVERSION_EXIT (Take profit on convergence)
+       - |Z| >= 3.5: COINTEGRATION_BREAKDOWN_STOP (Structural break loss cut).
+   - Run via CLI:
+     ```bash
+     python3 "${CLAUDE_SKILL_DIR}/stat_arb.py" --scan --interval 1h
+     python3 "${CLAUDE_SKILL_DIR}/stat_arb.py" ETH/BTC --interval 1h
+     ```
+
+---
+
+## 8. US Equities Earnings Analyst (`facts.py`)
 
 Earnings move stocks more than anything else on the calendar, and the press
 release is written to put the best number first. This skill reads the numbers

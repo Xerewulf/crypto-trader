@@ -71,6 +71,21 @@ try:
     import notifier
 except ImportError:
     notifier = None
+
+try:
+    import regime_hmm
+except ImportError:
+    regime_hmm = None
+
+try:
+    import stat_arb
+except ImportError:
+    stat_arb = None
+
+try:
+    import ai_agent
+except ImportError:
+    ai_agent = None
 STATE = os.path.join(HERE, "state.json")
 TRADES = os.path.join(HERE, "trades.jsonl")
 LOG = os.path.join(HERE, "events.log")
@@ -856,9 +871,12 @@ def process_live_tick(s, sym, px, ms=None):
         return True
     return False
 
-def compute_trade_risk(score, macro_score=0.0):
-    """Phase 1: Edward Thorp's Fractional Kelly criterion scaled by conviction."""
+def compute_trade_risk(score, macro_score=0.0, regime_id=None):
+    """Phase 1 & 6: Edward Thorp's Fractional Kelly criterion scaled by conviction and HMM regime."""
     base = CFG.get("risk_usd_base", 50.0)
+    # Volatile Shock / Liquidation cascade regime de-rates risk by 75%
+    if regime_id == 2:
+        return base * 0.25
     if score >= 90:
         mult = 2.4 if macro_score >= 1.0 else 2.0
         return min(CFG.get("risk_usd_max", 125.0), base * mult)
@@ -1074,9 +1092,10 @@ def scan_signals(s):
             log("SIGNAL %s %s SKIPPED: Risk distance %s is below minimum spread safety threshold" % (sym, side, fp(risk_dist)))
             continue
 
-        # Phase 1: Adaptive Conviction Kelly Sizing
+        # Phase 1 & 6: Adaptive Conviction Kelly Sizing & HMM Regime Protection
         macro_score = s.get("news", {}).get("macro_score", 0.0)
-        target_risk = compute_trade_risk(sig["score"], macro_score)
+        regime_id = sig.get("hmm_regime", {}).get("current_regime")
+        target_risk = compute_trade_risk(sig["score"], macro_score, regime_id=regime_id)
 
         # Margin Doctrine: Scheduled Event Risk Guard
         if margin:

@@ -681,6 +681,7 @@
       <button type="button" id="tabMicrostructureBtn" class="nav-pill" onclick="switchDesk('microstructure')">🔬 VPIN & ML Microstructure (Phase 3)</button>
       <button type="button" id="tabSORBtn" class="nav-pill" onclick="switchDesk('sor')">🌐 SOR & Multi-Venue Risk (Phase 4)</button>
       <button type="button" id="tabHeatmapBtn" class="nav-pill" onclick="switchDesk('heatmap')">🌊 Liquidity Heatmap & PWA (Phase 5)</button>
+      <button type="button" id="tabAiQuantBtn" class="nav-pill" onclick="switchDesk('ai-quant')">🧠 AI Quant & Debate (Phase 6)</button>
       <button type="button" id="btnPwaInstall" class="nav-pill" style="display:none; background:#065f46; color:#a7f3d0; border-color:#059669;" onclick="triggerPwaInstall()">📲 Install App</button>
       <button type="button" id="btnNotificationToggle" class="nav-pill" style="background:#1e293b; color:#cbd5e1;" onclick="togglePushNotifications()">🔔 Push Alerts</button>
       <a href="dashboard.html" class="nav-pill">🤖 24/7 Cloud Bot Dashboard</a>
@@ -1794,6 +1795,212 @@
             Notification Status: <b id="pushPermissionBadge" style="color:#38bdf8;">Default (Click to Enable)</b>
           </div>
         </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- PHASE 6: SOTA MULTI-AGENT AI QUANT & DIALECTICAL DEBATE ENGINE         -->
+  <!-- ===================================================================== -->
+  <main class="arbitrage-desk-container" id="deskAiQuant" style="display:none; max-width:1920px; width:100%; margin:0 auto; padding:10px; gap:12px; flex-direction:column;">
+    <!-- Top Hero Banner & Architecture Card -->
+    <div class="panel" style="background: linear-gradient(135deg, #13112c 0%, #1e1b4b 100%); border-color: #6366f1;">
+      <div style="padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <h2 style="margin:0; font-size:16px; font-weight:800; color:#a5b4fc; letter-spacing:0.5px;">🧠 SOTA MULTI-AGENT AI QUANT & DIALECTICAL DEBATE ENGINE</h2>
+            <span style="font-size:11px; font-weight:900; background:#4338ca; color:#e0e7ff; padding:3px 8px; border-radius:4px; letter-spacing:0.5px;">PHASE 6 QUANT DELIVERABLE</span>
+          </div>
+          <p style="margin:4px 0 0; font-size:12px; color:#c7d2fe; max-width:1100px; line-height:1.4;">
+            Synthesizes UCLA/MIT TradingAgents Multi-Agent Dialectical Debate (Quant Analyst + Macro Analyst + Bull/Bear Advocates + Chief Risk Officer), Hamilton 3-State Gaussian Hidden Markov Model (HMM) Market Regime Classifier, and Online Kalman Filter & Ornstein-Uhlenbeck (OU) Pairs Statistical Arbitrage.
+          </p>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <select id="aiQuantSymbolSelect" class="form-select" style="background:#0f172a; border:1px solid #4338ca; color:#fff; font-weight:700; padding:5px 10px; border-radius:6px;" onchange="loadAiQuantDesk(this.value)">
+            <option value="BTCUSDT">BTC/USDT</option>
+            <option value="ETHUSDT">ETH/USDT</option>
+            <option value="SOLUSDT">SOL/USDT</option>
+            <option value="BNBUSDT">BNB/USDT</option>
+            <option value="DOGEUSDT">DOGE/USDT</option>
+            <option value="XRPUSDT">XRP/USDT</option>
+            <option value="AVAXUSDT">AVAX/USDT</option>
+            <option value="SUIUSDT">SUI/USDT</option>
+          </select>
+          <button type="button" class="btn-action" style="background:#4f46e5; border-color:#6366f1; color:#fff; font-weight:700;" onclick="triggerAiDebate()">⚡ Run AI Debate</button>
+          <button type="button" class="btn-action" style="background:#312e81; border-color:#4338ca; color:#c7d2fe; font-weight:700;" onclick="triggerRegimeHMM()">📊 HMM Regimes</button>
+          <button type="button" class="btn-action" style="background:#1e1b4b; border-color:#4338ca; color:#a5b4fc; font-weight:700;" onclick="triggerStatArbScan()">🔄 Stat-Arb Radar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Chief Risk Officer Verdict & Multi-Agent Debate Transcript -->
+    <div class="panel" style="border-color:#4338ca; background:#0b0f19;">
+      <div class="panel-header" style="background:#13112c; border-bottom:1px solid #1e1b4b; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:800; font-size:13px; color:#c7d2fe; display:flex; align-items:center; gap:6px;">
+          ⚖️ CHIEF RISK OFFICER ARBITRATION & DIALECTICAL CONSENSUS VERDICT
+        </span>
+        <span id="aiDebateTimestamp" style="font-size:11px; color:#94a3b8; font-family:monospace;">--:--:-- UTC</span>
+      </div>
+      <div style="padding:14px; display:flex; flex-direction:column; gap:12px;">
+        <!-- CRO KPI Strip -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
+          <div style="background:#13192b; border:1px solid #1e293b; border-radius:8px; padding:10px 14px;">
+            <div style="font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:700;">Consensus Verdict</div>
+            <div id="aiVerdictBadge" style="font-size:16px; font-weight:900; margin-top:4px; color:#60a5fa;">LOADING...</div>
+          </div>
+          <div style="background:#13192b; border:1px solid #1e293b; border-radius:8px; padding:10px 14px;">
+            <div style="font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:700;">Net Conviction Score</div>
+            <div id="aiNetConviction" style="font-size:16px; font-weight:900; margin-top:4px; color:#38bdf8;">-- / 100</div>
+          </div>
+          <div style="background:#13192b; border:1px solid #1e293b; border-radius:8px; padding:10px 14px;">
+            <div style="font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:700;">Thesis Invalidation Level</div>
+            <div id="aiInvalidationLevel" style="font-size:16px; font-weight:900; margin-top:4px; color:#f87171;">$--</div>
+          </div>
+          <div style="background:#13192b; border:1px solid #1e293b; border-radius:8px; padding:10px 14px;">
+            <div style="font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:700;">Primary Target & R:R</div>
+            <div id="aiPrimaryTarget" style="font-size:16px; font-weight:900; margin-top:4px; color:#34d399;">$-- (--R)</div>
+          </div>
+          <div style="background:#13192b; border:1px solid #1e293b; border-radius:8px; padding:10px 14px;">
+            <div style="font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:700;">Kelly Sizing Factor</div>
+            <div id="aiKellySizing" style="font-size:16px; font-weight:900; margin-top:4px; color:#fbbf24;">--x</div>
+          </div>
+        </div>
+
+        <!-- CRO Rationale Quote -->
+        <div style="background:#0f172a; border-left:4px solid #6366f1; padding:10px 14px; border-radius:0 6px 6px 0; font-size:12.5px; line-height:1.45; color:#e2e8f0;">
+          <b style="color:#a5b4fc;">CRO Arbitration Synthesis:</b>
+          <span id="aiCroSummaryText">Running multi-agent dialectical analysis across quantitative microstructure and macro catalysts...</span>
+        </div>
+
+        <!-- Adversarial Debate Transcript (2 Columns) -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <!-- Bull Advocate -->
+          <div style="background:#091913; border:1px solid #064e3b; border-radius:8px; padding:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #065f46; padding-bottom:8px; margin-bottom:8px;">
+              <span style="color:#34d399; font-weight:800; font-size:13px;">🟢 BULL ADVOCATE (Affirmative Thesis)</span>
+              <span id="aiBullConvictionBadge" style="background:#065f46; color:#a7f3d0; font-size:11px; font-weight:800; padding:2px 8px; border-radius:4px;">--%</span>
+            </div>
+            <p id="aiBullThesis" style="font-size:12px; color:#d1fae5; margin:0 0 10px; line-height:1.4;">Analyzing affirmative order-flow absorption and accumulation setup...</p>
+            <div style="font-size:11px; font-weight:700; color:#6ee7b7; margin-bottom:4px; text-transform:uppercase;">Key Claims & Quantitative Evidence:</div>
+            <ul id="aiBullClaimsList" style="margin:0; padding-left:16px; font-size:11.5px; color:#a7f3d0; line-height:1.5;">
+              <li>Evaluating Order-Book bid wall defense...</li>
+            </ul>
+          </div>
+
+          <!-- Bear Advocate -->
+          <div style="background:#1c0d0d; border:1px solid #7f1d1d; border-radius:8px; padding:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #991b1b; padding-bottom:8px; margin-bottom:8px;">
+              <span style="color:#f87171; font-weight:800; font-size:13px;">🔴 BEAR ADVOCATE (Adversarial Counter-Thesis)</span>
+              <span id="aiBearConvictionBadge" style="background:#991b1b; color:#fecaca; font-size:11px; font-weight:800; padding:2px 8px; border-radius:4px;">--%</span>
+            </div>
+            <p id="aiBearThesis" style="font-size:12px; color:#fee2e2; margin:0 0 10px; line-height:1.4;">Analyzing toxic flow adverse selection, overhead ask walls, and downside cascade risks...</p>
+            <div style="font-size:11px; font-weight:700; color:#fca5a5; margin-bottom:4px; text-transform:uppercase;">Key Claims & Risk Factors:</div>
+            <ul id="aiBearClaimsList" style="margin:0; padding-left:16px; font-size:11.5px; color:#fecaca; line-height:1.5;">
+              <li>Evaluating ask supply liquidity barriers...</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: 3-State Gaussian Hidden Markov Model (HMM) Market Regime -->
+    <div class="panel" style="border-color:#1e3a8a; background:#0b0f19;">
+      <div class="panel-header" style="background:#0f172a; border-bottom:1px solid #1e293b; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:800; font-size:13px; color:#60a5fa; display:flex; align-items:center; gap:6px;">
+          📊 3-STATE GAUSSIAN HIDDEN MARKOV MODEL (HMM) MARKET REGIME CLASSIFIER
+        </span>
+        <span id="hmmRegimeIntervalBadge" style="font-size:11px; color:#94a3b8; font-family:monospace;">Lookback: 150 Bars (1h)</span>
+      </div>
+      <div style="padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <!-- Regime State & Posteriors -->
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="background:#13192b; border:1px solid #1e293b; border-radius:8px; padding:12px;">
+            <div style="font-size:11px; color:#94a3b8; text-transform:uppercase; font-weight:700;">Current Decoded Latent State:</div>
+            <div id="hmmActiveStatePill" style="font-size:18px; font-weight:900; margin-top:4px; color:#38bdf8;">[0] BULL_MOMENTUM</div>
+            <p id="hmmStateDescription" style="font-size:12px; color:#cbd5e1; margin:6px 0 0; line-height:1.4;">Low-Volatility Bullish Momentum: Strong directional trend, positive drift, tight spreads.</p>
+          </div>
+
+          <!-- Posterior Probabilities -->
+          <div style="background:#13192b; border:1px solid #1e293b; border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:11px; color:#94a3b8; text-transform:uppercase; font-weight:700;">Posterior State Probabilities P(S_t | O_1:T):</div>
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:#34d399; font-weight:700;">
+                <span>Regime 0: Bullish Momentum (Trend Expansion)</span>
+                <span id="hmmProb0Text">55.0%</span>
+              </div>
+              <div style="background:#0f172a; border-radius:4px; height:8px; overflow:hidden; margin-top:3px;">
+                <div id="hmmProb0Bar" style="background:#10b981; height:100%; width:55%;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:#fbbf24; font-weight:700;">
+                <span>Regime 1: Mean-Reverting Range (Rotational Chop)</span>
+                <span id="hmmProb1Text">42.0%</span>
+              </div>
+              <div style="background:#0f172a; border-radius:4px; height:8px; overflow:hidden; margin-top:3px;">
+                <div id="hmmProb1Bar" style="background:#f59e0b; height:100%; width:42%;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:#f87171; font-weight:700;">
+                <span>Regime 2: Toxic Volatility Shock (Liquidation Cascade)</span>
+                <span id="hmmProb2Text">3.0%</span>
+              </div>
+              <div style="background:#0f172a; border-radius:4px; height:8px; overflow:hidden; margin-top:3px;">
+                <div id="hmmProb2Bar" style="background:#ef4444; height:100%; width:3%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regime Adaptive Directives -->
+        <div style="background:#13192b; border:1px solid #1e293b; border-radius:8px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="font-size:11px; color:#94a3b8; text-transform:uppercase; font-weight:700; margin-bottom:8px;">Regime-Adaptive Trade Strategy Directives:</div>
+            <table style="width:100%; font-size:12px; border-collapse:collapse;">
+              <tr style="border-bottom:1px solid #1e293b;"><td style="padding:5px 0; color:#94a3b8;">Active Strategy Mode</td><td id="hmmStratMode" style="text-align:right; font-weight:700; color:#38bdf8;">TREND_FOLLOWING_EXPANSION</td></tr>
+              <tr style="border-bottom:1px solid #1e293b;"><td style="padding:5px 0; color:#94a3b8;">Kelly Multiplier (Sizing)</td><td id="hmmKellyMult" style="text-align:right; font-weight:700; color:#fbbf24;">1.00x</td></tr>
+              <tr style="border-bottom:1px solid #1e293b;"><td style="padding:5px 0; color:#94a3b8;">Target R-Multiple</td><td id="hmmTargetR" style="text-align:right; font-weight:700; color:#34d399;">2.5R</td></tr>
+              <tr style="border-bottom:1px solid #1e293b;"><td style="padding:5px 0; color:#94a3b8;">Stop Buffer Multiplier</td><td id="hmmStopBuffer" style="text-align:right; font-weight:700; color:#e2e8f0;">1.00x</td></tr>
+              <tr style="border-bottom:1px solid #1e293b;"><td style="padding:5px 0; color:#94a3b8;">Risk Level Classification</td><td id="hmmRiskLevel" style="text-align:right; font-weight:700; color:#a7f3d0;">LOW_MODERATE</td></tr>
+              <tr><td style="padding:5px 0; color:#94a3b8;">Annualized Volatility</td><td id="hmmAnnVol" style="text-align:right; font-weight:700; color:#e2e8f0;">--%</td></tr>
+            </table>
+          </div>
+          <div style="margin-top:10px; background:#0f172a; padding:8px 12px; border-radius:6px; font-size:11.5px; color:#94a3b8;">
+            <b style="color:#60a5fa;">Policy:</b> <span id="hmmRecommendationText">Ride pullbacks to VWAP/VAL; trail stops along EMA20; maximize Sharpe.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Dynamic Kalman Filter & Ornstein-Uhlenbeck Pairs Statistical Arbitrage -->
+    <div class="panel" style="border-color:#0d9488; background:#0b0f19;">
+      <div class="panel-header" style="background:#0f172a; border-bottom:1px solid #1e293b; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:800; font-size:13px; color:#2dd4bf; display:flex; align-items:center; gap:6px;">
+          ⚡ DYNAMIC KALMAN FILTER & ORNSTEIN-UHLENBECK PAIRS STATISTICAL ARBITRAGE
+        </span>
+        <span id="statArbSummaryBadge" style="font-size:11px; background:#0f766e; color:#ccfbf1; font-weight:800; padding:2px 8px; border-radius:4px;">Scanned: 10 Pairs | 0 Active</span>
+      </div>
+      <div style="padding:14px; overflow-x:auto;">
+        <table style="width:100%; font-size:12px; border-collapse:collapse; min-width:850px;">
+          <thead>
+            <tr style="border-bottom:2px solid #1e293b; text-align:left; color:#94a3b8; font-size:11px; text-transform:uppercase;">
+              <th style="padding:8px 10px;">Pair</th>
+              <th style="padding:8px 10px;">Asset A Price</th>
+              <th style="padding:8px 10px;">Asset B Price</th>
+              <th style="padding:8px 10px;">Kalman Beta (β)</th>
+              <th style="padding:8px 10px;">OU Half-Life</th>
+              <th style="padding:8px 10px; text-align:center;">Spread Z-Score</th>
+              <th style="padding:8px 10px;">Signal</th>
+              <th style="padding:8px 10px;">Recommended Action</th>
+            </tr>
+          </thead>
+          <tbody id="statArbTableBody">
+            <tr>
+              <td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Click 'Stat-Arb Radar' or switch to Phase 6 to scan real-time cointegrated pairs...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </main>
@@ -3448,6 +3655,15 @@
           initHeatmapDesk();
         }
       }
+      const aiBtn = document.getElementById("tabAiQuantBtn");
+      const aiMain = document.getElementById("deskAiQuant");
+      if (aiBtn) aiBtn.classList.toggle("active", desk === 'ai-quant');
+      if (aiMain) {
+        aiMain.style.display = (desk === 'ai-quant') ? "flex" : "none";
+        if (desk === 'ai-quant') {
+          loadAiQuantDesk(currentSymbol);
+        }
+      }
     }
 
     function setArbStrategy(strat) {
@@ -4663,6 +4879,214 @@
 
     setInterval(fetchState, 2500);
     setInterval(fetchKlines, 8000);
+  
+    // =========================================================================
+    // PHASE 6: SOTA MULTI-AGENT AI QUANT & DIALECTICAL DEBATE JAVASCRIPT
+    // =========================================================================
+    function loadAiQuantDesk(sym) {
+      const s = sym || currentSymbol || "BTCUSDT";
+      const sel = document.getElementById("aiQuantSymbolSelect");
+      if (sel) sel.value = s.toUpperCase();
+      loadAiDebate(s);
+      loadRegimeHMM(s);
+      loadStatArbPairs();
+    }
+
+    function triggerAiDebate() {
+      const sel = document.getElementById("aiQuantSymbolSelect");
+      const s = sel ? sel.value : currentSymbol;
+      loadAiDebate(s);
+    }
+
+    function triggerRegimeHMM() {
+      const sel = document.getElementById("aiQuantSymbolSelect");
+      const s = sel ? sel.value : currentSymbol;
+      loadRegimeHMM(s);
+    }
+
+    function triggerStatArbScan() {
+      loadStatArbPairs();
+    }
+
+    async function loadAiDebate(sym) {
+      try {
+        const res = await fetch(`/api/ai/debate?symbol=${encodeURIComponent(sym)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const ts = document.getElementById("aiDebateTimestamp");
+        if (ts) ts.textContent = data.timestamp_utc || new Date().toISOString();
+
+        const badge = document.getElementById("aiVerdictBadge");
+        if (badge) {
+          badge.textContent = `[${data.verdict}]`;
+          if (data.verdict && data.verdict.includes("BUY")) badge.style.color = "#34d399";
+          else if (data.verdict && data.verdict.includes("SELL")) badge.style.color = "#f87171";
+          else if (data.verdict && data.verdict.includes("HALT")) badge.style.color = "#fbbf24";
+          else badge.style.color = "#38bdf8";
+        }
+
+        const score = document.getElementById("aiNetConviction");
+        if (score) {
+          const s = data.net_conviction_score || 0;
+          score.textContent = (s > 0 ? `+${s}` : `${s}`) + " / 100";
+        }
+
+        const inval = document.getElementById("aiInvalidationLevel");
+        if (inval) inval.textContent = data.invalidation_price ? `$${Number(data.invalidation_price).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : "$--";
+
+        const target = document.getElementById("aiPrimaryTarget");
+        if (target) {
+          const px = data.primary_target ? `$${Number(data.primary_target).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : "$--";
+          target.textContent = `${px} (${data.reward_risk || 1.0}R)`;
+        }
+
+        const kelly = document.getElementById("aiKellySizing");
+        if (kelly) kelly.textContent = `${data.sizing_multiplier || 1.0}x Kelly`;
+
+        const croSummary = document.getElementById("aiCroSummaryText");
+        if (croSummary) croSummary.textContent = data.arbitration_summary || "Debate concluded.";
+
+        // Bull Advocate
+        const bull = (data.debate && data.debate.bull_advocate) || {};
+        const bullBadge = document.getElementById("aiBullConvictionBadge");
+        if (bullBadge) bullBadge.textContent = `${bull.conviction_score || 50}% Conviction`;
+        const bullThesis = document.getElementById("aiBullThesis");
+        if (bullThesis) bullThesis.textContent = bull.thesis || "No thesis generated.";
+        const bullList = document.getElementById("aiBullClaimsList");
+        if (bullList) {
+          bullList.innerHTML = (bull.key_claims || []).map(c => `<li>${c}</li>`).join("");
+        }
+
+        // Bear Advocate
+        const bear = (data.debate && data.debate.bear_advocate) || {};
+        const bearBadge = document.getElementById("aiBearConvictionBadge");
+        if (bearBadge) bearBadge.textContent = `${bear.conviction_score || 50}% Conviction`;
+        const bearThesis = document.getElementById("aiBearThesis");
+        if (bearThesis) bearThesis.textContent = bear.thesis || "No counter-thesis generated.";
+        const bearList = document.getElementById("aiBearClaimsList");
+        if (bearList) {
+          bearList.innerHTML = (bear.key_claims || []).map(c => `<li>${c}</li>`).join("");
+        }
+      } catch (err) {
+        console.error("Failed to load AI debate:", err);
+      }
+    }
+
+    async function loadRegimeHMM(sym) {
+      try {
+        const res = await fetch(`/api/regime/hmm?symbol=${encodeURIComponent(sym)}&interval=1h&limit=150`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const statePill = document.getElementById("hmmActiveStatePill");
+        if (statePill) {
+          statePill.textContent = `[${data.current_regime}] ${data.regime_name}`;
+          if (data.current_regime === 0) statePill.style.color = "#34d399";
+          else if (data.current_regime === 1) statePill.style.color = "#fbbf24";
+          else statePill.style.color = "#f87171";
+        }
+
+        const stateDesc = document.getElementById("hmmStateDescription");
+        if (stateDesc) stateDesc.textContent = data.description || "";
+
+        const probs = data.posterior_probabilities || {};
+        const p0 = (probs.bull_momentum || 0.33) * 100;
+        const p1 = (probs.rotational_chop || 0.34) * 100;
+        const p2 = (probs.volatile_shock || 0.33) * 100;
+
+        const p0Text = document.getElementById("hmmProb0Text");
+        const p0Bar = document.getElementById("hmmProb0Bar");
+        if (p0Text) p0Text.textContent = `${p0.toFixed(1)}%`;
+        if (p0Bar) p0Bar.style.width = `${p0}%`;
+
+        const p1Text = document.getElementById("hmmProb1Text");
+        const p1Bar = document.getElementById("hmmProb1Bar");
+        if (p1Text) p1Text.textContent = `${p1.toFixed(1)}%`;
+        if (p1Bar) p1Bar.style.width = `${p1}%`;
+
+        const p2Text = document.getElementById("hmmProb2Text");
+        const p2Bar = document.getElementById("hmmProb2Bar");
+        if (p2Text) p2Text.textContent = `${p2.toFixed(1)}%`;
+        if (p2Bar) p2Bar.style.width = `${p2}%`;
+
+        const ad = data.adaptations || {};
+        const strat = document.getElementById("hmmStratMode");
+        if (strat) strat.textContent = ad.strategy || "ADAPTIVE";
+        const kelly = document.getElementById("hmmKellyMult");
+        if (kelly) kelly.textContent = `${ad.kelly_factor || 1.0}x`;
+        const targetR = document.getElementById("hmmTargetR");
+        if (targetR) targetR.textContent = `${ad.target_r || 2.0}R`;
+        const buffer = document.getElementById("hmmStopBuffer");
+        if (buffer) buffer.textContent = `${ad.stop_buffer_mult || 1.0}x`;
+        const risk = document.getElementById("hmmRiskLevel");
+        if (risk) risk.textContent = ad.risk_level || "MODERATE";
+        const vol = document.getElementById("hmmAnnVol");
+        if (vol) vol.textContent = `${ad.volatility_annualized || "--"}%`;
+
+        const rec = document.getElementById("hmmRecommendationText");
+        if (rec) rec.textContent = ad.recommended_action || "Maintain balanced exposure.";
+      } catch (err) {
+        console.error("Failed to load HMM regime:", err);
+      }
+    }
+
+    async function loadStatArbPairs() {
+      try {
+        const res = await fetch("/api/stat-arb/pairs?interval=1h&limit=100");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const badge = document.getElementById("statArbSummaryBadge");
+        if (badge) {
+          badge.textContent = `Scanned: ${data.scanned_pairs_count || 0} Pairs | ${data.active_opportunities_count || 0} Active Signals`;
+        }
+
+        const tbody = document.getElementById("statArbTableBody");
+        if (!tbody) return;
+
+        const pairs = data.all_pairs || [];
+        if (pairs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:15px; color:#94a3b8;">No pairs data available.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = pairs.map(p => {
+          const z = p.z_score || 0.0;
+          let zColor = "#94a3b8";
+          if (z <= -2.0) zColor = "#34d399";
+          else if (z >= 2.0) zColor = "#f87171";
+
+          let sigBadge = `<span style="background:#1e293b; color:#94a3b8; padding:2px 6px; border-radius:4px; font-weight:700;">${p.signal}</span>`;
+          if (p.signal === "LONG_SPREAD") {
+            sigBadge = `<span style="background:#065f46; color:#a7f3d0; padding:2px 6px; border-radius:4px; font-weight:700;">🟢 LONG SPREAD</span>`;
+          } else if (p.signal === "SHORT_SPREAD") {
+            sigBadge = `<span style="background:#7f1d1d; color:#fecaca; padding:2px 6px; border-radius:4px; font-weight:700;">🔴 SHORT SPREAD</span>`;
+          } else if (p.signal === "MEAN_REVERSION_EXIT") {
+            sigBadge = `<span style="background:#1e3a8a; color:#93c5fd; padding:2px 6px; border-radius:4px; font-weight:700;">🔵 MEAN EXIT</span>`;
+          }
+
+          const hl = p.half_life_bars ? `${p.half_life_bars} bars` : "N/A";
+          const beta = (p.kalman && p.kalman.hedge_ratio_beta) ? p.kalman.hedge_ratio_beta.toFixed(4) : "1.0000";
+
+          return `
+            <tr style="border-bottom:1px solid #1e293b;">
+              <td style="padding:7px 10px; font-weight:700; color:#e2e8f0;">${p.pair}</td>
+              <td style="padding:7px 10px; font-family:monospace; color:#cbd5e1;">$${Number(p.price_a || 0).toLocaleString()}</td>
+              <td style="padding:7px 10px; font-family:monospace; color:#cbd5e1;">$${Number(p.price_b || 0).toLocaleString()}</td>
+              <td style="padding:7px 10px; font-family:monospace; color:#60a5fa;">${beta}</td>
+              <td style="padding:7px 10px; color:#94a3b8;">${hl}</td>
+              <td style="padding:7px 10px; text-align:center; font-weight:800; font-family:monospace; color:${zColor};">${z > 0 ? `+${z.toFixed(2)}` : z.toFixed(2)}σ</td>
+              <td style="padding:7px 10px;">${sigBadge}</td>
+              <td style="padding:7px 10px; font-size:11.5px; color:#cbd5e1;">${p.action}</td>
+            </tr>
+          `;
+        }).join("");
+      } catch (err) {
+        console.error("Failed to load stat-arb pairs:", err);
+      }
+    }
+
   </script>
 </body>
 </html>
