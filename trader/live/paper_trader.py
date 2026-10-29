@@ -61,6 +61,16 @@ try:
     import margin
 except ImportError:
     margin = None
+
+try:
+    import binance_client
+except ImportError:
+    binance_client = None
+
+try:
+    import notifier
+except ImportError:
+    notifier = None
 STATE = os.path.join(HERE, "state.json")
 TRADES = os.path.join(HERE, "trades.jsonl")
 LOG = os.path.join(HERE, "events.log")
@@ -566,6 +576,13 @@ def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     p["notional"] = p["qty"] * p["entry"]
     p["margin"] = p["notional"] / lev
 
+    # Omni-channel push notification
+    if notifier:
+        try:
+            notifier.notify_scale_out(p, tier_label, exit_px, net)
+        except Exception as n_err:
+            log("Notifier scale-out alert error for %s: %s" % (p["symbol"], n_err))
+
     r_gain = net / (p["risk_usd"] * prop) if (p["risk_usd"] * prop) > 0 else 0.0
     log("CONVEX SCALE-OUT #%d %s %s [%s] at %s: Qty %s (%.0f%%), Net %s (%+.2fR). Remaining: %s. Account: %s" % (
         p["id"], p["side"].upper(), p["symbol"], tier_label, fp(exit_px),
@@ -617,6 +634,20 @@ def close_position(s, p, exit_px, ms, outcome, is_liquidation=False):
 
     s["last_exit_bar"][p["symbol"]] = (ms // HOUR_MS) * HOUR_MS
     del s["positions"][p["symbol"]]
+
+    # Cancel any remaining resting bracket algo orders on live exchange
+    if s.get("live_broker"):
+        try:
+            s["live_broker"].cancel_all_orders(p["symbol"])
+        except Exception as b_err:
+            log("Warning: Failed to cancel resting broker orders for %s: %s" % (p["symbol"], b_err))
+
+    # Omni-channel push notification
+    if notifier:
+        try:
+            notifier.notify_position_closed(p, exit_px, total_net, total_r, outcome)
+        except Exception as n_err:
+            log("Notifier close alert error for %s: %s" % (p["symbol"], n_err))
 
     log("CLOSED #%d %s %s [%s] at %s: total net %s (%+.2fR). Account: %s" % (
         p["id"], p["side"].upper(), p["symbol"], outcome, fp(exit_px),
@@ -1109,10 +1140,30 @@ def scan_signals(s):
         ms = now_ms()
         liq_px = margin.liquidation_price(entry_px, side, eff_lev, "margin", base) if margin else 0.0
 
+        # Live Binance Order Execution (Testnet or Live)
+        broker_orders = None
+        if s.get("live_broker"):
+            try:
+                broker_orders = s["live_broker"].place_bracket(
+                    symbol=sym,
+                    side="BUY" if side == "long" else "SELL",
+                    qty=qty,
+                    stop_loss_price=stop_px,
+                    tp1_price=tp1_px
+                )
+                log("LIVE BINANCE ORDER PLACED %s [%s]: Entry placed with bracket stops (Stop: %s, TP1: %s)" % (
+                    sym, side.upper(), fp(stop_px), fp(tp1_px)
+                ))
+            except Exception as b_err:
+                log("LIVE BINANCE ORDER ERROR %s [%s]: %s (skipping entry)" % (sym, side.upper(), b_err))
+                s["diag"][sym]["signal"] += " (live error: %s)" % b_err
+                continue
+
         p = {
             "id": s["next_id"],
             "symbol": sym,
             "side": side,
+            "broker_orders": broker_orders,
             "setup": sig["setup"] + (" (Micro 5m)" if micro_compressed else ""),
             "score": sig["score"],
             "signal_bar": diag["bar"],
@@ -1142,6 +1193,13 @@ def scan_signals(s):
         s["next_id"] += 1
         s["positions"][sym] = p
         s["marks"][sym] = cur_p
+
+        # Omni-channel push notification
+        if notifier:
+            try:
+                notifier.notify_setup_opened(p)
+            except Exception as n_err:
+                log("Notifier open alert error for %s: %s" % (sym, n_err))
 
         log("OPENED CONVEX #%d %s %s [%s]: %s %s at %s (%.0fx margin, liq %s) | Stop %s | TP1 %s (40%%) | TP2 %s (30%%) | Sized Risk %s (Score %d)" % (
             p["id"], side.upper(), sym, p["setup"],
@@ -1746,7 +1804,8 @@ setInterval(syncState, 3000);
 
 
 def save(s):
-    write_atomic(STATE, json.dumps(s, indent=1))
+    s_clean = {k: v for k, v in s.items() if k != "live_broker"}
+    write_atomic(STATE, json.dumps(s_clean, indent=1))
 
 
 def print_status(s):
@@ -1821,8 +1880,11 @@ async def async_ws_ticks(s):
 async def async_scanner_loop(s):
     while True:
         try:
-            manage_positions(s)
-            scan_signals(s)
+            await asyncio.to_thread(manage_positions, s)
+            await asyncio.to_thread(scan_signals, s)
+            ms = now_ms()
+            s["heartbeat"] = iso(ms)
+            s["heartbeat_ms"] = ms
             save(s)
             write_dashboard(s)
         except Exception as e:
@@ -1833,7 +1895,38 @@ async def async_scanner_loop(s):
 async def async_local_server(s, port=8765):
     try:
         from aiohttp import web
-        app = web.Application()
+        import base64
+
+        host = os.getenv("HOST", "0.0.0.0")
+        port = int(os.getenv("PORT", port))
+        auth_user = os.getenv("DASHBOARD_USERNAME")
+        auth_pass = os.getenv("DASHBOARD_PASSWORD")
+
+        middlewares = []
+        if auth_user and auth_pass:
+            @web.middleware
+            async def basic_auth_middleware(request, handler):
+                # Public healthcheck endpoint does not require authentication
+                if request.path == "/health":
+                    return await handler(request)
+
+                auth_header = request.headers.get("Authorization")
+                if auth_header and auth_header.startswith("Basic "):
+                    try:
+                        decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+                        user, pwd = decoded.split(":", 1)
+                        if user == auth_user and pwd == auth_pass:
+                            return await handler(request)
+                    except Exception:
+                        pass
+                return web.Response(
+                    status=401,
+                    headers={"WWW-Authenticate": 'Basic realm="Crypto Trader 24/7 Web Dashboard"'},
+                    text="Unauthorized: Please provide valid credentials."
+                )
+            middlewares.append(basic_auth_middleware)
+
+        app = web.Application(middlewares=middlewares)
 
         async def handle_index(req):
             if os.path.exists(DASH):
@@ -1842,22 +1935,37 @@ async def async_local_server(s, port=8765):
             return web.Response(text="Dashboard initializing...", content_type="text/plain")
 
         async def handle_state(req):
-            return web.json_response(s, headers={"Access-Control-Allow-Origin": "*"})
+            s_clean = {k: v for k, v in s.items() if k != "live_broker"}
+            return web.json_response(s_clean, headers={"Access-Control-Allow-Origin": "*"})
 
         async def handle_news(req):
             return web.json_response(s.get("news", {}), headers={"Access-Control-Allow-Origin": "*"})
 
+        async def handle_health(req):
+            _, _, eq = equity_parts(s)
+            return web.json_response({
+                "status": "healthy",
+                "uptime_ms": now_ms() - s.get("init_ms", now_ms()),
+                "equity": round(eq, 2),
+                "open_positions": len(s.get("positions", {})),
+                "heartbeat_age_s": round((now_ms() - (s.get("heartbeat_ms") or now_ms())) / 1000.0, 1),
+                "broker": "live" if s.get("live_broker") else "paper"
+            }, headers={"Access-Control-Allow-Origin": "*"})
+
         app.router.add_get("/", handle_index)
         app.router.add_get("/api/state", handle_state)
         app.router.add_get("/api/news", handle_news)
+        app.router.add_get("/health", handle_health)
 
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, "127.0.0.1", port)
+        site = web.TCPSite(runner, host, port)
         await site.start()
-        log("Ultra-low latency HTTP server live: http://localhost:%d" % port)
+        log("Ultra-low latency HTTP server live: http://%s:%d (auth=%s)" % (
+            host, port, "enabled" if (auth_user and auth_pass) else "disabled"
+        ))
     except Exception as e:
-        log("Local HTTP server failed to bind (port %d in use?): %s" % (port, e))
+        log("Local HTTP server failed to bind on %s:%d: %s" % (host if 'host' in locals() else '0.0.0.0', port, e))
 
 
 async def async_news_task(s):
@@ -1879,10 +1987,14 @@ async def async_news_task(s):
 
 async def async_run(s):
     log("Starting Binance Millisecond Execution Engine (Async WebSockets + Live Dashboard + Omni-News Monitor)...")
-    cycle(s)
+    ms = now_ms()
+    s["heartbeat"] = iso(ms)
+    s["heartbeat_ms"] = ms
+    save(s)
+    await async_local_server(s, 8765)
+    await asyncio.to_thread(cycle, s)
     save(s)
     write_dashboard(s)
-    await async_local_server(s, 8765)
     await asyncio.gather(
         async_ws_ticks(s),
         async_scanner_loop(s),
@@ -1894,6 +2006,8 @@ def main():
     ap = argparse.ArgumentParser(description="Binance Institutional Paper Trader.")
     ap.add_argument("cmd", choices=["run", "once", "status", "reset"])
     ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--live", action="store_true", help="Execute real orders on Binance Futures (requires API keys)")
+    ap.add_argument("--testnet", action="store_true", help="Execute live orders on Binance Futures Testnet")
     a = ap.parse_args()
 
     if a.cmd == "reset":
@@ -1907,6 +2021,21 @@ def main():
         return 0
 
     s = load_state()
+
+    # Initialize Live Binance Client if requested via CLI flags or Cloud Environment Variables
+    is_live = getattr(a, "live", False) or os.getenv("BINANCE_MODE", "").lower() == "live"
+    is_testnet = getattr(a, "testnet", False) or os.getenv("BINANCE_MODE", "").lower() == "testnet" or os.getenv("BINANCE_TESTNET", "").lower() in ("true", "1", "yes") or os.getenv("TESTNET", "").lower() in ("true", "1", "yes")
+
+    if is_live or is_testnet:
+        if binance_client:
+            client = binance_client.BinanceClient(testnet=not is_live)
+            if client.is_configured():
+                s["live_broker"] = client
+                log("Connected to Binance %s Live Execution Broker!" % ("TESTNET" if not is_live else "PRODUCTION"))
+            else:
+                log("Warning: API credentials missing in trader/credentials.json or env vars. Running in PAPER mode.")
+        else:
+            log("Warning: binance_client module unavailable. Running in PAPER mode.")
 
     if a.cmd == "status":
         print_status(s)

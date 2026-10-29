@@ -39,7 +39,8 @@ class Repo(unittest.TestCase):
         self.assertEqual(found, sorted(SKILLS))
 
     def test_root_matches_the_reel(self):
-        root = sorted(d for d in os.listdir(ROOT) if not d.startswith(".git") and d != "_site")
+        cloud_files = {".dockerignore", ".env.example", "Dockerfile", "docker-compose.yml", "render.yaml", "requirements.txt"}
+        root = sorted(d for d in os.listdir(ROOT) if not d.startswith(".git") and d != "_site" and d not in cloud_files)
         expected = sorted([".agents", ".claude-plugin", ".devcontainer", "LICENSE", "README.md", "app", "tests", "trader"] + SKILLS)
         self.assertEqual(root, expected)
 

@@ -19,3 +19,14 @@ Thumbs.db
 # Cache files
 .cache/
 trader/.cache/
+
+# Credentials and Environment files
+.env
+*.env
+.env.*
+!.env.example
+credentials.json
+trader/credentials.json
+docker-compose.override.yml
+data/
+trader-data/

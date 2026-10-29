@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: crypto-trader-bot
+    env: docker
+    plan: starter
+    region: oregon
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: BINANCE_API_KEY
+        sync: false
+      - key: BINANCE_API_SECRET
+        sync: false
+      - key: BINANCE_TESTNET
+        value: "true"
+      - key: BINANCE_MODE
+        value: "testnet"
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: DISCORD_WEBHOOK_URL
+        sync: false
+      - key: DASHBOARD_USERNAME
+        value: admin
+      - key: DASHBOARD_PASSWORD
+        sync: false
+    disk:
+      name: trader-data
+      mountPath: /app/trader/live
+      sizeGB: 1
