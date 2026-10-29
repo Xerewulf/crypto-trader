@@ -1852,8 +1852,11 @@ async def async_ws_ticks(s):
 async def async_scanner_loop(s):
     while True:
         try:
-            manage_positions(s)
-            scan_signals(s)
+            await asyncio.to_thread(manage_positions, s)
+            await asyncio.to_thread(scan_signals, s)
+            ms = now_ms()
+            s["heartbeat"] = iso(ms)
+            s["heartbeat_ms"] = ms
             save(s)
             write_dashboard(s)
         except Exception as e:
@@ -1864,7 +1867,38 @@ async def async_scanner_loop(s):
 async def async_local_server(s, port=8765):
     try:
         from aiohttp import web
-        app = web.Application()
+        import base64
+
+        host = os.getenv("HOST", "0.0.0.0")
+        port = int(os.getenv("PORT", port))
+        auth_user = os.getenv("DASHBOARD_USERNAME")
+        auth_pass = os.getenv("DASHBOARD_PASSWORD")
+
+        middlewares = []
+        if auth_user and auth_pass:
+            @web.middleware
+            async def basic_auth_middleware(request, handler):
+                # Public healthcheck endpoint does not require authentication
+                if request.path == "/health":
+                    return await handler(request)
+
+                auth_header = request.headers.get("Authorization")
+                if auth_header and auth_header.startswith("Basic "):
+                    try:
+                        decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+                        user, pwd = decoded.split(":", 1)
+                        if user == auth_user and pwd == auth_pass:
+                            return await handler(request)
+                    except Exception:
+                        pass
+                return web.Response(
+                    status=401,
+                    headers={"WWW-Authenticate": 'Basic realm="Crypto Trader 24/7 Web Dashboard"'},
+                    text="Unauthorized: Please provide valid credentials."
+                )
+            middlewares.append(basic_auth_middleware)
+
+        app = web.Application(middlewares=middlewares)
 
         async def handle_index(req):
             if os.path.exists(DASH):
@@ -1879,17 +1913,31 @@ async def async_local_server(s, port=8765):
         async def handle_news(req):
             return web.json_response(s.get("news", {}), headers={"Access-Control-Allow-Origin": "*"})
 
+        async def handle_health(req):
+            _, _, eq = equity_parts(s)
+            return web.json_response({
+                "status": "healthy",
+                "uptime_ms": now_ms() - s.get("init_ms", now_ms()),
+                "equity": round(eq, 2),
+                "open_positions": len(s.get("positions", {})),
+                "heartbeat_age_s": round((now_ms() - (s.get("heartbeat_ms") or now_ms())) / 1000.0, 1),
+                "broker": "live" if s.get("live_broker") else "paper"
+            }, headers={"Access-Control-Allow-Origin": "*"})
+
         app.router.add_get("/", handle_index)
         app.router.add_get("/api/state", handle_state)
         app.router.add_get("/api/news", handle_news)
+        app.router.add_get("/health", handle_health)
 
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, "127.0.0.1", port)
+        site = web.TCPSite(runner, host, port)
         await site.start()
-        log("Ultra-low latency HTTP server live: http://localhost:%d" % port)
+        log("Ultra-low latency HTTP server live: http://%s:%d (auth=%s)" % (
+            host, port, "enabled" if (auth_user and auth_pass) else "disabled"
+        ))
     except Exception as e:
-        log("Local HTTP server failed to bind (port %d in use?): %s" % (port, e))
+        log("Local HTTP server failed to bind on %s:%d: %s" % (host if 'host' in locals() else '0.0.0.0', port, e))
 
 
 async def async_news_task(s):
@@ -1911,10 +1959,14 @@ async def async_news_task(s):
 
 async def async_run(s):
     log("Starting Binance Millisecond Execution Engine (Async WebSockets + Live Dashboard + Omni-News Monitor)...")
-    cycle(s)
+    ms = now_ms()
+    s["heartbeat"] = iso(ms)
+    s["heartbeat_ms"] = ms
+    save(s)
+    await async_local_server(s, 8765)
+    await asyncio.to_thread(cycle, s)
     save(s)
     write_dashboard(s)
-    await async_local_server(s, 8765)
     await asyncio.gather(
         async_ws_ticks(s),
         async_scanner_loop(s),
@@ -1942,14 +1994,16 @@ def main():
 
     s = load_state()
 
-    # Initialize Live Binance Client if requested
-    if getattr(a, "live", False) or getattr(a, "testnet", False):
+    # Initialize Live Binance Client if requested via CLI flags or Cloud Environment Variables
+    is_live = getattr(a, "live", False) or os.getenv("BINANCE_MODE", "").lower() == "live"
+    is_testnet = getattr(a, "testnet", False) or os.getenv("BINANCE_MODE", "").lower() == "testnet" or os.getenv("BINANCE_TESTNET", "").lower() in ("true", "1", "yes") or os.getenv("TESTNET", "").lower() in ("true", "1", "yes")
+
+    if is_live or is_testnet:
         if binance_client:
-            is_testnet = not getattr(a, "live", False)
-            client = binance_client.BinanceClient(testnet=is_testnet)
+            client = binance_client.BinanceClient(testnet=not is_live)
             if client.is_configured():
                 s["live_broker"] = client
-                log("Connected to Binance %s Live Execution Broker!" % ("TESTNET" if is_testnet else "PRODUCTION"))
+                log("Connected to Binance %s Live Execution Broker!" % ("TESTNET" if not is_live else "PRODUCTION"))
             else:
                 log("Warning: API credentials missing in trader/credentials.json or env vars. Running in PAPER mode.")
         else:

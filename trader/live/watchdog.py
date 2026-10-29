@@ -32,7 +32,8 @@ try:
 except ImportError:
     notifier = None
 
-MAX_STALE_SECONDS = 90
+MAX_STALE_SECONDS = 150
+BOOT_GRACE_SECONDS = 180
 POLL_INTERVAL_SECONDS = 15
 
 
@@ -76,9 +77,8 @@ def run_watchdog(extra_flags=None):
             notifier.notify_system_alert("WARNING", f"Watchdog restarting trading engine (Attempt #{restart_count})")
 
         proc = subprocess.Popen(cmd)
-        time.sleep(10)  # Allow initial startup cycle
-
-        last_valid_heartbeat = now_ms()
+        process_start_time = now_ms()
+        time.sleep(10)  # Allow initial process startup
 
         try:
             while True:
@@ -94,11 +94,10 @@ def run_watchdog(extra_flags=None):
                 hb_ms = get_heartbeat_ms()
                 current_time = now_ms()
 
-                if hb_ms:
+                # Ignore leftover heartbeats written prior to this process launch
+                if hb_ms and hb_ms >= process_start_time:
                     age_seconds = (current_time - hb_ms) / 1000.0
-                    if age_seconds <= MAX_STALE_SECONDS:
-                        last_valid_heartbeat = current_time
-                    else:
+                    if age_seconds > MAX_STALE_SECONDS:
                         print(f"[{iso()}] [!] HEARTBEAT STALE ({age_seconds:.1f}s > {MAX_STALE_SECONDS}s). Process appears hung!", flush=True)
                         if notifier:
                             notifier.notify_system_alert("CRITICAL", f"Engine frozen. Heartbeat stale by {age_seconds:.0f}s. Force restarting...")
@@ -109,11 +108,17 @@ def run_watchdog(extra_flags=None):
                             proc.kill()
                         break
                 else:
-                    # If state file not updated yet
-                    stale_since_boot = (current_time - last_valid_heartbeat) / 1000.0
-                    if stale_since_boot > MAX_STALE_SECONDS * 1.5:
-                        print(f"[{iso()}] [!] No heartbeat produced after {stale_since_boot:.1f}s. Killing process...", flush=True)
+                    # Child is still completing its initial boot cycle and data download
+                    stale_since_boot = (current_time - process_start_time) / 1000.0
+                    if stale_since_boot > BOOT_GRACE_SECONDS:
+                        print(f"[{iso()}] [!] No initial heartbeat produced after {stale_since_boot:.1f}s (boot grace {BOOT_GRACE_SECONDS}s). Force restarting...", flush=True)
+                        if notifier:
+                            notifier.notify_system_alert("CRITICAL", f"Engine boot timeout ({stale_since_boot:.0f}s). Force restarting...")
                         proc.terminate()
+                        try:
+                            proc.wait(timeout=5)
+                        except subprocess.TimeoutExpired:
+                            proc.kill()
                         break
 
                 time.sleep(POLL_INTERVAL_SECONDS)
@@ -139,9 +144,12 @@ def main():
     args = parser.parse_args()
 
     flags = []
-    if args.live:
+    mode = os.getenv("BINANCE_MODE", "").lower()
+    testnet_env = os.getenv("BINANCE_TESTNET", "").lower() in ("true", "1", "yes") or os.getenv("TESTNET", "").lower() in ("true", "1", "yes")
+
+    if args.live or mode == "live":
         flags.append("--live")
-    elif args.testnet:
+    elif args.testnet or mode == "testnet" or testnet_env:
         flags.append("--testnet")
 
     run_watchdog(flags)
