@@ -1,23 +1,23 @@
 {
-  "as_of": "2026-10-29T00:25:38Z",
+  "as_of": "2026-10-29T06:08:47Z",
   "tokens": [
     {
       "symbol": "BTCUSDT",
-      "as_of": "2026-10-29T00:25:33Z",
-      "price": 81210.69,
-      "change_24h_pct": 0.546,
+      "as_of": "2026-10-29T06:08:40Z",
+      "price": 80258.0,
+      "change_24h_pct": -0.838,
       "high_24h": 81823.0,
-      "low_24h": 80397.14,
-      "volume_24h_usd": 1056713139.92,
-      "composite_score": 11.9,
+      "low_24h": 79710.0,
+      "volume_24h_usd": 1136567445.23,
+      "composite_score": -5.8,
       "verdict": "NEUTRAL / RANGE-BOUND (Mixed Signals - Wait for Breakout)",
       "pillar_scores": {
         "technicals_mtf": {
-          "score": 9.0,
+          "score": -19.3,
           "max": 25.0
         },
         "spot_orderflow_depth": {
-          "score": 8.6,
+          "score": 17.2,
           "max": 25.0
         },
         "futures_leverage": {
@@ -29,7 +29,7 @@
           "max": 10.0
         },
         "news_catalysts": {
-          "score": -3.7,
+          "score": -1.7,
           "max": 15.0
         },
         "institutional_bonus": {
@@ -41,162 +41,164 @@
         "4h": {
           "horizon": "4h",
           "hours": 4,
-          "prob_up_pct": 49.9,
-          "prob_down_pct": 50.1,
-          "direction": "SIDEWAYS / COIN FLIP",
-          "expected_price": 81207.95080487,
-          "expected_move_pct": -0.0,
-          "range_50_low": 80907.04300907,
-          "range_50_high": 81506.42100941,
-          "range_80_low": 80624.75816123,
-          "range_80_high": 81825.27044971
+          "prob_up_pct": 46.9,
+          "prob_down_pct": 53.1,
+          "direction": "DOWN",
+          "expected_price": 80223.56612201,
+          "expected_move_pct": -0.04,
+          "range_50_low": 79922.08489088,
+          "range_50_high": 80534.20751159,
+          "range_80_low": 79629.25039026,
+          "range_80_high": 80830.03480063
         },
         "24h": {
           "horizon": "24h",
           "hours": 24,
-          "prob_up_pct": 50.6,
-          "prob_down_pct": 49.4,
-          "direction": "SIDEWAYS / COIN FLIP",
-          "expected_price": 81225.15050714,
-          "expected_move_pct": 0.02,
-          "range_50_low": 80468.01143593,
-          "range_50_high": 82027.6976452,
-          "range_80_low": 79806.98394777,
-          "range_80_high": 82750.12327879
+          "prob_up_pct": 46.3,
+          "prob_down_pct": 53.7,
+          "direction": "DOWN",
+          "expected_price": 80144.83120532,
+          "expected_move_pct": -0.14,
+          "range_50_low": 79357.50280143,
+          "range_50_high": 80906.36853923,
+          "range_80_low": 78603.24799534,
+          "range_80_high": 81682.3417587
         },
         "7d": {
           "horizon": "7d",
           "hours": 168,
-          "prob_up_pct": 49.0,
-          "prob_down_pct": 51.0,
-          "direction": "SIDEWAYS / COIN FLIP",
-          "expected_price": 81120.13508194,
-          "expected_move_pct": -0.11,
-          "range_50_low": 78989.66795533,
-          "range_50_high": 83323.06485585,
-          "range_80_low": 77105.10897895,
-          "range_80_high": 85134.45157476
+          "prob_up_pct": 42.4,
+          "prob_down_pct": 57.6,
+          "direction": "DOWN",
+          "expected_price": 79630.194953,
+          "expected_move_pct": -0.78,
+          "range_50_low": 77563.72797465,
+          "range_50_high": 81780.11779422,
+          "range_80_low": 75711.09662552,
+          "range_80_high": 83649.78791128
         }
       },
       "volume_profile": {
-        "poc": 80187.578125,
-        "vah": 81412.23975,
-        "val": 79478.5635,
-        "vwap_24h": 81082.60880301,
-        "vwap_7d": 80974.31333811,
-        "vwap_24h_dist_pct": 0.16,
+        "poc": 80172.488625,
+        "vah": 81372.5195,
+        "val": 79551.783,
+        "vwap_24h": 80900.33630606,
+        "vwap_7d": 80795.0963898,
+        "vwap_24h_dist_pct": -0.79,
         "state": "UPPER VALUE AREA (Between POC & VAH: Bullish Rotational)"
       },
       "institutional": {
-        "squeeze_4h": "TIGHT COMPRESSION (BB Width 2.91% - Breakout Imminent)",
-        "bb_width_4h_pct": 2.91,
-        "signals": [],
+        "squeeze_4h": "TTM SQUEEZE ACTIVE (Bollinger inside Keltner - Explosive Breakout Coiling)",
+        "bb_width_4h_pct": 2.89,
+        "signals": [
+          "4H VOLATILITY SQUEEZE ACTIVE (BB Width 2.89% inside Keltner): Coiling for large directional expansion"
+        ],
         "bonus_score": 0.0
       },
       "vpin": null,
       "wyckoff_microstructure": null,
       "deribit_options": {
-        "max_pain_strike": 81000.0,
-        "current_spot": 81210.69,
-        "dist_to_max_pain_pct": -0.26,
-        "put_call_ratio": 1.028,
-        "total_call_oi": 5413.06,
-        "total_put_oi": 5565.22,
-        "total_open_interest_usd": 891553680.5,
+        "max_pain_strike": 80000.0,
+        "current_spot": 80258.0,
+        "dist_to_max_pain_pct": -0.32,
+        "put_call_ratio": 1.026,
+        "total_call_oi": 5392.25,
+        "total_put_oi": 5533.24,
+        "total_open_interest_usd": 876858087.43,
         "pinning_hazard": "HIGH_PINNING_MAGNET (Spot trapped near Max Pain)",
         "payout_ladder": [
           {
+            "strike": 72000.0,
+            "total_payout": 39554915.9
+          },
+          {
             "strike": 73000.0,
-            "total_payout": 39683249.79
+            "total_payout": 34460725.83
           },
           {
             "strike": 74000.0,
-            "total_payout": 34563408.93
+            "total_payout": 29851603.45
           },
           {
             "strike": 75000.0,
-            "total_payout": 29935055.32
+            "total_payout": 25778391.48
           },
           {
             "strike": 76000.0,
-            "total_payout": 25849069.95
+            "total_payout": 22297261.74
           },
           {
             "strike": 77000.0,
-            "total_payout": 22361601.25
+            "total_payout": 19470273.75
           },
           {
             "strike": 78000.0,
-            "total_payout": 19534610.4
+            "total_payout": 17365991.83
           },
           {
             "strike": 79000.0,
-            "total_payout": 17436473.06
+            "total_payout": 16060166.94
           },
           {
             "strike": 80000.0,
-            "total_payout": 16142643.49
+            "total_payout": 15636489.9
           },
           {
             "strike": 81000.0,
-            "total_payout": 15736387.27
+            "total_payout": 16187423.67
           },
           {
             "strike": 82000.0,
-            "total_payout": 16309590.06
+            "total_payout": 17574194.17
           },
           {
             "strike": 83000.0,
-            "total_payout": 17715465.39
-          },
-          {
-            "strike": 84000.0,
-            "total_payout": 19875898.06
+            "total_payout": 19717504.17
           }
         ],
         "currency": "BTC",
-        "hours_to_monthly_expiry": 31.6,
-        "dealer_net_gamma_usd_m": -0.41,
+        "hours_to_monthly_expiry": 25.9,
+        "dealer_net_gamma_usd_m": -0.38,
         "dealer_gamma_regime": "SHORT_GAMMA (Volatility Amplified)"
       },
       "smart_order_routing": {
         "symbol": "BTCUSDT",
-        "side": "BUY",
+        "side": "SELL",
         "notional_usd": 2000.0,
         "primary_venue": "OKX",
         "recommended_action": "EXECUTE_SINGLE_VENUE",
         "primary_quote": {
           "venue": "OKX",
           "symbol": "BTCUSDT",
-          "side": "BUY",
+          "side": "SELL",
           "notional_usd": 2000.0,
-          "best_price": 81177.9,
-          "vwap_price": 81187.6413,
+          "best_price": 80217.3,
+          "vwap_price": 80207.6739,
           "fee_rate_pct": 0.05,
           "fee_usd": 1.0,
           "slippage_bps": 1.2,
           "slippage_usd": 0.24,
-          "funding_rate_8h_pct": 0.01,
-          "carry_24h_usd": 0.6,
-          "total_cost_usd": 1.84,
-          "net_cost_pct": 0.092
+          "funding_rate_8h_pct": 0.0037,
+          "carry_24h_usd": -0.22,
+          "total_cost_usd": 1.02,
+          "net_cost_pct": 0.051
         },
         "venue_comparison": [
           {
             "venue": "OKX",
             "symbol": "BTCUSDT",
-            "side": "BUY",
+            "side": "SELL",
             "notional_usd": 2000.0,
-            "best_price": 81177.9,
-            "vwap_price": 81187.6413,
+            "best_price": 80217.3,
+            "vwap_price": 80207.6739,
             "fee_rate_pct": 0.05,
             "fee_usd": 1.0,
             "slippage_bps": 1.2,
             "slippage_usd": 0.24,
-            "funding_rate_8h_pct": 0.01,
-            "carry_24h_usd": 0.6,
-            "total_cost_usd": 1.84,
-            "net_cost_pct": 0.092
+            "funding_rate_8h_pct": 0.0037,
+            "carry_24h_usd": -0.22,
+            "total_cost_usd": 1.02,
+            "net_cost_pct": 0.051
           }
         ],
         "cost_savings_usd": 0.0,
@@ -207,47 +209,95 @@
             "notional_usd": 2000.0
           }
         ],
-        "rationale": "Venue OKX provides lowest all-in cost ($1.84 / 0.092%) saving $0.00 vs worst venue."
+        "rationale": "Venue OKX provides lowest all-in cost ($1.02 / 0.051%) saving $0.00 vs worst venue."
       },
       "whale_blocks": {
         "symbol": "BTCUSDT",
-        "total_blocks": 1,
-        "whale_buy_vol_usd": 0,
-        "whale_sell_vol_usd": 125042.09,
-        "whale_net_flow_usd": -125042.09,
-        "whale_taker_buy_pct": 0.0,
-        "whale_buy_count": 0,
+        "total_blocks": 5,
+        "whale_buy_vol_usd": 2246493.46,
+        "whale_sell_vol_usd": 179637.46,
+        "whale_net_flow_usd": 2066856.0,
+        "whale_taker_buy_pct": 92.6,
+        "whale_buy_count": 4,
         "whale_sell_count": 1,
         "largest_print": {
-          "trade_id": 4100597145,
+          "trade_id": 100005,
           "symbol": "BTCUSDT",
-          "timestamp": 1793233515.088,
-          "price": 81201.96,
-          "qty": 1.5399,
-          "notional_usd": 125042.09,
-          "side": "SELL",
-          "tier": "WHALE",
-          "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
-          "is_taker_buy": false
+          "timestamp": 1793254105.187,
+          "price": 68500.0,
+          "qty": 16.7883,
+          "notional_usd": 1149998.55,
+          "side": "BUY",
+          "tier": "TITAN",
+          "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+          "is_taker_buy": true
         },
         "tier_breakdown": {
-          "TITAN": 0,
-          "MEGALODON": 0,
-          "SHARK": 0,
-          "WHALE": 1
+          "TITAN": 1,
+          "MEGALODON": 1,
+          "SHARK": 1,
+          "WHALE": 2
         },
         "recent_blocks": [
           {
-            "trade_id": 4100597145,
+            "trade_id": 100005,
             "symbol": "BTCUSDT",
-            "timestamp": 1793233515.088,
-            "price": 81201.96,
-            "qty": 1.5399,
-            "notional_usd": 125042.09,
+            "timestamp": 1793254105.187,
+            "price": 68500.0,
+            "qty": 16.7883,
+            "notional_usd": 1149998.55,
+            "side": "BUY",
+            "tier": "TITAN",
+            "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100004,
+            "symbol": "BTCUSDT",
+            "timestamp": 1793254060.187,
+            "price": 68637.0,
+            "qty": 9.4891,
+            "notional_usd": 651303.36,
+            "side": "BUY",
+            "tier": "MEGALODON",
+            "tier_badge": "\ud83d\udc19 MEGALODON ($500K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100003,
+            "symbol": "BTCUSDT",
+            "timestamp": 1793254000.187,
+            "price": 68363.0,
+            "qty": 2.6277,
+            "notional_usd": 179637.46,
             "side": "SELL",
             "tier": "WHALE",
             "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
             "is_taker_buy": false
+          },
+          {
+            "trade_id": 100002,
+            "symbol": "BTCUSDT",
+            "timestamp": 1793253940.187,
+            "price": 68568.5,
+            "qty": 4.6715,
+            "notional_usd": 320317.75,
+            "side": "BUY",
+            "tier": "SHARK",
+            "tier_badge": "\ud83d\udc33 SHARK ($250K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100001,
+            "symbol": "BTCUSDT",
+            "timestamp": 1793253880.187,
+            "price": 68431.5,
+            "qty": 1.8248,
+            "notional_usd": 124873.8,
+            "side": "BUY",
+            "tier": "WHALE",
+            "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
+            "is_taker_buy": true
           }
         ]
       },
@@ -255,76 +305,76 @@
         "fear_greed_value": 51,
         "fear_greed_label": "Neutral",
         "fear_greed_prev": 51,
-        "total_mcap_usd": 2741882606841.35,
-        "mcap_24h_change_pct": -2.13,
-        "btc_dominance_pct": 59.48,
-        "eth_dominance_pct": 10.48,
+        "total_mcap_usd": 2705585851172.46,
+        "mcap_24h_change_pct": -3.46,
+        "btc_dominance_pct": 59.45,
+        "eth_dominance_pct": 10.46,
         "market_season": "BTC DOMINANCE SEASON (BTC.D 59.5% > 56% - Select High-Alpha Alts Only)",
-        "stablecoin_total_usd": 290129192261.18,
-        "usdt_supply_usd": 181149819606.35,
-        "usdc_supply_usd": 71375054277.34,
-        "stablecoin_24h_flow_usd": -936770992.82,
-        "stablecoin_7d_flow_usd": -2685894481.43,
+        "stablecoin_total_usd": 289741462430.66,
+        "usdt_supply_usd": 180804060306.8,
+        "usdc_supply_usd": 71370996156.09,
+        "stablecoin_24h_flow_usd": -1203642932.69,
+        "stablecoin_7d_flow_usd": -3333310503.8,
         "chain_name": "Bitcoin",
-        "chain_tvl_usd": 6270243868.56,
+        "chain_tvl_usd": 6171592998.01,
         "chain_tvl_rank": 2,
         "macro_bonus": -2.0,
         "macro_notes": [
-          "DefiLlama Stablecoin Contraction: -$2.69B redeemed over 7d (tightening on-chain liquidity)"
+          "DefiLlama Stablecoin Contraction: -$3.33B redeemed over 7d (tightening on-chain liquidity)"
         ]
       },
       "kelly_trade_plan": {
-        "bias": "LONG",
-        "spot_entry": 81210.69,
-        "limit_pullback_entry": 81082.60880301,
-        "stop_loss": 80328.66492,
-        "tp1": 82533.72762,
-        "tp2": 83415.7527,
-        "reward_risk_ratio": 1.5,
-        "win_prob_pct": 50.6,
-        "expected_value_R": 0.27,
-        "quarter_kelly_risk_pct": 5.0,
+        "bias": "WAIT / RANGE SCALP",
+        "spot_entry": 80258.0,
+        "limit_pullback_entry": 79551.783,
+        "stop_loss": 79000.66242857,
+        "tp1": 80172.488625,
+        "tp2": 81372.5195,
+        "reward_risk_ratio": 3.3,
+        "win_prob_pct": 53.7,
+        "expected_value_R": 1.31,
+        "quarter_kelly_risk_pct": 2.5,
         "adaptive_kelly": {
-          "base_full_kelly": 0.1767,
-          "base_quarter_kelly_pct": 4.42,
+          "base_full_kelly": 0.3967,
+          "base_quarter_kelly_pct": 5.0,
           "adaptive_kelly_pct": 5.0,
-          "composite_multiplier": 1.265,
-          "squeeze_multiplier": 1.15,
+          "composite_multiplier": 1.155,
+          "squeeze_multiplier": 1.05,
           "atr_multiplier": 1.1,
           "vpin_multiplier": 1.0,
-          "atr_ratio": 0.65,
-          "volatility_regime": "TIGHT_COMPRESSION_COILING",
+          "atr_ratio": 0.59,
+          "volatility_regime": "TTM_SQUEEZE_RANGE",
           "calculated_risk_usd": 150.0,
-          "sizing_rationale": "Squeeze multiplier 1.15x (TIGHT_COMPRESSION_COILING); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+          "sizing_rationale": "Squeeze multiplier 1.05x (TTM_SQUEEZE_RANGE); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
         },
         "margin_plan": {
           "ok": true,
           "venue": "margin",
           "side": "long",
           "risk_usd": 50.0,
-          "qty": 0.056687730466802165,
-          "notional_usd": 4603.65,
+          "qty": 0.03976656797357418,
+          "notional_usd": 3191.59,
           "leverage": 2.0,
           "leverage_cap_tier": 5.0,
-          "leverage_cap_liq_safe": 9.0,
-          "margin_usd": 2301.82,
-          "margin_pct_equity": 46.0,
-          "liquidation_price": 44665.8795,
+          "leverage_cap_liq_safe": 8.4,
+          "margin_usd": 1595.79,
+          "margin_pct_equity": 31.9,
+          "liquidation_price": 44141.9,
           "liq_distance_pct": 45.0,
-          "stop_distance_pct": 1.09,
-          "liq_to_stop_ratio": 41.4,
-          "bankruptcy_price": 40605.345,
-          "maintenance_margin_usd": 18.41,
+          "stop_distance_pct": 1.57,
+          "liq_to_stop_ratio": 28.7,
+          "bankruptcy_price": 40129.0,
+          "maintenance_margin_usd": 12.77,
           "mmr": 0.004,
           "cum_deduction": 0.0,
-          "liquidation_clearance_fee_usd": 46.04,
-          "carry_adjusted_liq_price": 44687.3191,
-          "margin_call_price": 52786.9485,
+          "liquidation_clearance_fee_usd": 31.92,
+          "carry_adjusted_liq_price": 44163.0881,
+          "margin_call_price": 52167.7,
           "adl_risk_quantile": 1,
-          "carry_usd": 1.1,
-          "carry_r": 0.022,
-          "fees_usd": 3.68,
-          "fees_r": 0.074,
+          "carry_usd": 0.77,
+          "carry_r": 0.015,
+          "fees_usd": 2.55,
+          "fees_r": 0.051,
           "hold_hours": 24.0,
           "event_level": "CLEAR",
           "event_reason": "No scheduled macro or expiry event inside the risk window",
@@ -334,109 +384,109 @@
       "timeframes": {
         "15m": {
           "timeframe": "15m",
-          "price": 81210.69,
-          "ema20": 81241.57279071,
-          "ema50": 81122.15663193,
-          "sma200": 81039.5149,
-          "rsi14": 50.4,
-          "macd_hist": -19.52123891,
+          "price": 80258.0,
+          "ema20": 80291.84768291,
+          "ema50": 80570.42991301,
+          "sma200": 80880.1169,
+          "rsi14": 45.7,
+          "macd_hist": 70.85120287,
           "macd_rising": false,
-          "atr14": 135.80714286,
-          "atr_pct": 0.17,
-          "high_20": 81788.56,
-          "low_20": 80986.29,
-          "regime": "NEUTRAL",
-          "score": 5.0
+          "atr14": 163.14857143,
+          "atr_pct": 0.2,
+          "high_20": 81008.15,
+          "low_20": 79710.0,
+          "regime": "BEARISH",
+          "score": -21.5
         },
         "1h": {
           "timeframe": "1h",
-          "price": 81210.69,
-          "ema20": 81078.46366572,
-          "ema50": 80824.92102845,
-          "sma200": 81308.9365,
-          "rsi14": 54.9,
-          "macd_hist": 8.99417494,
-          "macd_rising": false,
-          "atr14": 423.66571429,
-          "atr_pct": 0.52,
-          "high_20": 81823.0,
-          "low_20": 80397.14,
-          "regime": "BULLISH",
-          "score": 16.5
+          "price": 80258.0,
+          "ema20": 80639.65424117,
+          "ema50": 80668.37650239,
+          "sma200": 81226.91635,
+          "rsi14": 41.9,
+          "macd_hist": -117.83156572,
+          "macd_rising": true,
+          "atr14": 459.26714286,
+          "atr_pct": 0.57,
+          "high_20": 81788.56,
+          "low_20": 79710.0,
+          "regime": "BEARISH",
+          "score": -24.5
         },
         "4h": {
           "timeframe": "4h",
-          "price": 81210.69,
-          "ema20": 80851.30313211,
-          "ema50": 81113.61332209,
-          "sma200": 82902.2172,
-          "rsi14": 54.0,
-          "macd_hist": 155.70968263,
+          "price": 80258.0,
+          "ema20": 80678.24061083,
+          "ema50": 81028.86260179,
+          "sma200": 82876.24385,
+          "rsi14": 45.7,
+          "macd_hist": 25.270549,
           "macd_rising": false,
-          "atr14": 648.87357143,
-          "atr_pct": 0.8,
+          "atr14": 772.73928571,
+          "atr_pct": 0.96,
           "high_20": 81823.0,
           "low_20": 79368.67,
-          "regime": "NEUTRAL",
-          "score": 6.5
+          "regime": "BEARISH",
+          "score": -21.5
         },
         "1d": {
           "timeframe": "1d",
-          "price": 81210.69,
-          "ema20": 81740.03774863,
-          "ema50": 80839.8142783,
-          "sma200": 73163.1743,
-          "rsi14": 47.0,
-          "macd_hist": -172.55165311,
-          "macd_rising": true,
-          "atr14": 1690.28785714,
-          "atr_pct": 2.08,
+          "price": 80258.0,
+          "ema20": 81649.30536767,
+          "ema50": 80802.45388614,
+          "sma200": 73158.41085,
+          "rsi14": 43.1,
+          "macd_hist": -233.35010325,
+          "macd_rising": false,
+          "atr14": 1795.43071429,
+          "atr_pct": 2.24,
           "high_20": 84898.0,
           "low_20": 79220.74,
-          "regime": "NEUTRAL",
-          "score": 5.5
+          "regime": "BEARISH",
+          "score": -9.0
         }
       },
       "spot_flow": {
         "1h": {
-          "total_usd": 22165051.0346589,
-          "buy_usd": 9146379.2802648,
-          "sell_usd": 13018671.754394101,
-          "cvd_usd": -3872292.4741293006,
-          "buy_pct": 41.26
+          "total_usd": 25355125.0038319,
+          "buy_usd": 12169757.022985602,
+          "sell_usd": 13185367.980846299,
+          "cvd_usd": -1015610.9578606971,
+          "buy_pct": 48.0
         },
         "4h": {
-          "total_usd": 117394394.9483626,
-          "buy_usd": 63735278.1960119,
-          "sell_usd": 53659116.7523507,
-          "cvd_usd": 10076161.443661198,
-          "buy_pct": 54.29
+          "total_usd": 111041152.425078,
+          "buy_usd": 59477143.1220751,
+          "sell_usd": 51564009.3030029,
+          "cvd_usd": 7913133.819072202,
+          "buy_pct": 53.56
         },
         "24h": {
-          "total_usd": 1031854005.232787,
-          "buy_usd": 608361728.2582656,
-          "sell_usd": 423492276.9745214,
-          "cvd_usd": 184869451.28374422,
-          "buy_pct": 58.96
+          "total_usd": 1122559760.599496,
+          "buy_usd": 637202066.1883491,
+          "sell_usd": 485357694.41114676,
+          "cvd_usd": 151844371.77720237,
+          "buy_pct": 56.76
         },
         "7d": {
-          "total_usd": 7072850781.034712,
-          "buy_usd": 3748558693.6744447,
-          "sell_usd": 3324292087.360267,
-          "cvd_usd": 424266606.3141775,
-          "buy_pct": 53.0
+          "total_usd": 7014158374.609997,
+          "buy_usd": 3739615362.2765675,
+          "sell_usd": 3274543012.3334293,
+          "cvd_usd": 465072349.9431381,
+          "buy_pct": 53.32
         },
         "orderbook": {
-          "bid_1pct_usd": 19593387.95,
-          "ask_1pct_usd": 25098009.95,
-          "imbalance_1pct": -12.3,
-          "bid_2pct_usd": 19643685.18,
-          "ask_2pct_usd": 26221274.54,
-          "imbalance_2pct": -14.3,
-          "support_wall_price": 80651.27,
-          "support_wall_usd": 1001175.02,
-          "resistance_wall_price": 82000.0,
-          "resistance_wall_usd": 3043136.44
+          "bid_1pct_usd": 25132369.93,
+          "ask_1pct_usd": 18076060.15,
+          "imbalance_1pct": 16.3,
+          "bid_2pct_usd": 25421607.47,
+          "ask_2pct_usd": 19478108.72,
+          "imbalance_2pct": 13.2,
+          "support_wall_price": 79500.0,
+          "support_wall_usd": 4311680.12,
+          "resistance_wall_price": 80784.43,
+          "resistance_wall_usd": 1001368.25
         }
       },
       "futures": {
@@ -444,9 +494,9 @@
         "note": "No perpetual futures contract on Binance for BTCUSDT"
       },
       "relative_strength": {
-        "return_7d_pct": -0.25,
-        "btc_24h_pct": -0.16,
-        "btc_7d_pct": -0.25,
+        "return_7d_pct": -1.42,
+        "btc_24h_pct": -1.33,
+        "btc_7d_pct": -1.42,
         "alpha_24h_pct": 0.0,
         "alpha_7d_pct": 0.0
       },
@@ -472,18 +522,13 @@
         "bullish_catalysts": [
           [
             "Yahoo/BTC-USD",
-            "bullish/breakout",
-            "Bitcoin\u2019s \u2018Uptober\u2019 rally just fell apart as demand weakens"
+            "burn/buyback",
+            "Treasury Buyback Fills $6 Billion Again: So Why Is Bitcoin Below $80K?"
           ],
           [
             "X/Social/BTC",
             "bullish/breakout",
             "Bitcoin eyes $84,000 as whale withdrawals surge and institutional activity grows - Yahoo Finance"
-          ],
-          [
-            "Banks & Fed Flow",
-            "whale/CT accumulation",
-            "Fed leaves rates unchanged as it awaits 'accumulation of more information' - Reuters"
           ]
         ],
         "bearish_catalysts": [
@@ -493,31 +538,21 @@
             "Could Bitcoin Price Crash Like Silver? Warning Signs Are Showing"
           ],
           [
-            "Yahoo/BTC-USD",
-            "Fed/macro headwind",
-            "Bitcoin Shrugs Off a Hawkish Fed as Volatility Bets Barely Budge"
-          ],
-          [
             "X/Social/BTC",
             "outflow/liquidation",
             "Crypto traders seek shelter in bitcoin as altcoins slide and ETF flows wobble - CoinDesk"
           ],
           [
-            "X/Twitter Whale Flow",
+            "X/Social/BTC",
             "outflow/liquidation",
-            "Options Whale Alert: $658K Bearish Short Call Opened on $SMCI - Moomoo"
-          ],
-          [
-            "X/Twitter Whale Flow",
-            "outflow/liquidation",
-            "Options Whale Alert: $265K Bearish Long Put Opened on $ARKK - \u5bcc\u9014\u725b\u725b"
+            "Investor Who Called the AI Boom Predicts a Bitcoin Crash - Yahoo Finance"
           ]
         ],
         "event_risk_headlines": [
           [
-            "Yahoo/BTC-USD",
+            "Fed Press",
             "scheduled event risk",
-            "Crypto Market Today, Oct. 28: Bitcoin and Altcoins Gain as Fed Decision Clears the Way for Big Tech Earnings"
+            "Federal Reserve issues FOMC statement"
           ],
           [
             "Banks & Fed Flow",
@@ -528,14 +563,23 @@
             "Banks & Fed Flow",
             "scheduled event risk",
             "FOMC votes to leave interest rates unchanged - CNBC"
-          ],
-          [
-            "X/Twitter Whale Flow",
-            "scheduled event risk",
-            "Bitcoin Profit-Taking Cools but Analysts Remain Cautious Ahead of FOMC - TradingView"
           ]
         ],
         "fed_and_central_banks": [
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve issues FOMC statement",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve Board announces termination of enforcement actions with Gardner Bancshares, Inc. and Small Business Bank",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
           {
             "source": "Fed Speeches",
             "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
@@ -554,16 +598,14 @@
         "bank_and_institutional": [
           {
             "source": "Banks & Fed Flow",
-            "title": "Fed leaves rates unchanged as it awaits 'accumulation of more information' - Reuters",
-            "sentiment": "BULLISH",
-            "tags": [
-              "whale/CT accumulation"
-            ],
+            "title": "Federal Reserve makes interest rate decision ahead of midterms - Fox Business",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve makes interest rate decision ahead of midterms - Fox Business",
+            "title": "ECB Set to Hold Rates to Assess France and Energy Risks - Bloomberg.com",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -577,14 +619,14 @@
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve holds interest rates steady as midterm elections loom - ABC News - Breaking News, Latest News and Videos",
+            "title": "WATCH: Warsh holds briefing after Fed leaves key interest rate unchanged - PBS",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve keeps rates unchanged despite elevated inflation - AP News",
+            "title": "Federal Reserve holds interest rates steady - The Washington Post",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -625,7 +667,7 @@
         "twitter_x_flow": [
           {
             "source": "X/Social/BTC",
-            "title": "Current price of Bitcoin for October 28, 2026 - Fortune",
+            "title": "Do Bitcoin ETF Flows Really Predict Future Bitcoin Price Moves? This New Research Has Important Implications for BTC Investors. - Yahoo Finance",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": true
@@ -639,16 +681,18 @@
           },
           {
             "source": "X/Social/BTC",
-            "title": "Do Bitcoin ETF Flows Really Predict Future Bitcoin Price Moves? This New Research Has Important Implications for BTC Investors. - Yahoo Finance",
+            "title": "Current price of Bitcoin for Oct. 26, 2026 - Fortune",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": true
           },
           {
             "source": "X/Social/BTC",
-            "title": "Current price of Bitcoin for Oct. 26, 2026 - Fortune",
-            "sentiment": "NEUTRAL",
-            "tags": [],
+            "title": "Investor Who Called the AI Boom Predicts a Bitcoin Crash - Yahoo Finance",
+            "sentiment": "BEARISH",
+            "tags": [
+              "outflow/liquidation"
+            ],
             "is_token": true
           },
           {
@@ -676,7 +720,7 @@
           },
           {
             "source": "Forbes/Bloomberg/Fortune",
-            "title": "Unusual Oil Trades Detected on Buzzy Offshore Crypto Exchange - Bloomberg",
+            "title": "Bitcoin Traders Brace for Swings on $11 Billion Options Expiry - Bloomberg.com",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -706,11 +750,9 @@
           },
           {
             "source": "CryptoSlate",
-            "title": "Bithumb hack leaks staff data and regulators launch raid",
-            "sentiment": "BEARISH",
-            "tags": [
-              "hack/exploit"
-            ],
+            "title": "Ripple\u2019s RLUSD stablecoin gains Coinbase access as Moody\u2019s awards investment-grade rating",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           }
         ],
@@ -718,50 +760,50 @@
           "is_trending": false,
           "trending_rank": null,
           "top_trending_coins": [
-            "PEPE",
             "PEARL",
-            "QTC",
-            "PONS",
             "PENGU",
-            "KNTQ",
-            "HYPE",
-            "XRP",
-            "ZEC",
-            "SOL"
+            "ENA",
+            "AXIS",
+            "QTC",
+            "STONK",
+            "AERO",
+            "PONS",
+            "JUP",
+            "CC"
           ]
         },
-        "score": -3.7
+        "score": -1.7
       },
       "levels": {
         "supports": [
-          80651.27,
-          80397.14,
-          80187.578125
+          80172.488625,
+          79710.0,
+          79551.783
         ],
         "resistances": [
-          81412.23975,
-          81823.0,
-          82000.0
+          80784.43,
+          81372.5195,
+          81823.0
         ]
       }
     },
     {
       "symbol": "ETHUSDT",
-      "as_of": "2026-10-29T00:25:35Z",
-      "price": 2357.21,
-      "change_24h_pct": 0.434,
+      "as_of": "2026-10-29T06:08:42Z",
+      "price": 2322.46,
+      "change_24h_pct": -1.312,
       "high_24h": 2391.55,
-      "low_24h": 2323.2,
-      "volume_24h_usd": 417364836.22,
-      "composite_score": 14.4,
-      "verdict": "BULLISH (Leans Upward)",
+      "low_24h": 2293.44,
+      "volume_24h_usd": 488510190.62,
+      "composite_score": -19.0,
+      "verdict": "BEARISH (Leans Downward)",
       "pillar_scores": {
         "technicals_mtf": {
-          "score": -0.7,
+          "score": -21.1,
           "max": 25.0
         },
         "spot_orderflow_depth": {
-          "score": 16.3,
+          "score": 7.6,
           "max": 25.0
         },
         "futures_leverage": {
@@ -769,11 +811,11 @@
           "max": 25.0
         },
         "relative_strength_btc": {
-          "score": 0.2,
+          "score": -0.7,
           "max": 10.0
         },
         "news_catalysts": {
-          "score": 0.6,
+          "score": -2.8,
           "max": 15.0
         },
         "institutional_bonus": {
@@ -785,164 +827,164 @@
         "4h": {
           "horizon": "4h",
           "hours": 4,
-          "prob_up_pct": 51.1,
-          "prob_down_pct": 48.9,
-          "direction": "SIDEWAYS / COIN FLIP",
-          "expected_price": 2357.6156822,
-          "expected_move_pct": 0.02,
-          "range_50_low": 2344.98694177,
-          "range_50_high": 2369.53412574,
-          "range_80_low": 2332.43327871,
-          "range_80_high": 2381.29798178
+          "prob_up_pct": 44.6,
+          "prob_down_pct": 55.4,
+          "direction": "DOWN",
+          "expected_price": 2320.08256718,
+          "expected_move_pct": -0.1,
+          "range_50_low": 2307.57662239,
+          "range_50_high": 2332.31653284,
+          "range_80_low": 2294.7123399,
+          "range_80_high": 2344.37846263
         },
         "24h": {
           "horizon": "24h",
           "hours": 24,
-          "prob_up_pct": 51.6,
-          "prob_down_pct": 48.4,
-          "direction": "SIDEWAYS / COIN FLIP",
-          "expected_price": 2358.96599773,
-          "expected_move_pct": 0.07,
-          "range_50_low": 2327.0979567,
-          "range_50_high": 2391.08138118,
-          "range_80_low": 2299.16926604,
-          "range_80_high": 2421.3248097
+          "prob_up_pct": 42.3,
+          "prob_down_pct": 57.7,
+          "direction": "DOWN",
+          "expected_price": 2313.12896782,
+          "expected_move_pct": -0.4,
+          "range_50_low": 2280.76016433,
+          "range_50_high": 2346.83060919,
+          "range_80_low": 2250.62662288,
+          "range_80_high": 2376.51731639
         },
         "7d": {
           "horizon": "7d",
           "hours": 168,
-          "prob_up_pct": 48.8,
-          "prob_down_pct": 51.2,
-          "direction": "SIDEWAYS / COIN FLIP",
-          "expected_price": 2353.67308174,
-          "expected_move_pct": -0.15,
-          "range_50_low": 2264.23278502,
-          "range_50_high": 2446.75670039,
-          "range_80_low": 2186.53287105,
-          "range_80_high": 2526.34905676
+          "prob_up_pct": 37.8,
+          "prob_down_pct": 62.2,
+          "direction": "DOWN",
+          "expected_price": 2282.29356644,
+          "expected_move_pct": -1.73,
+          "range_50_low": 2197.38832655,
+          "range_50_high": 2372.45642235,
+          "range_80_low": 2122.44799968,
+          "range_80_high": 2454.31695796
         }
       },
       "volume_profile": {
-        "poc": 2309.51725,
-        "vah": 2390.689,
-        "val": 2307.0575,
-        "vwap_24h": 2356.36623955,
-        "vwap_7d": 2362.35702805,
-        "vwap_24h_dist_pct": 0.04,
-        "state": "UPPER VALUE AREA (Between POC & VAH: Bullish Rotational)"
+        "poc": 2345.49825,
+        "vah": 2416.1775,
+        "val": 2328.306,
+        "vwap_24h": 2345.74990181,
+        "vwap_7d": 2357.45394879,
+        "vwap_24h_dist_pct": -0.99,
+        "state": "BELOW VALUE AREA (< VAL: Discount / Breakdown Zone)"
       },
       "institutional": {
         "squeeze_4h": "TTM SQUEEZE ACTIVE (Bollinger inside Keltner - Explosive Breakout Coiling)",
-        "bb_width_4h_pct": 3.38,
+        "bb_width_4h_pct": 3.48,
         "signals": [
-          "4H VOLATILITY SQUEEZE ACTIVE (BB Width 3.38% inside Keltner): Coiling for large directional expansion"
+          "4H VOLATILITY SQUEEZE ACTIVE (BB Width 3.48% inside Keltner): Coiling for large directional expansion"
         ],
         "bonus_score": 0.0
       },
       "vpin": null,
       "wyckoff_microstructure": null,
       "deribit_options": {
-        "max_pain_strike": 2350.0,
-        "current_spot": 2357.21,
-        "dist_to_max_pain_pct": -0.31,
-        "put_call_ratio": 1.037,
-        "total_call_oi": 25328.1,
-        "total_put_oi": 26263.22,
-        "total_open_interest_usd": 121611577.11,
+        "max_pain_strike": 2300.0,
+        "current_spot": 2322.46,
+        "dist_to_max_pain_pct": -0.97,
+        "put_call_ratio": 1.015,
+        "total_call_oi": 25247.39,
+        "total_put_oi": 25618.48,
+        "total_open_interest_usd": 118133962.17,
         "pinning_hazard": "HIGH_PINNING_MAGNET (Spot trapped near Max Pain)",
         "payout_ladder": [
           {
+            "strike": 1900.0,
+            "total_payout": 9480999.03
+          },
+          {
             "strike": 1950.0,
-            "total_payout": 9511729.19
+            "total_payout": 8270079.89
           },
           {
             "strike": 2000.0,
-            "total_payout": 8273890.3
+            "total_payout": 7142323.38
           },
           {
             "strike": 2050.0,
-            "total_payout": 7125303.77
+            "total_payout": 6113360.12
           },
           {
             "strike": 2100.0,
-            "total_payout": 6082475.95
+            "total_payout": 5201758.52
           },
           {
             "strike": 2150.0,
-            "total_payout": 5164965.83
+            "total_payout": 4429577.02
           },
           {
             "strike": 2200.0,
-            "total_payout": 4395949.68
+            "total_payout": 3823019.93
           },
           {
             "strike": 2250.0,
-            "total_payout": 3802889.96
+            "total_payout": 3413216.79
           },
           {
             "strike": 2300.0,
-            "total_payout": 3418328.07
+            "total_payout": 3237147.96
           },
           {
             "strike": 2350.0,
-            "total_payout": 3280823.59
+            "total_payout": 3338744.37
           },
           {
             "strike": 2400.0,
-            "total_payout": 3436067.31
+            "total_payout": 3685904.65
           },
           {
             "strike": 2450.0,
-            "total_payout": 3824815.09
-          },
-          {
-            "strike": 2500.0,
-            "total_payout": 4410622.67
+            "total_payout": 4239776.78
           }
         ],
         "currency": "ETH",
-        "hours_to_monthly_expiry": 31.6,
-        "dealer_net_gamma_usd_m": -0.54,
+        "hours_to_monthly_expiry": 25.9,
+        "dealer_net_gamma_usd_m": -0.22,
         "dealer_gamma_regime": "SHORT_GAMMA (Volatility Amplified)"
       },
       "smart_order_routing": {
         "symbol": "ETHUSDT",
-        "side": "BUY",
+        "side": "SELL",
         "notional_usd": 2000.0,
         "primary_venue": "OKX",
         "recommended_action": "EXECUTE_SINGLE_VENUE",
         "primary_quote": {
           "venue": "OKX",
           "symbol": "ETHUSDT",
-          "side": "BUY",
+          "side": "SELL",
           "notional_usd": 2000.0,
-          "best_price": 2356.28,
-          "vwap_price": 2356.5628,
+          "best_price": 2321.44,
+          "vwap_price": 2321.1614,
           "fee_rate_pct": 0.05,
           "fee_usd": 1.0,
           "slippage_bps": 1.2,
           "slippage_usd": 0.24,
-          "funding_rate_8h_pct": 0.0096,
-          "carry_24h_usd": 0.58,
-          "total_cost_usd": 1.82,
-          "net_cost_pct": 0.091
+          "funding_rate_8h_pct": 0.0043,
+          "carry_24h_usd": -0.26,
+          "total_cost_usd": 0.98,
+          "net_cost_pct": 0.049
         },
         "venue_comparison": [
           {
             "venue": "OKX",
             "symbol": "ETHUSDT",
-            "side": "BUY",
+            "side": "SELL",
             "notional_usd": 2000.0,
-            "best_price": 2356.28,
-            "vwap_price": 2356.5628,
+            "best_price": 2321.44,
+            "vwap_price": 2321.1614,
             "fee_rate_pct": 0.05,
             "fee_usd": 1.0,
             "slippage_bps": 1.2,
             "slippage_usd": 0.24,
-            "funding_rate_8h_pct": 0.0096,
-            "carry_24h_usd": 0.58,
-            "total_cost_usd": 1.82,
-            "net_cost_pct": 0.091
+            "funding_rate_8h_pct": 0.0043,
+            "carry_24h_usd": -0.26,
+            "total_cost_usd": 0.98,
+            "net_cost_pct": 0.049
           }
         ],
         "cost_savings_usd": 0.0,
@@ -953,7 +995,7 @@
             "notional_usd": 2000.0
           }
         ],
-        "rationale": "Venue OKX provides lowest all-in cost ($1.82 / 0.091%) saving $0.00 vs worst venue."
+        "rationale": "Venue OKX provides lowest all-in cost ($0.98 / 0.049%) saving $0.00 vs worst venue."
       },
       "whale_blocks": {
         "symbol": "ETHUSDT",
@@ -967,7 +1009,7 @@
         "largest_print": {
           "trade_id": 100005,
           "symbol": "ETHUSDT",
-          "timestamp": 1793233520.511,
+          "timestamp": 1793254107.692,
           "price": 2650.0,
           "qty": 433.9623,
           "notional_usd": 1150000.09,
@@ -986,7 +1028,7 @@
           {
             "trade_id": 100005,
             "symbol": "ETHUSDT",
-            "timestamp": 1793233520.511,
+            "timestamp": 1793254107.692,
             "price": 2650.0,
             "qty": 433.9623,
             "notional_usd": 1150000.09,
@@ -998,7 +1040,7 @@
           {
             "trade_id": 100004,
             "symbol": "ETHUSDT",
-            "timestamp": 1793233475.511,
+            "timestamp": 1793254062.692,
             "price": 2655.3,
             "qty": 245.283,
             "notional_usd": 651299.95,
@@ -1010,7 +1052,7 @@
           {
             "trade_id": 100003,
             "symbol": "ETHUSDT",
-            "timestamp": 1793233415.511,
+            "timestamp": 1793254002.692,
             "price": 2644.7,
             "qty": 67.9245,
             "notional_usd": 179639.93,
@@ -1022,7 +1064,7 @@
           {
             "trade_id": 100002,
             "symbol": "ETHUSDT",
-            "timestamp": 1793233355.511,
+            "timestamp": 1793253942.692,
             "price": 2652.65,
             "qty": 120.7547,
             "notional_usd": 320319.95,
@@ -1034,7 +1076,7 @@
           {
             "trade_id": 100001,
             "symbol": "ETHUSDT",
-            "timestamp": 1793233295.511,
+            "timestamp": 1793253882.692,
             "price": 2647.35,
             "qty": 47.1698,
             "notional_usd": 124874.97,
@@ -1049,44 +1091,44 @@
         "fear_greed_value": 51,
         "fear_greed_label": "Neutral",
         "fear_greed_prev": 51,
-        "total_mcap_usd": 2741882606841.35,
-        "mcap_24h_change_pct": -2.13,
-        "btc_dominance_pct": 59.48,
-        "eth_dominance_pct": 10.48,
+        "total_mcap_usd": 2705585851172.46,
+        "mcap_24h_change_pct": -3.46,
+        "btc_dominance_pct": 59.45,
+        "eth_dominance_pct": 10.46,
         "market_season": "BTC DOMINANCE SEASON (BTC.D 59.5% > 56% - Select High-Alpha Alts Only)",
-        "stablecoin_total_usd": 290129192261.18,
-        "usdt_supply_usd": 181149819606.35,
-        "usdc_supply_usd": 71375054277.34,
-        "stablecoin_24h_flow_usd": -936770992.82,
-        "stablecoin_7d_flow_usd": -2685894481.43,
+        "stablecoin_total_usd": 289741462430.66,
+        "usdt_supply_usd": 180804060306.8,
+        "usdc_supply_usd": 71370996156.09,
+        "stablecoin_24h_flow_usd": -1203642932.69,
+        "stablecoin_7d_flow_usd": -3333310503.8,
         "chain_name": "Ethereum",
-        "chain_tvl_usd": 46454151202.71,
+        "chain_tvl_usd": 45831694725.85,
         "chain_tvl_rank": 1,
         "macro_bonus": -2.0,
         "macro_notes": [
-          "DefiLlama Stablecoin Contraction: -$2.69B redeemed over 7d (tightening on-chain liquidity)"
+          "DefiLlama Stablecoin Contraction: -$3.33B redeemed over 7d (tightening on-chain liquidity)"
         ]
       },
       "kelly_trade_plan": {
-        "bias": "LONG",
-        "spot_entry": 2357.21,
-        "limit_pullback_entry": 2356.36623955,
-        "stop_loss": 2280.84,
-        "tp1": 2471.765,
-        "tp2": 2548.135,
+        "bias": "SHORT / HEDGE",
+        "spot_entry": 2322.46,
+        "limit_pullback_entry": 2345.74990181,
+        "stop_loss": 2359.4,
+        "tp1": 2267.05,
+        "tp2": 2230.11,
         "reward_risk_ratio": 1.5,
-        "win_prob_pct": 51.6,
-        "expected_value_R": 0.29,
+        "win_prob_pct": 57.7,
+        "expected_value_R": 0.44,
         "quarter_kelly_risk_pct": 5.0,
         "adaptive_kelly": {
-          "base_full_kelly": 0.1933,
-          "base_quarter_kelly_pct": 4.83,
+          "base_full_kelly": 0.295,
+          "base_quarter_kelly_pct": 5.0,
           "adaptive_kelly_pct": 5.0,
           "composite_multiplier": 1.32,
           "squeeze_multiplier": 1.2,
           "atr_multiplier": 1.1,
           "vpin_multiplier": 1.0,
-          "atr_ratio": 0.65,
+          "atr_ratio": 0.59,
           "volatility_regime": "TTM_SQUEEZE_COILING (Directional Breakout Fuel)",
           "calculated_risk_usd": 150.0,
           "sizing_rationale": "Squeeze multiplier 1.20x (TTM_SQUEEZE_COILING (Directional Breakout Fuel)); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
@@ -1094,31 +1136,31 @@
         "margin_plan": {
           "ok": true,
           "venue": "margin",
-          "side": "long",
+          "side": "short",
           "risk_usd": 50.0,
-          "qty": 0.654707345816421,
-          "notional_usd": 1543.28,
-          "leverage": 1.0,
+          "qty": 1.35354629128316,
+          "notional_usd": 3143.56,
+          "leverage": 2.0,
           "leverage_cap_tier": 4.0,
-          "leverage_cap_liq_safe": 6.7,
-          "margin_usd": 1543.28,
-          "margin_pct_equity": 30.9,
-          "liquidation_price": 0.0,
-          "liq_distance_pct": 100.0,
-          "stop_distance_pct": 3.24,
-          "liq_to_stop_ratio": 30.9,
-          "bankruptcy_price": 0.0,
-          "maintenance_margin_usd": 7.72,
+          "leverage_cap_liq_safe": 7.4,
+          "margin_usd": 1571.78,
+          "margin_pct_equity": 31.4,
+          "liquidation_price": 3166.990909090909,
+          "liq_distance_pct": 36.36,
+          "stop_distance_pct": 1.59,
+          "liq_to_stop_ratio": 22.9,
+          "bankruptcy_price": 3483.69,
+          "maintenance_margin_usd": 15.72,
           "mmr": 0.005,
           "cum_deduction": 0.0,
-          "liquidation_clearance_fee_usd": 15.43,
-          "carry_adjusted_liq_price": 0.0,
-          "margin_call_price": 0.0,
+          "liquidation_clearance_fee_usd": 31.44,
+          "carry_adjusted_liq_price": 3165.9775,
+          "margin_call_price": 2679.7615,
           "adl_risk_quantile": 1,
-          "carry_usd": 0.0,
-          "carry_r": 0.0,
-          "fees_usd": 1.23,
-          "fees_r": 0.025,
+          "carry_usd": 1.51,
+          "carry_r": 0.03,
+          "fees_usd": 2.51,
+          "fees_r": 0.05,
           "hold_hours": 24.0,
           "event_level": "CLEAR",
           "event_reason": "No scheduled macro or expiry event inside the risk window",
@@ -1128,63 +1170,63 @@
       "timeframes": {
         "15m": {
           "timeframe": "15m",
-          "price": 2357.21,
-          "ema20": 2358.22124704,
-          "ema50": 2354.76239339,
-          "sma200": 2353.9287,
-          "rsi14": 50.3,
-          "macd_hist": -0.94368854,
+          "price": 2322.46,
+          "ema20": 2324.18466899,
+          "ema50": 2334.29708951,
+          "sma200": 2346.4085,
+          "rsi14": 45.9,
+          "macd_hist": 2.76659258,
           "macd_rising": false,
-          "atr14": 6.03142857,
-          "atr_pct": 0.26,
-          "high_20": 2391.55,
-          "low_20": 2348.25,
-          "regime": "NEUTRAL",
-          "score": 5.0
+          "atr14": 7.52642857,
+          "atr_pct": 0.32,
+          "high_20": 2349.37,
+          "low_20": 2293.44,
+          "regime": "BEARISH",
+          "score": -21.5
         },
         "1h": {
           "timeframe": "1h",
-          "price": 2357.21,
-          "ema20": 2353.97994836,
-          "ema50": 2347.13967916,
-          "sma200": 2377.0444,
-          "rsi14": 53.4,
-          "macd_hist": 0.299025,
-          "macd_rising": false,
-          "atr14": 17.88142857,
-          "atr_pct": 0.76,
+          "price": 2322.46,
+          "ema20": 2337.52297176,
+          "ema50": 2340.71089471,
+          "sma200": 2373.09715,
+          "rsi14": 40.8,
+          "macd_hist": -4.08712651,
+          "macd_rising": true,
+          "atr14": 19.25142857,
+          "atr_pct": 0.83,
           "high_20": 2391.55,
-          "low_20": 2323.2,
-          "regime": "BULLISH",
-          "score": 16.5
+          "low_20": 2293.44,
+          "regime": "BEARISH",
+          "score": -24.5
         },
         "4h": {
           "timeframe": "4h",
-          "price": 2357.21,
-          "ema20": 2349.7906379,
-          "ema50": 2369.27472059,
-          "sma200": 2522.525,
-          "rsi14": 51.5,
-          "macd_hist": 5.56704392,
+          "price": 2322.46,
+          "ema20": 2343.03615535,
+          "ema50": 2365.61324012,
+          "sma200": 2520.43835,
+          "rsi14": 43.9,
+          "macd_hist": 0.92805085,
           "macd_rising": false,
-          "atr14": 27.40857143,
-          "atr_pct": 1.16,
+          "atr14": 32.36071429,
+          "atr_pct": 1.39,
           "high_20": 2391.55,
           "low_20": 2293.09,
-          "regime": "NEUTRAL",
-          "score": -7.5
+          "regime": "BEARISH",
+          "score": -21.5
         },
         "1d": {
           "timeframe": "1d",
-          "price": 2357.21,
-          "ema20": 2418.86732253,
-          "ema50": 2447.30739112,
-          "sma200": 2160.89395,
-          "rsi14": 38.6,
-          "macd_hist": -3.50240179,
+          "price": 2322.46,
+          "ema20": 2415.55779872,
+          "ema50": 2445.94464603,
+          "sma200": 2160.7202,
+          "rsi14": 35.5,
+          "macd_hist": -5.72006561,
           "macd_rising": true,
-          "atr14": 78.19857143,
-          "atr_pct": 3.32,
+          "atr14": 82.60928571,
+          "atr_pct": 3.56,
           "high_20": 2579.88,
           "low_20": 2282.46,
           "regime": "BEARISH",
@@ -1193,44 +1235,44 @@
       },
       "spot_flow": {
         "1h": {
-          "total_usd": 7447158.837498,
-          "buy_usd": 2338929.537248,
-          "sell_usd": 5108229.300249999,
-          "cvd_usd": -2769299.7630019994,
-          "buy_pct": 31.41
+          "total_usd": 9743178.7509,
+          "buy_usd": 5070242.290413001,
+          "sell_usd": 4672936.460487,
+          "cvd_usd": 397305.8299260009,
+          "buy_pct": 52.04
         },
         "4h": {
-          "total_usd": 48443832.62714499,
-          "buy_usd": 27624595.504944004,
-          "sell_usd": 20819237.12220099,
-          "cvd_usd": 6805358.382743016,
-          "buy_pct": 57.02
+          "total_usd": 42272032.781812005,
+          "buy_usd": 22772917.59145,
+          "sell_usd": 19499115.190362006,
+          "cvd_usd": 3273802.401087992,
+          "buy_pct": 53.87
         },
         "24h": {
-          "total_usd": 413710009.519986,
-          "buy_usd": 219347765.45794505,
-          "sell_usd": 194362244.06204093,
-          "cvd_usd": 24985521.395904124,
-          "buy_pct": 53.02
+          "total_usd": 482034494.47887594,
+          "buy_usd": 241163885.202648,
+          "sell_usd": 240870609.27622792,
+          "cvd_usd": 293275.9264200926,
+          "buy_pct": 50.03
         },
         "7d": {
-          "total_usd": 3281979736.1195607,
-          "buy_usd": 1683919705.8008327,
-          "sell_usd": 1598060030.318728,
-          "cvd_usd": 85859675.48210478,
-          "buy_pct": 51.31
+          "total_usd": 3344778581.324381,
+          "buy_usd": 1705924000.4735446,
+          "sell_usd": 1638854580.8508363,
+          "cvd_usd": 67069419.62270832,
+          "buy_pct": 51.0
         },
         "orderbook": {
-          "bid_1pct_usd": 10910951.43,
-          "ask_1pct_usd": 8558479.16,
-          "imbalance_1pct": 12.1,
-          "bid_2pct_usd": 13354211.21,
-          "ask_2pct_usd": 10516188.69,
-          "imbalance_2pct": 11.9,
+          "bid_1pct_usd": 8354492.96,
+          "ask_1pct_usd": 8653936.79,
+          "imbalance_1pct": -1.8,
+          "bid_2pct_usd": 15444094.36,
+          "ask_2pct_usd": 9974441.45,
+          "imbalance_2pct": 21.5,
           "support_wall_price": 2290.0,
-          "support_wall_usd": 4070973.99,
-          "resistance_wall_price": 2400.0,
-          "resistance_wall_usd": 775459.92
+          "support_wall_usd": 3813537.46,
+          "resistance_wall_price": 2350.0,
+          "resistance_wall_usd": 433965.34
         }
       },
       "futures": {
@@ -1238,11 +1280,11 @@
         "note": "No perpetual futures contract on Binance for ETHUSDT"
       },
       "relative_strength": {
-        "return_7d_pct": -1.34,
-        "btc_24h_pct": -0.16,
-        "btc_7d_pct": -0.25,
-        "alpha_24h_pct": 0.6,
-        "alpha_7d_pct": -1.08
+        "return_7d_pct": -2.79,
+        "btc_24h_pct": -1.33,
+        "btc_7d_pct": -1.42,
+        "alpha_24h_pct": 0.02,
+        "alpha_7d_pct": -1.37
       },
       "news": {
         "sources_checked": [
@@ -1265,19 +1307,9 @@
         "headlines_checked": 90,
         "bullish_catalysts": [
           [
-            "Yahoo/ETH-USD",
-            "bullish/breakout",
-            "Ethereum Price Prediction: ETH Needs to Drop to $1,970 Before Resuming Its Rally"
-          ],
-          [
             "Yahoo/BTC-USD",
-            "bullish/breakout",
-            "Bitcoin\u2019s \u2018Uptober\u2019 rally just fell apart as demand weakens"
-          ],
-          [
-            "Banks & Fed Flow",
-            "whale/CT accumulation",
-            "Fed leaves rates unchanged as it awaits 'accumulation of more information' - Reuters"
+            "burn/buyback",
+            "Treasury Buyback Fills $6 Billion Again: So Why Is Bitcoin Below $80K?"
           ]
         ],
         "bearish_catalysts": [
@@ -1290,11 +1322,6 @@
             "Yahoo/BTC-USD",
             "outflow/liquidation",
             "Could Bitcoin Price Crash Like Silver? Warning Signs Are Showing"
-          ],
-          [
-            "X/Twitter Whale Flow",
-            "outflow/liquidation",
-            "Options Whale Alert: $658K Bearish Short Call Opened on $SMCI - Moomoo"
           ]
         ],
         "event_risk_headlines": [
@@ -1304,17 +1331,31 @@
             "Crypto Market Today, Oct. 28: Bitcoin and Altcoins Gain as Fed Decision Clears the Way for Big Tech Earnings"
           ],
           [
-            "Banks & Fed Flow",
+            "X/Social/ETH",
             "scheduled event risk",
-            "FOMC holds rates steady - ABA Banking Journal"
+            "BTC, ETH price news: Bitcoin nears $81,000 ahead of Fed decision as ZEC jumps 8% - CoinDesk"
           ],
           [
-            "Banks & Fed Flow",
+            "Fed Press",
             "scheduled event risk",
-            "FOMC votes to leave interest rates unchanged - CNBC"
+            "Federal Reserve issues FOMC statement"
           ]
         ],
         "fed_and_central_banks": [
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve issues FOMC statement",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve Board announces termination of enforcement actions with Gardner Bancshares, Inc. and Small Business Bank",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
           {
             "source": "Fed Speeches",
             "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
@@ -1333,16 +1374,14 @@
         "bank_and_institutional": [
           {
             "source": "Banks & Fed Flow",
-            "title": "Fed leaves rates unchanged as it awaits 'accumulation of more information' - Reuters",
-            "sentiment": "BULLISH",
-            "tags": [
-              "whale/CT accumulation"
-            ],
+            "title": "Federal Reserve makes interest rate decision ahead of midterms - Fox Business",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve makes interest rate decision ahead of midterms - Fox Business",
+            "title": "ECB Set to Hold Rates to Assess France and Energy Risks - Bloomberg.com",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -1356,14 +1395,14 @@
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve holds interest rates steady as midterm elections loom - ABC News - Breaking News, Latest News and Videos",
+            "title": "WATCH: Warsh holds briefing after Fed leaves key interest rate unchanged - PBS",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve keeps rates unchanged despite elevated inflation - AP News",
+            "title": "Federal Reserve holds interest rates steady - The Washington Post",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -1432,7 +1471,7 @@
           },
           {
             "source": "X/Social/ETH",
-            "title": "ETH news: Ethereum\u2019s four-minute settlement plan could lower the cost of moving crypto - CoinDesk",
+            "title": "BTC, ETH price news: Bitcoin nears $81,000 ahead of Fed decision as ZEC jumps 8% - CoinDesk",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": true
@@ -1455,7 +1494,7 @@
           },
           {
             "source": "Forbes/Bloomberg/Fortune",
-            "title": "Unusual Oil Trades Detected on Buzzy Offshore Crypto Exchange - Bloomberg",
+            "title": "Bitcoin Traders Brace for Swings on $11 Billion Options Expiry - Bloomberg.com",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -1485,11 +1524,9 @@
           },
           {
             "source": "CryptoSlate",
-            "title": "Bithumb hack leaks staff data and regulators launch raid",
-            "sentiment": "BEARISH",
-            "tags": [
-              "hack/exploit"
-            ],
+            "title": "Ripple\u2019s RLUSD stablecoin gains Coinbase access as Moody\u2019s awards investment-grade rating",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           }
         ],
@@ -1497,50 +1534,50 @@
           "is_trending": false,
           "trending_rank": null,
           "top_trending_coins": [
-            "PEPE",
             "PEARL",
-            "QTC",
-            "PONS",
             "PENGU",
-            "KNTQ",
-            "HYPE",
-            "XRP",
-            "ZEC",
-            "SOL"
+            "ENA",
+            "AXIS",
+            "QTC",
+            "STONK",
+            "AERO",
+            "PONS",
+            "JUP",
+            "CC"
           ]
         },
-        "score": 0.6
+        "score": -2.8
       },
       "levels": {
         "supports": [
-          2323.2,
-          2309.51725,
-          2307.0575
+          2293.44,
+          2293.09,
+          2290.0
         ],
         "resistances": [
-          2390.689,
-          2391.55,
-          2400.0
+          2345.49825,
+          2350.0,
+          2391.55
         ]
       }
     },
     {
       "symbol": "SOLUSDT",
-      "as_of": "2026-10-29T00:25:37Z",
-      "price": 102.29,
-      "change_24h_pct": 0.977,
+      "as_of": "2026-10-29T06:08:45Z",
+      "price": 100.35,
+      "change_24h_pct": -1.598,
       "high_24h": 103.85,
-      "low_24h": 100.46,
-      "volume_24h_usd": 188657508.66,
-      "composite_score": 28.8,
-      "verdict": "BULLISH (Leans Upward)",
+      "low_24h": 99.26,
+      "volume_24h_usd": 212435977.85,
+      "composite_score": -13.9,
+      "verdict": "BEARISH (Leans Downward)",
       "pillar_scores": {
         "technicals_mtf": {
-          "score": -0.1,
+          "score": -21.1,
           "max": 25.0
         },
         "spot_orderflow_depth": {
-          "score": 18.8,
+          "score": 2.4,
           "max": 25.0
         },
         "futures_leverage": {
@@ -1548,11 +1585,11 @@
           "max": 25.0
         },
         "relative_strength_btc": {
-          "score": 0.8,
+          "score": -1.2,
           "max": 10.0
         },
         "news_catalysts": {
-          "score": 11.3,
+          "score": 8.0,
           "max": 15.0
         },
         "institutional_bonus": {
@@ -1564,57 +1601,57 @@
         "4h": {
           "horizon": "4h",
           "hours": 4,
-          "prob_up_pct": 52.6,
-          "prob_down_pct": 47.4,
-          "direction": "SIDEWAYS / COIN FLIP",
-          "expected_price": 102.35011441,
-          "expected_move_pct": 0.06,
-          "range_50_low": 101.78248095,
-          "range_50_high": 102.92188506,
-          "range_80_low": 101.23253651,
-          "range_80_high": 103.49880071
+          "prob_up_pct": 45.2,
+          "prob_down_pct": 54.8,
+          "direction": "DOWN",
+          "expected_price": 100.25787019,
+          "expected_move_pct": -0.09,
+          "range_50_low": 99.66025043,
+          "range_50_high": 100.81459869,
+          "range_80_low": 99.11260881,
+          "range_80_high": 101.38096067
         },
         "24h": {
           "horizon": "24h",
           "hours": 24,
-          "prob_up_pct": 55.2,
-          "prob_down_pct": 44.8,
-          "direction": "UP",
-          "expected_price": 102.57780981,
-          "expected_move_pct": 0.28,
-          "range_50_low": 101.11411633,
-          "range_50_high": 104.02172239,
-          "range_80_low": 99.78301944,
-          "range_80_high": 105.48040548
+          "prob_up_pct": 44.2,
+          "prob_down_pct": 55.8,
+          "direction": "DOWN",
+          "expected_price": 100.00219472,
+          "expected_move_pct": -0.35,
+          "range_50_low": 98.48194827,
+          "range_50_high": 101.53657217,
+          "range_80_low": 97.1087848,
+          "range_80_high": 102.93671179
         },
         "7d": {
           "horizon": "7d",
           "hours": 168,
-          "prob_up_pct": 52.4,
-          "prob_down_pct": 47.6,
-          "direction": "SIDEWAYS / COIN FLIP",
-          "expected_price": 102.71774626,
-          "expected_move_pct": 0.42,
-          "range_50_low": 98.6753782,
-          "range_50_high": 107.05557503,
-          "range_80_low": 95.204526,
-          "range_80_high": 110.84248501
+          "prob_up_pct": 39.2,
+          "prob_down_pct": 60.8,
+          "direction": "DOWN",
+          "expected_price": 98.67221385,
+          "expected_move_pct": -1.67,
+          "range_50_low": 94.62721093,
+          "range_50_high": 102.86017051,
+          "range_80_low": 91.28611424,
+          "range_80_high": 106.3822334
         }
       },
       "volume_profile": {
-        "poc": 104.469875,
-        "vah": 107.45,
-        "val": 101.04825,
-        "vwap_24h": 102.12914219,
-        "vwap_7d": 102.28265257,
-        "vwap_24h_dist_pct": 0.16,
+        "poc": 101.53375,
+        "vah": 102.949,
+        "val": 99.952,
+        "vwap_24h": 101.7091362,
+        "vwap_7d": 102.01558463,
+        "vwap_24h_dist_pct": -1.34,
         "state": "LOWER VALUE AREA (Between VAL & POC: Mean-Reverting toward POC)"
       },
       "institutional": {
         "squeeze_4h": "TTM SQUEEZE ACTIVE (Bollinger inside Keltner - Explosive Breakout Coiling)",
-        "bb_width_4h_pct": 3.55,
+        "bb_width_4h_pct": 3.8,
         "signals": [
-          "4H VOLATILITY SQUEEZE ACTIVE (BB Width 3.55% inside Keltner): Coiling for large directional expansion"
+          "4H VOLATILITY SQUEEZE ACTIVE (BB Width 3.80% inside Keltner): Coiling for large directional expansion"
         ],
         "bonus_score": 0.0
       },
@@ -1622,106 +1659,106 @@
       "wyckoff_microstructure": null,
       "deribit_options": {
         "max_pain_strike": 105.0,
-        "current_spot": 102.29,
-        "dist_to_max_pain_pct": 2.65,
-        "put_call_ratio": 0.857,
-        "total_call_oi": 5193.57,
-        "total_put_oi": 4451.81,
-        "total_open_interest_usd": 986626.1,
+        "current_spot": 100.35,
+        "dist_to_max_pain_pct": 4.63,
+        "put_call_ratio": 0.909,
+        "total_call_oi": 4771.92,
+        "total_put_oi": 4337.73,
+        "total_open_interest_usd": 914153.51,
         "pinning_hazard": "MODERATE_GRAVITATIONAL_PULL",
         "payout_ladder": [
           {
             "strike": 15.0,
-            "total_payout": 374080.32
+            "total_payout": 355467.9
           },
           {
             "strike": 30.0,
-            "total_payout": 307400.73
+            "total_payout": 290501.71
           },
           {
             "strike": 45.0,
-            "total_payout": 241036.53
+            "total_payout": 225865.55
           },
           {
             "strike": 60.0,
-            "total_payout": 175691.73
+            "total_payout": 162320.57
           },
           {
             "strike": 75.0,
-            "total_payout": 113641.75
+            "total_payout": 102383.27
           },
           {
             "strike": 90.0,
-            "total_payout": 62240.98
+            "total_payout": 54373.91
           },
           {
             "strike": 105.0,
-            "total_payout": 45259.62
+            "total_payout": 45801.28
           },
           {
             "strike": 120.0,
-            "total_payout": 93807.92
+            "total_payout": 93138.84
           },
           {
             "strike": 135.0,
-            "total_payout": 162630.79
+            "total_payout": 157386.84
           },
           {
             "strike": 150.0,
-            "total_payout": 237726.52
+            "total_payout": 226749.55
           },
           {
             "strike": 165.0,
-            "total_payout": 314763.05
+            "total_payout": 297659.22
           },
           {
             "strike": 180.0,
-            "total_payout": 392400.04
+            "total_payout": 369036.8
           }
         ],
         "currency": "SOL",
-        "hours_to_monthly_expiry": 31.6,
-        "dealer_net_gamma_usd_m": 2.07,
+        "hours_to_monthly_expiry": 25.9,
+        "dealer_net_gamma_usd_m": 1.32,
         "dealer_gamma_regime": "LONG_GAMMA (Volatility Suppressed)"
       },
       "smart_order_routing": {
         "symbol": "SOLUSDT",
-        "side": "BUY",
+        "side": "SELL",
         "notional_usd": 2000.0,
         "primary_venue": "OKX",
         "recommended_action": "EXECUTE_SINGLE_VENUE",
         "primary_quote": {
           "venue": "OKX",
           "symbol": "SOLUSDT",
-          "side": "BUY",
+          "side": "SELL",
           "notional_usd": 2000.0,
-          "best_price": 102.26,
-          "vwap_price": 102.2723,
+          "best_price": 100.29,
+          "vwap_price": 100.278,
           "fee_rate_pct": 0.05,
           "fee_usd": 1.0,
           "slippage_bps": 1.2,
           "slippage_usd": 0.24,
-          "funding_rate_8h_pct": 0.01,
-          "carry_24h_usd": 0.6,
-          "total_cost_usd": 1.84,
-          "net_cost_pct": 0.092
+          "funding_rate_8h_pct": 0.0028,
+          "carry_24h_usd": -0.17,
+          "total_cost_usd": 1.07,
+          "net_cost_pct": 0.053
         },
         "venue_comparison": [
           {
             "venue": "OKX",
             "symbol": "SOLUSDT",
-            "side": "BUY",
+            "side": "SELL",
             "notional_usd": 2000.0,
-            "best_price": 102.26,
-            "vwap_price": 102.2723,
+            "best_price": 100.29,
+            "vwap_price": 100.278,
             "fee_rate_pct": 0.05,
             "fee_usd": 1.0,
             "slippage_bps": 1.2,
             "slippage_usd": 0.24,
-            "funding_rate_8h_pct": 0.01,
-            "carry_24h_usd": 0.6,
-            "total_cost_usd": 1.84,
-            "net_cost_pct": 0.092
+            "funding_rate_8h_pct": 0.0028,
+            "carry_24h_usd": -0.17,
+            "total_cost_usd": 1.07,
+            "net_cost_pct": 0.053
           }
         ],
         "cost_savings_usd": 0.0,
@@ -1732,7 +1769,7 @@
             "notional_usd": 2000.0
           }
         ],
-        "rationale": "Venue OKX provides lowest all-in cost ($1.84 / 0.092%) saving $0.00 vs worst venue."
+        "rationale": "Venue OKX provides lowest all-in cost ($1.07 / 0.053%) saving $0.00 vs worst venue."
       },
       "whale_blocks": {
         "symbol": "SOLUSDT",
@@ -1746,7 +1783,7 @@
         "largest_print": {
           "trade_id": 100005,
           "symbol": "SOLUSDT",
-          "timestamp": 1793233522.226,
+          "timestamp": 1793254110.206,
           "price": 185.0,
           "qty": 6216.2162,
           "notional_usd": 1150000.0,
@@ -1765,7 +1802,7 @@
           {
             "trade_id": 100005,
             "symbol": "SOLUSDT",
-            "timestamp": 1793233522.226,
+            "timestamp": 1793254110.206,
             "price": 185.0,
             "qty": 6216.2162,
             "notional_usd": 1150000.0,
@@ -1777,7 +1814,7 @@
           {
             "trade_id": 100004,
             "symbol": "SOLUSDT",
-            "timestamp": 1793233477.226,
+            "timestamp": 1793254065.206,
             "price": 185.37,
             "qty": 3513.5135,
             "notional_usd": 651300.0,
@@ -1789,7 +1826,7 @@
           {
             "trade_id": 100003,
             "symbol": "SOLUSDT",
-            "timestamp": 1793233417.226,
+            "timestamp": 1793254005.206,
             "price": 184.63,
             "qty": 972.973,
             "notional_usd": 179640.0,
@@ -1801,7 +1838,7 @@
           {
             "trade_id": 100002,
             "symbol": "SOLUSDT",
-            "timestamp": 1793233357.226,
+            "timestamp": 1793253945.206,
             "price": 185.185,
             "qty": 1729.7297,
             "notional_usd": 320319.99,
@@ -1813,7 +1850,7 @@
           {
             "trade_id": 100001,
             "symbol": "SOLUSDT",
-            "timestamp": 1793233297.226,
+            "timestamp": 1793253885.206,
             "price": 184.815,
             "qty": 675.6757,
             "notional_usd": 124875.0,
@@ -1828,44 +1865,44 @@
         "fear_greed_value": 51,
         "fear_greed_label": "Neutral",
         "fear_greed_prev": 51,
-        "total_mcap_usd": 2741882606841.35,
-        "mcap_24h_change_pct": -2.13,
-        "btc_dominance_pct": 59.48,
-        "eth_dominance_pct": 10.48,
+        "total_mcap_usd": 2705585851172.46,
+        "mcap_24h_change_pct": -3.46,
+        "btc_dominance_pct": 59.45,
+        "eth_dominance_pct": 10.46,
         "market_season": "BTC DOMINANCE SEASON (BTC.D 59.5% > 56% - Select High-Alpha Alts Only)",
-        "stablecoin_total_usd": 290129192261.18,
-        "usdt_supply_usd": 181149819606.35,
-        "usdc_supply_usd": 71375054277.34,
-        "stablecoin_24h_flow_usd": -936770992.82,
-        "stablecoin_7d_flow_usd": -2685894481.43,
+        "stablecoin_total_usd": 289741462430.66,
+        "usdt_supply_usd": 180804060306.8,
+        "usdc_supply_usd": 71370996156.09,
+        "stablecoin_24h_flow_usd": -1203642932.69,
+        "stablecoin_7d_flow_usd": -3333310503.8,
         "chain_name": "Solana",
-        "chain_tvl_usd": 5757308136.26,
+        "chain_tvl_usd": 5667681923.91,
         "chain_tvl_rank": 4,
         "macro_bonus": -2.0,
         "macro_notes": [
-          "DefiLlama Stablecoin Contraction: -$2.69B redeemed over 7d (tightening on-chain liquidity)"
+          "DefiLlama Stablecoin Contraction: -$3.33B redeemed over 7d (tightening on-chain liquidity)"
         ]
       },
       "kelly_trade_plan": {
-        "bias": "LONG",
-        "spot_entry": 102.29,
-        "limit_pullback_entry": 102.12914219,
-        "stop_loss": 99.6,
-        "tp1": 107.45,
-        "tp2": 109.015,
-        "reward_risk_ratio": 1.92,
-        "win_prob_pct": 55.2,
-        "expected_value_R": 0.61,
+        "bias": "SHORT / HEDGE",
+        "spot_entry": 100.35,
+        "limit_pullback_entry": 101.7091362,
+        "stop_loss": 103.412,
+        "tp1": 95.757,
+        "tp2": 92.695,
+        "reward_risk_ratio": 1.5,
+        "win_prob_pct": 55.8,
+        "expected_value_R": 0.39,
         "quarter_kelly_risk_pct": 5.0,
         "adaptive_kelly": {
-          "base_full_kelly": 0.3187,
+          "base_full_kelly": 0.2633,
           "base_quarter_kelly_pct": 5.0,
           "adaptive_kelly_pct": 5.0,
           "composite_multiplier": 1.32,
           "squeeze_multiplier": 1.2,
           "atr_multiplier": 1.1,
           "vpin_multiplier": 1.0,
-          "atr_ratio": 0.67,
+          "atr_ratio": 0.62,
           "volatility_regime": "TTM_SQUEEZE_COILING (Directional Breakout Fuel)",
           "calculated_risk_usd": 150.0,
           "sizing_rationale": "Squeeze multiplier 1.20x (TTM_SQUEEZE_COILING (Directional Breakout Fuel)); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
@@ -1873,31 +1910,31 @@
         "margin_plan": {
           "ok": true,
           "venue": "margin",
-          "side": "long",
+          "side": "short",
           "risk_usd": 50.0,
-          "qty": 18.587360594795456,
-          "notional_usd": 1901.3,
+          "qty": 16.329196603527045,
+          "notional_usd": 1638.63,
           "leverage": 1.0,
           "leverage_cap_tier": 3.0,
-          "leverage_cap_liq_safe": 7.2,
-          "margin_usd": 1901.3,
-          "margin_pct_equity": 38.0,
-          "liquidation_price": 0.0,
-          "liq_distance_pct": 100.0,
-          "stop_distance_pct": 2.63,
-          "liq_to_stop_ratio": 38.0,
-          "bankruptcy_price": 0.0,
-          "maintenance_margin_usd": 19.01,
+          "leverage_cap_liq_safe": 6.0,
+          "margin_usd": 1638.63,
+          "margin_pct_equity": 32.8,
+          "liquidation_price": 182.45454545454544,
+          "liq_distance_pct": 81.82,
+          "stop_distance_pct": 3.05,
+          "liq_to_stop_ratio": 26.8,
+          "bankruptcy_price": 200.7,
+          "maintenance_margin_usd": 16.39,
           "mmr": 0.01,
           "cum_deduction": 0.0,
-          "liquidation_clearance_fee_usd": 28.52,
-          "carry_adjusted_liq_price": 0.0,
-          "margin_call_price": 0.0,
+          "liquidation_clearance_fee_usd": 24.58,
+          "carry_adjusted_liq_price": 182.4108,
+          "margin_call_price": 154.3846,
           "adl_risk_quantile": 1,
-          "carry_usd": 0.0,
-          "carry_r": 0.0,
-          "fees_usd": 1.52,
-          "fees_r": 0.03,
+          "carry_usd": 0.79,
+          "carry_r": 0.016,
+          "fees_usd": 1.31,
+          "fees_r": 0.026,
           "hold_hours": 24.0,
           "event_level": "CLEAR",
           "event_reason": "No scheduled macro or expiry event inside the risk window",
@@ -1907,63 +1944,63 @@
       "timeframes": {
         "15m": {
           "timeframe": "15m",
-          "price": 102.29,
-          "ema20": 102.35707988,
-          "ema50": 102.13280089,
-          "sma200": 101.9802,
-          "rsi14": 50.1,
-          "macd_hist": -0.05227242,
+          "price": 100.35,
+          "ema20": 100.44449381,
+          "ema50": 101.01642835,
+          "sma200": 101.6728,
+          "rsi14": 45.0,
+          "macd_hist": 0.13509732,
           "macd_rising": false,
-          "atr14": 0.29785714,
-          "atr_pct": 0.29,
-          "high_20": 103.85,
-          "low_20": 101.87,
-          "regime": "NEUTRAL",
-          "score": 5.0
+          "atr14": 0.33714286,
+          "atr_pct": 0.34,
+          "high_20": 101.74,
+          "low_20": 99.26,
+          "regime": "BEARISH",
+          "score": -21.5
         },
         "1h": {
           "timeframe": "1h",
-          "price": 102.29,
-          "ema20": 102.0726727,
-          "ema50": 101.68602236,
-          "sma200": 102.9832,
-          "rsi14": 54.3,
-          "macd_hist": 0.01994633,
-          "macd_rising": false,
-          "atr14": 0.86714286,
-          "atr_pct": 0.85,
+          "price": 100.35,
+          "ema20": 101.1619797,
+          "ema50": 101.33157294,
+          "sma200": 102.78705,
+          "rsi14": 41.1,
+          "macd_hist": -0.24026479,
+          "macd_rising": true,
+          "atr14": 0.94428571,
+          "atr_pct": 0.94,
           "high_20": 103.85,
-          "low_20": 100.46,
-          "regime": "BULLISH",
-          "score": 16.5
+          "low_20": 99.26,
+          "regime": "BEARISH",
+          "score": -24.5
         },
         "4h": {
           "timeframe": "4h",
-          "price": 102.29,
-          "ema20": 101.8231585,
-          "ema50": 102.66456192,
-          "sma200": 110.69425,
-          "rsi14": 52.0,
-          "macd_hist": 0.27945681,
+          "price": 100.35,
+          "ema20": 101.45882141,
+          "ema50": 102.47534505,
+          "sma200": 110.57225,
+          "rsi14": 44.1,
+          "macd_hist": 0.03020085,
           "macd_rising": false,
-          "atr14": 1.29928571,
-          "atr_pct": 1.27,
+          "atr14": 1.53214286,
+          "atr_pct": 1.53,
           "high_20": 103.85,
           "low_20": 99.16,
-          "regime": "NEUTRAL",
-          "score": -5.5
+          "regime": "BEARISH",
+          "score": -21.5
         },
         "1d": {
           "timeframe": "1d",
-          "price": 102.29,
-          "ema20": 105.02873789,
-          "ema50": 105.52664839,
-          "sma200": 88.7776,
-          "rsi14": 39.6,
-          "macd_hist": -0.20735162,
+          "price": 100.35,
+          "ema20": 104.84397599,
+          "ema50": 105.45056996,
+          "sma200": 88.7679,
+          "rsi14": 35.9,
+          "macd_hist": -0.33115789,
           "macd_rising": true,
-          "atr14": 3.45142857,
-          "atr_pct": 3.37,
+          "atr14": 3.66428571,
+          "atr_pct": 3.65,
           "high_20": 113.4,
           "low_20": 98.62,
           "regime": "BEARISH",
@@ -1972,44 +2009,44 @@
       },
       "spot_flow": {
         "1h": {
-          "total_usd": 3571550.7466,
-          "buy_usd": 2047520.9994100002,
-          "sell_usd": 1524029.74719,
-          "cvd_usd": 523491.25222000014,
-          "buy_pct": 57.33
+          "total_usd": 5516289.912040001,
+          "buy_usd": 1996331.90355,
+          "sell_usd": 3519958.008490001,
+          "cvd_usd": -1523626.104940001,
+          "buy_pct": 36.19
         },
         "4h": {
-          "total_usd": 17371972.38364,
-          "buy_usd": 10176505.41123,
-          "sell_usd": 7195466.972409999,
-          "cvd_usd": 2981038.4388200007,
-          "buy_pct": 58.58
+          "total_usd": 19942700.846429996,
+          "buy_usd": 9318088.6337,
+          "sell_usd": 10624612.212729996,
+          "cvd_usd": -1306523.579029996,
+          "buy_pct": 46.72
         },
         "24h": {
-          "total_usd": 186937147.43712997,
-          "buy_usd": 106636590.80129,
-          "sell_usd": 80300556.63583997,
-          "cvd_usd": 26336034.165450037,
-          "buy_pct": 57.04
+          "total_usd": 208879797.26633,
+          "buy_usd": 114065044.57824002,
+          "sell_usd": 94814752.68808998,
+          "cvd_usd": 19250291.89015004,
+          "buy_pct": 54.61
         },
         "7d": {
-          "total_usd": 1072056524.2861298,
-          "buy_usd": 548143791.83476,
-          "sell_usd": 523912732.4513699,
-          "cvd_usd": 24231059.38339007,
-          "buy_pct": 51.13
+          "total_usd": 1083970710.55737,
+          "buy_usd": 557758426.0589999,
+          "sell_usd": 526212284.49837005,
+          "cvd_usd": 31546141.560629845,
+          "buy_pct": 51.46
         },
         "orderbook": {
-          "bid_1pct_usd": 4261440.46,
-          "ask_1pct_usd": 3267722.98,
-          "imbalance_1pct": 13.2,
-          "bid_2pct_usd": 5408234.3,
-          "ask_2pct_usd": 4653833.7,
-          "imbalance_2pct": 7.5,
-          "support_wall_price": 100.0,
-          "support_wall_usd": 473603.8,
-          "resistance_wall_price": 105.0,
-          "resistance_wall_usd": 1038789.88
+          "bid_1pct_usd": 3840052.75,
+          "ask_1pct_usd": 3982580.39,
+          "imbalance_1pct": -1.8,
+          "bid_2pct_usd": 5528639.66,
+          "ask_2pct_usd": 4728305.42,
+          "imbalance_2pct": 7.8,
+          "support_wall_price": 98.0,
+          "support_wall_usd": 923338.36,
+          "resistance_wall_price": 103.0,
+          "resistance_wall_usd": 383229.42
         }
       },
       "futures": {
@@ -2017,11 +2054,11 @@
         "note": "No perpetual futures contract on Binance for SOLUSDT"
       },
       "relative_strength": {
-        "return_7d_pct": -1.31,
-        "btc_24h_pct": -0.16,
-        "btc_7d_pct": -0.25,
-        "alpha_24h_pct": 1.14,
-        "alpha_7d_pct": -1.06
+        "return_7d_pct": -3.18,
+        "btc_24h_pct": -1.33,
+        "btc_7d_pct": -1.42,
+        "alpha_24h_pct": -0.26,
+        "alpha_7d_pct": -1.76
       },
       "news": {
         "sources_checked": [
@@ -2044,11 +2081,6 @@
         "headlines_checked": 90,
         "bullish_catalysts": [
           [
-            "CoinGecko Trending",
-            "social heat",
-            "SOL is Trending #10 Globally on CoinGecko Search"
-          ],
-          [
             "Yahoo/SOL-USD",
             "ETF/institutional inflow",
             "BitGo Adds Jupiter, Operator of a $993 Million Solana Validator, to Its Custody Staking Options"
@@ -2059,19 +2091,19 @@
             "Google to Launch Crypto Custody Security System as AI & Quantum Threats Grow"
           ],
           [
-            "Yahoo/SOL-USD",
-            "bullish/breakout",
-            "This Venture Capitalist Thinks Solana Will Surpass Ethereum During the Next Bull Market Cycle. Here's Why He's Wrong."
-          ],
-          [
             "Yahoo/BTC-USD",
-            "bullish/breakout",
-            "Bitcoin\u2019s \u2018Uptober\u2019 rally just fell apart as demand weakens"
+            "burn/buyback",
+            "Treasury Buyback Fills $6 Billion Again: So Why Is Bitcoin Below $80K?"
           ],
           [
             "X/Social/SOL",
             "whale/CT accumulation",
             "Now is the time to accumulate bitcoin, Galaxy says - CoinDesk"
+          ],
+          [
+            "X/Social/SOL",
+            "bullish/breakout",
+            "August Crypto Market Review and Outlook: Bitcoin Surge Above $80,000 Sparks Broad Crypto Rally, Fed Decision to Determine If Gains Continue - TradingKey"
           ]
         ],
         "bearish_catalysts": [
@@ -2079,11 +2111,6 @@
             "Yahoo/BTC-USD",
             "outflow/liquidation",
             "Could Bitcoin Price Crash Like Silver? Warning Signs Are Showing"
-          ],
-          [
-            "Yahoo/BTC-USD",
-            "Fed/macro headwind",
-            "Bitcoin Shrugs Off a Hawkish Fed as Volatility Bets Barely Budge"
           ]
         ],
         "event_risk_headlines": [
@@ -2098,17 +2125,26 @@
             "August Crypto Market Review and Outlook: Bitcoin Surge Above $80,000 Sparks Broad Crypto Rally, Fed Decision to Determine If Gains Continue - TradingKey"
           ],
           [
-            "Banks & Fed Flow",
+            "Fed Press",
             "scheduled event risk",
-            "FOMC holds rates steady - ABA Banking Journal"
-          ],
-          [
-            "Banks & Fed Flow",
-            "scheduled event risk",
-            "FOMC votes to leave interest rates unchanged - CNBC"
+            "Federal Reserve issues FOMC statement"
           ]
         ],
         "fed_and_central_banks": [
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve issues FOMC statement",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve Board announces termination of enforcement actions with Gardner Bancshares, Inc. and Small Business Bank",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
           {
             "source": "Fed Speeches",
             "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
@@ -2127,16 +2163,14 @@
         "bank_and_institutional": [
           {
             "source": "Banks & Fed Flow",
-            "title": "Fed leaves rates unchanged as it awaits 'accumulation of more information' - Reuters",
-            "sentiment": "BULLISH",
-            "tags": [
-              "whale/CT accumulation"
-            ],
+            "title": "Federal Reserve makes interest rate decision ahead of midterms - Fox Business",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve makes interest rate decision ahead of midterms - Fox Business",
+            "title": "ECB Set to Hold Rates to Assess France and Energy Risks - Bloomberg.com",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -2150,14 +2184,14 @@
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve holds interest rates steady as midterm elections loom - ABC News - Breaking News, Latest News and Videos",
+            "title": "WATCH: Warsh holds briefing after Fed leaves key interest rate unchanged - PBS",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve keeps rates unchanged despite elevated inflation - AP News",
+            "title": "Federal Reserve holds interest rates steady - The Washington Post",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -2198,12 +2232,9 @@
         "twitter_x_flow": [
           {
             "source": "X/Social/SOL",
-            "title": "Bitcoin ETF Inflows Hit $110M as ETH, SOL, XRP ETFs Record Outflows - KuCoin",
-            "sentiment": "MIXED",
-            "tags": [
-              "ETF/institutional inflow",
-              "outflow/liquidation"
-            ],
+            "title": "SOL/USD Technical Analysis - Binance",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": true
           },
           {
@@ -2249,7 +2280,7 @@
         "magazines_and_press": [
           {
             "source": "Forbes/Bloomberg/Fortune",
-            "title": "Unusual Oil Trades Detected on Buzzy Offshore Crypto Exchange - Bloomberg",
+            "title": "Bitcoin Traders Brace for Swings on $11 Billion Options Expiry - Bloomberg.com",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -2279,71 +2310,67 @@
           },
           {
             "source": "CryptoSlate",
-            "title": "Bithumb hack leaks staff data and regulators launch raid",
-            "sentiment": "BEARISH",
-            "tags": [
-              "hack/exploit"
-            ],
+            "title": "Ripple\u2019s RLUSD stablecoin gains Coinbase access as Moody\u2019s awards investment-grade rating",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           },
           {
             "source": "BeInCrypto",
-            "title": "33 Wall Street Giants Block Tokenized Stocks, But Apple and Tesla Stay Silent",
-            "sentiment": "BULLISH",
-            "tags": [
-              "ETF/institutional inflow"
-            ],
+            "title": "Bitwise Projects $1.6 Million Bitcoin by 2036. Does Gold Hold the Key?",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           }
         ],
         "trending_social": {
-          "is_trending": true,
-          "trending_rank": 10,
+          "is_trending": false,
+          "trending_rank": null,
           "top_trending_coins": [
-            "PEPE",
             "PEARL",
-            "QTC",
-            "PONS",
             "PENGU",
-            "KNTQ",
-            "HYPE",
-            "XRP",
-            "ZEC",
-            "SOL"
+            "ENA",
+            "AXIS",
+            "QTC",
+            "STONK",
+            "AERO",
+            "PONS",
+            "JUP",
+            "CC"
           ]
         },
-        "score": 11.3
+        "score": 8.0
       },
       "levels": {
         "supports": [
-          101.04825,
-          100.46,
-          100.0
+          99.952,
+          99.26,
+          99.16
         ],
         "resistances": [
-          103.85,
-          104.469875,
-          105.0
+          101.53375,
+          102.949,
+          103.0
         ]
       }
     },
     {
       "symbol": "BNBUSDT",
-      "as_of": "2026-10-29T00:25:38Z",
-      "price": 759.77,
-      "change_24h_pct": 2.296,
+      "as_of": "2026-10-29T06:08:47Z",
+      "price": 754.11,
+      "change_24h_pct": 1.202,
       "high_24h": 762.2,
-      "low_24h": 742.0,
-      "volume_24h_usd": 95558658.07,
-      "composite_score": 45.2,
+      "low_24h": 744.3,
+      "volume_24h_usd": 118067464.5,
+      "composite_score": 52.3,
       "verdict": "STRONG BULLISH (High-Conviction Upside)",
       "pillar_scores": {
         "technicals_mtf": {
-          "score": 24.9,
+          "score": 23.7,
           "max": 25.0
         },
         "spot_orderflow_depth": {
-          "score": 7.4,
+          "score": 10.7,
           "max": 25.0
         },
         "futures_leverage": {
@@ -2351,15 +2378,15 @@
           "max": 25.0
         },
         "relative_strength_btc": {
-          "score": 5.0,
+          "score": 5.3,
           "max": 10.0
         },
         "news_catalysts": {
-          "score": 9.9,
+          "score": 10.6,
           "max": 15.0
         },
         "institutional_bonus": {
-          "score": -2.0,
+          "score": 2.0,
           "max": 10.0
         }
       },
@@ -2367,15 +2394,15 @@
         "4h": {
           "horizon": "4h",
           "hours": 4,
-          "prob_up_pct": 58.2,
-          "prob_down_pct": 41.8,
+          "prob_up_pct": 59.6,
+          "prob_down_pct": 40.4,
           "direction": "UP",
-          "expected_price": 760.71799425,
-          "expected_move_pct": 0.12,
-          "range_50_low": 757.67024473,
-          "range_50_high": 763.76562048,
-          "range_80_low": 754.83853511,
-          "range_80_high": 766.79592864
+          "expected_price": 755.26632379,
+          "expected_move_pct": 0.15,
+          "range_50_low": 752.16401291,
+          "range_50_high": 758.48632709,
+          "range_80_low": 749.21393132,
+          "range_80_high": 761.80784475
         },
         "24h": {
           "horizon": "24h",
@@ -2383,107 +2410,110 @@
           "prob_up_pct": 64.8,
           "prob_down_pct": 35.2,
           "direction": "UP",
-          "expected_price": 764.1385031,
-          "expected_move_pct": 0.57,
-          "range_50_low": 756.71943541,
-          "range_50_high": 771.64486819,
-          "range_80_low": 750.05124247,
-          "range_80_high": 778.45630465
+          "expected_price": 758.58955816,
+          "expected_move_pct": 0.59,
+          "range_50_low": 750.61679245,
+          "range_50_high": 766.53905189,
+          "range_80_low": 743.42025384,
+          "range_80_high": 774.23167887
         },
         "7d": {
           "horizon": "7d",
           "hours": 168,
-          "prob_up_pct": 70.9,
-          "prob_down_pct": 29.1,
+          "prob_up_pct": 70.5,
+          "prob_down_pct": 29.5,
           "direction": "UP",
-          "expected_price": 776.12666803,
-          "expected_move_pct": 2.15,
-          "range_50_low": 756.00708436,
-          "range_50_high": 797.7981497,
-          "range_80_low": 738.37643872,
-          "range_80_high": 816.91067796
+          "expected_price": 771.34601992,
+          "expected_move_pct": 2.29,
+          "range_50_low": 749.85224528,
+          "range_50_high": 794.60500001,
+          "range_80_low": 730.90015052,
+          "range_80_high": 815.61782225
         }
       },
       "volume_profile": {
-        "poc": 745.0725,
-        "vah": 751.15,
+        "poc": 747.2825,
+        "vah": 752.255,
         "val": 735.68,
-        "vwap_24h": 752.73034431,
-        "vwap_7d": 741.83172375,
-        "vwap_24h_dist_pct": 0.94,
+        "vwap_24h": 753.23102209,
+        "vwap_7d": 742.45315625,
+        "vwap_24h_dist_pct": 0.12,
         "state": "INITIATIVE BREAKOUT ABOVE VALUE AREA (> VAH)"
       },
       "institutional": {
-        "squeeze_4h": "NORMAL VOLATILITY",
-        "bb_width_4h_pct": 4.01,
-        "signals": [],
-        "bonus_score": 0.0
+        "squeeze_4h": "TTM SQUEEZE ACTIVE (Bollinger inside Keltner - Explosive Breakout Coiling)",
+        "bb_width_4h_pct": 3.68,
+        "signals": [
+          "BULLISH CVD ABSORPTION DIVERGENCE: Price wicked lower while Spot Taker Buy rose to 57.7% (Whale absorption of panic sellers)",
+          "4H VOLATILITY SQUEEZE ACTIVE (BB Width 3.68% inside Keltner): Coiling for large directional expansion"
+        ],
+        "bonus_score": 4.0
       },
       "vpin": null,
       "wyckoff_microstructure": null,
       "deribit_options": {
         "max_pain_strike": 750.0,
-        "current_spot": 759.77,
-        "dist_to_max_pain_pct": -1.29,
-        "put_call_ratio": 0.978,
-        "total_call_oi": 26849.32,
-        "total_put_oi": 26268.02,
-        "total_open_interest_usd": 40356963.37,
+        "current_spot": 754.11,
+        "dist_to_max_pain_pct": -0.55,
+        "put_call_ratio": 1.027,
+        "total_call_oi": 26277.58,
+        "total_put_oi": 26989.44,
+        "total_open_interest_usd": 40169189.06,
         "pinning_hazard": "HIGH_PINNING_MAGNET (Spot trapped near Max Pain)",
         "payout_ladder": [
           {
+            "strike": 630.0,
+            "total_payout": 2949534.34
+          },
+          {
             "strike": 645.0,
-            "total_payout": 2730391.7
+            "total_payout": 2568816.27
           },
           {
             "strike": 660.0,
-            "total_payout": 2363250.23
+            "total_payout": 2216382.66
           },
           {
             "strike": 675.0,
-            "total_payout": 2027586.52
+            "total_payout": 1897112.25
           },
           {
             "strike": 690.0,
-            "total_payout": 1728786.37
+            "total_payout": 1616725.29
           },
           {
             "strike": 705.0,
-            "total_payout": 1473157.11
+            "total_payout": 1381928.71
           },
           {
             "strike": 720.0,
-            "total_payout": 1268085.23
+            "total_payout": 1200586.3
           },
           {
             "strike": 735.0,
-            "total_payout": 1122221.03
+            "total_payout": 1081918.27
           },
           {
             "strike": 750.0,
-            "total_payout": 1045694.89
+            "total_payout": 1036735.18
           },
           {
             "strike": 765.0,
-            "total_payout": 1050370.46
+            "total_payout": 1077712.31
           },
           {
             "strike": 780.0,
-            "total_payout": 1131706.02
+            "total_payout": 1190852.07
           },
           {
             "strike": 795.0,
-            "total_payout": 1278501.46
-          },
-          {
-            "strike": 810.0,
-            "total_payout": 1481193.0
+            "total_payout": 1365538.41
           }
         ],
         "currency": "BNB",
-        "hours_to_monthly_expiry": 31.6,
-        "dealer_net_gamma_usd_m": 0.32,
-        "dealer_gamma_regime": "LONG_GAMMA (Volatility Suppressed)"
+        "hours_to_monthly_expiry": 25.9,
+        "dealer_net_gamma_usd_m": -0.39,
+        "dealer_gamma_regime": "SHORT_GAMMA (Volatility Amplified)"
       },
       "smart_order_routing": {
         "symbol": "BNBUSDT",
@@ -2496,15 +2526,15 @@
           "symbol": "BNBUSDT",
           "side": "BUY",
           "notional_usd": 2000.0,
-          "best_price": 759.37,
-          "vwap_price": 759.4611,
+          "best_price": 753.69,
+          "vwap_price": 753.7804,
           "fee_rate_pct": 0.05,
           "fee_usd": 1.0,
           "slippage_bps": 1.2,
           "slippage_usd": 0.24,
-          "funding_rate_8h_pct": 0.0091,
-          "carry_24h_usd": 0.55,
-          "total_cost_usd": 1.79,
+          "funding_rate_8h_pct": 0.0096,
+          "carry_24h_usd": 0.57,
+          "total_cost_usd": 1.81,
           "net_cost_pct": 0.09
         },
         "venue_comparison": [
@@ -2513,15 +2543,15 @@
             "symbol": "BNBUSDT",
             "side": "BUY",
             "notional_usd": 2000.0,
-            "best_price": 759.37,
-            "vwap_price": 759.4611,
+            "best_price": 753.69,
+            "vwap_price": 753.7804,
             "fee_rate_pct": 0.05,
             "fee_usd": 1.0,
             "slippage_bps": 1.2,
             "slippage_usd": 0.24,
-            "funding_rate_8h_pct": 0.0091,
-            "carry_24h_usd": 0.55,
-            "total_cost_usd": 1.79,
+            "funding_rate_8h_pct": 0.0096,
+            "carry_24h_usd": 0.57,
+            "total_cost_usd": 1.81,
             "net_cost_pct": 0.09
           }
         ],
@@ -2533,7 +2563,7 @@
             "notional_usd": 2000.0
           }
         ],
-        "rationale": "Venue OKX provides lowest all-in cost ($1.79 / 0.090%) saving $0.00 vs worst venue."
+        "rationale": "Venue OKX provides lowest all-in cost ($1.81 / 0.090%) saving $0.00 vs worst venue."
       },
       "whale_blocks": {
         "symbol": "BNBUSDT",
@@ -2547,7 +2577,7 @@
         "largest_print": {
           "trade_id": 100005,
           "symbol": "BNBUSDT",
-          "timestamp": 1793233523.912,
+          "timestamp": 1793254112.689,
           "price": 740.0,
           "qty": 1554.0541,
           "notional_usd": 1150000.03,
@@ -2566,7 +2596,7 @@
           {
             "trade_id": 100005,
             "symbol": "BNBUSDT",
-            "timestamp": 1793233523.912,
+            "timestamp": 1793254112.689,
             "price": 740.0,
             "qty": 1554.0541,
             "notional_usd": 1150000.03,
@@ -2578,7 +2608,7 @@
           {
             "trade_id": 100004,
             "symbol": "BNBUSDT",
-            "timestamp": 1793233478.912,
+            "timestamp": 1793254067.689,
             "price": 741.48,
             "qty": 878.3784,
             "notional_usd": 651300.02,
@@ -2590,7 +2620,7 @@
           {
             "trade_id": 100003,
             "symbol": "BNBUSDT",
-            "timestamp": 1793233418.912,
+            "timestamp": 1793254007.689,
             "price": 738.52,
             "qty": 243.2432,
             "notional_usd": 179639.97,
@@ -2602,7 +2632,7 @@
           {
             "trade_id": 100002,
             "symbol": "BNBUSDT",
-            "timestamp": 1793233358.912,
+            "timestamp": 1793253947.689,
             "price": 740.74,
             "qty": 432.4324,
             "notional_usd": 320319.98,
@@ -2614,7 +2644,7 @@
           {
             "trade_id": 100001,
             "symbol": "BNBUSDT",
-            "timestamp": 1793233298.912,
+            "timestamp": 1793253887.689,
             "price": 739.26,
             "qty": 168.9189,
             "notional_usd": 124874.99,
@@ -2629,31 +2659,31 @@
         "fear_greed_value": 51,
         "fear_greed_label": "Neutral",
         "fear_greed_prev": 51,
-        "total_mcap_usd": 2741882606841.35,
-        "mcap_24h_change_pct": -2.13,
-        "btc_dominance_pct": 59.48,
-        "eth_dominance_pct": 10.48,
+        "total_mcap_usd": 2705585851172.46,
+        "mcap_24h_change_pct": -3.46,
+        "btc_dominance_pct": 59.45,
+        "eth_dominance_pct": 10.46,
         "market_season": "BTC DOMINANCE SEASON (BTC.D 59.5% > 56% - Select High-Alpha Alts Only)",
-        "stablecoin_total_usd": 290129192261.18,
-        "usdt_supply_usd": 181149819606.35,
-        "usdc_supply_usd": 71375054277.34,
-        "stablecoin_24h_flow_usd": -936770992.82,
-        "stablecoin_7d_flow_usd": -2685894481.43,
+        "stablecoin_total_usd": 289741462430.66,
+        "usdt_supply_usd": 180804060306.8,
+        "usdc_supply_usd": 71370996156.09,
+        "stablecoin_24h_flow_usd": -1203642932.69,
+        "stablecoin_7d_flow_usd": -3333310503.8,
         "chain_name": "BSC",
-        "chain_tvl_usd": 5528643514.74,
+        "chain_tvl_usd": 5473512970.51,
         "chain_tvl_rank": 5,
         "macro_bonus": -2.0,
         "macro_notes": [
-          "DefiLlama Stablecoin Contraction: -$2.69B redeemed over 7d (tightening on-chain liquidity)"
+          "DefiLlama Stablecoin Contraction: -$3.33B redeemed over 7d (tightening on-chain liquidity)"
         ]
       },
       "kelly_trade_plan": {
         "bias": "LONG",
-        "spot_entry": 759.77,
-        "limit_pullback_entry": 752.73034431,
-        "stop_loss": 742.70724,
-        "tp1": 785.36414,
-        "tp2": 802.4269,
+        "spot_entry": 754.11,
+        "limit_pullback_entry": 753.23102209,
+        "stop_loss": 738.62364,
+        "tp1": 777.33954,
+        "tp2": 792.8259,
         "reward_risk_ratio": 1.5,
         "win_prob_pct": 64.8,
         "expected_value_R": 0.62,
@@ -2662,43 +2692,43 @@
           "base_full_kelly": 0.4133,
           "base_quarter_kelly_pct": 5.0,
           "adaptive_kelly_pct": 5.0,
-          "composite_multiplier": 1.1,
-          "squeeze_multiplier": 1.0,
+          "composite_multiplier": 1.32,
+          "squeeze_multiplier": 1.2,
           "atr_multiplier": 1.1,
           "vpin_multiplier": 1.0,
-          "atr_ratio": 0.57,
-          "volatility_regime": "NORMAL_VOLATILITY",
+          "atr_ratio": 0.56,
+          "volatility_regime": "TTM_SQUEEZE_COILING (Directional Breakout Fuel)",
           "calculated_risk_usd": 150.0,
-          "sizing_rationale": "ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+          "sizing_rationale": "Squeeze multiplier 1.20x (TTM_SQUEEZE_COILING (Directional Breakout Fuel)); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
         },
         "margin_plan": {
           "ok": true,
           "venue": "margin",
           "side": "long",
           "risk_usd": 50.0,
-          "qty": 2.9303582773244146,
-          "notional_usd": 2226.4,
+          "qty": 3.2286476615550734,
+          "notional_usd": 2434.76,
           "leverage": 1.0,
           "leverage_cap_tier": 3.0,
-          "leverage_cap_liq_safe": 7.6,
-          "margin_usd": 2226.4,
-          "margin_pct_equity": 44.5,
+          "leverage_cap_liq_safe": 7.8,
+          "margin_usd": 2434.76,
+          "margin_pct_equity": 48.7,
           "liquidation_price": 0.0,
           "liq_distance_pct": 100.0,
-          "stop_distance_pct": 2.25,
-          "liq_to_stop_ratio": 44.5,
+          "stop_distance_pct": 2.05,
+          "liq_to_stop_ratio": 48.7,
           "bankruptcy_price": 0.0,
-          "maintenance_margin_usd": 22.26,
+          "maintenance_margin_usd": 24.35,
           "mmr": 0.01,
           "cum_deduction": 0.0,
-          "liquidation_clearance_fee_usd": 33.4,
+          "liquidation_clearance_fee_usd": 36.52,
           "carry_adjusted_liq_price": 0.0,
           "margin_call_price": 0.0,
           "adl_risk_quantile": 1,
           "carry_usd": 0.0,
           "carry_r": 0.0,
-          "fees_usd": 1.78,
-          "fees_r": 0.036,
+          "fees_usd": 1.95,
+          "fees_r": 0.039,
           "hold_hours": 24.0,
           "event_level": "CLEAR",
           "event_reason": "No scheduled macro or expiry event inside the risk window",
@@ -2708,63 +2738,63 @@
       "timeframes": {
         "15m": {
           "timeframe": "15m",
-          "price": 759.78,
-          "ema20": 756.75498617,
-          "ema50": 754.04884481,
-          "sma200": 750.7273,
-          "rsi14": 65.9,
-          "macd_hist": 0.26281271,
+          "price": 754.1,
+          "ema20": 752.9039953,
+          "ema50": 752.6886635,
+          "sma200": 752.1337,
+          "rsi14": 52.8,
+          "macd_hist": 0.87376106,
           "macd_rising": false,
-          "atr14": 1.64642857,
-          "atr_pct": 0.22,
-          "high_20": 760.92,
-          "low_20": 751.21,
+          "atr14": 2.81428571,
+          "atr_pct": 0.37,
+          "high_20": 759.38,
+          "low_20": 744.35,
           "regime": "BULLISH",
           "score": 24.5
         },
         "1h": {
           "timeframe": "1h",
-          "price": 759.78,
-          "ema20": 753.34210207,
-          "ema50": 748.98910789,
-          "sma200": 741.9558,
-          "rsi14": 65.8,
-          "macd_hist": 0.61013302,
+          "price": 754.1,
+          "ema20": 752.36913433,
+          "ema50": 749.36708326,
+          "sma200": 742.268,
+          "rsi14": 53.3,
+          "macd_hist": -0.31241399,
           "macd_rising": true,
-          "atr14": 4.55214286,
-          "atr_pct": 0.6,
+          "atr14": 5.44357143,
+          "atr_pct": 0.72,
           "high_20": 762.2,
-          "low_20": 744.3,
+          "low_20": 744.35,
           "regime": "BULLISH",
-          "score": 25.0
+          "score": 21.5
         },
         "4h": {
           "timeframe": "4h",
-          "price": 759.78,
-          "ema20": 748.52105726,
-          "ema50": 743.11131708,
-          "sma200": 751.5656,
-          "rsi14": 61.7,
-          "macd_hist": 1.4905847,
-          "macd_rising": true,
-          "atr14": 7.91714286,
-          "atr_pct": 1.04,
+          "price": 754.1,
+          "ema20": 747.94599058,
+          "ema50": 743.0571554,
+          "sma200": 751.38625,
+          "rsi14": 55.6,
+          "macd_hist": 0.59581147,
+          "macd_rising": false,
+          "atr14": 9.68714286,
+          "atr_pct": 1.28,
           "high_20": 762.2,
           "low_20": 732.45,
           "regime": "BULLISH",
-          "score": 25.0
+          "score": 24.5
         },
         "1d": {
           "timeframe": "1d",
-          "price": 759.78,
-          "ema20": 745.06340385,
-          "ema50": 736.69388374,
-          "sma200": 654.588,
-          "rsi14": 57.6,
-          "macd_hist": 3.0114864,
+          "price": 754.1,
+          "ema20": 744.52245147,
+          "ema50": 736.47113864,
+          "sma200": 654.5596,
+          "rsi14": 54.7,
+          "macd_hist": 2.64900207,
           "macd_rising": true,
-          "atr14": 16.385,
-          "atr_pct": 2.16,
+          "atr14": 17.45071429,
+          "atr_pct": 2.31,
           "high_20": 762.2,
           "low_20": 705.86,
           "regime": "BULLISH",
@@ -2773,44 +2803,44 @@
       },
       "spot_flow": {
         "1h": {
-          "total_usd": 4504361.48472,
-          "buy_usd": 3297944.3985399995,
-          "sell_usd": 1206417.0861800006,
-          "cvd_usd": 2091527.312359999,
-          "buy_pct": 73.22
+          "total_usd": 5607796.71133,
+          "buy_usd": 2932479.6623299997,
+          "sell_usd": 2675317.0490000006,
+          "cvd_usd": 257162.61332999915,
+          "buy_pct": 52.29
         },
         "4h": {
-          "total_usd": 12100454.70294,
-          "buy_usd": 8434996.76613,
-          "sell_usd": 3665457.93681,
-          "cvd_usd": 4769538.8293200005,
-          "buy_pct": 69.71
+          "total_usd": 18662207.405589998,
+          "buy_usd": 10772470.716090001,
+          "sell_usd": 7889736.689499997,
+          "cvd_usd": 2882734.0265900046,
+          "buy_pct": 57.72
         },
         "24h": {
-          "total_usd": 94176632.62794,
-          "buy_usd": 47134319.04303,
-          "sell_usd": 47042313.58491,
-          "cvd_usd": 92005.45812000334,
-          "buy_pct": 50.05
+          "total_usd": 116615643.77133,
+          "buy_usd": 61115080.43829001,
+          "sell_usd": 55500563.33303999,
+          "cvd_usd": 5614517.105250016,
+          "buy_pct": 52.41
         },
         "7d": {
-          "total_usd": 561951767.1378201,
-          "buy_usd": 257614881.74265,
-          "sell_usd": 304336885.3951701,
-          "cvd_usd": -46722003.65252009,
-          "buy_pct": 45.84
+          "total_usd": 589419270.98613,
+          "buy_usd": 275253375.14537996,
+          "sell_usd": 314165895.84075004,
+          "cvd_usd": -38912520.69537008,
+          "buy_pct": 46.7
         },
         "orderbook": {
-          "bid_1pct_usd": 3434446.99,
-          "ask_1pct_usd": 3569585.49,
-          "imbalance_1pct": -1.9,
-          "bid_2pct_usd": 4936246.07,
-          "ask_2pct_usd": 5151324.67,
-          "imbalance_2pct": -2.1,
-          "support_wall_price": 745.69,
-          "support_wall_usd": 309461.35,
-          "resistance_wall_price": 780.0,
-          "resistance_wall_usd": 357915.48
+          "bid_1pct_usd": 3406400.37,
+          "ask_1pct_usd": 3512736.64,
+          "imbalance_1pct": -1.5,
+          "bid_2pct_usd": 4873422.71,
+          "ask_2pct_usd": 5137963.74,
+          "imbalance_2pct": -2.6,
+          "support_wall_price": 741.59,
+          "support_wall_usd": 309286.78,
+          "resistance_wall_price": 768.44,
+          "resistance_wall_usd": 315071.16
         }
       },
       "futures": {
@@ -2818,11 +2848,11 @@
         "note": "No perpetual futures contract on Binance for BNBUSDT"
       },
       "relative_strength": {
-        "return_7d_pct": 3.9,
-        "btc_24h_pct": -0.16,
-        "btc_7d_pct": -0.25,
-        "alpha_24h_pct": 2.46,
-        "alpha_7d_pct": 4.15
+        "return_7d_pct": 3.12,
+        "btc_24h_pct": -1.33,
+        "btc_7d_pct": -1.42,
+        "alpha_24h_pct": 2.54,
+        "alpha_7d_pct": 4.54
       },
       "news": {
         "sources_checked": [
@@ -2845,9 +2875,14 @@
         "headlines_checked": 90,
         "bullish_catalysts": [
           [
+            "CoinGecko Trending",
+            "social heat",
+            "BNB is Trending #12 Globally on CoinGecko Search"
+          ],
+          [
             "Yahoo/BTC-USD",
-            "bullish/breakout",
-            "Bitcoin\u2019s \u2018Uptober\u2019 rally just fell apart as demand weakens"
+            "burn/buyback",
+            "Treasury Buyback Fills $6 Billion Again: So Why Is Bitcoin Below $80K?"
           ],
           [
             "X/Social/BNB",
@@ -2868,11 +2903,6 @@
             "Binance CMS",
             "Binance listing/launch",
             "Binance Futures Will Launch USD\u24c8-Margined PREDICTUSDT Perpetual Contract Pre-Market Trading (2026-10-25)"
-          ],
-          [
-            "Binance CMS",
-            "ETF/institutional inflow, Binance listing/launch",
-            "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-21"
           ]
         ],
         "bearish_catalysts": [
@@ -2882,11 +2912,6 @@
             "Could Bitcoin Price Crash Like Silver? Warning Signs Are Showing"
           ],
           [
-            "Yahoo/BTC-USD",
-            "Fed/macro headwind",
-            "Bitcoin Shrugs Off a Hawkish Fed as Volatility Bets Barely Budge"
-          ],
-          [
             "Binance CMS",
             "regulatory/delist",
             "Binance Futures Will Delist PTBUSDT and MITOUSDT USD\u24c8-M Perpetual Contracts (2026-10-23)"
@@ -2894,22 +2919,26 @@
         ],
         "event_risk_headlines": [
           [
-            "Yahoo/BTC-USD",
+            "Fed Press",
             "scheduled event risk",
-            "Crypto Market Today, Oct. 28: Bitcoin and Altcoins Gain as Fed Decision Clears the Way for Big Tech Earnings"
-          ],
-          [
-            "Banks & Fed Flow",
-            "scheduled event risk",
-            "FOMC holds rates steady - ABA Banking Journal"
-          ],
-          [
-            "Banks & Fed Flow",
-            "scheduled event risk",
-            "FOMC votes to leave interest rates unchanged - CNBC"
+            "Federal Reserve issues FOMC statement"
           ]
         ],
         "fed_and_central_banks": [
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve issues FOMC statement",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve Board announces termination of enforcement actions with Gardner Bancshares, Inc. and Small Business Bank",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
           {
             "source": "Fed Speeches",
             "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
@@ -2928,16 +2957,14 @@
         "bank_and_institutional": [
           {
             "source": "Banks & Fed Flow",
-            "title": "Fed leaves rates unchanged as it awaits 'accumulation of more information' - Reuters",
-            "sentiment": "BULLISH",
-            "tags": [
-              "whale/CT accumulation"
-            ],
+            "title": "Federal Reserve makes interest rate decision ahead of midterms - Fox Business",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve makes interest rate decision ahead of midterms - Fox Business",
+            "title": "ECB Set to Hold Rates to Assess France and Energy Risks - Bloomberg.com",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -2951,14 +2978,14 @@
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve holds interest rates steady as midterm elections loom - ABC News - Breaking News, Latest News and Videos",
+            "title": "WATCH: Warsh holds briefing after Fed leaves key interest rate unchanged - PBS",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
           },
           {
             "source": "Banks & Fed Flow",
-            "title": "Federal Reserve keeps rates unchanged despite elevated inflation - AP News",
+            "title": "Federal Reserve holds interest rates steady - The Washington Post",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -3006,7 +3033,7 @@
           },
           {
             "source": "X/Social/BNB",
-            "title": "BNB Price Today | Live BNB Price, Chart & Market Data - Binance",
+            "title": "AI predicts Binance Coin (BNB) price for year-end - Cryptonews.net",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": true
@@ -3029,14 +3056,14 @@
           },
           {
             "source": "X/Social/BNB",
-            "title": "Binance Coin (BNB) Price Prediction 2026, 2027 \u2013 2030: Will BNB Price Hit $2000? - Coinpedia",
+            "title": "Binance - CryptoSlate",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": true
           },
           {
             "source": "X/Social/BNB",
-            "title": "Binance - CryptoSlate",
+            "title": "Binance Coin (BNB) Price Prediction 2026, 2027 \u2013 2030: Will BNB Price Hit $2000? - Coinpedia",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": true
@@ -3045,7 +3072,7 @@
         "magazines_and_press": [
           {
             "source": "Forbes/Bloomberg/Fortune",
-            "title": "Unusual Oil Trades Detected on Buzzy Offshore Crypto Exchange - Bloomberg",
+            "title": "Bitcoin Traders Brace for Swings on $11 Billion Options Expiry - Bloomberg.com",
             "sentiment": "NEUTRAL",
             "tags": [],
             "is_token": false
@@ -3075,108 +3102,104 @@
           },
           {
             "source": "CryptoSlate",
-            "title": "Bithumb hack leaks staff data and regulators launch raid",
-            "sentiment": "BEARISH",
-            "tags": [
-              "hack/exploit"
-            ],
+            "title": "Ripple\u2019s RLUSD stablecoin gains Coinbase access as Moody\u2019s awards investment-grade rating",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           },
           {
             "source": "BeInCrypto",
-            "title": "33 Wall Street Giants Block Tokenized Stocks, But Apple and Tesla Stay Silent",
-            "sentiment": "BULLISH",
-            "tags": [
-              "ETF/institutional inflow"
-            ],
+            "title": "Bitwise Projects $1.6 Million Bitcoin by 2036. Does Gold Hold the Key?",
+            "sentiment": "NEUTRAL",
+            "tags": [],
             "is_token": false
           }
         ],
         "trending_social": {
-          "is_trending": false,
-          "trending_rank": null,
+          "is_trending": true,
+          "trending_rank": 12,
           "top_trending_coins": [
-            "PEPE",
             "PEARL",
-            "QTC",
-            "PONS",
             "PENGU",
-            "KNTQ",
-            "HYPE",
-            "XRP",
-            "ZEC",
-            "SOL"
+            "ENA",
+            "AXIS",
+            "QTC",
+            "STONK",
+            "AERO",
+            "PONS",
+            "JUP",
+            "CC"
           ]
         },
-        "score": 9.9
+        "score": 10.6
       },
       "levels": {
         "supports": [
-          745.69,
-          745.0725,
-          743.385
+          747.2825,
+          744.3,
+          741.59
         ],
         "resistances": [
           762.2,
-          776.155,
-          780.0
+          768.44,
+          771.56071429
         ]
       }
     }
   ],
   "kelly_trade_plans": {
     "BTC": {
-      "bias": "LONG",
-      "spot_entry": 81210.69,
-      "limit_pullback_entry": 81082.60880301,
-      "stop_loss": 80328.66492,
-      "tp1": 82533.72762,
-      "tp2": 83415.7527,
-      "reward_risk_ratio": 1.5,
-      "win_prob_pct": 50.6,
-      "expected_value_R": 0.27,
-      "quarter_kelly_risk_pct": 5.0,
+      "bias": "WAIT / RANGE SCALP",
+      "spot_entry": 80258.0,
+      "limit_pullback_entry": 79551.783,
+      "stop_loss": 79000.66242857,
+      "tp1": 80172.488625,
+      "tp2": 81372.5195,
+      "reward_risk_ratio": 3.3,
+      "win_prob_pct": 53.7,
+      "expected_value_R": 1.31,
+      "quarter_kelly_risk_pct": 2.5,
       "adaptive_kelly": {
-        "base_full_kelly": 0.1767,
-        "base_quarter_kelly_pct": 4.42,
+        "base_full_kelly": 0.3967,
+        "base_quarter_kelly_pct": 5.0,
         "adaptive_kelly_pct": 5.0,
-        "composite_multiplier": 1.265,
-        "squeeze_multiplier": 1.15,
+        "composite_multiplier": 1.155,
+        "squeeze_multiplier": 1.05,
         "atr_multiplier": 1.1,
         "vpin_multiplier": 1.0,
-        "atr_ratio": 0.65,
-        "volatility_regime": "TIGHT_COMPRESSION_COILING",
+        "atr_ratio": 0.59,
+        "volatility_regime": "TTM_SQUEEZE_RANGE",
         "calculated_risk_usd": 150.0,
-        "sizing_rationale": "Squeeze multiplier 1.15x (TIGHT_COMPRESSION_COILING); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+        "sizing_rationale": "Squeeze multiplier 1.05x (TTM_SQUEEZE_RANGE); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
       },
       "margin_plan": {
         "ok": true,
         "venue": "margin",
         "side": "long",
         "risk_usd": 50.0,
-        "qty": 0.056687730466802165,
-        "notional_usd": 4603.65,
+        "qty": 0.03976656797357418,
+        "notional_usd": 3191.59,
         "leverage": 2.0,
         "leverage_cap_tier": 5.0,
-        "leverage_cap_liq_safe": 9.0,
-        "margin_usd": 2301.82,
-        "margin_pct_equity": 46.0,
-        "liquidation_price": 44665.8795,
+        "leverage_cap_liq_safe": 8.4,
+        "margin_usd": 1595.79,
+        "margin_pct_equity": 31.9,
+        "liquidation_price": 44141.9,
         "liq_distance_pct": 45.0,
-        "stop_distance_pct": 1.09,
-        "liq_to_stop_ratio": 41.4,
-        "bankruptcy_price": 40605.345,
-        "maintenance_margin_usd": 18.41,
+        "stop_distance_pct": 1.57,
+        "liq_to_stop_ratio": 28.7,
+        "bankruptcy_price": 40129.0,
+        "maintenance_margin_usd": 12.77,
         "mmr": 0.004,
         "cum_deduction": 0.0,
-        "liquidation_clearance_fee_usd": 46.04,
-        "carry_adjusted_liq_price": 44687.3191,
-        "margin_call_price": 52786.9485,
+        "liquidation_clearance_fee_usd": 31.92,
+        "carry_adjusted_liq_price": 44163.0881,
+        "margin_call_price": 52167.7,
         "adl_risk_quantile": 1,
-        "carry_usd": 1.1,
-        "carry_r": 0.022,
-        "fees_usd": 3.68,
-        "fees_r": 0.074,
+        "carry_usd": 0.77,
+        "carry_r": 0.015,
+        "fees_usd": 2.55,
+        "fees_r": 0.051,
         "hold_hours": 24.0,
         "event_level": "CLEAR",
         "event_reason": "No scheduled macro or expiry event inside the risk window",
@@ -3184,25 +3207,25 @@
       }
     },
     "ETH": {
-      "bias": "LONG",
-      "spot_entry": 2357.21,
-      "limit_pullback_entry": 2356.36623955,
-      "stop_loss": 2280.84,
-      "tp1": 2471.765,
-      "tp2": 2548.135,
+      "bias": "SHORT / HEDGE",
+      "spot_entry": 2322.46,
+      "limit_pullback_entry": 2345.74990181,
+      "stop_loss": 2359.4,
+      "tp1": 2267.05,
+      "tp2": 2230.11,
       "reward_risk_ratio": 1.5,
-      "win_prob_pct": 51.6,
-      "expected_value_R": 0.29,
+      "win_prob_pct": 57.7,
+      "expected_value_R": 0.44,
       "quarter_kelly_risk_pct": 5.0,
       "adaptive_kelly": {
-        "base_full_kelly": 0.1933,
-        "base_quarter_kelly_pct": 4.83,
+        "base_full_kelly": 0.295,
+        "base_quarter_kelly_pct": 5.0,
         "adaptive_kelly_pct": 5.0,
         "composite_multiplier": 1.32,
         "squeeze_multiplier": 1.2,
         "atr_multiplier": 1.1,
         "vpin_multiplier": 1.0,
-        "atr_ratio": 0.65,
+        "atr_ratio": 0.59,
         "volatility_regime": "TTM_SQUEEZE_COILING (Directional Breakout Fuel)",
         "calculated_risk_usd": 150.0,
         "sizing_rationale": "Squeeze multiplier 1.20x (TTM_SQUEEZE_COILING (Directional Breakout Fuel)); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
@@ -3210,31 +3233,31 @@
       "margin_plan": {
         "ok": true,
         "venue": "margin",
-        "side": "long",
+        "side": "short",
         "risk_usd": 50.0,
-        "qty": 0.654707345816421,
-        "notional_usd": 1543.28,
-        "leverage": 1.0,
+        "qty": 1.35354629128316,
+        "notional_usd": 3143.56,
+        "leverage": 2.0,
         "leverage_cap_tier": 4.0,
-        "leverage_cap_liq_safe": 6.7,
-        "margin_usd": 1543.28,
-        "margin_pct_equity": 30.9,
-        "liquidation_price": 0.0,
-        "liq_distance_pct": 100.0,
-        "stop_distance_pct": 3.24,
-        "liq_to_stop_ratio": 30.9,
-        "bankruptcy_price": 0.0,
-        "maintenance_margin_usd": 7.72,
+        "leverage_cap_liq_safe": 7.4,
+        "margin_usd": 1571.78,
+        "margin_pct_equity": 31.4,
+        "liquidation_price": 3166.990909090909,
+        "liq_distance_pct": 36.36,
+        "stop_distance_pct": 1.59,
+        "liq_to_stop_ratio": 22.9,
+        "bankruptcy_price": 3483.69,
+        "maintenance_margin_usd": 15.72,
         "mmr": 0.005,
         "cum_deduction": 0.0,
-        "liquidation_clearance_fee_usd": 15.43,
-        "carry_adjusted_liq_price": 0.0,
-        "margin_call_price": 0.0,
+        "liquidation_clearance_fee_usd": 31.44,
+        "carry_adjusted_liq_price": 3165.9775,
+        "margin_call_price": 2679.7615,
         "adl_risk_quantile": 1,
-        "carry_usd": 0.0,
-        "carry_r": 0.0,
-        "fees_usd": 1.23,
-        "fees_r": 0.025,
+        "carry_usd": 1.51,
+        "carry_r": 0.03,
+        "fees_usd": 2.51,
+        "fees_r": 0.05,
         "hold_hours": 24.0,
         "event_level": "CLEAR",
         "event_reason": "No scheduled macro or expiry event inside the risk window",
@@ -3242,25 +3265,25 @@
       }
     },
     "SOL": {
-      "bias": "LONG",
-      "spot_entry": 102.29,
-      "limit_pullback_entry": 102.12914219,
-      "stop_loss": 99.6,
-      "tp1": 107.45,
-      "tp2": 109.015,
-      "reward_risk_ratio": 1.92,
-      "win_prob_pct": 55.2,
-      "expected_value_R": 0.61,
+      "bias": "SHORT / HEDGE",
+      "spot_entry": 100.35,
+      "limit_pullback_entry": 101.7091362,
+      "stop_loss": 103.412,
+      "tp1": 95.757,
+      "tp2": 92.695,
+      "reward_risk_ratio": 1.5,
+      "win_prob_pct": 55.8,
+      "expected_value_R": 0.39,
       "quarter_kelly_risk_pct": 5.0,
       "adaptive_kelly": {
-        "base_full_kelly": 0.3187,
+        "base_full_kelly": 0.2633,
         "base_quarter_kelly_pct": 5.0,
         "adaptive_kelly_pct": 5.0,
         "composite_multiplier": 1.32,
         "squeeze_multiplier": 1.2,
         "atr_multiplier": 1.1,
         "vpin_multiplier": 1.0,
-        "atr_ratio": 0.67,
+        "atr_ratio": 0.62,
         "volatility_regime": "TTM_SQUEEZE_COILING (Directional Breakout Fuel)",
         "calculated_risk_usd": 150.0,
         "sizing_rationale": "Squeeze multiplier 1.20x (TTM_SQUEEZE_COILING (Directional Breakout Fuel)); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
@@ -3268,31 +3291,31 @@
       "margin_plan": {
         "ok": true,
         "venue": "margin",
-        "side": "long",
+        "side": "short",
         "risk_usd": 50.0,
-        "qty": 18.587360594795456,
-        "notional_usd": 1901.3,
+        "qty": 16.329196603527045,
+        "notional_usd": 1638.63,
         "leverage": 1.0,
         "leverage_cap_tier": 3.0,
-        "leverage_cap_liq_safe": 7.2,
-        "margin_usd": 1901.3,
-        "margin_pct_equity": 38.0,
-        "liquidation_price": 0.0,
-        "liq_distance_pct": 100.0,
-        "stop_distance_pct": 2.63,
-        "liq_to_stop_ratio": 38.0,
-        "bankruptcy_price": 0.0,
-        "maintenance_margin_usd": 19.01,
+        "leverage_cap_liq_safe": 6.0,
+        "margin_usd": 1638.63,
+        "margin_pct_equity": 32.8,
+        "liquidation_price": 182.45454545454544,
+        "liq_distance_pct": 81.82,
+        "stop_distance_pct": 3.05,
+        "liq_to_stop_ratio": 26.8,
+        "bankruptcy_price": 200.7,
+        "maintenance_margin_usd": 16.39,
         "mmr": 0.01,
         "cum_deduction": 0.0,
-        "liquidation_clearance_fee_usd": 28.52,
-        "carry_adjusted_liq_price": 0.0,
-        "margin_call_price": 0.0,
+        "liquidation_clearance_fee_usd": 24.58,
+        "carry_adjusted_liq_price": 182.4108,
+        "margin_call_price": 154.3846,
         "adl_risk_quantile": 1,
-        "carry_usd": 0.0,
-        "carry_r": 0.0,
-        "fees_usd": 1.52,
-        "fees_r": 0.03,
+        "carry_usd": 0.79,
+        "carry_r": 0.016,
+        "fees_usd": 1.31,
+        "fees_r": 0.026,
         "hold_hours": 24.0,
         "event_level": "CLEAR",
         "event_reason": "No scheduled macro or expiry event inside the risk window",
@@ -3301,11 +3324,11 @@
     },
     "BNB": {
       "bias": "LONG",
-      "spot_entry": 759.77,
-      "limit_pullback_entry": 752.73034431,
-      "stop_loss": 742.70724,
-      "tp1": 785.36414,
-      "tp2": 802.4269,
+      "spot_entry": 754.11,
+      "limit_pullback_entry": 753.23102209,
+      "stop_loss": 738.62364,
+      "tp1": 777.33954,
+      "tp2": 792.8259,
       "reward_risk_ratio": 1.5,
       "win_prob_pct": 64.8,
       "expected_value_R": 0.62,
@@ -3314,43 +3337,43 @@
         "base_full_kelly": 0.4133,
         "base_quarter_kelly_pct": 5.0,
         "adaptive_kelly_pct": 5.0,
-        "composite_multiplier": 1.1,
-        "squeeze_multiplier": 1.0,
+        "composite_multiplier": 1.32,
+        "squeeze_multiplier": 1.2,
         "atr_multiplier": 1.1,
         "vpin_multiplier": 1.0,
-        "atr_ratio": 0.57,
-        "volatility_regime": "NORMAL_VOLATILITY",
+        "atr_ratio": 0.56,
+        "volatility_regime": "TTM_SQUEEZE_COILING (Directional Breakout Fuel)",
         "calculated_risk_usd": 150.0,
-        "sizing_rationale": "ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+        "sizing_rationale": "Squeeze multiplier 1.20x (TTM_SQUEEZE_COILING (Directional Breakout Fuel)); ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
       },
       "margin_plan": {
         "ok": true,
         "venue": "margin",
         "side": "long",
         "risk_usd": 50.0,
-        "qty": 2.9303582773244146,
-        "notional_usd": 2226.4,
+        "qty": 3.2286476615550734,
+        "notional_usd": 2434.76,
         "leverage": 1.0,
         "leverage_cap_tier": 3.0,
-        "leverage_cap_liq_safe": 7.6,
-        "margin_usd": 2226.4,
-        "margin_pct_equity": 44.5,
+        "leverage_cap_liq_safe": 7.8,
+        "margin_usd": 2434.76,
+        "margin_pct_equity": 48.7,
         "liquidation_price": 0.0,
         "liq_distance_pct": 100.0,
-        "stop_distance_pct": 2.25,
-        "liq_to_stop_ratio": 44.5,
+        "stop_distance_pct": 2.05,
+        "liq_to_stop_ratio": 48.7,
         "bankruptcy_price": 0.0,
-        "maintenance_margin_usd": 22.26,
+        "maintenance_margin_usd": 24.35,
         "mmr": 0.01,
         "cum_deduction": 0.0,
-        "liquidation_clearance_fee_usd": 33.4,
+        "liquidation_clearance_fee_usd": 36.52,
         "carry_adjusted_liq_price": 0.0,
         "margin_call_price": 0.0,
         "adl_risk_quantile": 1,
         "carry_usd": 0.0,
         "carry_r": 0.0,
-        "fees_usd": 1.78,
-        "fees_r": 0.036,
+        "fees_usd": 1.95,
+        "fees_r": 0.039,
         "hold_hours": 24.0,
         "event_level": "CLEAR",
         "event_reason": "No scheduled macro or expiry event inside the risk window",
