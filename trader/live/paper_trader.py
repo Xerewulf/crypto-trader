@@ -576,6 +576,13 @@ def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     p["notional"] = p["qty"] * p["entry"]
     p["margin"] = p["notional"] / lev
 
+    # Omni-channel push notification
+    if notifier:
+        try:
+            notifier.notify_scale_out(p, tier_label, exit_px, net)
+        except Exception as n_err:
+            log("Notifier scale-out alert error for %s: %s" % (p["symbol"], n_err))
+
     r_gain = net / (p["risk_usd"] * prop) if (p["risk_usd"] * prop) > 0 else 0.0
     log("CONVEX SCALE-OUT #%d %s %s [%s] at %s: Qty %s (%.0f%%), Net %s (%+.2fR). Remaining: %s. Account: %s" % (
         p["id"], p["side"].upper(), p["symbol"], tier_label, fp(exit_px),
@@ -627,6 +634,20 @@ def close_position(s, p, exit_px, ms, outcome, is_liquidation=False):
 
     s["last_exit_bar"][p["symbol"]] = (ms // HOUR_MS) * HOUR_MS
     del s["positions"][p["symbol"]]
+
+    # Cancel any remaining resting bracket algo orders on live exchange
+    if s.get("live_broker"):
+        try:
+            s["live_broker"].cancel_all_orders(p["symbol"])
+        except Exception as b_err:
+            log("Warning: Failed to cancel resting broker orders for %s: %s" % (p["symbol"], b_err))
+
+    # Omni-channel push notification
+    if notifier:
+        try:
+            notifier.notify_position_closed(p, exit_px, total_net, total_r, outcome)
+        except Exception as n_err:
+            log("Notifier close alert error for %s: %s" % (p["symbol"], n_err))
 
     log("CLOSED #%d %s %s [%s] at %s: total net %s (%+.2fR). Account: %s" % (
         p["id"], p["side"].upper(), p["symbol"], outcome, fp(exit_px),
@@ -1172,6 +1193,13 @@ def scan_signals(s):
         s["next_id"] += 1
         s["positions"][sym] = p
         s["marks"][sym] = cur_p
+
+        # Omni-channel push notification
+        if notifier:
+            try:
+                notifier.notify_setup_opened(p)
+            except Exception as n_err:
+                log("Notifier open alert error for %s: %s" % (sym, n_err))
 
         log("OPENED CONVEX #%d %s %s [%s]: %s %s at %s (%.0fx margin, liq %s) | Stop %s | TP1 %s (40%%) | TP2 %s (30%%) | Sized Risk %s (Score %d)" % (
             p["id"], side.upper(), sym, p["setup"],

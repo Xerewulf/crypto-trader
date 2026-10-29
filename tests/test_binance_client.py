@@ -54,6 +54,19 @@ class TestBinanceClient(unittest.TestCase):
         formatted_ada = self.client.format_qty("ADAUSDT", 254.89)
         self.assertEqual(formatted_ada, "254")
 
+    def test_float_underflow_and_non_power_ten_step(self):
+        # E.g. stepSize 0.1 with float representation (0.3/0.1 in float is 2.9999999999999996)
+        self.client.symbol_filters["ETHUSDT"] = {"stepSize": 0.1, "tickSize": 0.05}
+        formatted_eth = self.client.format_qty("ETHUSDT", 0.3)
+        self.assertEqual(formatted_eth, "0.3")
+
+        # Non-power-of-ten stepSize: 0.05 -> precision should be 2, not 1
+        self.client.symbol_filters["SOLUSDT"] = {"stepSize": 0.05, "tickSize": 0.005}
+        formatted_sol = self.client.format_qty("SOLUSDT", 1.25)
+        self.assertEqual(formatted_sol, "1.25")
+        formatted_sol_px = self.client.format_price("SOLUSDT", 145.125)
+        self.assertEqual(formatted_sol_px, "145.125")
+
     def test_price_formatting(self):
         # BTC tickSize 0.1
         formatted_btc_px = self.client.format_price("BTCUSDT", 80123.456)

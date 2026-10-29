@@ -169,26 +169,31 @@ class BinanceClient:
             }
         return self.symbol_filters
 
+    @staticmethod
+    def _precision_from_step(step):
+        s = f"{step:.10f}".rstrip("0")
+        return len(s.split(".")[1]) if "." in s else 0
+
     def format_qty(self, symbol, qty):
-        """Rounds quantity down to exact Binance lot stepSize."""
+        """Rounds quantity down to exact Binance lot stepSize with float-underflow guard."""
         rules = self.symbol_filters.get(symbol)
         if not rules:
             self.load_exchange_info()
             rules = self.symbol_filters.get(symbol, {"stepSize": 0.001, "minQty": 0.001})
         step = rules["stepSize"]
-        precision = max(0, int(round(-math.log10(step))))
-        rounded = math.floor(qty / step) * step
+        precision = self._precision_from_step(step)
+        rounded = math.floor(float(qty) / step + 1e-9) * step
         return f"{rounded:.{precision}f}"
 
     def format_price(self, symbol, price):
-        """Rounds price to exact Binance tickSize."""
+        """Rounds price to exact Binance tickSize with precision guard."""
         rules = self.symbol_filters.get(symbol)
         if not rules:
             self.load_exchange_info()
             rules = self.symbol_filters.get(symbol, {"tickSize": 0.01})
         tick = rules["tickSize"]
-        precision = max(0, int(round(-math.log10(tick))))
-        rounded = round(price / tick) * tick
+        precision = self._precision_from_step(tick)
+        rounded = round(float(price) / tick) * tick
         return f"{rounded:.{precision}f}"
 
     # ---------------------------------------------------------------- authenticated account
@@ -343,7 +348,8 @@ class BinanceClient:
         }
 
     def flatten_position(self, symbol):
-        """Immediately closes any open position for the symbol at market."""
+        """Immediately closes any open position for the symbol at market and cancels outstanding bracket orders."""
+        self.cancel_all_orders(symbol)
         acct = self.get_account()
         for p in acct.get("positions", []):
             if p["symbol"] == symbol:

@@ -68,6 +68,18 @@ def send_telegram(message, token=None, chat_id=None):
     try:
         with urllib.request.urlopen(req, timeout=8) as resp:
             return True, "Telegram message delivered"
+    except urllib.error.HTTPError as e:
+        # Fallback to plain text if HTML parsing failed
+        if e.code == 400:
+            try:
+                payload.pop("parse_mode", None)
+                data_plain = json.dumps(payload).encode("utf-8")
+                req_plain = urllib.request.Request(url, data=data_plain, headers={"Content-Type": "application/json"})
+                with urllib.request.urlopen(req_plain, timeout=8) as resp2:
+                    return True, "Telegram message delivered (plain text fallback)"
+            except Exception:
+                pass
+        return False, f"Telegram delivery error: {e}"
     except Exception as e:
         return False, f"Telegram delivery error: {e}"
 
