@@ -65,6 +65,18 @@ try:
     import heatmap  # noqa: E402
 except ImportError:
     heatmap = None
+try:
+    import regime_hmm  # noqa: E402
+except ImportError:
+    regime_hmm = None
+try:
+    import stat_arb  # noqa: E402
+except ImportError:
+    stat_arb = None
+try:
+    import ai_agent  # noqa: E402
+except ImportError:
+    ai_agent = None
 
 HEATMAP_ENGINE = heatmap.DepthHeatmapEngine(max_snapshots=120) if heatmap else None
 BLOCK_DETECTOR = heatmap.BlockTradeDetector(max_history=200) if heatmap else None
@@ -1280,6 +1292,48 @@ class AppHandler(BaseHTTPRequestHandler):
                     return self._send_json(metrics)
                 else:
                     return self._send_json({"error": "Heatmap module unavailable"}, status=503)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/ai/debate":
+            try:
+                sym = predict.to_binance((qs.get("symbol") or ["BTCUSDT"])[0])
+                if ai_agent:
+                    engine = ai_agent.MultiAgentDebateEngine()
+                    res = engine.run_debate(sym)
+                    return self._send_json(res)
+                return self._send_json({"error": "AI Agent module unavailable"}, status=503)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/regime/hmm":
+            try:
+                sym = predict.to_binance((qs.get("symbol") or ["BTCUSDT"])[0])
+                interval = (qs.get("interval") or ["1h"])[0]
+                limit = min(300, max(20, int((qs.get("limit") or ["150"])[0])))
+                if regime_hmm:
+                    res = regime_hmm.analyze_symbol_regime(sym, interval=interval, limit=limit)
+                    return self._send_json(res)
+                return self._send_json({"error": "HMM Regime module unavailable"}, status=503)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, status=500)
+
+        if p == "/api/stat-arb/pairs":
+            try:
+                interval = (qs.get("interval") or ["1h"])[0]
+                limit = min(300, max(20, int((qs.get("limit") or ["100"])[0])))
+                pair_arg = (qs.get("pair") or [None])[0]
+                if stat_arb:
+                    if pair_arg:
+                        parts = pair_arg.replace("-", "/").replace("_", "/").split("/")
+                        if len(parts) == 2:
+                            sa = predict.to_binance(parts[0])
+                            sb = predict.to_binance(parts[1])
+                            res = stat_arb.scan_stat_arb_universe(pairs=[(sa, sb)], interval=interval, limit=limit)
+                            return self._send_json(res)
+                    res = stat_arb.scan_stat_arb_universe(interval=interval, limit=limit)
+                    return self._send_json(res)
+                return self._send_json({"error": "Stat-Arb module unavailable"}, status=503)
             except Exception as e:
                 return self._send_json({"error": str(e)}, status=500)
 
