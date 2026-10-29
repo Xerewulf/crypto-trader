@@ -1,7 +1,7 @@
 {
  "created": "2026-10-26 06:11:44 UTC",
  "start_equity": 5000.0,
- "realized": -74.64307496209985,
+ "realized": -131.46411213853753,
  "next_id": 6,
  "positions": {
   "SNDKBUSDT": {
@@ -20,7 +20,7 @@
    "margin": 209.20631951074702,
    "risk_usd": 50.0,
    "entry_fee": 0.8368252780429883,
-   "checked_ms": 1793284080000,
+   "checked_ms": 1793299440000,
    "initial_qty": 1.676964968679241,
    "tp1_px": 1301.1978400634327,
    "tp2_px": 1351.8846472344526,
@@ -29,37 +29,6 @@
    "trail_vwap": true,
    "partial_realized": 86.60963730033805,
    "partial_costs": 1.8903626996619576
-  },
-  "ETHUSDT": {
-   "id": 5,
-   "symbol": "ETHUSDT",
-   "side": "short",
-   "broker_orders": null,
-   "setup": "1h EMA20 Bearish Rejection",
-   "score": 75,
-   "signal_bar": "2026-10-29 12:00",
-   "opened": "2026-10-29 13:28:45 UTC",
-   "opened_ms": 1793280525541,
-   "entry": 2327.7943480000004,
-   "initial_stop": 2345.6200034088724,
-   "stop": 2345.6200034088724,
-   "tp1_px": 2295.7081682640305,
-   "tp2_px": 2265.404554068948,
-   "tp1_hit": false,
-   "tp2_hit": false,
-   "trail_vwap": false,
-   "initial_qty": 2.804945953073585,
-   "qty": 2.804945953073585,
-   "notional": 6529.337336010165,
-   "leverage": 4.0,
-   "margin": 1632.3343340025413,
-   "liq_px": 2645.22085,
-   "risk_usd": 50.0,
-   "planned_risk_usd": 50.0,
-   "entry_fee": 2.6117349344040663,
-   "partial_realized": 0.0,
-   "partial_costs": 0.0,
-   "checked_ms": 1793284080000
   }
  },
  "closed": [
@@ -165,475 +134,521 @@
    "net": -54.44,
    "r": -1.09,
    "equity_after": 4838.75
+  },
+  {
+   "id": 5,
+   "symbol": "ETHUSDT",
+   "side": "short",
+   "broker_orders": null,
+   "setup": "1h EMA20 Bearish Rejection",
+   "score": 75,
+   "signal_bar": "2026-10-29 12:00",
+   "opened": "2026-10-29 13:28:45 UTC",
+   "opened_ms": 1793280525541,
+   "entry": 2327.7943480000004,
+   "initial_stop": 2345.6200034088724,
+   "stop": 2345.6200034088724,
+   "tp1_px": 2295.7081682640305,
+   "tp2_px": 2265.404554068948,
+   "tp1_hit": false,
+   "tp2_hit": false,
+   "trail_vwap": false,
+   "initial_qty": 2.804945953073585,
+   "qty": 2.804945953073585,
+   "notional": 6529.337336010165,
+   "leverage": 4.0,
+   "margin": 1632.3343340025413,
+   "liq_px": 2645.22085,
+   "risk_usd": 50.0,
+   "planned_risk_usd": 50.0,
+   "entry_fee": 2.6117349344040663,
+   "partial_realized": 0.0,
+   "partial_costs": 0.0,
+   "checked_ms": 1793284500000,
+   "exit": 2346.0891274095543,
+   "closed": "2026-10-29 14:36:00 UTC",
+   "closed_ms": 1793284560000,
+   "outcome": "STOP-LOSS (-1.0R)",
+   "is_liquidation": false,
+   "liquidation_fee": 0.0,
+   "gross": -51.32,
+   "costs": 5.51,
+   "net": -56.82,
+   "r": -1.14,
+   "equity_after": 4868.54
   }
  ],
  "last_eval": {
-  "BTCUSDT": 1793278800000,
-  "ETHUSDT": 1793278800000,
-  "ZECUSDT": 1793278800000,
-  "SOLUSDT": 1793278800000,
-  "XRPUSDT": 1793278800000,
-  "NEARUSDT": 1793278800000,
-  "BNBUSDT": 1793278800000,
-  "ENAUSDT": 1793278800000,
-  "WLDUSDT": 1793278800000,
-  "SUIUSDT": 1793278800000,
-  "PEPEUSDT": 1793278800000,
-  "UNIUSDT": 1793278800000,
-  "DOGEUSDT": 1793278800000,
+  "BTCUSDT": 1793293200000,
+  "ETHUSDT": 1793293200000,
+  "ZECUSDT": 1793293200000,
+  "SOLUSDT": 1793293200000,
+  "XRPUSDT": 1793293200000,
+  "NEARUSDT": 1793293200000,
+  "BNBUSDT": 1793293200000,
+  "ENAUSDT": 1793293200000,
+  "WLDUSDT": 1793293200000,
+  "SUIUSDT": 1793293200000,
+  "PEPEUSDT": 1793293200000,
+  "UNIUSDT": 1793293200000,
+  "DOGEUSDT": 1793293200000,
   "BMTUSDT": 1793278800000,
-  "TRXUSDT": 1793278800000,
+  "TRXUSDT": 1793293200000,
   "ERAUSDT": 1793271600000,
   "SNDKBUSDT": 1793080800000,
-  "QNTUSDT": 1793278800000,
-  "HYPEUSDT": 1793278800000,
+  "QNTUSDT": 1793293200000,
+  "HYPEUSDT": 1793293200000,
   "SOXLBUSDT": 1793080800000,
-  "LINKUSDT": 1793278800000,
-  "TAOUSDT": 1793278800000,
-  "PUMPUSDT": 1793278800000,
-  "ADAUSDT": 1793278800000,
-  "AAVEUSDT": 1793278800000,
+  "LINKUSDT": 1793293200000,
+  "TAOUSDT": 1793293200000,
+  "PUMPUSDT": 1793293200000,
+  "ADAUSDT": 1793293200000,
+  "AAVEUSDT": 1793293200000,
   "BABYUSDT": 1793019600000,
-  "INJUSDT": 1793278800000,
-  "LTCUSDT": 1793278800000,
+  "INJUSDT": 1793293200000,
+  "LTCUSDT": 1793293200000,
   "DODOUSDT": 1793019600000,
-  "AVAXUSDT": 1793278800000,
-  "ONDOUSDT": 1793278800000,
+  "AVAXUSDT": 1793293200000,
+  "ONDOUSDT": 1793293200000,
   "TONUSDT": 1782784800000,
   "TUSDT": 1793005200000,
-  "FILUSDT": 1793278800000,
+  "FILUSDT": 1793293200000,
   "GTCUSDT": 1793008800000,
-  "AIUSDT": 1793278800000,
+  "AIUSDT": 1793293200000,
   "SPCXBUSDT": 1793080800000,
   "XLMUSDT": 1793278800000,
   "TRUMPUSDT": 1793106000000,
   "AIGENSYNUSDT": 1793008800000,
-  "ARBUSDT": 1793278800000,
-  "XUSDUSDT": 1793278800000,
+  "ARBUSDT": 1793293200000,
+  "XUSDUSDT": 1793293200000,
   "RWUSDUSDT": 1793250000000,
-  "BCHUSDT": 1793278800000,
+  "BCHUSDT": 1793293200000,
   "HUMAUSDT": 1793170800000,
   "CRCLBUSDT": 1793080800000,
-  "MUBUSDT": 1793278800000,
+  "MUBUSDT": 1793293200000,
   "MSTRBUSDT": 1793080800000,
   "CHIPUSDT": 1793124000000,
   "SKHYBUSDT": 1793080800000,
   "KATUSDT": 1793084400000,
-  "ZROUSDT": 1793278800000,
-  "CELOUSDT": 1793278800000,
+  "ZROUSDT": 1793293200000,
+  "CELOUSDT": 1793293200000,
   "BANKUSDT": 1793196000000,
   "NILUSDT": 1793170800000,
-  "FETUSDT": 1793278800000,
+  "FETUSDT": 1793293200000,
   "DASHUSDT": 1793170800000,
   "GRAMUSDT": 1793084400000,
   "HAEDALUSDT": 1793250000000,
-  "HBARUSDT": 1793278800000,
-  "INITUSDT": 1793278800000,
+  "HBARUSDT": 1793293200000,
+  "INITUSDT": 1793293200000,
   "BLURUSDT": 1793250000000,
-  "TIAUSDT": 1793278800000,
-  "BFUSDUSDT": 1793278800000
+  "TIAUSDT": 1793293200000,
+  "BFUSDUSDT": 1793278800000,
+  "PARTIUSDT": 1793293200000,
+  "LSKUSDT": 1793293200000,
+  "ASTERUSDT": 1793293200000
  },
  "last_exit_bar": {
   "XRPUSDT": 1793012400000,
   "WLDUSDT": 1793091600000,
-  "ADAUSDT": 1793095200000
+  "ADAUSDT": 1793095200000,
+  "ETHUSDT": 1793282400000
  },
  "diag": {
   "BNBUSDT": {
    "symbol": "BNBUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 744.93,
-   "ema20": 748.5550992834857,
-   "ema50": 748.3226766666436,
+   "bar": "2026-10-29 17:00",
+   "close": 745.94,
+   "ema20": 748.5072890432647,
+   "ema50": 748.3407805980122,
    "poc": 743.8885714285715,
    "val": 736.9428571428572,
-   "vah": 752.0971428571429,
-   "vwap_24h": 748.4334307796626,
-   "vwap_dist_pct": -0.47,
+   "vah": 750.8342857142858,
+   "vwap_24h": 748.4376429271655,
+   "vwap_dist_pct": -0.33,
    "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 52.2,
-   "imb_1pct": 5.0,
+   "taker_buy": 37.2,
+   "imb_1pct": 30.3,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 52.2% | Imb +5.0% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 37.2% | Imb +30.3% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:20 UTC"
+   "evaluated": "2026-10-29 18:44:49 UTC"
   },
   "XRPUSDT": {
    "symbol": "XRPUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 1.291,
-   "ema20": 1.3013650366021339,
-   "ema50": 1.3084243827179654,
+   "bar": "2026-10-29 17:00",
+   "close": 1.2937,
+   "ema20": 1.3012729465503432,
+   "ema50": 1.307378973087273,
    "poc": 1.291802857142857,
    "val": 1.282822857142857,
    "vah": 1.3213085714285715,
-   "vwap_24h": 1.3075166955863449,
-   "vwap_dist_pct": -1.26,
-   "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 44.2,
-   "imb_1pct": 21.4,
+   "vwap_24h": 1.3055492736300034,
+   "vwap_dist_pct": -0.91,
+   "auction_state": "UPPER VALUE (POC to VAH)",
+   "taker_buy": 58.5,
+   "imb_1pct": 37.5,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 44.2% | Imb +21.4% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "check": "No Setup | Taker Buy 58.5% | Imb +37.5% | Funding +0.0100% | Trend bearish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:27 UTC"
+   "evaluated": "2026-10-29 18:44:59 UTC"
   },
   "DOGEUSDT": {
    "symbol": "DOGEUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.0792,
-   "ema20": 0.07877194430233277,
-   "ema50": 0.07874594254670358,
-   "poc": 0.07643842857142857,
-   "val": 0.07635114285714285,
-   "vah": 0.07949342857142858,
-   "vwap_24h": 0.07893003145590395,
-   "vwap_dist_pct": 0.34,
-   "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 45.1,
-   "imb_1pct": 11.4,
+   "bar": "2026-10-29 17:00",
+   "close": 0.07961,
+   "ema20": 0.07919577476157988,
+   "ema50": 0.07894091460342607,
+   "poc": 0.07640714285714285,
+   "val": 0.07612,
+   "vah": 0.07956571428571428,
+   "vwap_24h": 0.07924627356618787,
+   "vwap_dist_pct": 0.46,
+   "auction_state": "INITIATIVE BREAKOUT (> VAH)",
+   "taker_buy": 39.5,
+   "imb_1pct": -0.4,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 45.1% | Imb +11.4% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 39.5% | Imb -0.4% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:43 UTC"
+   "evaluated": "2026-10-29 18:45:10 UTC"
   },
   "AVAXUSDT": {
    "symbol": "AVAXUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 8.827,
-   "ema20": 8.798944244029249,
-   "ema50": 8.852011032527022,
+   "bar": "2026-10-29 17:00",
+   "close": 8.874,
+   "ema20": 8.843325294606247,
+   "ema50": 8.864175265512323,
    "poc": 8.9093,
-   "val": 8.7624,
-   "vah": 9.056199999999999,
-   "vwap_24h": 8.818092431443723,
-   "vwap_dist_pct": 0.1,
+   "val": 8.739799999999999,
+   "vah": 9.0336,
+   "vwap_24h": 8.84073265364565,
+   "vwap_dist_pct": 0.38,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 49.0,
-   "imb_1pct": -3.4,
+   "taker_buy": 47.3,
+   "imb_1pct": 18.8,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 49.0% | Imb -3.4% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "check": "No Setup | Taker Buy 47.3% | Imb +18.8% | Funding +0.0100% | Trend bearish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:57 UTC"
+   "evaluated": "2026-10-29 18:45:24 UTC"
   },
   "ETHUSDT": {
    "symbol": "ETHUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 2327.22,
-   "ema20": 2329.8249643170993,
-   "ema50": 2336.011682711084,
+   "bar": "2026-10-29 17:00",
+   "close": 2341.43,
+   "ema20": 2337.0545454456214,
+   "ema50": 2338.360641631342,
    "poc": 2311.455,
    "val": 2305.656,
-   "vah": 2379.11,
-   "vwap_24h": 2336.2318779085085,
-   "vwap_dist_pct": -0.39,
+   "vah": 2371.378,
+   "vwap_24h": 2340.3958586938616,
+   "vwap_dist_pct": 0.04,
    "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 52.4,
-   "imb_1pct": 3.9,
+   "taker_buy": 50.1,
+   "imb_1pct": 31.6,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 52.4% | Imb +3.9% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "check": "No Setup | Taker Buy 50.1% | Imb +31.6% | Funding +0.0100% | Trend bearish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:18 UTC"
+   "evaluated": "2026-10-29 18:44:46 UTC"
   },
   "SOLUSDT": {
    "symbol": "SOLUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 100.66,
-   "ema20": 100.76896259737623,
-   "ema50": 101.09038039503626,
-   "poc": 100.42228571428572,
-   "val": 99.56857142857143,
-   "vah": 102.604,
-   "vwap_24h": 101.18452820856102,
-   "vwap_dist_pct": -0.52,
+   "bar": "2026-10-29 17:00",
+   "close": 101.09,
+   "ema20": 101.12128656040534,
+   "ema50": 101.20342578789207,
+   "poc": 100.41685714285714,
+   "val": 100.13314285714286,
+   "vah": 102.78114285714285,
+   "vwap_24h": 101.36364222769231,
+   "vwap_dist_pct": -0.27,
    "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 62.0,
-   "imb_1pct": -2.0,
+   "taker_buy": 47.4,
+   "imb_1pct": 43.1,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 3.7,
+   "news_sentiment": 3.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 62.0% | Imb -2.0% | Funding +0.0100% | Trend bearish | News: +3.7",
+   "check": "No Setup | Taker Buy 47.4% | Imb +43.1% | Funding +0.0100% | Trend bearish | News: +3.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:22 UTC"
+   "evaluated": "2026-10-29 18:44:51 UTC"
   },
   "NEARUSDT": {
    "symbol": "NEARUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 4.448,
-   "ema20": 4.487781546833781,
-   "ema50": 4.546894121322607,
-   "poc": 4.471757142857143,
-   "val": 4.4134,
-   "vah": 4.763542857142857,
-   "vwap_24h": 4.502507103279253,
-   "vwap_dist_pct": -1.21,
-   "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 48.2,
-   "imb_1pct": 6.9,
+   "bar": "2026-10-29 17:00",
+   "close": 4.503,
+   "ema20": 4.514101247391395,
+   "ema50": 4.550033523191944,
+   "poc": 4.4783,
+   "val": 4.4022,
+   "vah": 4.728342857142858,
+   "vwap_24h": 4.512847639158761,
+   "vwap_dist_pct": -0.22,
+   "auction_state": "UPPER VALUE (POC to VAH)",
+   "taker_buy": 43.8,
+   "imb_1pct": 11.6,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
+   "check": "SHORT: 1h EMA20 Bearish Rejection | Taker Buy 43.8% | Imb +11.6% | Funding +0.0100% | News: +1.5",
    "side": "short",
-   "check": "No Setup | Taker Buy 48.2% | Imb +6.9% | Funding +0.0100% | Trend bearish | News: +1.7",
-   "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:26 UTC"
+   "signal": "[SHORT] 1h EMA20 Bearish Rejection (skipped: Signal candle closed 46 min ago (stale limit 30 min))",
+   "evaluated": "2026-10-29 18:44:55 UTC"
   },
   "SUIUSDT": {
    "symbol": "SUIUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.9314,
-   "ema20": 0.9234988669570385,
-   "ema50": 0.9255929754461344,
+   "bar": "2026-10-29 17:00",
+   "close": 0.9363,
+   "ema20": 0.9305096827096575,
+   "ema50": 0.9284459487568671,
    "poc": 0.9182628571428572,
    "val": 0.9047885714285715,
    "vah": 0.9437142857142857,
-   "vwap_24h": 0.9274357690564741,
-   "vwap_dist_pct": 0.43,
+   "vwap_24h": 0.9322158295871359,
+   "vwap_dist_pct": 0.44,
    "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 42.6,
-   "imb_1pct": -4.4,
+   "taker_buy": 51.4,
+   "imb_1pct": 8.1,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 42.6% | Imb -4.4% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 51.4% | Imb +8.1% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:34 UTC"
+   "evaluated": "2026-10-29 18:45:03 UTC"
   },
   "PEPEUSDT": {
    "symbol": "PEPEUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 4.87e-06,
-   "ema20": 4.936754655597536e-06,
-   "ema50": 4.825189865103948e-06,
-   "poc": 4.894857142857143e-06,
-   "val": 4.501428571428572e-06,
-   "vah": 5.23e-06,
-   "vwap_24h": 4.985384536010986e-06,
-   "vwap_dist_pct": -2.31,
-   "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 48.5,
-   "imb_1pct": -7.9,
+   "bar": "2026-10-29 17:00",
+   "close": 5.44e-06,
+   "ema20": 5.075637226276827e-06,
+   "ema50": 4.90280786638666e-06,
+   "poc": 4.903e-06,
+   "val": 4.546e-06,
+   "vah": 5.68e-06,
+   "vwap_24h": 5.170577804378298e-06,
+   "vwap_dist_pct": 5.21,
+   "auction_state": "UPPER VALUE (POC to VAH)",
+   "taker_buy": 49.7,
+   "imb_1pct": 4.6,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 3.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 48.5% | Imb -7.9% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 49.7% | Imb +4.6% | Funding +0.0100% | Trend bullish | News: +3.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:29 UTC"
+   "evaluated": "2026-10-29 18:44:53 UTC"
   },
   "LINKUSDT": {
    "symbol": "LINKUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 11.649,
-   "ema20": 11.581950663630957,
-   "ema50": 11.579269487282632,
+   "bar": "2026-10-29 17:00",
+   "close": 11.75,
+   "ema20": 11.667430300324375,
+   "ema50": 11.618244903901244,
    "poc": 11.493414285714286,
    "val": 11.292657142857141,
    "vah": 11.755942857142857,
-   "vwap_24h": 11.596272418184347,
-   "vwap_dist_pct": 0.45,
+   "vwap_24h": 11.670444554864067,
+   "vwap_dist_pct": 0.68,
    "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 51.6,
-   "imb_1pct": -6.0,
+   "taker_buy": 52.4,
+   "imb_1pct": 22.9,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 3.2,
+   "news_sentiment": 3.0,
    "side": "long",
-   "check": "No Setup | Taker Buy 51.6% | Imb -6.0% | Funding +0.0100% | Trend bullish | News: +3.2",
+   "check": "No Setup | Taker Buy 52.4% | Imb +22.9% | Funding +0.0100% | Trend bullish | News: +3.0",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:52 UTC"
+   "evaluated": "2026-10-29 18:45:19 UTC"
   },
   "ADAUSDT": {
    "symbol": "ADAUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.2019,
-   "ema20": 0.20136199787846612,
-   "ema50": 0.2030213364727091,
-   "poc": 0.20521142857142857,
+   "bar": "2026-10-29 17:00",
+   "close": 0.2035,
+   "ema20": 0.2024869170568688,
+   "ema50": 0.2032804556869882,
+   "poc": 0.20388571428571428,
    "val": 0.19957714285714284,
-   "vah": 0.21150857142857143,
-   "vwap_24h": 0.20136020872262966,
-   "vwap_dist_pct": 0.27,
+   "vah": 0.20885714285714285,
+   "vwap_24h": 0.20192516393881435,
+   "vwap_dist_pct": 0.78,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 49.8,
-   "imb_1pct": 1.3,
+   "taker_buy": 35.2,
+   "imb_1pct": 10.8,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 49.8% | Imb +1.3% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "check": "No Setup | Taker Buy 35.2% | Imb +10.8% | Funding +0.0100% | Trend bearish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:47 UTC"
+   "evaluated": "2026-10-29 18:45:14 UTC"
   },
   "WLDUSDT": {
    "symbol": "WLDUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.4217,
-   "ema20": 0.4234758127072661,
-   "ema50": 0.43011850369972987,
+   "bar": "2026-10-29 17:00",
+   "close": 0.4238,
+   "ema20": 0.42563724942480685,
+   "ema50": 0.4300965486106233,
    "poc": 0.43818714285714283,
    "val": 0.41340571428571427,
-   "vah": 0.48549714285714285,
-   "vwap_24h": 0.4261624716037598,
-   "vwap_dist_pct": -1.05,
+   "vah": 0.48099142857142857,
+   "vwap_24h": 0.4271254010623135,
+   "vwap_dist_pct": -0.78,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 46.3,
-   "imb_1pct": -17.5,
+   "taker_buy": 42.3,
+   "imb_1pct": -0.4,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
-   "check": "SHORT: 1h EMA20 Bearish Rejection | Taker Buy 46.3% | Imb -17.5% | Funding +0.0100% | News: +1.7",
+   "news_sentiment": 1.5,
+   "check": "SHORT: 1h EMA20 Bearish Rejection | Taker Buy 42.3% | Imb -0.4% | Funding +0.0100% | News: +1.5",
    "side": "short",
-   "signal": "[SHORT] 1h EMA20 Bearish Rejection (blocked: Gross leverage cap: book would be 2.64x equity (limit 2.0x))",
-   "evaluated": "2026-10-29 14:28:36 UTC"
+   "signal": "[SHORT] 1h EMA20 Bearish Rejection (skipped: Signal candle closed 46 min ago (stale limit 30 min))",
+   "evaluated": "2026-10-29 18:45:07 UTC"
   },
   "ENAUSDT": {
    "symbol": "ENAUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.206,
-   "ema20": 0.20191375080422616,
-   "ema50": 0.2032899849814337,
-   "poc": 0.20858285714285715,
-   "val": 0.19880285714285714,
-   "vah": 0.21184285714285714,
-   "vwap_24h": 0.20270608854463315,
-   "vwap_dist_pct": 1.62,
-   "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 46.1,
-   "imb_1pct": -3.7,
+   "bar": "2026-10-29 17:00",
+   "close": 0.2116,
+   "ema20": 0.20540047252563248,
+   "ema50": 0.2046344447058622,
+   "poc": 0.2085985714285714,
+   "val": 0.19939714285714286,
+   "vah": 0.21295714285714284,
+   "vwap_24h": 0.20709982177637065,
+   "vwap_dist_pct": 2.17,
+   "auction_state": "UPPER VALUE (POC to VAH)",
+   "taker_buy": 48.6,
+   "imb_1pct": 3.1,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 46.1% | Imb -3.7% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 48.6% | Imb +3.1% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:33 UTC"
+   "evaluated": "2026-10-29 18:45:00 UTC"
   },
   "UNIUSDT": {
    "symbol": "UNIUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 7.19,
-   "ema20": 7.120157174017312,
-   "ema50": 7.106477678463566,
-   "poc": 7.075971428571428,
-   "val": 6.921085714285714,
-   "vah": 7.230857142857142,
-   "vwap_24h": 7.136675573723737,
-   "vwap_dist_pct": 0.75,
+   "bar": "2026-10-29 17:00",
+   "close": 7.266,
+   "ema20": 7.188887052085443,
+   "ema50": 7.139325890401696,
+   "poc": 7.075928571428571,
+   "val": 6.918,
+   "vah": 7.291285714285714,
+   "vwap_24h": 7.218359390490584,
+   "vwap_dist_pct": 0.66,
    "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 54.5,
-   "imb_1pct": 21.5,
+   "taker_buy": 44.9,
+   "imb_1pct": 31.1,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 54.5% | Imb +21.5% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 44.9% | Imb +31.1% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:40 UTC"
+   "evaluated": "2026-10-29 18:45:05 UTC"
   },
   "TAOUSDT": {
    "symbol": "TAOUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 252.6,
-   "ema20": 251.8214509522704,
-   "ema50": 252.6435049316445,
+   "bar": "2026-10-29 17:00",
+   "close": 254.3,
+   "ema20": 253.26178856069535,
+   "ema50": 253.17342911360456,
    "poc": 247.1642857142857,
    "val": 246.25142857142856,
    "vah": 257.2057142857143,
-   "vwap_24h": 252.86130072467125,
-   "vwap_dist_pct": -0.1,
+   "vwap_24h": 254.15296487746036,
+   "vwap_dist_pct": 0.06,
    "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 60.4,
-   "imb_1pct": 10.5,
+   "taker_buy": 34.9,
+   "imb_1pct": 13.5,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 60.4% | Imb +10.5% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 34.9% | Imb +13.5% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:09 UTC"
+   "evaluated": "2026-10-29 18:45:31 UTC"
   },
   "AAVEUSDT": {
    "symbol": "AAVEUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 133.1,
-   "ema20": 132.32438022217528,
-   "ema50": 133.08659233291044,
-   "poc": 135.317,
-   "val": 129.83085714285713,
-   "vah": 139.5122857142857,
-   "vwap_24h": 132.7970794079486,
-   "vwap_dist_pct": 0.23,
+   "bar": "2026-10-29 17:00",
+   "close": 133.78,
+   "ema20": 133.29024876955825,
+   "ema50": 133.4102495611863,
+   "poc": 135.029,
+   "val": 130.394,
+   "vah": 137.81,
+   "vwap_24h": 133.68040793717304,
+   "vwap_dist_pct": 0.07,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 47.1,
-   "imb_1pct": 23.0,
+   "taker_buy": 41.8,
+   "imb_1pct": 24.6,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 3.2,
+   "news_sentiment": 3.0,
    "side": "short",
-   "check": "No Setup | Taker Buy 47.1% | Imb +23.0% | Funding +0.0100% | Trend bearish | News: +3.2",
+   "check": "No Setup | Taker Buy 41.8% | Imb +24.6% | Funding +0.0100% | Trend bearish | News: +3.0",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:55 UTC"
+   "evaluated": "2026-10-29 18:45:22 UTC"
   },
   "INJUSDT": {
    "symbol": "INJUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 8.031,
-   "ema20": 7.8563841068112605,
-   "ema50": 7.876028346833952,
-   "poc": 7.956214285714286,
+   "bar": "2026-10-29 17:00",
+   "close": 8.004,
+   "ema20": 7.929865464931093,
+   "ema50": 7.906189238431473,
+   "poc": 8.0585,
    "val": 7.662142857142857,
    "vah": 8.071285714285715,
-   "vwap_24h": 7.86036044665532,
-   "vwap_dist_pct": 2.17,
-   "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 61.9,
-   "imb_1pct": 1.5,
+   "vwap_24h": 7.919557454391534,
+   "vwap_dist_pct": 1.07,
+   "auction_state": "LOWER VALUE (VAL to POC)",
+   "taker_buy": 48.2,
+   "imb_1pct": 29.8,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 61.9% | Imb +1.5% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 48.2% | Imb +29.8% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:04 UTC"
+   "evaluated": "2026-10-29 18:45:26 UTC"
   },
   "LTCUSDT": {
    "symbol": "LTCUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 57.97,
-   "ema20": 57.947467918280395,
-   "ema50": 57.743530029041395,
+   "bar": "2026-10-29 17:00",
+   "close": 57.74,
+   "ema20": 58.01961180783037,
+   "ema50": 57.806226939203114,
    "poc": 56.38471428571429,
    "val": 56.180285714285716,
-   "vah": 58.633428571428574,
-   "vwap_24h": 58.394813375521814,
-   "vwap_dist_pct": -0.73,
+   "vah": 58.497142857142855,
+   "vwap_24h": 58.27143610156315,
+   "vwap_dist_pct": -0.91,
    "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 44.0,
-   "imb_1pct": 18.3,
+   "taker_buy": 56.8,
+   "imb_1pct": 5.8,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 44.0% | Imb +18.3% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 56.8% | Imb +5.8% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:45 UTC"
+   "evaluated": "2026-10-29 18:45:20 UTC"
   },
   "TONUSDT": {
    "symbol": "TONUSDT",
@@ -659,47 +674,47 @@
   },
   "BTCUSDT": {
    "symbol": "BTCUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 80305.21,
-   "ema20": 80381.2820188925,
-   "ema50": 80531.38087105764,
-   "poc": 80153.92885714286,
+   "bar": "2026-10-29 17:00",
+   "close": 80891.82,
+   "ema20": 80671.53560553471,
+   "ema50": 80640.4326901453,
+   "poc": 80965.39742857144,
    "val": 79707.62114285716,
    "vah": 81087.11771428572,
-   "vwap_24h": 80607.63685191586,
-   "vwap_dist_pct": -0.38,
-   "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 61.9,
-   "imb_1pct": -16.3,
+   "vwap_24h": 80787.2144046854,
+   "vwap_dist_pct": 0.13,
+   "auction_state": "LOWER VALUE (VAL to POC)",
+   "taker_buy": 49.8,
+   "imb_1pct": 5.9,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 0.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 61.9% | Imb -16.3% | Funding +0.0100% | Trend bearish | News: +0.7",
+   "trend": "bullish",
+   "news_sentiment": 0.0,
+   "side": "long",
+   "check": "No Setup | Taker Buy 49.8% | Imb +5.9% | Funding +0.0100% | Trend bullish | News: +0.0",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:16 UTC"
+   "evaluated": "2026-10-29 18:44:44 UTC"
   },
   "ZECUSDT": {
    "symbol": "ZECUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 1276.65,
-   "ema20": 1269.324656726269,
-   "ema50": 1271.7230481043914,
-   "poc": 1224.75,
-   "val": 1185.3042857142857,
-   "vah": 1294.5385714285715,
-   "vwap_24h": 1274.1348632890658,
-   "vwap_dist_pct": 0.2,
-   "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 54.2,
-   "imb_1pct": 16.0,
+   "bar": "2026-10-29 17:00",
+   "close": 1335.28,
+   "ema20": 1291.2568745173076,
+   "ema50": 1281.0949732801964,
+   "poc": 1226.3918571428571,
+   "val": 1150.5031428571428,
+   "vah": 1278.3157142857144,
+   "vwap_24h": 1296.8723038600037,
+   "vwap_dist_pct": 2.96,
+   "auction_state": "INITIATIVE BREAKOUT (> VAH)",
+   "taker_buy": 41.1,
+   "imb_1pct": 7.2,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 54.2% | Imb +16.0% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 41.1% | Imb +7.2% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:24 UTC"
+   "evaluated": "2026-10-29 18:44:48 UTC"
   },
   "BMTUSDT": {
    "symbol": "BMTUSDT",
@@ -725,25 +740,25 @@
   },
   "TRXUSDT": {
    "symbol": "TRXUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.3319,
-   "ema20": 0.33112026118163995,
-   "ema50": 0.33074130067745167,
+   "bar": "2026-10-29 17:00",
+   "close": 0.3314,
+   "ema20": 0.3312132905481124,
+   "ema50": 0.33083923825458234,
    "poc": 0.33029714285714284,
    "val": 0.32769714285714285,
-   "vah": 0.3306685714285714,
-   "vwap_24h": 0.3306983258863202,
-   "vwap_dist_pct": 0.36,
+   "vah": 0.3309657142857143,
+   "vwap_24h": 0.33083813348941943,
+   "vwap_dist_pct": 0.17,
    "auction_state": "INITIATIVE BREAKOUT (> VAH)",
-   "taker_buy": 56.9,
-   "imb_1pct": 11.6,
+   "taker_buy": 52.2,
+   "imb_1pct": 13.3,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
-   "check": "LONG: Volume Profile VWAP/EMA20 Pullback | Taker Buy 56.9% | Imb +11.6% | Funding +0.0100% | News: +1.7",
+   "news_sentiment": 1.5,
    "side": "long",
-   "signal": "[LONG] Volume Profile VWAP/EMA20 Pullback",
-   "evaluated": "2026-10-29 14:28:41 UTC"
+   "check": "No Setup | Taker Buy 52.2% | Imb +13.3% | Funding +0.0100% | Trend bullish | News: +1.5",
+   "signal": "No Setup",
+   "evaluated": "2026-10-29 18:45:17 UTC"
   },
   "ERAUSDT": {
    "symbol": "ERAUSDT",
@@ -791,47 +806,47 @@
   },
   "QNTUSDT": {
    "symbol": "QNTUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 194.84,
-   "ema20": 194.98628549159594,
-   "ema50": 196.65646117833745,
+   "bar": "2026-10-29 17:00",
+   "close": 192.72,
+   "ema20": 195.38082370395048,
+   "ema50": 196.597075189479,
    "poc": 214.60000000000002,
-   "val": 190.84,
+   "val": 192.28,
    "vah": 223.96,
-   "vwap_24h": 195.70069349171354,
-   "vwap_dist_pct": -0.44,
+   "vwap_24h": 196.05851949216026,
+   "vwap_dist_pct": -1.7,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 41.7,
-   "imb_1pct": -0.3,
+   "taker_buy": 43.3,
+   "imb_1pct": 19.3,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 41.7% | Imb -0.3% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "check": "No Setup | Taker Buy 43.3% | Imb +19.3% | Funding +0.0100% | Trend bearish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:14 UTC"
+   "evaluated": "2026-10-29 18:45:37 UTC"
   },
   "HYPEUSDT": {
    "symbol": "HYPEUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 91.23,
-   "ema20": 82.75066983137162,
-   "ema50": 81.1220032964001,
-   "poc": 77.73714285714286,
-   "val": 74.9557142857143,
-   "vah": 84.05857142857144,
-   "vwap_24h": 86.00614446540821,
-   "vwap_dist_pct": 6.07,
+   "bar": "2026-10-29 17:00",
+   "close": 94.56,
+   "ema20": 86.50766050056538,
+   "ema50": 83.03267138009403,
+   "poc": 78.10985714285714,
+   "val": 74.45,
+   "vah": 89.08942857142857,
+   "vwap_24h": 89.55526193588304,
+   "vwap_dist_pct": 5.59,
    "auction_state": "INITIATIVE BREAKOUT (> VAH)",
-   "taker_buy": 44.6,
-   "imb_1pct": 10.7,
+   "taker_buy": 49.8,
+   "imb_1pct": -14.1,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 44.6% | Imb +10.7% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 49.8% | Imb -14.1% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:31 UTC"
+   "evaluated": "2026-10-29 18:44:57 UTC"
   },
   "SOXLBUSDT": {
    "symbol": "SOXLBUSDT",
@@ -857,25 +872,25 @@
   },
   "PUMPUSDT": {
    "symbol": "PUMPUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.004407,
-   "ema20": 0.004335824924969132,
-   "ema50": 0.0043201927262051425,
-   "poc": 0.004254628571428571,
-   "val": 0.004125457142857143,
-   "vah": 0.004430771428571428,
-   "vwap_24h": 0.004368127763165029,
-   "vwap_dist_pct": 0.89,
-   "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 50.3,
-   "imb_1pct": 9.2,
+   "bar": "2026-10-29 17:00",
+   "close": 0.004489,
+   "ema20": 0.004393979008987546,
+   "ema50": 0.004348241306538543,
+   "poc": 0.004266271428571429,
+   "val": 0.004128485714285714,
+   "vah": 0.0044408,
+   "vwap_24h": 0.0044233313836131265,
+   "vwap_dist_pct": 1.48,
+   "auction_state": "INITIATIVE BREAKOUT (> VAH)",
+   "taker_buy": 46.6,
+   "imb_1pct": 27.7,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 50.3% | Imb +9.2% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 46.6% | Imb +27.7% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:48 UTC"
+   "evaluated": "2026-10-29 18:45:09 UTC"
   },
   "BABYUSDT": {
    "symbol": "BABYUSDT",
@@ -923,25 +938,25 @@
   },
   "ONDOUSDT": {
    "symbol": "ONDOUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.4161,
-   "ema20": 0.4129773274607539,
-   "ema50": 0.414147759285029,
+   "bar": "2026-10-29 17:00",
+   "close": 0.4207,
+   "ema20": 0.41676234527051226,
+   "ema50": 0.4156728469539574,
    "poc": 0.41825,
    "val": 0.4027857142857143,
    "vah": 0.42134285714285713,
-   "vwap_24h": 0.41425908242874643,
-   "vwap_dist_pct": 0.44,
-   "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 45.3,
-   "imb_1pct": 22.4,
+   "vwap_24h": 0.4184643906912548,
+   "vwap_dist_pct": 0.53,
+   "auction_state": "UPPER VALUE (POC to VAH)",
+   "taker_buy": 45.0,
+   "imb_1pct": 18.7,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 45.3% | Imb +22.4% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 45.0% | Imb +18.7% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:30 UTC"
+   "evaluated": "2026-10-29 18:45:43 UTC"
   },
   "TUSDT": {
    "symbol": "TUSDT",
@@ -966,25 +981,25 @@
   },
   "FILUSDT": {
    "symbol": "FILUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.9106,
-   "ema20": 0.8979984131086162,
-   "ema50": 0.9014772050652725,
+   "bar": "2026-10-29 17:00",
+   "close": 0.8999,
+   "ema20": 0.9020596672810117,
+   "ema50": 0.9028230136322062,
    "poc": 0.9250957142857142,
    "val": 0.8688771428571428,
-   "vah": 0.9425428571428571,
-   "vwap_24h": 0.8929194149552382,
-   "vwap_dist_pct": 1.98,
+   "vah": 0.9309114285714285,
+   "vwap_24h": 0.9000489470653531,
+   "vwap_dist_pct": -0.02,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 62.9,
-   "imb_1pct": 0.5,
+   "taker_buy": 34.9,
+   "imb_1pct": 14.7,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 5.5,
+   "news_sentiment": 5.3,
+   "check": "SHORT: 1h EMA20 Bearish Rejection | Taker Buy 34.9% | Imb +14.7% | Funding +0.0100% | News: +5.3",
    "side": "short",
-   "check": "No Setup | Taker Buy 62.9% | Imb +0.5% | Funding +0.0100% | Trend bearish | News: +5.5",
-   "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:29 UTC"
+   "signal": "[SHORT] 1h EMA20 Bearish Rejection (skipped: Signal candle closed 46 min ago (stale limit 30 min))",
+   "evaluated": "2026-10-29 18:45:50 UTC"
   },
   "GTCUSDT": {
    "symbol": "GTCUSDT",
@@ -1009,25 +1024,25 @@
   },
   "AIUSDT": {
    "symbol": "AIUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.019,
-   "ema20": 0.01947198661205387,
-   "ema50": 0.019566093579745404,
+   "bar": "2026-10-29 17:00",
+   "close": 0.0193,
+   "ema20": 0.019425427504185487,
+   "ema50": 0.019530584392749795,
    "poc": 0.020494285714285715,
    "val": 0.019788571428571426,
-   "vah": 0.020531428571428572,
-   "vwap_24h": 0.01973340476355258,
-   "vwap_dist_pct": -3.72,
+   "vah": 0.0212,
+   "vwap_24h": 0.019737942317645602,
+   "vwap_dist_pct": -2.22,
    "auction_state": "DISCOUNT / BREAKDOWN (< VAL)",
-   "taker_buy": 42.1,
-   "imb_1pct": 43.8,
+   "taker_buy": 20.7,
+   "imb_1pct": 21.1,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 42.1% | Imb +43.8% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "check": "No Setup | Taker Buy 20.7% | Imb +21.1% | Funding +0.0100% | Trend bearish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:38 UTC"
+   "evaluated": "2026-10-29 18:45:12 UTC"
   },
   "SPCXBUSDT": {
    "symbol": "SPCXBUSDT",
@@ -1118,47 +1133,47 @@
   },
   "ARBUSDT": {
    "symbol": "ARBUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.1701,
-   "ema20": 0.16798657990998625,
-   "ema50": 0.16826382731297704,
-   "poc": 0.1701542857142857,
-   "val": 0.1630742857142857,
-   "vah": 0.17386285714285712,
-   "vwap_24h": 0.1697914794890893,
-   "vwap_dist_pct": 0.18,
+   "bar": "2026-10-29 17:00",
+   "close": 0.1697,
+   "ema20": 0.1693303040756937,
+   "ema50": 0.1688319422702902,
+   "poc": 0.17008857142857142,
+   "val": 0.16306857142857142,
+   "vah": 0.17242857142857143,
+   "vwap_24h": 0.17088433754883733,
+   "vwap_dist_pct": -0.69,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 46.2,
-   "imb_1pct": 16.8,
+   "taker_buy": 47.4,
+   "imb_1pct": 29.2,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 46.2% | Imb +16.8% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 47.4% | Imb +29.2% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:07 UTC"
+   "evaluated": "2026-10-29 18:45:32 UTC"
   },
   "XUSDUSDT": {
    "symbol": "XUSDUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 1.0011,
-   "ema20": 1.001121932738631,
-   "ema50": 1.001155022293514,
+   "bar": "2026-10-29 17:00",
+   "close": 1.001,
+   "ema20": 1.001057497632393,
+   "ema50": 1.001121242851395,
    "poc": 1.0011314285714286,
    "val": 1.00108,
    "vah": 1.0013885714285715,
-   "vwap_24h": 1.0011033368664966,
-   "vwap_dist_pct": -0.0,
-   "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 100.0,
-   "imb_1pct": -13.5,
+   "vwap_24h": 1.001080404079162,
+   "vwap_dist_pct": -0.01,
+   "auction_state": "DISCOUNT / BREAKDOWN (< VAL)",
+   "taker_buy": 94.8,
+   "imb_1pct": -10.6,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 100.0% | Imb -13.5% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "check": "No Setup | Taker Buy 94.8% | Imb -10.6% | Funding +0.0100% | Trend bearish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:05 UTC"
+   "evaluated": "2026-10-29 18:45:34 UTC"
   },
   "RWUSDUSDT": {
    "symbol": "RWUSDUSDT",
@@ -1184,25 +1199,25 @@
   },
   "BCHUSDT": {
    "symbol": "BCHUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 278.9,
-   "ema20": 282.9042553111502,
-   "ema50": 285.5961211516745,
+   "bar": "2026-10-29 17:00",
+   "close": 289.0,
+   "ema20": 284.3678150805485,
+   "ema50": 285.82991632570315,
    "poc": 279.04,
    "val": 273.25714285714287,
-   "vah": 287.9771428571429,
-   "vwap_24h": 284.5272376853926,
-   "vwap_dist_pct": -1.98,
-   "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 54.1,
-   "imb_1pct": 6.0,
+   "vah": 289.0285714285714,
+   "vwap_24h": 284.44444703745444,
+   "vwap_dist_pct": 1.6,
+   "auction_state": "UPPER VALUE (POC to VAH)",
+   "taker_buy": 55.1,
+   "imb_1pct": 11.8,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 54.1% | Imb +6.0% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "check": "No Setup | Taker Buy 55.1% | Imb +11.8% | Funding +0.0100% | Trend bearish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:18 UTC"
+   "evaluated": "2026-10-29 18:45:48 UTC"
   },
   "HUMAUSDT": {
    "symbol": "HUMAUSDT",
@@ -1250,25 +1265,25 @@
   },
   "MUBUSDT": {
    "symbol": "MUBUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 950.44,
-   "ema20": 956.6924409555384,
-   "ema50": 949.9548928720624,
+   "bar": "2026-10-29 17:00",
+   "close": 936.0,
+   "ema20": 953.1060171844144,
+   "ema50": 949.4013563608434,
    "poc": 971.2271428571429,
    "val": 879.1457142857143,
    "vah": 990.5,
-   "vwap_24h": 962.7281640477203,
-   "vwap_dist_pct": -1.28,
+   "vwap_24h": 959.802600049847,
+   "vwap_dist_pct": -2.48,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 53.5,
-   "imb_1pct": -4.1,
+   "taker_buy": 17.8,
+   "imb_1pct": -8.0,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 53.5% | Imb -4.1% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 17.8% | Imb -8.0% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:53 UTC"
+   "evaluated": "2026-10-29 18:45:27 UTC"
   },
   "MSTRBUSDT": {
    "symbol": "MSTRBUSDT",
@@ -1360,47 +1375,47 @@
   },
   "ZROUSDT": {
    "symbol": "ZROUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 1.719,
-   "ema20": 1.677455726334992,
-   "ema50": 1.682804733850423,
+   "bar": "2026-10-29 17:00",
+   "close": 1.718,
+   "ema20": 1.700363622007703,
+   "ema50": 1.6923692608752785,
    "poc": 1.732,
-   "val": 1.620142857142857,
-   "vah": 1.759,
-   "vwap_24h": 1.7001830552492683,
-   "vwap_dist_pct": 1.11,
+   "val": 1.681857142857143,
+   "vah": 1.813,
+   "vwap_24h": 1.7165966041187408,
+   "vwap_dist_pct": 0.08,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 51.3,
-   "imb_1pct": 37.6,
+   "taker_buy": 39.3,
+   "imb_1pct": 25.3,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 51.3% | Imb +37.6% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 39.3% | Imb +25.3% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:20 UTC"
+   "evaluated": "2026-10-29 18:45:39 UTC"
   },
   "CELOUSDT": {
    "symbol": "CELOUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.08075,
-   "ema20": 0.07997521070697476,
-   "ema50": 0.07998919372936153,
+   "bar": "2026-10-29 17:00",
+   "close": 0.07962,
+   "ema20": 0.08043671541972433,
+   "ema50": 0.08020204584996554,
    "poc": 0.080858,
-   "val": 0.07821199999999999,
-   "vah": 0.082496,
-   "vwap_24h": 0.08011125627643235,
-   "vwap_dist_pct": 0.8,
+   "val": 0.078716,
+   "vah": 0.083,
+   "vwap_24h": 0.0805986940865182,
+   "vwap_dist_pct": -1.21,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 48.8,
-   "imb_1pct": 17.9,
+   "taker_buy": 49.2,
+   "imb_1pct": -6.0,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 48.8% | Imb +17.9% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 49.2% | Imb -6.0% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:12 UTC"
+   "evaluated": "2026-10-29 18:45:41 UTC"
   },
   "BANKUSDT": {
    "symbol": "BANKUSDT",
@@ -1448,25 +1463,25 @@
   },
   "FETUSDT": {
    "symbol": "FETUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.1816,
-   "ema20": 0.1806432498589565,
-   "ema50": 0.18017911742371603,
+   "bar": "2026-10-29 17:00",
+   "close": 0.18,
+   "ema20": 0.1812925805587292,
+   "ema50": 0.18055204662119956,
    "poc": 0.17438142857142858,
    "val": 0.17122285714285715,
-   "vah": 0.18213428571428572,
-   "vwap_24h": 0.18116858745898504,
-   "vwap_dist_pct": 0.24,
+   "vah": 0.18156,
+   "vwap_24h": 0.18168025076371885,
+   "vwap_dist_pct": -0.92,
    "auction_state": "UPPER VALUE (POC to VAH)",
-   "taker_buy": 50.1,
-   "imb_1pct": 11.4,
+   "taker_buy": 51.6,
+   "imb_1pct": 27.9,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 50.1% | Imb +11.4% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 51.6% | Imb +27.9% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:16 UTC"
+   "evaluated": "2026-10-29 18:45:44 UTC"
   },
   "DASHUSDT": {
    "symbol": "DASHUSDT",
@@ -1536,47 +1551,47 @@
   },
   "HBARUSDT": {
    "symbol": "HBARUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.07443,
-   "ema20": 0.07434867916288675,
-   "ema50": 0.07517317662803552,
+   "bar": "2026-10-29 17:00",
+   "close": 0.07362,
+   "ema20": 0.07440983146964245,
+   "ema50": 0.07508133772680288,
    "poc": 0.07630285714285714,
    "val": 0.07490428571428571,
-   "vah": 0.07948142857142856,
-   "vwap_24h": 0.07465649592223464,
-   "vwap_dist_pct": -0.3,
+   "vah": 0.07922714285714286,
+   "vwap_24h": 0.07456312134448531,
+   "vwap_dist_pct": -1.26,
    "auction_state": "DISCOUNT / BREAKDOWN (< VAL)",
-   "taker_buy": 57.0,
-   "imb_1pct": -8.8,
+   "taker_buy": 59.2,
+   "imb_1pct": 15.3,
    "funding_8h": 0.0001,
    "trend": "bearish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "short",
-   "check": "No Setup | Taker Buy 57.0% | Imb -8.8% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "check": "No Setup | Taker Buy 59.2% | Imb +15.3% | Funding +0.0100% | Trend bearish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:11 UTC"
+   "evaluated": "2026-10-29 18:45:36 UTC"
   },
   "INITUSDT": {
    "symbol": "INITUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.21394,
-   "ema20": 0.21606364158335278,
-   "ema50": 0.20092451276190387,
+   "bar": "2026-10-29 17:00",
+   "close": 0.22159,
+   "ema20": 0.2173531592659411,
+   "ema50": 0.20373296232934174,
    "poc": 0.21456199999999997,
    "val": 0.15467285714285714,
    "vah": 0.25793,
-   "vwap_24h": 0.21558850224336462,
-   "vwap_dist_pct": -0.76,
-   "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 52.1,
-   "imb_1pct": 31.3,
+   "vwap_24h": 0.21833808446549796,
+   "vwap_dist_pct": 1.49,
+   "auction_state": "UPPER VALUE (POC to VAH)",
+   "taker_buy": 42.1,
+   "imb_1pct": 10.7,
    "funding_8h": 0.0001,
    "trend": "bullish",
-   "news_sentiment": 1.7,
+   "news_sentiment": 1.5,
    "side": "long",
-   "check": "No Setup | Taker Buy 52.1% | Imb +31.3% | Funding +0.0100% | Trend bullish | News: +1.7",
+   "check": "No Setup | Taker Buy 42.1% | Imb +10.7% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:28:50 UTC"
+   "evaluated": "2026-10-29 18:45:29 UTC"
   },
   "BLURUSDT": {
    "symbol": "BLURUSDT",
@@ -1602,25 +1617,25 @@
   },
   "TIAUSDT": {
    "symbol": "TIAUSDT",
-   "bar": "2026-10-29 13:00",
-   "close": 0.5427,
-   "ema20": 0.5347328165273189,
-   "ema50": 0.5356639083883583,
-   "poc": 0.54925,
-   "val": 0.528,
-   "vah": 0.553,
-   "vwap_24h": 0.5386963693885758,
-   "vwap_dist_pct": 0.74,
+   "bar": "2026-10-29 17:00",
+   "close": 0.545,
+   "ema20": 0.5388459179358215,
+   "ema50": 0.5373615348149565,
+   "poc": 0.54819,
+   "val": 0.52668,
+   "vah": 0.5492142857142857,
+   "vwap_24h": 0.5404238823624027,
+   "vwap_dist_pct": 0.85,
    "auction_state": "LOWER VALUE (VAL to POC)",
-   "taker_buy": 54.6,
-   "imb_1pct": -17.2,
+   "taker_buy": 42.4,
+   "imb_1pct": -10.3,
    "funding_8h": 0.0001,
-   "trend": "bearish",
-   "news_sentiment": 1.7,
-   "side": "short",
-   "check": "No Setup | Taker Buy 54.6% | Imb -17.2% | Funding +0.0100% | Trend bearish | News: +1.7",
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 42.4% | Imb -10.3% | Funding +0.0100% | Trend bullish | News: +1.5",
    "signal": "No Setup",
-   "evaluated": "2026-10-29 14:29:22 UTC"
+   "evaluated": "2026-10-29 18:45:53 UTC"
   },
   "BFUSDUSDT": {
    "symbol": "BFUSDUSDT",
@@ -1643,28 +1658,94 @@
    "side": "short",
    "signal": "[SHORT] Wyckoff Upthrust SFP (CVD Exhaustion at VAH/High)",
    "evaluated": "2026-10-29 14:29:25 UTC"
+  },
+  "PARTIUSDT": {
+   "symbol": "PARTIUSDT",
+   "bar": "2026-10-29 17:00",
+   "close": 0.0569,
+   "ema20": 0.04001735208151941,
+   "ema50": 0.03890783631583155,
+   "poc": 0.0539,
+   "val": 0.0343,
+   "vah": 0.0591,
+   "vwap_24h": 0.04445491427200359,
+   "vwap_dist_pct": 27.99,
+   "auction_state": "UPPER VALUE (POC to VAH)",
+   "taker_buy": 36.7,
+   "imb_1pct": 23.2,
+   "funding_8h": 0.0001,
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 36.7% | Imb +23.2% | Funding +0.0100% | Trend bullish | News: +1.5",
+   "signal": "No Setup",
+   "evaluated": "2026-10-29 18:45:15 UTC"
+  },
+  "LSKUSDT": {
+   "symbol": "LSKUSDT",
+   "bar": "2026-10-29 17:00",
+   "close": 0.2087,
+   "ema20": 0.18142511690394442,
+   "ema50": 0.1731554387454857,
+   "poc": 0.20713428571428572,
+   "val": 0.17129714285714284,
+   "vah": 0.2236,
+   "vwap_24h": 0.2004386265194856,
+   "vwap_dist_pct": 4.12,
+   "auction_state": "UPPER VALUE (POC to VAH)",
+   "taker_buy": 53.8,
+   "imb_1pct": 36.5,
+   "funding_8h": 0.0001,
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 53.8% | Imb +36.5% | Funding +0.0100% | Trend bullish | News: +1.5",
+   "signal": "No Setup",
+   "evaluated": "2026-10-29 18:45:46 UTC"
+  },
+  "ASTERUSDT": {
+   "symbol": "ASTERUSDT",
+   "bar": "2026-10-29 17:00",
+   "close": 0.7148,
+   "ema20": 0.7079445541933683,
+   "ema50": 0.7072535070688977,
+   "poc": 0.7110771428571429,
+   "val": 0.6978857142857143,
+   "vah": 0.7145485714285714,
+   "vwap_24h": 0.7089062810403285,
+   "vwap_dist_pct": 0.83,
+   "auction_state": "INITIATIVE BREAKOUT (> VAH)",
+   "taker_buy": 50.7,
+   "imb_1pct": 9.1,
+   "funding_8h": 0.0001,
+   "trend": "bullish",
+   "news_sentiment": 1.5,
+   "side": "long",
+   "check": "No Setup | Taker Buy 50.7% | Imb +9.1% | Funding +0.0100% | Trend bullish | News: +1.5",
+   "signal": "No Setup",
+   "evaluated": "2026-10-29 18:45:51 UTC"
   }
  },
  "marks": {
-  "BNBUSDT": 743.36,
-  "XRPUSDT": 1.2911,
-  "DOGEUSDT": 0.07889,
+  "BNBUSDT": 744.28,
+  "XRPUSDT": 1.2827,
+  "DOGEUSDT": 0.07918,
   "AVAXUSDT": 8.767,
-  "BTCUSDT": 80411.16,
-  "ETHUSDT": 2328.19,
-  "SOLUSDT": 100.81,
-  "NEARUSDT": 4.442,
-  "SUIUSDT": 0.9335,
-  "PEPEUSDT": 4.89e-06,
+  "BTCUSDT": 80717.94,
+  "ETHUSDT": 2330.0,
+  "SOLUSDT": 100.53,
+  "NEARUSDT": 4.41,
+  "SUIUSDT": 0.9278,
+  "PEPEUSDT": 5.33e-06,
   "LINKUSDT": 11.35,
   "ADAUSDT": 0.2019,
-  "WLDUSDT": 0.422,
-  "ENAUSDT": 0.2079,
-  "UNIUSDT": 7.213,
-  "ZECUSDT": 1277.7,
+  "WLDUSDT": 0.4183,
+  "ENAUSDT": 0.2098,
+  "UNIUSDT": 7.18,
+  "ZECUSDT": 1318.0,
   "BMTUSDT": 0.02814,
   "TRXUSDT": 0.3314,
-  "SNDKBUSDT": 1371.84,
+  "SNDKBUSDT": 1330.96,
   "QNTUSDT": 198.43,
   "PARTIUSDT": 0.0383,
   "KERNELUSDT": 0.047,
@@ -1758,7 +1839,7 @@
   "QKCUSDT": 0.00247,
   "TRXTRY": 16.288,
   "MITOUSDT": 0.00862,
-  "PUMPUSDT": 0.004157,
+  "PUMPUSDT": 0.004416,
   "SEIUSDT": 0.05169,
   "ACMUSDT": 0.248,
   "HEMIUSDT": 0.00456,
@@ -1942,7 +2023,7 @@
   "RENDERBTC": 2.104e-05,
   "MARSCOINTRY": 3.23,
   "HYPEUSDC": 77.37,
-  "HYPEUSDT": 90.94,
+  "HYPEUSDT": 95.23,
   "SECZBUSDT": 7.62,
   "POLUSDT": 0.08988,
   "CATIUSDT": 0.04343,
@@ -3534,60 +3615,64 @@
   [
    1793284185046,
    4983.34
+  ],
+  [
+   1793299563986,
+   4909.67
   ]
  ],
- "heartbeat": "2026-10-29 14:29:45 UTC",
+ "heartbeat": "2026-10-29 18:46:03 UTC",
  "errors": 1,
- "cycles": 6127,
- "_n_closed": 3,
- "heartbeat_ms": 1793284185046,
+ "cycles": 6128,
+ "_n_closed": 4,
+ "heartbeat_ms": 1793299563986,
  "universe": [
   "BTCUSDT",
   "ETHUSDT",
+  "ZECUSDT",
   "BNBUSDT",
   "SOLUSDT",
-  "ZECUSDT",
-  "NEARUSDT",
-  "XRPUSDT",
   "PEPEUSDT",
+  "NEARUSDT",
   "HYPEUSDT",
+  "XRPUSDT",
   "ENAUSDT",
   "SUIUSDT",
-  "WLDUSDT",
-  "AIUSDT",
   "UNIUSDT",
-  "TRXUSDT",
-  "DOGEUSDT",
-  "LTCUSDT",
-  "ADAUSDT",
+  "WLDUSDT",
   "PUMPUSDT",
-  "INITUSDT",
+  "DOGEUSDT",
+  "AIUSDT",
+  "ADAUSDT",
+  "PARTIUSDT",
+  "TRXUSDT",
   "LINKUSDT",
-  "MUBUSDT",
+  "LTCUSDT",
   "AAVEUSDT",
   "AVAXUSDT",
   "INJUSDT",
-  "XUSDUSDT",
-  "ARBUSDT",
+  "MUBUSDT",
+  "INITUSDT",
   "TAOUSDT",
+  "ARBUSDT",
+  "XUSDUSDT",
   "HBARUSDT",
-  "CELOUSDT",
   "QNTUSDT",
-  "FETUSDT",
-  "BCHUSDT",
   "ZROUSDT",
-  "TIAUSDT",
-  "BMTUSDT",
-  "BFUSDUSDT",
-  "XLMUSDT",
+  "CELOUSDT",
+  "ONDOUSDT",
+  "FETUSDT",
+  "LSKUSDT",
+  "BCHUSDT",
   "FILUSDT",
-  "ONDOUSDT"
+  "ASTERUSDT",
+  "TIAUSDT"
  ],
- "last_universe_ms": 1793284094381,
+ "last_universe_ms": 1793299481877,
  "news": {
-  "updated": "2026-10-29 14:28:11 UTC",
-  "updated_ms": 1793284091080,
-  "macro_score": 5.7,
+  "updated": "2026-10-29 18:44:38 UTC",
+  "updated_ms": 1793299478204,
+  "macro_score": 5.1,
   "trending_coins": [
    {
     "rank": 1,
@@ -3597,83 +3682,84 @@
    },
    {
     "rank": 2,
-    "symbol": "LIT",
-    "name": "Lighter",
-    "market_cap_rank": 85
+    "symbol": "PEPE",
+    "name": "Pepe",
+    "market_cap_rank": 47
    },
    {
     "rank": 3,
     "symbol": "KNTQ",
     "name": "Kinetiq",
-    "market_cap_rank": 211
+    "market_cap_rank": 199
    },
    {
     "rank": 4,
-    "symbol": "PEARL",
-    "name": "Pearl",
-    "market_cap_rank": 95
+    "symbol": "PONS",
+    "name": "Pons",
+    "market_cap_rank": 190
    },
    {
     "rank": 5,
-    "symbol": "PENGU",
-    "name": "Pudgy Penguins",
-    "market_cap_rank": 111
+    "symbol": "ZEC",
+    "name": "Zcash",
+    "market_cap_rank": 11
    },
    {
     "rank": 6,
-    "symbol": "BTC",
-    "name": "Bitcoin",
-    "market_cap_rank": 1
+    "symbol": "XAN",
+    "name": "Anoma",
+    "market_cap_rank": 703
    },
    {
     "rank": 7,
-    "symbol": "BP",
-    "name": "Backpack",
-    "market_cap_rank": 147
+    "symbol": "AXIS",
+    "name": "Axis Robotics",
+    "market_cap_rank": 781
    },
    {
     "rank": 8,
-    "symbol": "AXIS",
-    "name": "Axis Robotics",
-    "market_cap_rank": 786
+    "symbol": "ONDO",
+    "name": "Ondo",
+    "market_cap_rank": 51
    },
    {
     "rank": 9,
-    "symbol": "SOL",
-    "name": "Solana",
-    "market_cap_rank": 7
+    "symbol": "STONK",
+    "name": "STONK",
+    "market_cap_rank": 258
    },
    {
     "rank": 10,
-    "symbol": "XMR",
-    "name": "Monero",
-    "market_cap_rank": 13
+    "symbol": "MON",
+    "name": "Monad",
+    "market_cap_rank": 154
    },
    {
     "rank": 11,
-    "symbol": "CARDS",
-    "name": "Collector Crypt",
-    "market_cap_rank": 152
+    "symbol": "LIT",
+    "name": "Lighter",
+    "market_cap_rank": 83
    },
    {
     "rank": 12,
-    "symbol": "ONDO",
-    "name": "Ondo",
-    "market_cap_rank": 50
+    "symbol": "SOL",
+    "name": "Solana",
+    "market_cap_rank": 7
    }
   ],
   "token_scores": {
-   "BTC": -1.0,
+   "BTC": -1.5,
    "SOL": 2.0,
    "LINK": 1.5,
    "FIL": 3.8,
+   "PEPE": 2.0,
    "AAVE": 1.5
   },
   "token_vetoes": {
    "CRYPTO": {
     "veto_long": true,
     "veto_short": false,
-    "reason": "HIGH RISK BEARISH CATALYST: Bithumb hack leaks staff data and regulators launch raid (CryptoSlate)"
+    "reason": "HIGH RISK BEARISH CATALYST: Centralized Exchange and DeFi Losses Dominate 2026 Crypto Ha (Bitcoin Magazine)"
    }
   },
   "total_headlines": 165,
@@ -3688,7 +3774,7 @@
     "tokens": [
      "BNB"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Crypto Airdrop)",
@@ -3700,7 +3786,7 @@
     "tokens": [
      "BNB"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Crypto Airdrop)",
@@ -3712,7 +3798,7 @@
     "tokens": [
      "BNB"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Crypto Airdrop)",
@@ -3724,7 +3810,7 @@
     "tokens": [
      "BNB"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Crypto Airdrop)",
@@ -3736,7 +3822,7 @@
     "tokens": [
      "BNB"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (API Updates)",
@@ -3748,7 +3834,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (API Updates)",
@@ -3760,7 +3846,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (API Updates)",
@@ -3772,7 +3858,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (API Updates)",
@@ -3784,7 +3870,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (API Updates)",
@@ -3796,7 +3882,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Maintenance Updates)",
@@ -3808,7 +3894,7 @@
     "tokens": [
      "ETH"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Maintenance Updates)",
@@ -3822,7 +3908,7 @@
     "tokens": [
      "FIL"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Maintenance Updates)",
@@ -3834,7 +3920,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Maintenance Updates)",
@@ -3846,7 +3932,7 @@
     "tokens": [
      "ETH"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Maintenance Updates)",
@@ -3860,7 +3946,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Delisting)",
@@ -3872,7 +3958,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Delisting)",
@@ -3886,7 +3972,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Delisting)",
@@ -3898,7 +3984,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Delisting)",
@@ -3910,7 +3996,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Delisting)",
@@ -3922,7 +4008,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Activities)",
@@ -3934,7 +4020,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Activities)",
@@ -3946,7 +4032,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Activities)",
@@ -3958,7 +4044,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Activities)",
@@ -3970,7 +4056,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Activities)",
@@ -3982,7 +4068,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Binance News)",
@@ -3994,7 +4080,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Binance News)",
@@ -4006,7 +4092,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Binance News)",
@@ -4018,7 +4104,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Binance News)",
@@ -4030,7 +4116,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (Latest Binance News)",
@@ -4042,7 +4128,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (New Cryptocurrency Listing)",
@@ -4056,7 +4142,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (New Cryptocurrency Listing)",
@@ -4068,7 +4154,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (New Cryptocurrency Listing)",
@@ -4083,7 +4169,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (New Cryptocurrency Listing)",
@@ -4097,7 +4183,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Binance (New Cryptocurrency Listing)",
@@ -4111,7 +4197,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:11 UTC"
+    "time": "18:44:38 UTC"
    },
    {
     "source": "Fed Press",
@@ -4123,7 +4209,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:10 UTC"
+    "time": "18:44:37 UTC"
    },
    {
     "source": "Fed Press",
@@ -4135,7 +4221,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:10 UTC"
+    "time": "18:44:37 UTC"
    },
    {
     "source": "Fed Press",
@@ -4147,7 +4233,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:10 UTC"
+    "time": "18:44:37 UTC"
    },
    {
     "source": "Fed Press",
@@ -4159,7 +4245,7 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:10 UTC"
+    "time": "18:44:37 UTC"
    },
    {
     "source": "Fed Press",
@@ -4171,11 +4257,11 @@
     "tokens": [
      "CRYPTO"
     ],
-    "time": "14:28:10 UTC"
+    "time": "18:44:37 UTC"
    }
   ]
  },
- "last_news_ms": 1793284091081,
+ "last_news_ms": 1793299478205,
  "funding_arb": [
   {
    "symbol": "UNITREEUSDT",
@@ -4243,9 +4329,9 @@
   }
  ],
  "btc_lead": {
-  "bias": "BULLISH_LEAD",
-  "btc_tb": 58.2,
-  "btc_ret_1h": 0.52
+  "bias": "NEUTRAL",
+  "btc_tb": 48.4,
+  "btc_ret_1h": -0.24
  },
- "last_funding_arb_ms": 1793284091238
+ "last_funding_arb_ms": 1793299478470
 }
