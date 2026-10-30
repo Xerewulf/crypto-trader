@@ -73,7 +73,7 @@ HOUR_MS = 3600 * 1000
 EXCLUDED_SYMBOLS = {
     "USDCUSDT", "FDUSDUSDT", "TUSDUSDT", "USDPUSDT", "EURUSDT", "RLUSDUSDT",
     "USD1USDT", "XAUTUSDT", "UUSDT", "BUSDUSDT", "AEURUSDT", "DAIUSDT", "EURIUSDT",
-    "PAXGUSDT", "WBTCUSDT"
+    "PAXGUSDT", "WBTCUSDT", "RWUSDUSDT", "XUSDUSDT", "USD0USDT"
 }
 
 def base_asset(sym):
@@ -85,6 +85,56 @@ def base_asset(sym):
     if s.startswith("1000") and len(s) > 4:
         s = s[4:]
     return s
+
+
+try:
+    from binance_futures_api import BinanceFuturesAPI
+except ImportError:
+    BinanceFuturesAPI = None
+
+CREDENTIALS_PATH = os.path.join(HERE, "credentials.json")
+
+
+def load_credentials():
+    key = os.environ.get("BINANCE_API_KEY", "")
+    secret = os.environ.get("BINANCE_API_SECRET", "")
+    testnet = os.environ.get("BINANCE_TESTNET", "").lower() in ("1", "true", "yes")
+    if not (key and secret) and os.path.exists(CREDENTIALS_PATH):
+        try:
+            with open(CREDENTIALS_PATH, "r", encoding="utf-8") as fh:
+                c = json.load(fh)
+                key = c.get("api_key", key)
+                secret = c.get("api_secret", secret)
+                testnet = c.get("testnet", testnet)
+        except Exception:
+            pass
+    return {"api_key": key, "api_secret": secret, "testnet": testnet}
+
+
+def save_credentials(key, secret, testnet=False):
+    os.makedirs(HERE, exist_ok=True)
+    with open(CREDENTIALS_PATH, "w", encoding="utf-8") as fh:
+        json.dump({"api_key": str(key).strip(), "api_secret": str(secret).strip(), "testnet": bool(testnet)}, fh, indent=2)
+
+
+def get_binance_client():
+    if not BinanceFuturesAPI:
+        return None
+    creds = load_credentials()
+    return BinanceFuturesAPI(creds.get("api_key"), creds.get("api_secret"), creds.get("testnet", False))
+
+
+def round_qty(qty, symbol):
+    sym = symbol.upper()
+    if sym.startswith("1000") or any(k in sym for k in ("PEPE", "SHIB", "FLOKI", "BONK", "DOGE")):
+        return float(int(math.floor(qty)))
+    if any(k in sym for k in ("BTC", "ETH", "BNB")):
+        return round(float(qty), 3)
+    if any(k in sym for k in ("SOL", "AVAX", "LINK", "AAVE", "TAO")):
+        return round(float(qty), 2)
+    if any(k in sym for k in ("XRP", "ADA", "NEAR", "SUI", "ENA")):
+        return round(float(qty), 1)
+    return round(float(qty), 2)
 
 CFG = {
     "start_equity": 5000.0,
@@ -471,6 +521,90 @@ def evaluate_institutional(sym, bars_1h, side=None, news_sentiment=0.0):
     return sig, diag
 
 
+
+def evaluate_scalper(sym, bars_5m, ob_depth=None, fut_metrics=None, btc_lead=None, news_sentiment=0.0):
+    """God-Level Micro-Scalper Strategy (5m/15m Order-Flow & Micro-Breakouts).
+    Captures quick compounding micro-profits (0.6% - 1.5% target)
+    with tight stops (0.35% - 0.5%) based on CVD surges and order book imbalances.
+    """
+    if len(bars_5m) < 15:
+        return None, {"symbol": sym, "signal": "No Setup", "check": "Insufficient 5m bars"}
+
+    i = len(bars_5m) - 1
+    b = bars_5m[i]
+    closes = [x["c"] for x in bars_5m]
+    e9 = ema(closes, 9)[i]
+    e21 = ema(closes, 21)[i]
+    a = atr(bars_5m, 14)[i]
+
+    ob = ob_depth or fetch_order_book_depth(sym)
+    fut = fut_metrics or fetch_futures_metrics(sym)
+    btc = btc_lead or {"bias": "NEUTRAL", "btc_tb": 50.0}
+
+    cur_p = b["c"]
+    trend_5m = "bullish" if e9 > e21 else "bearish"
+    tb = b["tb"]
+    imb = ob.get("imb_1pct", 0.0)
+
+    # Scalp Long: Bullish 5m EMA, Taker Buy >= 56%, Order Book positive imbalance >= 10%
+    long_trigger = (e9 > e21 and tb >= 56.0 and imb >= 10.0 and b["c"] > b["o"] and b["c"] >= e9)
+    # Scalp Short: Bearish 5m EMA, Taker Buy <= 44%, Order Book negative imbalance <= -10%
+    short_trigger = (e9 < e21 and tb <= 44.0 and imb <= -10.0 and b["c"] < b["o"] and b["c"] <= e9)
+
+    sig = None
+    diag = {
+        "symbol": sym,
+        "bar": iso(b["t"])[:16],
+        "close": cur_p,
+        "trend_5m": trend_5m,
+        "taker_buy": round(tb, 1),
+        "imb_1pct": imb,
+        "funding_8h": fut.get("funding_8h", 0.0),
+        "news_sentiment": round(news_sentiment, 1),
+    }
+
+    if long_trigger and not short_trigger:
+        stop_dist = max(cur_p * 0.0035, min(cur_p * 0.008, 1.2 * a))
+        stop_px = cur_p - stop_dist
+        score = 88
+        if btc.get("bias") == "BULLISH_LEAD":
+            score += 7
+        if news_sentiment >= 1.5:
+            score += 5
+        sig = {
+            "side": "long",
+            "setup": "5m Micro-Scalp (CVD & Depth Burst Long)",
+            "stop": stop_px,
+            "score": min(100, score),
+            "is_scalp": True,
+        }
+        diag["side"] = "long"
+        diag["check"] = "SCALP LONG: Taker Buy %.1f%% | Imb %+.1f%% | 5m Trend %s | Score %d" % (tb, imb, trend_5m, score)
+    elif short_trigger:
+        stop_dist = max(cur_p * 0.0035, min(cur_p * 0.008, 1.2 * a))
+        stop_px = cur_p + stop_dist
+        score = 88
+        if btc.get("bias") == "BEARISH_LEAD":
+            score += 7
+        if news_sentiment <= -1.5:
+            score += 5
+        sig = {
+            "side": "short",
+            "setup": "5m Micro-Scalp (CVD & Depth Flush Short)",
+            "stop": stop_px,
+            "score": min(100, score),
+            "is_scalp": True,
+        }
+        diag["side"] = "short"
+        diag["check"] = "SCALP SHORT: Taker Buy %.1f%% | Imb %+.1f%% | 5m Trend %s | Score %d" % (tb, imb, trend_5m, score)
+    else:
+        diag["side"] = "long" if trend_5m == "bullish" else "short"
+        diag["check"] = "No Scalp Setup | TB %.1f%% | Imb %+.1f%%" % (tb, imb)
+
+    diag["signal"] = ("[%s] %s" % (sig["side"].upper(), sig["setup"])) if sig else "No Setup"
+    return sig, diag
+
+
 # ---------------------------------------------------------------- account state management
 
 def fresh_state():
@@ -495,6 +629,9 @@ def fresh_state():
         "heartbeat": None,
         "errors": 0,
         "cycles": 0,
+        "mode": "SIMULATION",
+        "strategy_profile": "HYBRID",
+        "bot_status": "RUNNING",
     }
 
 
@@ -509,6 +646,9 @@ def load_state():
                 s.setdefault("last_news_ms", 0)
                 s.setdefault("funding_arb", [])
                 s.setdefault("btc_lead", {})
+                s.setdefault("mode", "SIMULATION")
+                s.setdefault("strategy_profile", "HYBRID")
+                s.setdefault("bot_status", "RUNNING")
                 for p in s.get("positions", {}).values():
                     p.setdefault("initial_qty", p["qty"])
                     dist = abs(p["entry"] - p["stop"])
@@ -539,6 +679,28 @@ def equity_parts(s):
 
 # ---------------------------------------------------------------- position lifecycle & execution
 
+
+def emergency_flatten(s):
+    log("EMERGENCY FLATTEN TRIGGERED: Liquidating all open positions immediately!")
+    closed_count = 0
+    for sym in list(s["positions"]):
+        p = s["positions"][sym]
+        cur_p = spot_price(sym)
+        close_position(s, p, cur_p, now_ms(), "EMERGENCY MANUAL FLATTEN")
+        closed_count += 1
+    if s.get("mode") == "LIVE":
+        try:
+            client = get_binance_client()
+            if client and client.is_configured:
+                client.flatten_all()
+        except Exception as e:
+            log("Error flattening live Binance positions: %s" % e)
+    save(s)
+    write_dashboard(s)
+    log("EMERGENCY FLATTEN COMPLETE: %d positions closed." % closed_count)
+    return closed_count
+
+
 def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     """Phase 1 Convex Scale-Out: Realizes a partial fraction (e.g. 40% at TP1 or 30% at TP2)
     and reduces position risk while leaving runners to compound."""
@@ -562,6 +724,16 @@ def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     p["qty"] -= close_qty
     p["notional"] = p["qty"] * p["entry"]
     p["margin"] = p["notional"] / CFG["leverage"]
+
+    if s.get("mode") == "LIVE":
+        try:
+            client = get_binance_client()
+            if client and client.is_configured:
+                q_str = round_qty(close_qty, p["symbol"])
+                client.place_order(symbol=p["symbol"], side="SELL" if p["side"] == "long" else "BUY", order_type="MARKET", quantity=q_str, reduce_only=True)
+                log("LIVE SCALE-OUT EXECUTED ON BINANCE: %s %s Qty %s (%s)" % (p["side"].upper(), p["symbol"], q_str, tier_label))
+        except Exception as e_live:
+            log("LIVE SCALE-OUT ERROR ON BINANCE: %s" % e_live)
 
     r_gain = net / (p["risk_usd"] * prop) if (p["risk_usd"] * prop) > 0 else 0.0
     log("CONVEX SCALE-OUT #%d %s %s [%s] at %s: Qty %s (%.0f%%), Net %s (%+.2fR). Remaining: %s. Account: %s" % (
@@ -607,6 +779,17 @@ def close_position(s, p, exit_px, ms, outcome):
 
     s["last_exit_bar"][p["symbol"]] = (ms // HOUR_MS) * HOUR_MS
     del s["positions"][p["symbol"]]
+
+    if s.get("mode") == "LIVE":
+        try:
+            client = get_binance_client()
+            if client and client.is_configured:
+                client.cancel_all_orders(p["symbol"])
+                q_str = round_qty(rem_qty, p["symbol"])
+                client.place_order(symbol=p["symbol"], side="SELL" if p["side"] == "long" else "BUY", order_type="MARKET", quantity=q_str, reduce_only=True)
+                log("LIVE CLOSE EXECUTED ON BINANCE: %s %s Qty %s [%s]" % (p["side"].upper(), p["symbol"], q_str, outcome))
+        except Exception as e_live:
+            log("LIVE CLOSE ERROR ON BINANCE: %s" % e_live)
 
     log("CLOSED #%d %s %s [%s] at %s: total net %s (%+.2fR). Account: %s" % (
         p["id"], p["side"].upper(), p["symbol"], outcome, fp(exit_px),
@@ -874,6 +1057,16 @@ def risk_gates(s, new_risk):
 
 
 def scan_signals(s):
+    if s.get("bot_status") == "PAUSED":
+        log("AUTONOMOUS BOT PAUSED: Market scanning suspended. Managing open positions only.")
+        return
+
+    strat = s.get("strategy_profile", "HYBRID")
+    if strat == "FUNDING_ARB":
+        scan_funding_arbitrage(s)
+        log("FUNDING ARBITRAGE MODE: %d delta-neutral yield pairs tracked." % len(s.get("funding_arb", [])))
+        return
+
     # 1. Update universe dynamically every 30 minutes or on startup
     if not s.get("universe") or (now_ms() - s.get("last_universe_ms", 0) > 30 * 60 * 1000):
         s["universe"] = fetch_liquid_universe()
@@ -1100,6 +1293,26 @@ def scan_signals(s):
         s["positions"][sym] = p
         s["marks"][sym] = cur_p
 
+        if s.get("mode") == "LIVE":
+            try:
+                client = get_binance_client()
+                if not client or not client.is_configured:
+                    log("LIVE ERROR: Binance API credentials missing! Reverting to SIMULATION.")
+                    s["mode"] = "SIMULATION"
+                else:
+                    client.set_margin_type(sym, "ISOLATED")
+                    client.set_leverage(sym, int(eff_lev))
+                    q_str = round_qty(qty, sym)
+                    res = client.place_order(symbol=sym, side="BUY" if side == "long" else "SELL", order_type="MARKET", quantity=q_str)
+                    p["live_order_id"] = res.get("orderId")
+                    try:
+                        client.place_order(symbol=sym, side="SELL" if side == "long" else "BUY", order_type="STOP_MARKET", stop_price=fp(stop_px), reduce_only=True)
+                    except Exception as e_sl:
+                        log("Warning: Live Stop-Loss order failed on Binance: %s" % e_sl)
+                    log("LIVE BINANCE FUTURES ORDER OPENED: %s %s Qty %s (Order #%s)" % (side.upper(), sym, q_str, res.get("orderId")))
+            except Exception as e_live:
+                log("LIVE BINANCE ORDER ERROR: %s" % e_live)
+
         log("OPENED CONVEX #%d %s %s [%s]: %s %s at %s (%.0fx margin, liq %s) | Stop %s | TP1 %s (40%%) | TP2 %s (30%%) | Sized Risk %s (Score %d)" % (
             p["id"], side.upper(), sym, p["setup"],
             "BUY" if side == "long" else "SELL SHORT",
@@ -1244,13 +1457,14 @@ def write_dashboard(s):
         tp2_str = ("<span class='pos'><b>%s</b></span><br><span style='font-size:11px;color:#22c55e;'>CLOSED (+3.5R)</span>" % fp(p.get("tp2_px"))) if p.get("tp2_hit") else fp(p.get("tp2_px"))
         runner_str = "<span class='pos' style='font-weight:600;'>Running 30%% (1h VWAP)</span>" if p.get("trail_vwap") else "<span class='muted'>Waiting TP2</span>"
 
+        close_btn = "<button onclick='closePos(\"%s\")' style='background:#dc2626;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;'>✕ Kapat</button>" % p["symbol"]
         rows_open += (
             "<tr id='pos-row-%s' data-pos-sym='%s' data-entry='%.8f' data-qty='%.8f' data-fee='%.8f' data-risk='%.2f' data-side='%s'>"
             "<td>#%d</td><td><b>%s</b></td><td class='%s'>%s</td><td>%s</td>"
             "<td>%s</td><td id='pos-mark-%s' class='ticker-cell' data-sym='%s'><b>%s</b></td>"
             "<td>%s%s%s</td><td>%s</td><td>%s</td><td>%s</td>"
             "<td>%s / %s</td><td>%s</td><td>%s</td>"
-            "<td id='pos-pnl-%s' class='%s'>%s</td><td id='pos-r-%s' class='%s'>%+.2fR</td><td>%s</td></tr>"
+            "<td id='pos-pnl-%s' class='%s'>%s</td><td id='pos-r-%s' class='%s'>%+.2fR</td><td>%s</td><td>%s</td></tr>"
         ) % (
             p["symbol"], p["symbol"], p["entry"], p["qty"], p.get("entry_fee", 0.0), p["risk_usd"], p["side"],
             p["id"], p["symbol"], "pos" if p["side"] == "long" else "neg",
@@ -1261,7 +1475,7 @@ def write_dashboard(s):
             ("%.4f" % p["qty"]).rstrip("0").rstrip("."),
             ("%.4f" % (p.get("initial_qty") or p["qty"])).rstrip("0").rstrip("."),
             usd(p["notional"]), usd(p["margin"]),
-            p["symbol"], cls(u), usd(u, True), p["symbol"], cls(u), u / p["risk_usd"], p["opened"][5:16]
+            p["symbol"], cls(u), usd(u, True), p["symbol"], cls(u), u / p["risk_usd"], p["opened"][5:16], close_btn
         )
     if not rows_open:
         rows_open = "<tr><td colspan='16' class='muted'>No active positions open. Scanning dynamically across all liquid Binance USDT pairs.</td></tr>"
@@ -1416,6 +1630,38 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 .pos{color:#22c55e}.neg{color:#ef4444}.muted{color:#64748b}
 #hb.ok{color:#22c55e;font-weight:600}#hb.bad{color:#ef4444;font-weight:700}
 .log{background:#020617;border:1px solid #1e293b;border-radius:8px;padding:10px;font:12px Consolas,monospace;max-height:420px;overflow:auto}
+
+.ctrl-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px 16px;margin:12px 0}
+.ctrl-left{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.ctrl-right{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto}
+.ctrl-tag{font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:0.5px}
+.ctrl-btn{border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s ease}
+.ctrl-btn:hover{filter:brightness(1.15)}
+.btn-sim{background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb}
+.btn-live{background:#854d0e;color:#fef08a;border:1px solid #eab308;animation:pulse 2s infinite}
+.btn-running{background:#064e3b;color:#6ee7b7;border:1px solid #059669}
+.btn-paused{background:#78350f;color:#fde68a;border:1px solid #d97706}
+.strat-group{display:flex;gap:4px}
+.strat-btn{background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:5px 10px;border-radius:5px;font-size:11px;cursor:pointer}
+.strat-btn.active{background:#3b82f6;color:#ffffff;border-color:#60a5fa;font-weight:700}
+.btn-api{background:#312e81;color:#c7d2fe;border:1px solid #4f46e5}
+.btn-reset{background:#334155;color:#e2e8f0;border:1px solid #475569}
+.btn-flatten{background:#991b1b;color:#fecaca;border:1px solid #dc2626;font-weight:700}
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999}
+.modal-card{background:#0f172a;border:1px solid #334155;border-radius:12px;width:90%%;max-width:540px;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.8)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal-head h3{margin:0;font-size:17px;color:#f8fafc}
+.close-x{background:none;border:none;color:#94a3b8;font-size:24px;cursor:pointer}
+.modal-desc{font-size:12px;color:#94a3b8;line-height:1.5;margin-bottom:16px}
+.form-row{margin-bottom:12px}
+.form-row label{display:block;font-size:12px;color:#cbd5e1;margin-bottom:4px;font-weight:600}
+.form-row input[type=text],.form-row input[type=password]{width:100%%;box-sizing:border-box;background:#020617;border:1px solid #334155;color:#f8fafc;padding:8px 12px;border-radius:6px;font-size:13px;font-family:monospace}
+.modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.btn-test{background:#0284c7;color:#fff}
+.btn-save{background:#16a34a;color:#fff}
+.toast{position:fixed;bottom:24px;right:24px;background:#1e293b;border:1px solid #3b82f6;color:#f8fafc;padding:12px 20px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.5);z-index:10000;font-size:13px;font-weight:600;display:none}
+@keyframes pulse{0%%{box-shadow:0 0 0 0 rgba(234,179,8,0.7)}70%%{box-shadow:0 0 0 8px rgba(234,179,8,0)}100%%{box-shadow:0 0 0 0 rgba(234,179,8,0)}}
+
 </style></head><body>
 <h1>Binance Institutional Paper Trader &amp; Millisecond Execution Monitor</h1>
 <div class="banner">
@@ -1431,6 +1677,60 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
   <span class="badge" id="ws-clock">--:--:--.---</span>
   <span class="badge" style="margin-left:auto;color:#a78bfa;">Instant Millisecond Execution</span>
 </div>
+
+<div class="ctrl-bar">
+  <div class="ctrl-left">
+    <span class="ctrl-tag">MOD:</span>
+    <button id="mode-btn" class="ctrl-btn %s" onclick="toggleTradingMode()">%s</button>
+    <span class="ctrl-tag">BOT:</span>
+    <button id="bot-toggle-btn" class="ctrl-btn %s" onclick="toggleBotRun()">%s</button>
+    <span class="ctrl-tag">STRATEJİ:</span>
+    <div class="strat-group">
+      <button class="strat-btn %s" onclick="changeStrategy('SCALPER')">⚡ 5m Scalper</button>
+      <button class="strat-btn %s" onclick="changeStrategy('AGGRESSIVE_TREND')">🚀 Agresif Trend</button>
+      <button class="strat-btn %s" onclick="changeStrategy('HYBRID')">🏆 Hybrid (God-Level)</button>
+      <button class="strat-btn %s" onclick="changeStrategy('FUNDING_ARB')">📈 Arbitraj</button>
+    </div>
+  </div>
+  <div class="ctrl-right">
+    <button class="ctrl-btn btn-api" onclick="openApiModal()">🔑 Binance API Bağla</button>
+    <button class="ctrl-btn btn-reset" onclick="resetSimWallet()">🔄 Simülasyon Sıfırla</button>
+    <button class="ctrl-btn btn-flatten" onclick="emergencyFlattenAll()">🚨 TÜMÜNÜ KAPAT</button>
+  </div>
+</div>
+
+<div id="api-modal" class="modal-bg" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>🔑 Binance Futures API Bağlantısı</h3>
+      <button class="close-x" onclick="closeApiModal()">&times;</button>
+    </div>
+    <p class="modal-desc">
+      Gerçek Binance hesabınızda vadeli işlem yapmak için API Key ve Secret girin. 
+      Anahtarlar yalnızca yerel sunucunuzda saklanır. 
+      <b>Güvenlik Kuralı:</b> Yalnızca <i>"Enable Futures"</i> yetkisi verin; Para Çekme (Withdrawal) yetkisini ASLA açmayın.
+    </p>
+    <div class="form-row">
+      <label>Binance API Key:</label>
+      <input type="text" id="api-key-input" placeholder="Binance API Key..." />
+    </div>
+    <div class="form-row">
+      <label>Binance API Secret:</label>
+      <input type="password" id="api-secret-input" placeholder="Binance API Secret..." />
+    </div>
+    <div class="form-row" style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="api-testnet-check" />
+      <label for="api-testnet-check" style="margin:0;">Binance Futures Testnet (Test Ağı)</label>
+    </div>
+    <div id="api-test-result" style="display:none;margin:10px 0;padding:10px;border-radius:6px;font-size:13px;"></div>
+    <div class="modal-actions">
+      <button class="ctrl-btn btn-test" onclick="testApiKeys()">🔍 Test Et & Bakiye Getir</button>
+      <button class="ctrl-btn btn-save" onclick="saveAndActivateLive()">⚡ Kaydet ve Canlı İşlemi Aç</button>
+      <button class="ctrl-btn" onclick="closeApiModal()">Kapat</button>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
 
 <div>Status: <span id="hb">connecting...</span> &middot; Last cycle: %s &middot; Cycles: %d &middot; Initialized: %s &middot; <i>Streaming live via WebSockets (Zero Reload Lag)</i></div>
 
@@ -1449,7 +1749,7 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 <h2>Live Equity Curve</h2>%s
 
 <h2>Active Positions (3x Isolated Margin &amp; Convex Multi-Tier Exits, Max %d Open)</h2>
-<table><tr><th>#</th><th>Symbol</th><th>Side</th><th>Institutional Setup</th><th>Entry</th><th>Live Mark</th><th>Stop-Loss / Trail</th><th>TP1 (1.8R, 40%%)</th><th>TP2 (3.5R, 30%%)</th><th>Runner (30%%)</th><th>Qty (Open / Total)</th><th>Notional</th><th>Margin</th><th>Unrealized</th><th>R Multiple</th><th>Opened (UTC)</th></tr>%s</table>
+<table><tr><th>#</th><th>Symbol</th><th>Side</th><th>Institutional Setup</th><th>Entry</th><th>Live Mark</th><th>Stop-Loss / Trail</th><th>TP1 (1.8R, 40%%)</th><th>TP2 (3.5R, 30%%)</th><th>Runner (30%%)</th><th>Qty (Open / Total)</th><th>Notional</th><th>Margin</th><th>Unrealized</th><th>R Multiple</th><th>Opened (UTC)</th><th>Eylem</th></tr>%s</table>
 
 <h2>25-Source Omni-Channel Live News &amp; Macro Intelligence Stream</h2>
 <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px;margin-bottom:12px;">
@@ -1647,10 +1947,195 @@ setInterval(function() {
     })
     .catch(function(){});
 }, 3000);
+
+function showToast(msg, isErr) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  t.style.borderColor = isErr ? '#ef4444' : '#22c55e';
+  setTimeout(function(){ t.style.display = 'none'; }, 3500);
+}
+
+function toggleBotRun() {
+  fetch('/api/bot/toggle', {method: 'POST'})
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      showToast('Bot Durumu: ' + res.bot_status);
+      setTimeout(function(){ location.reload(); }, 600);
+    }).catch(function(e){ showToast('Hata: ' + e, true); });
+}
+
+function toggleTradingMode() {
+  fetch('/api/state')
+    .then(function(r){ return r.json(); })
+    .then(function(s){
+      var cur = s.mode || 'SIMULATION';
+      var target = cur === 'SIMULATION' ? 'LIVE' : 'SIMULATION';
+      if (target === 'LIVE') {
+        openApiModal();
+        return;
+      }
+      fetch('/api/bot/mode', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({mode: target})
+      }).then(function(r){ return r.json(); })
+        .then(function(res){
+          if (res.ok) {
+            showToast('İşlem Modu: ' + res.mode);
+            setTimeout(function(){ location.reload(); }, 600);
+          } else {
+            showToast(res.error, true);
+          }
+        });
+    });
+}
+
+function changeStrategy(strat) {
+  fetch('/api/bot/strategy', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({strategy: strat})
+  }).then(function(r){ return r.json(); })
+    .then(function(res){
+      if (res.ok) {
+        showToast('Strateji Aktif: ' + res.strategy_profile);
+        setTimeout(function(){ location.reload(); }, 600);
+      } else {
+        showToast(res.error, true);
+      }
+    }).catch(function(e){ showToast('Hata: ' + e, true); });
+}
+
+function emergencyFlattenAll() {
+  if (!confirm('DİKKAT: Açık olan tüm vadeli pozisyonlar piyasa fiyatından ANINDA kapatılacak. Emin misiniz?')) return;
+  fetch('/api/bot/flatten', {method: 'POST'})
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      showToast(res.status);
+      setTimeout(function(){ location.reload(); }, 800);
+    }).catch(function(e){ showToast('Hata: ' + e, true); });
+}
+
+function closePos(sym) {
+  if (!confirm(sym + ' pozisyonunu kapatmak istiyor musunuz?')) return;
+  fetch('/api/bot/close_position', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({symbol: sym})
+  }).then(function(r){ return r.json(); })
+    .then(function(res){
+      if (res.ok) {
+        showToast(res.status);
+        setTimeout(function(){ location.reload(); }, 800);
+      } else {
+        showToast(res.error, true);
+      }
+    }).catch(function(e){ showToast('Hata: ' + e, true); });
+}
+
+function resetSimWallet() {
+  var cash = prompt('Simülasyon sanal bakiyesini girin (USDT):', '5000');
+  if (!cash) return;
+  fetch('/api/bot/reset_sim', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({starting_cash: parseFloat(cash)})
+  }).then(function(r){ return r.json(); })
+    .then(function(res){
+      showToast(res.status);
+      setTimeout(function(){ location.reload(); }, 800);
+    }).catch(function(e){ showToast('Hata: ' + e, true); });
+}
+
+function openApiModal() {
+  document.getElementById('api-modal').style.display = 'flex';
+}
+function closeApiModal() {
+  document.getElementById('api-modal').style.display = 'none';
+}
+
+function testApiKeys() {
+  var key = document.getElementById('api-key-input').value.trim();
+  var secret = document.getElementById('api-secret-input').value.trim();
+  var testnet = document.getElementById('api-testnet-check').checked;
+  var resDiv = document.getElementById('api-test-result');
+
+  if (!key || !secret) {
+    resDiv.style.display = 'block';
+    resDiv.style.background = '#450a0a';
+    resDiv.style.color = '#fecaca';
+    resDiv.textContent = 'Lütfen hem API Key hem API Secret girin.';
+    return;
+  }
+
+  resDiv.style.display = 'block';
+  resDiv.style.background = '#1e293b';
+  resDiv.style.color = '#93c5fd';
+  resDiv.textContent = 'Binance Futures bağlantısı test ediliyor...';
+
+  fetch('/api/bot/credentials', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({api_key: key, api_secret: secret, testnet: testnet, test_only: true})
+  }).then(function(r){ return r.json(); })
+    .then(function(res){
+      if (res.ok) {
+        resDiv.style.background = '#064e3b';
+        resDiv.style.color = '#6ee7b7';
+        resDiv.innerHTML = '✅ <b>Başarılı!</b> Binance Vadeli Hesabına Bağlandı.<br>Kullanılabilir Bakiye: <b>$' + res.usdt_available + ' USDT</b>';
+      } else {
+        resDiv.style.background = '#450a0a';
+        resDiv.style.color = '#fecaca';
+        resDiv.innerHTML = '❌ <b>Hata:</b> ' + res.error;
+      }
+    }).catch(function(e){
+      resDiv.style.background = '#450a0a';
+      resDiv.style.color = '#fecaca';
+      resDiv.textContent = 'Ağ Hatası: ' + e;
+    });
+}
+
+function saveAndActivateLive() {
+  var key = document.getElementById('api-key-input').value.trim();
+  var secret = document.getElementById('api-secret-input').value.trim();
+  var testnet = document.getElementById('api-testnet-check').checked;
+
+  fetch('/api/bot/credentials', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({api_key: key, api_secret: secret, testnet: testnet, test_only: false})
+  }).then(function(r){ return r.json(); })
+    .then(function(res){
+      if (res.ok) {
+        // Activate live mode
+        fetch('/api/bot/mode', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({mode: 'LIVE'})
+        }).then(function(){
+          showToast('⚡ CANLI BINANCE FUTURES İŞLEMLERİ AKTİF EDİLDİ!');
+          closeApiModal();
+          setTimeout(function(){ location.reload(); }, 1000);
+        });
+      } else {
+        showToast('Hata: ' + res.error, true);
+      }
+    }).catch(function(e){ showToast('Hata: ' + e, true); });
+}
+
 </script>
 </body></html>""" % (
         len(s.get("universe", [])),
         btc_color, btc_lead_txt,
+        "btn-live" if s.get("mode") == "LIVE" else "btn-sim",
+        "⚡ CANLI (GERÇEK)" if s.get("mode") == "LIVE" else "🛡️ SİMÜLASYON (SANAL)",
+        "btn-running" if s.get("bot_status") == "RUNNING" else "btn-paused",
+        "▶ AKTİF" if s.get("bot_status") == "RUNNING" else "⏸ DURAKLATILDI",
+        "active" if s.get("strategy_profile") == "SCALPER" else "",
+        "active" if s.get("strategy_profile") == "AGGRESSIVE_TREND" else "",
+        "active" if s.get("strategy_profile") in ("HYBRID", None) else "",
+        "active" if s.get("strategy_profile") == "FUNDING_ARB" else "",
         s.get("heartbeat") or "-", s["cycles"], s["created"],
         cls(st["pnl"]), st["equity"], usd(st["equity"]),
         cls(st["pnl"]), usd(st["pnl"], True), st["roi"],
@@ -1760,7 +2245,7 @@ async def async_scanner_loop(s):
         await asyncio.sleep(15.0)
 
 
-async def async_local_server(s, port=8765):
+async def async_local_server(s, port=8765, host="0.0.0.0"):
     try:
         from aiohttp import web
         app = web.Application()
@@ -1777,15 +2262,136 @@ async def async_local_server(s, port=8765):
         async def handle_news(req):
             return web.json_response(s.get("news", {}), headers={"Access-Control-Allow-Origin": "*"})
 
+        async def handle_bot_toggle(req):
+            s["bot_status"] = "PAUSED" if s.get("bot_status") == "RUNNING" else "RUNNING"
+            save(s)
+            write_dashboard(s)
+            log("BOT STATUS CHANGED: %s" % s["bot_status"])
+            return web.json_response({"ok": True, "bot_status": s["bot_status"]})
+
+        async def handle_bot_mode(req):
+            try:
+                body = await req.json()
+                target = str(body.get("mode", "SIMULATION")).upper()
+                if target not in ("SIMULATION", "LIVE"):
+                    return web.json_response({"ok": False, "error": "Invalid mode. Choose SIMULATION or LIVE."}, status=400)
+                if target == "LIVE":
+                    client = get_binance_client()
+                    if not client or not client.is_configured:
+                        return web.json_response({"ok": False, "error": "Cannot enable LIVE mode: Binance API Key and Secret are not configured yet!"}, status=400)
+                    try:
+                        client.ping()
+                        eq = client.get_usdt_equity()
+                        s["mode"] = "LIVE"
+                        log("TRADING MODE SWITCHED TO LIVE (Real Binance Futures)! Available USDT: %.2f" % eq.get("available", 0.0))
+                    except Exception as e:
+                        return web.json_response({"ok": False, "error": "Binance API verification failed: %s" % e}, status=400)
+                else:
+                    s["mode"] = "SIMULATION"
+                    log("TRADING MODE SWITCHED TO SIMULATION (Virtual Risk-Free Paper Trading)")
+                save(s)
+                write_dashboard(s)
+                return web.json_response({"ok": True, "mode": s["mode"]})
+            except Exception as exc:
+                return web.json_response({"ok": False, "error": str(exc)}, status=500)
+
+        async def handle_bot_strategy(req):
+            try:
+                body = await req.json()
+                strat = str(body.get("strategy", "HYBRID")).upper()
+                if strat not in ("HYBRID", "SCALPER", "AGGRESSIVE_TREND", "FUNDING_ARB"):
+                    return web.json_response({"ok": False, "error": "Invalid strategy profile"}, status=400)
+                s["strategy_profile"] = strat
+                log("STRATEGY PROFILE CHANGED TO: %s" % strat)
+                save(s)
+                write_dashboard(s)
+                return web.json_response({"ok": True, "strategy_profile": s["strategy_profile"]})
+            except Exception as exc:
+                return web.json_response({"ok": False, "error": str(exc)}, status=500)
+
+        async def handle_bot_credentials(req):
+            try:
+                body = await req.json()
+                key = str(body.get("api_key", "")).strip()
+                secret = str(body.get("api_secret", "")).strip()
+                testnet = bool(body.get("testnet", False))
+                test_only = bool(body.get("test_only", False))
+
+                if not (key and secret):
+                    return web.json_response({"ok": False, "error": "API Key and Secret cannot be empty."}, status=400)
+
+                client = BinanceFuturesAPI(key, secret, testnet)
+                client.ping()
+                eq = client.get_usdt_equity()
+
+                if not test_only:
+                    save_credentials(key, secret, testnet)
+                    log("Binance API credentials verified and saved. USDT Balance: $%.2f" % eq.get("balance", 0.0))
+
+                return web.json_response({
+                    "ok": True,
+                    "status": "Connected to Binance Futures successfully!",
+                    "usdt_balance": round(eq.get("balance", 0.0), 2),
+                    "usdt_available": round(eq.get("available", 0.0), 2),
+                    "unrealized_pnl": round(eq.get("cross_unrealized_pnl", 0.0), 2),
+                })
+            except Exception as exc:
+                return web.json_response({"ok": False, "error": str(exc)}, status=400)
+
+        async def handle_bot_flatten(req):
+            try:
+                count = emergency_flatten(s)
+                return web.json_response({"ok": True, "status": "Emergency flatten executed: %d positions closed." % count})
+            except Exception as exc:
+                return web.json_response({"ok": False, "error": str(exc)}, status=500)
+
+        async def handle_bot_close_pos(req):
+            try:
+                body = await req.json()
+                sym = str(body.get("symbol", "")).upper()
+                p = s["positions"].get(sym)
+                if not p:
+                    return web.json_response({"ok": False, "error": "No open position for %s" % sym}, status=404)
+                cur_p = spot_price(sym)
+                close_position(s, p, cur_p, now_ms(), "MANUAL WEB DASHBOARD CLOSE")
+                save(s)
+                write_dashboard(s)
+                return web.json_response({"ok": True, "status": "Position in %s closed at %s" % (sym, fp(cur_p))})
+            except Exception as exc:
+                return web.json_response({"ok": False, "error": str(exc)}, status=500)
+
+        async def handle_bot_reset_sim(req):
+            try:
+                body = await req.json() if req.can_read_body else {}
+                cash = float(body.get("starting_cash", 5000.0))
+                s["start_equity"] = cash
+                s["realized"] = 0.0
+                s["positions"] = {}
+                s["closed"] = []
+                s["curve"] = [[now_ms(), cash]]
+                save(s)
+                write_dashboard(s)
+                log("SIMULATION RESET: Virtual cash set to $%.2f USDT" % cash)
+                return web.json_response({"ok": True, "status": "Simulation reset to $%.2f USDT" % cash})
+            except Exception as exc:
+                return web.json_response({"ok": False, "error": str(exc)}, status=500)
+
         app.router.add_get("/", handle_index)
         app.router.add_get("/api/state", handle_state)
         app.router.add_get("/api/news", handle_news)
+        app.router.add_post("/api/bot/toggle", handle_bot_toggle)
+        app.router.add_post("/api/bot/mode", handle_bot_mode)
+        app.router.add_post("/api/bot/strategy", handle_bot_strategy)
+        app.router.add_post("/api/bot/credentials", handle_bot_credentials)
+        app.router.add_post("/api/bot/flatten", handle_bot_flatten)
+        app.router.add_post("/api/bot/close_position", handle_bot_close_pos)
+        app.router.add_post("/api/bot/reset_sim", handle_bot_reset_sim)
 
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, "127.0.0.1", port)
+        site = web.TCPSite(runner, host, port)
         await site.start()
-        log("Ultra-low latency HTTP server live: http://localhost:%d" % port)
+        log("Ultra-low latency HTTP server live: http://%s:%d" % ("localhost" if host == "0.0.0.0" else host, port))
     except Exception as e:
         log("Local HTTP server failed to bind (port %d in use?): %s" % (port, e))
 
@@ -1807,12 +2413,12 @@ async def async_news_task(s):
         await asyncio.sleep(180.0)
 
 
-async def async_run(s):
+async def async_run(s, host="0.0.0.0", port=8765):
     log("Starting Binance Millisecond Execution Engine (Async WebSockets + Live Dashboard + Omni-News Monitor)...")
     cycle(s)
     save(s)
     write_dashboard(s)
-    await async_local_server(s, 8765)
+    await async_local_server(s, port=port, host=host)
     await asyncio.gather(
         async_ws_ticks(s),
         async_scanner_loop(s),
@@ -1821,9 +2427,13 @@ async def async_run(s):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Binance Institutional Paper Trader.")
+    ap = argparse.ArgumentParser(description="Binance Institutional Paper Trader & Autonomous Bot.")
     ap.add_argument("cmd", choices=["run", "once", "status", "reset"])
     ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--port", type=int, default=8765, help="Web dashboard port (default 8765)")
+    ap.add_argument("--host", default="0.0.0.0", help="Host interface (default 0.0.0.0)")
+    ap.add_argument("--mode", choices=["SIMULATION", "LIVE"], default=None, help="Set trading mode")
+    ap.add_argument("--strategy", choices=["HYBRID", "SCALPER", "AGGRESSIVE_TREND", "FUNDING_ARB"], default=None, help="Set strategy profile")
     a = ap.parse_args()
 
     if a.cmd == "reset":
@@ -1850,9 +2460,13 @@ def main():
         return 0
 
     if a.cmd == "run":
+        if a.mode:
+            s["mode"] = a.mode
+        if a.strategy:
+            s["strategy_profile"] = a.strategy
         if HAS_AIOHTTP:
             try:
-                asyncio.run(async_run(s))
+                asyncio.run(async_run(s, host=a.host, port=a.port))
             except KeyboardInterrupt:
                 log("Millisecond engine stopped by user.")
             return 0

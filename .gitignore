@@ -8,6 +8,12 @@ __pycache__/
 *.tmp
 trader/live/events.log
 
+# Private credentials & local configs
+.env
+*.env
+*credentials*.json
+trader/live/credentials.json
+
 # OS generated files
 .DS_Store
 Thumbs.db
