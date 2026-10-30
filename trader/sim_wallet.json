@@ -1,12 +1,47 @@
 {
   "starting_cash": 10000.0,
-  "cash_usdt": 10000.0,
-  "realized_pnl_usdt": 0.0,
-  "total_trades": 0,
+  "cash_usdt": 9999.2678,
+  "realized_pnl_usdt": -0.3722,
+  "total_trades": 1,
   "winning_trades": 0,
-  "losing_trades": 0,
+  "losing_trades": 1,
   "positions": {},
+  "arbitrage_pairs": {},
   "open_orders": [],
-  "history": [],
-  "updated_at": "2026-10-23T13:30:00Z"
+  "history": [
+    {
+      "id": "T1793103074974",
+      "time": "2026-10-27T12:11:14Z",
+      "symbol": "BNBUSDT",
+      "side": "LONG",
+      "action": "CLOSE LONG (100%)",
+      "qty": 1.2160847475948546,
+      "price": 740.07,
+      "leverage": 3.0,
+      "margin_usdt": 300.0,
+      "usdt_total": 899.99,
+      "fee_usdt": 0.36,
+      "pnl_usdt": -0.37,
+      "pnl_pct": -0.12,
+      "reason": "Manual Market Close (100%)"
+    },
+    {
+      "id": "T1793103074945",
+      "time": "2026-10-27T12:11:14Z",
+      "symbol": "BNBUSDT",
+      "side": "LONG",
+      "action": "OPEN LONG 3x",
+      "qty": 1.2160847475948546,
+      "price": 740.08,
+      "leverage": 3.0,
+      "margin_usdt": 300.0,
+      "usdt_total": 900.0,
+      "fee_usdt": 0.36,
+      "pnl_usdt": null,
+      "pnl_pct": null,
+      "reason": "Market LONG 3x"
+    }
+  ],
+  "simulation_running": true,
+  "updated_at": "2026-10-27T12:11:15Z"
 }

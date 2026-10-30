@@ -1,0 +1,19 @@
+{
+  "name": "Binance Institutional Crypto Trader (Cloud Web)",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Crypto Trader Web Dashboard",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "python -m unittest tests/test_margin.py tests/test_analyst.py",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  }
+}

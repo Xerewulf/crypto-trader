@@ -55,10 +55,22 @@ Whenever analyzing, scanning, timing, or sizing any cryptocurrency on Binance, o
    - **ETH**: up to **4x**
    - **Large Caps (SOL, BNB, XRP)**: up to **3x**
    - **All Other Altcoins**: capped at **2x**
-4. **Macro & Expiry Scheduled Event Risk Guards**:
+4. **Tiered Maintenance Margin (MMR) & Clearance Fees**:
+   - Account for bracketed MMR and CUM deductions: $MM = (Notional \times MMR) - CUM$.
+   - Calculate Bankruptcy Price ($Entry \times (1 \pm 1/L)$) and estimated Liquidation Clearance Fee (1.0% to 2.0% of notional) dedicated to the Futures Insurance Fund.
+5. **Dual-Price Mark Protection & Basis Analysis**:
+   - Liquidations strictly trigger on **Mark Price**, not Last Price, to protect positions against order-book flash wicks. Monitor mark-last basis for dislocation warnings.
+6. **Cumulative Carry Drag & Dynamic Liquidation**:
+   - Factor in perpetual funding payments (every 8h) and spot margin borrow interest (hourly). Model carry-adjusted liquidation drift over the expected trade horizon.
+7. **Position Health & Proactive Margin Alerts**:
+   - Track Spot Margin Level and Futures Margin Ratio: **HEALTHY** (>=1.50), **MARGIN CALL** (<=1.30, trim 50%), **CRITICAL** (<=1.15), and **LIQUIDATED** (<=1.10).
+8. **Auto-Deleveraging (ADL) Protection**:
+   - Institutional leverage caps (<=5x) ensure traders remain in **Quantile 1** (lowest ADL force-close hazard during insurance fund drawdown).
+9. **Macro & Expiry Scheduled Event Risk Guards**:
    - **FOMC Rate Decision**: **BLOCK** new leveraged entries from **2h before to 1h after** statement release. Apply **CAUTION** (half risk, half leverage) from **24h before to 6h after**.
-   - **Deribit Monthly Options Expiry (Last Friday 08:00 UTC)**: Apply **CAUTION** (half risk) from **12h before to 2h after**.
-5. **Financing Carry & Correlation Limits**:
+   - **US CPI & Non-Farm Payrolls (NFP)**: **BLOCK** from **1h before to 30m after** report release.
+   - **Deribit Monthly & Quarterly Options Expiries**: Apply **CAUTION** (half risk) from **12h before to 2h after**.
+10. **Financing Carry & Correlation Limits**:
    - Compute funding carry (perps) and borrow interest (isolated margin) in terms of **R-value** ($Carry\_USD / Risk\_USD$) across expected hold duration.
    - Enforce book-level correlation caps: **Maximum 2 open positions on the same side** (crypto tends to trade as a single asset under liquidation stress), and gross book leverage capped at **2.0x equity**.
    - Exclude tokenized traditional equities (Binance bStocks ending in B like `SNDKB`, `NVDAB`, `TSLAB`) from 24/7 crypto margin trading.
