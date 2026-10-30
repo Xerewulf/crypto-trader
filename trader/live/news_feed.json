@@ -1,98 +1,100 @@
 {
- "updated": "2026-10-30 14:30:26 UTC",
- "updated_ms": 1793370626769,
+ "updated": "2026-10-30 15:27:04 UTC",
+ "updated_ms": 1793374024706,
  "poll_interval_sec": 10,
  "cache_stats": {
   "cache_hits": 0,
   "live_fetches": 13
  },
- "macro_score": -6.4,
+ "macro_score": -7.0,
  "trending_coins": [
   {
    "rank": 1,
-   "symbol": "SP",
-   "name": "Super Pepe",
-   "market_cap_rank": 940
-  },
-  {
-   "rank": 2,
    "symbol": "BTC",
    "name": "Bitcoin",
    "market_cap_rank": 1
   },
   {
-   "rank": 3,
+   "rank": 2,
    "symbol": "HYPE",
    "name": "Hyperliquid",
    "market_cap_rank": 10
   },
   {
+   "rank": 3,
+   "symbol": "PENGU",
+   "name": "Pudgy Penguins",
+   "market_cap_rank": 112
+  },
+  {
    "rank": 4,
-   "symbol": "KNTQ",
-   "name": "Kinetiq",
-   "market_cap_rank": 195
-  },
-  {
-   "rank": 5,
-   "symbol": "PEPE",
-   "name": "Pepe",
-   "market_cap_rank": 46
-  },
-  {
-   "rank": 6,
-   "symbol": "SOL",
-   "name": "Solana",
-   "market_cap_rank": 7
-  },
-  {
-   "rank": 7,
-   "symbol": "BEAM",
-   "name": "Beam",
-   "market_cap_rank": 145
-  },
-  {
-   "rank": 8,
-   "symbol": "UNI",
-   "name": "Uniswap",
-   "market_cap_rank": 25
-  },
-  {
-   "rank": 9,
    "symbol": "BNB",
    "name": "BNB",
    "market_cap_rank": 4
   },
   {
-   "rank": 10,
-   "symbol": "LIT",
-   "name": "Lighter",
-   "market_cap_rank": 86
+   "rank": 5,
+   "symbol": "SOL",
+   "name": "Solana",
+   "market_cap_rank": 7
   },
   {
-   "rank": 11,
+   "rank": 6,
+   "symbol": "PEARL",
+   "name": "Pearl",
+   "market_cap_rank": 98
+  },
+  {
+   "rank": 7,
    "symbol": "SUI",
    "name": "Sui",
    "market_cap_rank": 30
   },
   {
+   "rank": 8,
+   "symbol": "BEAM",
+   "name": "Beam",
+   "market_cap_rank": 151
+  },
+  {
+   "rank": 9,
+   "symbol": "LINK",
+   "name": "Chainlink",
+   "market_cap_rank": 17
+  },
+  {
+   "rank": 10,
+   "symbol": "AAVE",
+   "name": "Aave",
+   "market_cap_rank": 48
+  },
+  {
+   "rank": 11,
+   "symbol": "NEAR",
+   "name": "NEAR Protocol",
+   "market_cap_rank": 21
+  },
+  {
    "rank": 12,
-   "symbol": "PEARL",
-   "name": "Pearl",
-   "market_cap_rank": 98
+   "symbol": "ZEC",
+   "name": "Zcash",
+   "market_cap_rank": 11
   }
  ],
  "token_scores": {
-  "BTC": -2.5,
+  "BTC": -7.1,
   "ETH": -2.5,
   "SOL": 2.0,
   "BNB": 1.1,
-  "XRP": -1.8,
+  "XRP": -0.9,
   "SUI": 2.0,
-  "LINK": -1.9,
-  "PEPE": 2.0,
-  "UNI": 2.0,
-  "HYPE": 1.0,
-  "SHIB": -1.5,
+  "NEAR": 2.0,
+  "LINK": 0.1,
+  "AAVE": 2.0,
+  "HYPE": 0.5,
+  "SHIB": -0.9,
+  "ZEC": 2.0,
+  "PENGU": 2.0,
   "MSTR": 0.9
  },
  "token_vetoes": {
@@ -100,7 +102,13 @@
    "veto_long": true,
    "veto_short": false,
    "severity": "CRITICAL",
-   "reason": "HIGH RISK BEARISH CATALYST: Analysts react as Binance freezes assets after $6.3 billion security b (Forbes/Bloomberg/Fortune)"
+   "reason": "HIGH RISK BEARISH CATALYST: Where Binance's $6.3 billion breach ranks in crypto's biggest hacks an (Forbes/Bloomberg/Fortune)"
+  },
+  "BTC": {
+   "veto_long": true,
+   "veto_short": false,
+   "severity": "CRITICAL",
+   "reason": "HIGH RISK BEARISH CATALYST: $6 billion Binance hack sends bitcoin, ether tumbling; Standard Charte (Banks & Fed Flow)"
   },
   "LINK": {
    "veto_long": true,
@@ -114,18 +122,6 @@
    "severity": "CRITICAL",
    "reason": "HIGH RISK BEARISH CATALYST: Morning Minute: Binance\u2019s $6.4B Hack Overshadows Hyperliquid\u2019s Biggest (Decrypt)"
   },
-  "BTC": {
-   "veto_long": true,
-   "veto_short": false,
-   "severity": "CRITICAL",
-   "reason": "HIGH RISK BEARISH CATALYST: $6 billion Binance hack sends bitcoin, ether tumbling; Standard Charte (Banks & Fed Flow)"
-  },
-  "XRP": {
-   "veto_long": true,
-   "veto_short": false,
-   "severity": "CRITICAL",
-   "reason": "HIGH RISK BEARISH CATALYST: Binance hack began with a $296 million XRP drain after 36-hour prepara (CryptoSlate)"
-  },
   "ETH": {
    "veto_long": true,
    "veto_short": false,
@@ -134,23 +130,181 @@
   }
  },
  "breaking_alerts": [],
- "new_count": 2,
- "total_headlines": 100,
+ "new_count": 1,
+ "total_headlines": 99,
  "headlines": [
   {
-   "source": "Banks & Fed Flow",
-   "category": "bank",
-   "title": "Fraudulent Crypto Investment Scheme Drew $130 Million, SEC Says - Bloomberg Law News",
-   "pubDate": "Fri, 30 Oct 2026 14:19:00 GMT",
-   "pub_ts": 1793369940,
+   "source": "CryptoSlate",
+   "category": "magazine",
+   "title": "MEXC pulls out of four countries despite ambitious plan to rival global trading giants",
+   "pubDate": "Fri, 30 Oct 2026 15:15:42 +0000",
+   "pub_ts": 1793373342,
    "age_min": 11.4,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "14:19:00 UTC",
+   "time": "15:15:42 UTC",
    "is_new": true
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "BTCC Exchange Supports Red Eagle Foundation\u2019s 2026 Charity Golf Season Finale, Featuring Ashley Cole as Headline Guest",
+   "pubDate": "Fri, 30 Oct 2026 15:05:05 +0000",
+   "pub_ts": 1793372705,
+   "age_min": 22.0,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "15:05:05 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Forbes/Bloomberg/Fortune",
+   "category": "magazine",
+   "title": "Binance's $6.3 billion hack: How crypto insurance works - Reuters",
+   "pubDate": "Fri, 30 Oct 2026 14:50:41 GMT",
+   "pub_ts": 1793371841,
+   "age_min": 36.4,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "14:50:41 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Intel's AI Business Grew 78%. So Why Did the Stock Just Crash 30%?",
+   "pubDate": "Fri, 30 Oct 2026 14:49:07 +0000",
+   "pub_ts": 1793371747,
+   "age_min": 38.0,
+   "sentiment": "BEARISH",
+   "tags": [
+    "outflow/liquidation"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "14:49:07 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Bitrue Launches Spot Trading Competition with $65,000 Rewards and Anthropic Pre-IPO Futures",
+   "pubDate": "Fri, 30 Oct 2026 14:47:24 +0000",
+   "pub_ts": 1793371644,
+   "age_min": 39.7,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "14:47:24 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "XT Exchange: A Prediction Market Starts With a Question That Can Be Settled",
+   "pubDate": "Fri, 30 Oct 2026 14:40:02 +0000",
+   "pub_ts": 1793371202,
+   "age_min": 47.0,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "14:40:02 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Banks & Fed Flow",
+   "category": "bank",
+   "title": "SEC Charges Two Companies In $130 Million Crypto Trading Scheme - Bitcoin Magazine",
+   "pubDate": "Fri, 30 Oct 2026 14:38:43 GMT",
+   "pub_ts": 1793371123,
+   "age_min": 48.4,
+   "sentiment": "BEARISH",
+   "tags": [
+    "regulatory/delist"
+   ],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "14:38:43 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Bitcoin Magazine",
+   "category": "magazine",
+   "title": "SEC Charges Two Companies in $130 Million Crypto Trading Scheme",
+   "pubDate": "Fri, 30 Oct 2026 14:38:43 +0000",
+   "pub_ts": 1793371123,
+   "age_min": 48.4,
+   "sentiment": "BEARISH",
+   "tags": [
+    "regulatory/delist"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "14:38:43 UTC",
+   "is_new": false
+  },
+  {
+   "source": "The Block",
+   "category": "magazine",
+   "title": "Strategy\u2019s preferred-stock fix sets up renewed bitcoin buying, analysts say",
+   "pubDate": "Fri, 30 Oct 2026 14:30:49 +0000",
+   "pub_ts": 1793370649,
+   "age_min": 56.3,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "14:30:49 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CryptoSlate",
+   "category": "magazine",
+   "title": "CZ asks Musk to stop trolling, saying \u2018our\u2019 SpaceX shares top $1 billion",
+   "pubDate": "Fri, 30 Oct 2026 14:30:37 +0000",
+   "pub_ts": 1793370637,
+   "age_min": 56.5,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "14:30:37 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Banks & Fed Flow",
+   "category": "bank",
+   "title": "Fraudulent Crypto Investment Scheme Drew $130 Million, SEC Says - Bloomberg Law News",
+   "pubDate": "Fri, 30 Oct 2026 14:19:00 GMT",
+   "pub_ts": 1793369940,
+   "age_min": 68.1,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "14:19:00 UTC",
+   "is_new": false
   },
   {
    "source": "Decrypt",
@@ -158,7 +312,7 @@
    "title": "What is EIP-7702? The Ethereum Upgrade Behind the $6.4B Binance Hack",
    "pubDate": "Fri, 30 Oct 2026 14:17:34 +0000",
    "pub_ts": 1793369854,
-   "age_min": 12.9,
+   "age_min": 69.5,
    "sentiment": "MIXED",
    "tags": [
     "upgrade/partnership",
@@ -168,7 +322,7 @@
     "ETH"
    ],
    "time": "14:17:34 UTC",
-   "is_new": true
+   "is_new": false
   },
   {
    "source": "CoinDesk",
@@ -176,7 +330,7 @@
    "title": "Wall Street analysts urge investors to buy crypto stocks after $6.3 billion Binance hack",
    "pubDate": "Fri, 30 Oct 2026 14:13:34 +0000",
    "pub_ts": 1793369614,
-   "age_min": 16.9,
+   "age_min": 73.5,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -193,7 +347,7 @@
    "title": "Blockchain Firms Link North Korea to $6.3 Billion Binance Hack",
    "pubDate": "Fri, 30 Oct 2026 14:13:15 +0000",
    "pub_ts": 1793369595,
-   "age_min": 17.2,
+   "age_min": 73.8,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -210,7 +364,7 @@
    "title": "Live updates: Binance says $6.34B set aside to cover hack losses",
    "pubDate": "Fri, 30 Oct 2026 14:12:26 +0000",
    "pub_ts": 1793369546,
-   "age_min": 18.0,
+   "age_min": 74.6,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -227,7 +381,7 @@
    "title": "Here\u2019s what happened in crypto today",
    "pubDate": "Fri, 30 Oct 2026 14:07:42 +0000",
    "pub_ts": 1793369262,
-   "age_min": 22.7,
+   "age_min": 79.4,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -237,12 +391,27 @@
    "is_new": false
   },
   {
+   "source": "Forbes/Bloomberg/Fortune",
+   "category": "magazine",
+   "title": "Gone in 20 minutes: How the biggest heist in crypto history unfolded - Reuters",
+   "pubDate": "Fri, 30 Oct 2026 14:05:49 GMT",
+   "pub_ts": 1793369149,
+   "age_min": 81.3,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "14:05:49 UTC",
+   "is_new": false
+  },
+  {
    "source": "CryptoSlate",
    "category": "magazine",
    "title": "Bitcoin fell after the Fed\u2019s pause, but blaming interest rates misses the Binance shock",
    "pubDate": "Fri, 30 Oct 2026 14:00:23 +0000",
    "pub_ts": 1793368823,
-   "age_min": 30.1,
+   "age_min": 86.7,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -252,27 +421,12 @@
    "is_new": false
   },
   {
-   "source": "Forbes/Bloomberg/Fortune",
-   "category": "magazine",
-   "title": "Gone in 20 minutes: How the biggest heist in crypto history unfolded - Reuters",
-   "pubDate": "Fri, 30 Oct 2026 13:37:06 GMT",
-   "pub_ts": 1793367426,
-   "age_min": 53.3,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "13:37:06 UTC",
-   "is_new": false
-  },
-  {
    "source": "Bitcoin Magazine",
    "category": "magazine",
    "title": "Tyler Evans: Bitcoin ETF Flows Flipped From \u201cHighly Negative\u201d to \u201cStrong Accumulation\u201d",
    "pubDate": "Fri, 30 Oct 2026 13:31:15 +0000",
    "pub_ts": 1793367075,
-   "age_min": 59.2,
+   "age_min": 115.8,
    "sentiment": "BULLISH",
    "tags": [
     "whale/CT accumulation"
@@ -289,7 +443,7 @@
    "title": "Will gold\u2019s \u2018infinite mint bug\u2019 make Bitcoin more valuable?",
    "pubDate": "Fri, 30 Oct 2026 13:30:00 +0000",
    "pub_ts": 1793367000,
-   "age_min": 60.4,
+   "age_min": 117.1,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -304,7 +458,7 @@
    "title": "Doomberg: US Treasury Sanctions are \u201cWildly Bullish\u201d for Bitcoin & Gold",
    "pubDate": "Fri, 30 Oct 2026 13:26:43 +0000",
    "pub_ts": 1793366803,
-   "age_min": 63.7,
+   "age_min": 120.4,
    "sentiment": "BULLISH",
    "tags": [
     "bullish/breakout"
@@ -321,7 +475,7 @@
    "title": "Alex Thorn: 50-Week Signal Says Bitcoin\u2019s Bottom is In",
    "pubDate": "Fri, 30 Oct 2026 13:22:21 +0000",
    "pub_ts": 1793366541,
-   "age_min": 68.1,
+   "age_min": 124.7,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -336,7 +490,7 @@
    "title": "Alexandre Laizet on The French Debt Crisis: \u201cEurope is in Need of Bitcoin\u201d",
    "pubDate": "Fri, 30 Oct 2026 13:17:11 +0000",
    "pub_ts": 1793366231,
-   "age_min": 73.3,
+   "age_min": 129.9,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -351,7 +505,7 @@
    "title": "Binance says it has $6.34 billion ready to cover hack losses",
    "pubDate": "Fri, 30 Oct 2026 13:14:56 +0000",
    "pub_ts": 1793366096,
-   "age_min": 75.5,
+   "age_min": 132.1,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -368,7 +522,7 @@
    "title": "Binance working with FBI to recover assets following $6.3B hack",
    "pubDate": "Fri, 30 Oct 2026 13:11:10 +0000",
    "pub_ts": 1793365870,
-   "age_min": 79.3,
+   "age_min": 135.9,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -385,7 +539,7 @@
    "title": "Israel Extradites Alleged Nomad Bridge Exploiter to US Over $2.8M Theft: Report",
    "pubDate": "Fri, 30 Oct 2026 13:00:09 +0000",
    "pub_ts": 1793365209,
-   "age_min": 90.3,
+   "age_min": 146.9,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -400,7 +554,7 @@
    "title": "A $10 sports bet helped trigger 13 felony charges against Kalshi in Utah",
    "pubDate": "Fri, 30 Oct 2026 13:00:00 +0000",
    "pub_ts": 1793365200,
-   "age_min": 90.4,
+   "age_min": 147.1,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -415,7 +569,7 @@
    "title": "Elon Musk Is Selling a Telepathic Future: Can You Invest Before IPO?",
    "pubDate": "Fri, 30 Oct 2026 12:52:29 +0000",
    "pub_ts": 1793364749,
-   "age_min": 98.0,
+   "age_min": 154.6,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -430,7 +584,7 @@
    "title": "Bitcoin Holds $77,000 Despite Binance Scare: \u2018 A Sign Of Resilience\u2019 - TradingView",
    "pubDate": "Fri, 30 Oct 2026 12:52:14 GMT",
    "pub_ts": 1793364734,
-   "age_min": 98.2,
+   "age_min": 154.8,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -445,7 +599,7 @@
    "title": "Binance says it holds $5B in matching tokens to cover hack losses",
    "pubDate": "Fri, 30 Oct 2026 12:41:43 +0000",
    "pub_ts": 1793364103,
-   "age_min": 108.7,
+   "age_min": 165.4,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -462,7 +616,7 @@
    "title": "Morning Minute: Binance\u2019s $6.4B Hack Overshadows Hyperliquid\u2019s Biggest Day",
    "pubDate": "Fri, 30 Oct 2026 12:31:30 +0000",
    "pub_ts": 1793363490,
-   "age_min": 118.9,
+   "age_min": 175.6,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -479,7 +633,7 @@
    "title": "TRM and Chainalysis Tie $6.4B Binance Hack to North Korea's TraderTraitor",
    "pubDate": "Fri, 30 Oct 2026 12:22:04 +0000",
    "pub_ts": 1793362924,
-   "age_min": 128.4,
+   "age_min": 185.0,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -491,29 +645,12 @@
    "is_new": false
   },
   {
-   "source": "Banks & Fed Flow",
-   "category": "bank",
-   "title": "ECB policymakers bring rate hike debate into the open - Yahoo Finance",
-   "pubDate": "Fri, 30 Oct 2026 12:17:29 GMT",
-   "pub_ts": 1793362649,
-   "age_min": 133.0,
-   "sentiment": "BEARISH",
-   "tags": [
-    "Fed/macro headwind"
-   ],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "12:17:29 UTC",
-   "is_new": false
-  },
-  {
    "source": "CoinDesk",
    "category": "news",
    "title": "Binance arranges $6.34 billion to cover losses from record crypto hack",
    "pubDate": "Fri, 30 Oct 2026 12:13:02 +0000",
    "pub_ts": 1793362382,
-   "age_min": 137.4,
+   "age_min": 194.0,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -530,7 +667,7 @@
    "title": "Binance Estimates $6.3 Billion Hacked in Crypto's Biggest Heist - Bloomberg",
    "pubDate": "Fri, 30 Oct 2026 12:05:22 GMT",
    "pub_ts": 1793361922,
-   "age_min": 145.1,
+   "age_min": 201.7,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -547,7 +684,7 @@
    "title": "How Did the Binance Hack Happen? Detailed Investigation of the $6 Billion Heist",
    "pubDate": "Fri, 30 Oct 2026 12:00:00 +0000",
    "pub_ts": 1793361600,
-   "age_min": 150.4,
+   "age_min": 207.1,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -564,7 +701,7 @@
    "title": "Here's how big bitcoin traders responded after the Binance hack hit",
    "pubDate": "Fri, 30 Oct 2026 11:51:26 +0000",
    "pub_ts": 1793361086,
-   "age_min": 159.0,
+   "age_min": 215.6,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -581,7 +718,7 @@
    "title": "Bitcoin mining difficulty hits 148 trillion as revenues fall to three-month lows",
    "pubDate": "Fri, 30 Oct 2026 11:50:29 +0000",
    "pub_ts": 1793361029,
-   "age_min": 160.0,
+   "age_min": 216.6,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -591,27 +728,12 @@
    "is_new": false
   },
   {
-   "source": "Banks & Fed Flow",
-   "category": "bank",
-   "title": "What does shake-up of future Federal Reserve meetings mean for interest rates? - Baltimore Sun",
-   "pubDate": "Fri, 30 Oct 2026 11:37:51 GMT",
-   "pub_ts": 1793360271,
-   "age_min": 172.6,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "11:37:51 UTC",
-   "is_new": false
-  },
-  {
    "source": "Cointelegraph",
    "category": "news",
    "title": "Zcash grants group offers $124M compromise as governance backlash grows",
    "pubDate": "Fri, 30 Oct 2026 11:36:23 +0000",
    "pub_ts": 1793360183,
-   "age_min": 174.1,
+   "age_min": 230.7,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -626,7 +748,7 @@
    "title": "Here\u2019s how an Ethereum upgrade helped drain part of Binance\u2019s $6 billion loss",
    "pubDate": "Fri, 30 Oct 2026 11:35:16 +0000",
    "pub_ts": 1793360116,
-   "age_min": 175.2,
+   "age_min": 231.8,
    "sentiment": "MIXED",
    "tags": [
     "upgrade/partnership",
@@ -644,7 +766,7 @@
    "title": "Bitcoin price metrics hint at rebound as $1.6B liquidations follow Binance hack",
    "pubDate": "Fri, 30 Oct 2026 11:29:23 +0000",
    "pub_ts": 1793359763,
-   "age_min": 181.1,
+   "age_min": 237.7,
    "sentiment": "MIXED",
    "tags": [
     "bullish/breakout",
@@ -655,138 +777,6 @@
     "BTC"
    ],
    "time": "11:29:23 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Forbes/Bloomberg/Fortune",
-   "category": "magazine",
-   "title": "Bitcoin Drops on Binance Hack as Stock Selloff Also Weighs - Bloomberg",
-   "pubDate": "Fri, 30 Oct 2026 11:26:54 GMT",
-   "pub_ts": 1793359614,
-   "age_min": 183.5,
-   "sentiment": "BEARISH",
-   "tags": [
-    "unlock/dilution",
-    "hack/exploit"
-   ],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "11:26:54 UTC",
-   "is_new": false
-  },
-  {
-   "source": "BeInCrypto",
-   "category": "magazine",
-   "title": "XT Exchange: The Investment Question Comes Before the Trading Instrument",
-   "pubDate": "Fri, 30 Oct 2026 11:16:22 +0000",
-   "pub_ts": 1793358982,
-   "age_min": 194.1,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "11:16:22 UTC",
-   "is_new": false
-  },
-  {
-   "source": "CryptoSlate",
-   "category": "magazine",
-   "title": "Binance uncovers more breach points in $6 billion hack",
-   "pubDate": "Fri, 30 Oct 2026 11:13:40 +0000",
-   "pub_ts": 1793358820,
-   "age_min": 196.8,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit"
-   ],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "11:13:40 UTC",
-   "is_new": false
-  },
-  {
-   "source": "CoinDesk",
-   "category": "news",
-   "title": "Crypto liquidations jump to $1.57 billion as Binance hack sends bitcoin, ether lower",
-   "pubDate": "Fri, 30 Oct 2026 11:09:24 +0000",
-   "pub_ts": 1793358564,
-   "age_min": 201.0,
-   "sentiment": "MIXED",
-   "tags": [
-    "bullish/breakout",
-    "hack/exploit",
-    "outflow/liquidation"
-   ],
-   "tokens": [
-    "BTC",
-    "ETH"
-   ],
-   "time": "11:09:24 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Cointelegraph",
-   "category": "news",
-   "title": "EIP-7702 didn\u2019t cause Binance hack, but may have amplified losses",
-   "pubDate": "Fri, 30 Oct 2026 11:00:10 +0000",
-   "pub_ts": 1793358010,
-   "age_min": 210.3,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit"
-   ],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "11:00:10 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Cointelegraph",
-   "category": "news",
-   "title": "Binance hacker\u2019s Bitcoin haul tops Coinbase\u2019s corporate treasury",
-   "pubDate": "Fri, 30 Oct 2026 10:54:30 +0000",
-   "pub_ts": 1793357670,
-   "age_min": 215.9,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "10:54:30 UTC",
-   "is_new": false
-  },
-  {
-   "source": "BeInCrypto",
-   "category": "magazine",
-   "title": "South Africa\u2019s Crypto Grew 52% in A Bear Market. Then Came the Permission Slips",
-   "pubDate": "Fri, 30 Oct 2026 10:45:05 +0000",
-   "pub_ts": 1793357105,
-   "age_min": 225.4,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "10:45:05 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Banks & Fed Flow",
-   "category": "bank",
-   "title": "More ECB hikes may be needed to stop inflation, Panetta says - San Luis Obispo Tribune",
-   "pubDate": "Fri, 30 Oct 2026 10:41:06 GMT",
-   "pub_ts": 1793356866,
-   "age_min": 229.3,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "10:41:06 UTC",
    "is_new": false
   }
  ]
