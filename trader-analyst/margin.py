@@ -194,12 +194,12 @@ def event_risk(now_ms, extra=None):
             best = {
                 "level": level,
                 "risk_mult": 0.0 if level == "BLOCK" else 0.5,
-                "lev_mult": 0.0 if level == "BLOCK" else 0.5,
+                "lev_mult": 0.0 if level == "BLOCK" else (0.5 if k == "fomc" else 1.0),
                 "event": e["name"],
                 "hours_to": round(h, 1),
                 "reason": "%s %s: %s" % (
                     e["name"], when,
-                    "no new leveraged entries" if level == "BLOCK" else "half size, half leverage"),
+                    "no new leveraged entries" if level == "BLOCK" else ("half size, half leverage" if k == "fomc" else "half size")),
             }
     return best
 

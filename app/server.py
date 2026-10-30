@@ -16,8 +16,10 @@ Usage:
 """
 
 import argparse
+import base64
 import datetime
 import gzip
+import hmac
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
@@ -97,6 +99,18 @@ WS_STATS = {
     "stream": "wss://stream.binance.com:9443/ws/!miniTicker@arr",
     "mode": "WebSocket (Live 0ms Relay)",
 }
+ACTIVE_SYMBOLS_CACHE = set()
+ACTIVE_SYMBOLS_CACHE_TS = 0.0
+SIM_RUNNING_CACHE = True
+
+
+def update_wallet_cache(w):
+    global ACTIVE_SYMBOLS_CACHE, ACTIVE_SYMBOLS_CACHE_TS, SIM_RUNNING_CACHE
+    if not isinstance(w, dict):
+        return
+    ACTIVE_SYMBOLS_CACHE = set(w.get("positions", {}).keys()) | {o.get("symbol") for o in w.get("open_orders", [])}
+    SIM_RUNNING_CACHE = bool(w.get("simulation_running", True))
+    ACTIVE_SYMBOLS_CACHE_TS = time.time()
 
 DEFAULT_WATCHLIST = [
     "BNBUSDT", "BTCUSDT", "ETHUSDT", "SOLUSDT",
@@ -184,7 +198,22 @@ def save_wallet(w):
     with open(tmp, "w", encoding="utf-8") as fh:
         json.dump(w, fh, indent=2)
         fh.write("\n")
-    os.replace(tmp, WALLET_PATH)
+    for _ in range(5):
+        try:
+            os.replace(tmp, WALLET_PATH)
+            update_wallet_cache(w)
+            return
+        except PermissionError:
+            time.sleep(0.15)
+    with open(WALLET_PATH, "w", encoding="utf-8") as fh:
+        json.dump(w, fh, indent=2)
+        fh.write("\n")
+    update_wallet_cache(w)
+    try:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+    except Exception:
+        pass
 
 
 def fetch_live_tickers(symbols=None):
@@ -274,7 +303,7 @@ def _open_margin_position_locked(w, bsym, side, exec_price, notional_usdt=None, 
         if ev.get("level") == "BLOCK":
             raise ValueError("Macro Risk Guard: %s" % ev.get("reason", "Event Block Active"))
         if ev.get("level") == "CAUTION":
-            leverage = max(1.0, min(leverage, math.floor(tier_cap * 0.5)))
+            leverage = max(1.0, min(leverage, math.floor(tier_cap * ev.get("lev_mult", 1.0))))
 
     if stop_loss is not None and float(stop_loss) > 0:
         sl_val = float(stop_loss)
@@ -1062,6 +1091,9 @@ class AppHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "SAMEORIGIN")
+        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -1072,6 +1104,9 @@ class AppHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "SAMEORIGIN")
+        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
         self.send_header("Content-Length", str(len(body)))
         if extra_headers:
             for k, v in extra_headers.items():
@@ -1079,10 +1114,44 @@ class AppHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def check_auth(self):
+        auth_user = os.getenv("DASHBOARD_USERNAME") or os.getenv("TERMINAL_AUTH_USER")
+        auth_pass = os.getenv("DASHBOARD_PASSWORD") or os.getenv("TERMINAL_AUTH_PASS")
+        if not auth_user or not auth_pass:
+            return True
+        auth_header = self.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Basic "):
+            try:
+                decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+                user, pwd = decoded.split(":", 1)
+                if hmac.compare_digest(user, auth_user) and hmac.compare_digest(pwd, auth_pass):
+                    return True
+            except Exception:
+                pass
+        return False
+
+    def _send_unauthorized(self):
+        body = json.dumps({"ok": False, "error": "Unauthorized: Please provide valid credentials."}).encode("utf-8")
+        self.send_response(401)
+        self.send_header("WWW-Authenticate", 'Basic realm="Crypto Trader Terminal"')
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         p = parsed.path
         qs = urllib.parse.parse_qs(parsed.query)
+
+        # Public endpoints bypass authentication
+        public_endpoints = {"/manifest.json", "/sw.js", "/health", "/api/ws/status"}
+        if p not in public_endpoints and not self.check_auth():
+            return self._send_unauthorized()
+
+        if p == "/health":
+            return self._send_json({"status": "healthy", "service": "crypto-trader-terminal", "time": now_iso()})
 
         if p in ("/", "/index.html"):
             return self._send_file(os.path.join(APP_DIR, "index.html"), "text/html; charset=utf-8")
@@ -1342,6 +1411,8 @@ class AppHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
         p = parsed.path
+        if not self.check_auth():
+            return self._send_unauthorized()
         length = int(self.headers.get("Content-Length") or 0)
         raw_body = self.rfile.read(length).decode("utf-8", "replace") if length > 0 else "{}"
         try:
@@ -1414,9 +1485,16 @@ class AppHandler(BaseHTTPRequestHandler):
                 sym = payload.get("symbol") or "BNBUSDT"
                 strat = payload.get("strategy") or "CASH_AND_CARRY"
                 cap = float(payload.get("capital_usdt") or 2000.0)
+                bsym = predict.to_binance(sym)
+                tk = fetch_live_tickers([bsym]).get(bsym) or {}
+                spot_price = float(tk.get("price") or 0.0)
+                p_list = fetch_live_futures_premium_index()
+                f_match = next((item for item in p_list if item.get("symbol") == bsym or item.get("symbol") == "1000" + bsym), None)
+                perp_mark = float(f_match.get("markPrice") or spot_price) if f_match else spot_price
+                funding_rate = float(f_match.get("lastFundingRate") or (0.0002 if strat == "CASH_AND_CARRY" else -0.0010)) if f_match else None
                 with WALLET_LOCK:
                     w = load_wallet()
-                    res = _open_arbitrage_pair_locked(w, symbol=sym, strategy=strat, capital_usdt=cap)
+                    res = _open_arbitrage_pair_locked(w, symbol=bsym, strategy=strat, capital_usdt=cap, spot_price=spot_price, perp_mark=perp_mark, funding_rate=funding_rate)
                     save_wallet(w)
                 return self._send_json({"ok": True, "result": res, "state": check_triggers_and_enrich()})
             if p == "/api/arbitrage/close":
@@ -1424,8 +1502,19 @@ class AppHandler(BaseHTTPRequestHandler):
                 if not pair_id:
                     raise ValueError("Must provide pair_id to unwind.")
                 with WALLET_LOCK:
+                    w_snap = load_wallet()
+                    pair = (w_snap.get("arbitrage_pairs") or {}).get(pair_id)
+                if not pair:
+                    raise ValueError("Arbitrage pair %s not found." % pair_id)
+                bsym = pair.get("symbol", "BNBUSDT")
+                tk = fetch_live_tickers([bsym]).get(bsym) or {}
+                spot_price = float(tk.get("price") or pair.get("spot_leg", {}).get("price", 0.0))
+                p_list = fetch_live_futures_premium_index()
+                f_match = next((item for item in p_list if item.get("symbol") == bsym or item.get("symbol") == "1000" + bsym), None)
+                perp_mark = float(f_match.get("markPrice") or spot_price) if f_match else spot_price
+                with WALLET_LOCK:
                     w = load_wallet()
-                    res = _close_arbitrage_pair_locked(w, pair_id=pair_id, reason="Manual Unwind")
+                    res = _close_arbitrage_pair_locked(w, pair_id=pair_id, spot_price=spot_price, perp_mark=perp_mark, reason="Manual Unwind")
                     save_wallet(w)
                 return self._send_json({"ok": True, "result": res, "state": check_triggers_and_enrich()})
             if p == "/api/reset":
@@ -1468,10 +1557,13 @@ async def _async_binance_ws_loop():
                                 last_rate_calc = now
 
                             trigger_check_needed = False
-                            with WALLET_LOCK:
-                                w = load_wallet()
-                                active_symbols = set(w["positions"].keys()) | {o["symbol"] for o in w["open_orders"]}
-                                sim_on = w.get("simulation_running", True)
+                            now_ts = time.time()
+                            if now_ts - ACTIVE_SYMBOLS_CACHE_TS > 5.0 or not ACTIVE_SYMBOLS_CACHE:
+                                with WALLET_LOCK:
+                                    w_temp = load_wallet()
+                                    update_wallet_cache(w_temp)
+                            active_symbols = ACTIVE_SYMBOLS_CACHE
+                            sim_on = SIM_RUNNING_CACHE
 
                             if isinstance(data, list):
                                 for item in data:

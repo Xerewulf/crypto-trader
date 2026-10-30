@@ -296,6 +296,26 @@ class ChiefRiskOfficerAgent:
 
 # --------------------------------------------------------------------------- Debate Orchestrator
 
+FALLBACK_PRICES = {
+    "BTC": 68000.0,
+    "ETH": 2600.0,
+    "SOL": 175.0,
+    "BNB": 585.0,
+    "XRP": 0.52,
+    "DOGE": 0.14,
+    "ADA": 0.35,
+    "SUI": 2.10,
+    "AVAX": 27.0,
+    "LINK": 11.5,
+    "PEPE": 0.0000095,
+    "ENA": 0.42,
+}
+
+
+def default_fallback_price(sym: str) -> float:
+    base = sym.upper().replace("USDT", "").replace("FDUSD", "").replace("USDC", "").replace("1000", "")
+    return FALLBACK_PRICES.get(base, 100.0)
+
 class MultiAgentDebateEngine:
     """Orchestrates parallel research, adversarial debate, and CRO arbitration."""
 
@@ -362,26 +382,38 @@ class MultiAgentDebateEngine:
                     "hmm_regime": hmm_res,
                 }
             except Exception:
+                fallback_p = default_fallback_price(sym)
                 metrics = {
-                    "spot_price": 68000.0,
+                    "spot_price": fallback_p,
                     "depth_imbalance_1pct": 0.12,
+                    "depth_imbalance_2pct": 0.09,
                     "funding_rate_8h": 0.0001,
                     "whale_top_trader_ls": 1.35,
                     "retail_account_ls": 1.15,
-                    "vwap_24h": 67800.0,
-                    "volume_profile_7d": {"val": 66500.0, "poc": 67700.0, "vah": 69200.0},
-                    "rsi_14_1h": 54.0,
+                    "vwap_24h": round(fallback_p * 0.998, 4),
+                    "volume_profile_7d": {
+                        "val": round(fallback_p * 0.97, 4),
+                        "poc": round(fallback_p * 0.995, 4),
+                        "vah": round(fallback_p * 1.03, 4),
+                    },
+                    "rsi_14_1h": 52.0,
                     "hmm_regime": {"current_regime": 0, "regime_name": "BULL_MOMENTUM"},
                 }
         else:
+            fallback_p = default_fallback_price(sym)
             metrics = {
-                "spot_price": 68000.0,
+                "spot_price": fallback_p,
                 "depth_imbalance_1pct": 0.15,
+                "depth_imbalance_2pct": 0.12,
                 "funding_rate_8h": 0.0001,
                 "whale_top_trader_ls": 1.4,
                 "retail_account_ls": 1.1,
-                "vwap_24h": 67800.0,
-                "volume_profile_7d": {"val": 66500.0, "poc": 67700.0, "vah": 69200.0},
+                "vwap_24h": round(fallback_p * 0.998, 4),
+                "volume_profile_7d": {
+                    "val": round(fallback_p * 0.97, 4),
+                    "poc": round(fallback_p * 0.995, 4),
+                    "vah": round(fallback_p * 1.03, 4),
+                },
                 "rsi_14_1h": 54.0,
                 "hmm_regime": {"current_regime": 0, "regime_name": "BULL_MOMENTUM"},
             }

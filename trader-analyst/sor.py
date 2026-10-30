@@ -447,7 +447,17 @@ def evaluate_circuit_breakers(wallet_state: Dict[str, Any], now_ms: Optional[int
 
     pos_equity = sum(float(p.get("margin_usdt", p.get("collateral_usdt", 0.0))) for p in pos_list)
     unrealized_pnl = sum(float(p.get("unrealized_pnl_usdt", 0.0)) for p in pos_list)
-    current_equity = round(cash + pos_equity + unrealized_pnl, 2)
+
+    arb_pairs = wallet_state.get("arbitrage_pairs", {})
+    if isinstance(arb_pairs, dict):
+        arb_list = list(arb_pairs.values())
+    elif isinstance(arb_pairs, list):
+        arb_list = arb_pairs
+    else:
+        arb_list = []
+    arb_equity = sum(float(p.get("total_capital_usdt", 0.0)) + float(p.get("accrued_funding_usdt", 0.0)) for p in arb_list)
+
+    current_equity = round(cash + pos_equity + unrealized_pnl + arb_equity, 2)
 
     # Update High-Water Mark (HWM)
     if current_equity > hwm:

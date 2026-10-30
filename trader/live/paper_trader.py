@@ -30,6 +30,7 @@ import asyncio
 import datetime
 import html
 import json
+import hmac
 import math
 import os
 import sys
@@ -1934,7 +1935,7 @@ async def async_local_server(s, port=8765):
                     try:
                         decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
                         user, pwd = decoded.split(":", 1)
-                        if user == auth_user and pwd == auth_pass:
+                        if hmac.compare_digest(user, auth_user) and hmac.compare_digest(pwd, auth_pass):
                             return await handler(request)
                     except Exception:
                         pass
