@@ -1,0 +1,53 @@
+name: Binance 24/7 Autonomous Crypto Trader
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Runs every 15 minutes continuously 24/7
+  workflow_dispatch:        # Allows manual one-click trigger from GitHub Actions UI
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  trade-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute Autonomous Trading Cycle
+        env:
+          BINANCE_API_KEY: ${{ secrets.BINANCE_API_KEY }}
+          BINANCE_API_SECRET: ${{ secrets.BINANCE_API_SECRET }}
+          BINANCE_TESTNET: ${{ secrets.BINANCE_TESTNET }}
+        run: |
+          python trader/live/paper_trader.py once
+
+      - name: Prepare GitHub Pages Build
+        run: |
+          mkdir -p docs
+          cp trader/live/dashboard.html docs/index.html
+
+      - name: Commit & Sync 24/7 State & Logs
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add trader/live/state.json trader/live/trades.jsonl trader/live/events.log trader/live/dashboard.html docs/index.html || true
+          git diff --staged --quiet || (git commit -m "chore(autotrader): 24/7 autonomous market cycle update [skip ci]" && git push)
