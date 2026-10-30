@@ -1,2391 +1,3487 @@
-[
-  {
-    "symbol": "BTCUSDT",
-    "as_of": "2026-10-27T07:02:35Z",
-    "price": 79600.76,
-    "change_24h_pct": -0.787,
-    "high_24h": 80844.7,
-    "low_24h": 79451.35,
-    "volume_24h_usd": 1212878856.97,
-    "composite_score": -10.7,
-    "verdict": "NEUTRAL / RANGE-BOUND (Mixed Signals - Wait for Breakout)",
-    "pillar_scores": {
-      "technicals_mtf": {
-        "score": -21.0,
-        "max": 25.0
+{
+  "as_of": "2026-10-30T08:52:29Z",
+  "tokens": [
+    {
+      "symbol": "BTCUSDT",
+      "as_of": "2026-10-30T08:52:23Z",
+      "price": 77948.0,
+      "change_24h_pct": -2.44,
+      "high_24h": 81971.0,
+      "low_24h": 76500.11,
+      "volume_24h_usd": 2595119032.39,
+      "composite_score": -32.4,
+      "verdict": "BEARISH (Leans Downward)",
+      "pillar_scores": {
+        "technicals_mtf": {
+          "score": -20.9,
+          "max": 25.0
+        },
+        "spot_orderflow_depth": {
+          "score": 3.0,
+          "max": 25.0
+        },
+        "futures_leverage": {
+          "score": 0.0,
+          "max": 25.0
+        },
+        "relative_strength_btc": {
+          "score": 0.0,
+          "max": 10.0
+        },
+        "news_catalysts": {
+          "score": -12.5,
+          "max": 15.0
+        },
+        "institutional_bonus": {
+          "score": -2.0,
+          "max": 10.0
+        }
       },
-      "spot_orderflow_depth": {
-        "score": 21.7,
-        "max": 25.0
+      "horizons": {
+        "4h": {
+          "horizon": "4h",
+          "hours": 4,
+          "prob_up_pct": 43.6,
+          "prob_down_pct": 56.4,
+          "direction": "DOWN",
+          "expected_price": 77870.25181958,
+          "expected_move_pct": -0.1,
+          "range_50_low": 77523.09054327,
+          "range_50_high": 78194.82709662,
+          "range_80_low": 77166.17300059,
+          "range_80_high": 78538.29451126
+        },
+        "24h": {
+          "horizon": "24h",
+          "hours": 24,
+          "prob_up_pct": 40.2,
+          "prob_down_pct": 59.8,
+          "direction": "DOWN",
+          "expected_price": 77580.63374786,
+          "expected_move_pct": -0.47,
+          "range_50_low": 76599.10495401,
+          "range_50_high": 78547.21715254,
+          "range_80_low": 75726.72745799,
+          "range_80_high": 79395.73866623
+        },
+        "7d": {
+          "horizon": "7d",
+          "hours": 168,
+          "prob_up_pct": 34.8,
+          "prob_down_pct": 65.2,
+          "direction": "DOWN",
+          "expected_price": 76418.24653635,
+          "expected_move_pct": -1.96,
+          "range_50_low": 73878.38994127,
+          "range_50_high": 79082.81994442,
+          "range_80_low": 71650.84084765,
+          "range_80_high": 81232.24117139
+        }
       },
-      "futures_leverage": {
-        "score": -9.0,
-        "max": 25.0
+      "volume_profile": {
+        "poc": 80184.120125,
+        "vah": 81504.803,
+        "val": 79558.5335,
+        "vwap_24h": 78968.24319644,
+        "vwap_7d": 80070.57321112,
+        "vwap_24h_dist_pct": -1.29,
+        "state": "BELOW VALUE AREA (< VAL: Discount / Breakdown Zone)"
       },
-      "relative_strength_btc": {
-        "score": 0.0,
-        "max": 10.0
+      "institutional": {
+        "squeeze_4h": "NORMAL VOLATILITY",
+        "bb_width_4h_pct": 5.96,
+        "signals": [],
+        "bonus_score": 0.0
       },
-      "news_catalysts": {
-        "score": -0.4,
-        "max": 15.0
+      "vpin": null,
+      "wyckoff_microstructure": null,
+      "deribit_options": {
+        "max_pain_strike": 78000.0,
+        "current_spot": 77948.0,
+        "dist_to_max_pain_pct": 0.07,
+        "put_call_ratio": 0.966,
+        "total_call_oi": 5465.39,
+        "total_put_oi": 5277.52,
+        "total_open_interest_usd": 837388627.16,
+        "pinning_hazard": "HIGH_PINNING_MAGNET (Spot trapped near Max Pain)",
+        "payout_ladder": [
+          {
+            "strike": 70000.0,
+            "total_payout": 36976838.65
+          },
+          {
+            "strike": 71000.0,
+            "total_payout": 32141638.26
+          },
+          {
+            "strike": 72000.0,
+            "total_payout": 27796564.85
+          },
+          {
+            "strike": 73000.0,
+            "total_payout": 23994593.37
+          },
+          {
+            "strike": 74000.0,
+            "total_payout": 20794424.53
+          },
+          {
+            "strike": 75000.0,
+            "total_payout": 18261103.65
+          },
+          {
+            "strike": 76000.0,
+            "total_payout": 16466706.42
+          },
+          {
+            "strike": 77000.0,
+            "total_payout": 15491098.77
+          },
+          {
+            "strike": 78000.0,
+            "total_payout": 15422778.85
+          },
+          {
+            "strike": 79000.0,
+            "total_payout": 16249668.53
+          },
+          {
+            "strike": 80000.0,
+            "total_payout": 17884447.76
+          },
+          {
+            "strike": 81000.0,
+            "total_payout": 20248313.8
+          }
+        ],
+        "currency": "BTC",
+        "hours_to_monthly_expiry": 671.1,
+        "dealer_net_gamma_usd_m": 0.49,
+        "dealer_gamma_regime": "LONG_GAMMA (Volatility Suppressed)"
       },
-      "institutional_bonus": {
-        "score": -2.0,
-        "max": 10.0
+      "smart_order_routing": {
+        "symbol": "BTCUSDT",
+        "side": "SELL",
+        "notional_usd": 2000.0,
+        "primary_venue": "OKX",
+        "recommended_action": "EXECUTE_SINGLE_VENUE",
+        "primary_quote": {
+          "venue": "OKX",
+          "symbol": "BTCUSDT",
+          "side": "SELL",
+          "notional_usd": 2000.0,
+          "best_price": 77907.1,
+          "vwap_price": 77897.7511,
+          "fee_rate_pct": 0.05,
+          "fee_usd": 1.0,
+          "slippage_bps": 1.2,
+          "slippage_usd": 0.24,
+          "funding_rate_8h_pct": 0.0052,
+          "carry_24h_usd": -0.31,
+          "total_cost_usd": 0.93,
+          "net_cost_pct": 0.046
+        },
+        "venue_comparison": [
+          {
+            "venue": "OKX",
+            "symbol": "BTCUSDT",
+            "side": "SELL",
+            "notional_usd": 2000.0,
+            "best_price": 77907.1,
+            "vwap_price": 77897.7511,
+            "fee_rate_pct": 0.05,
+            "fee_usd": 1.0,
+            "slippage_bps": 1.2,
+            "slippage_usd": 0.24,
+            "funding_rate_8h_pct": 0.0052,
+            "carry_24h_usd": -0.31,
+            "total_cost_usd": 0.93,
+            "net_cost_pct": 0.046
+          }
+        ],
+        "cost_savings_usd": 0.0,
+        "routing_split": [
+          {
+            "venue": "OKX",
+            "pct": 100,
+            "notional_usd": 2000.0
+          }
+        ],
+        "rationale": "Venue OKX provides lowest all-in cost ($0.93 / 0.046%) saving $0.00 vs worst venue."
+      },
+      "whale_blocks": {
+        "symbol": "BTCUSDT",
+        "total_blocks": 5,
+        "whale_buy_vol_usd": 2246493.46,
+        "whale_sell_vol_usd": 179637.46,
+        "whale_net_flow_usd": 2066856.0,
+        "whale_taker_buy_pct": 92.6,
+        "whale_buy_count": 4,
+        "whale_sell_count": 1,
+        "largest_print": {
+          "trade_id": 100005,
+          "symbol": "BTCUSDT",
+          "timestamp": 1793350328.295,
+          "price": 68500.0,
+          "qty": 16.7883,
+          "notional_usd": 1149998.55,
+          "side": "BUY",
+          "tier": "TITAN",
+          "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+          "is_taker_buy": true
+        },
+        "tier_breakdown": {
+          "TITAN": 1,
+          "MEGALODON": 1,
+          "SHARK": 1,
+          "WHALE": 2
+        },
+        "recent_blocks": [
+          {
+            "trade_id": 100005,
+            "symbol": "BTCUSDT",
+            "timestamp": 1793350328.295,
+            "price": 68500.0,
+            "qty": 16.7883,
+            "notional_usd": 1149998.55,
+            "side": "BUY",
+            "tier": "TITAN",
+            "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100004,
+            "symbol": "BTCUSDT",
+            "timestamp": 1793350283.295,
+            "price": 68637.0,
+            "qty": 9.4891,
+            "notional_usd": 651303.36,
+            "side": "BUY",
+            "tier": "MEGALODON",
+            "tier_badge": "\ud83d\udc19 MEGALODON ($500K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100003,
+            "symbol": "BTCUSDT",
+            "timestamp": 1793350223.295,
+            "price": 68363.0,
+            "qty": 2.6277,
+            "notional_usd": 179637.46,
+            "side": "SELL",
+            "tier": "WHALE",
+            "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
+            "is_taker_buy": false
+          },
+          {
+            "trade_id": 100002,
+            "symbol": "BTCUSDT",
+            "timestamp": 1793350163.295,
+            "price": 68568.5,
+            "qty": 4.6715,
+            "notional_usd": 320317.75,
+            "side": "BUY",
+            "tier": "SHARK",
+            "tier_badge": "\ud83d\udc33 SHARK ($250K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100001,
+            "symbol": "BTCUSDT",
+            "timestamp": 1793350103.295,
+            "price": 68431.5,
+            "qty": 1.8248,
+            "notional_usd": 124873.8,
+            "side": "BUY",
+            "tier": "WHALE",
+            "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
+            "is_taker_buy": true
+          }
+        ]
+      },
+      "macro_onchain": {
+        "fear_greed_value": 30,
+        "fear_greed_label": "Fear",
+        "fear_greed_prev": 51,
+        "total_mcap_usd": 2629526609407.39,
+        "mcap_24h_change_pct": -4.81,
+        "btc_dominance_pct": 59.38,
+        "eth_dominance_pct": 10.3,
+        "market_season": "BTC DOMINANCE SEASON (BTC.D 59.4% > 56% - Select High-Alpha Alts Only)",
+        "stablecoin_total_usd": 288978152921.17,
+        "usdt_supply_usd": 180263255321.13,
+        "usdc_supply_usd": 71470564911.27,
+        "stablecoin_24h_flow_usd": -739640409.61,
+        "stablecoin_7d_flow_usd": -3573422890.47,
+        "chain_name": "Bitcoin",
+        "chain_tvl_usd": 6069280571.02,
+        "chain_tvl_rank": 2,
+        "macro_bonus": -2.0,
+        "macro_notes": [
+          "DefiLlama Stablecoin Contraction: -$3.57B redeemed over 7d (tightening on-chain liquidity)"
+        ]
+      },
+      "kelly_trade_plan": {
+        "bias": "SHORT / HEDGE",
+        "spot_entry": 77948.0,
+        "limit_pullback_entry": 78911.76,
+        "stop_loss": 79274.60428571,
+        "tp1": 75958.09357144,
+        "tp2": 74631.48928573,
+        "reward_risk_ratio": 1.5,
+        "win_prob_pct": 59.8,
+        "expected_value_R": 0.49,
+        "quarter_kelly_risk_pct": 5.0,
+        "adaptive_kelly": {
+          "base_full_kelly": 0.33,
+          "base_quarter_kelly_pct": 5.0,
+          "adaptive_kelly_pct": 5.0,
+          "composite_multiplier": 1.1,
+          "squeeze_multiplier": 1.0,
+          "atr_multiplier": 1.1,
+          "vpin_multiplier": 1.0,
+          "atr_ratio": 0.76,
+          "volatility_regime": "NORMAL_VOLATILITY",
+          "calculated_risk_usd": 150.0,
+          "sizing_rationale": "ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+        },
+        "margin_plan": {
+          "ok": true,
+          "venue": "margin",
+          "side": "short",
+          "risk_usd": 25.0,
+          "qty": 0.018845107217952368,
+          "notional_usd": 1468.94,
+          "leverage": 1.0,
+          "leverage_cap_tier": 5.0,
+          "leverage_cap_liq_safe": 7.3,
+          "margin_usd": 1468.94,
+          "margin_pct_equity": 29.4,
+          "liquidation_price": 141723.63636363635,
+          "liq_distance_pct": 81.82,
+          "stop_distance_pct": 1.7,
+          "liq_to_stop_ratio": 48.1,
+          "bankruptcy_price": 155896.0,
+          "maintenance_margin_usd": 5.88,
+          "mmr": 0.004,
+          "cum_deduction": 0.0,
+          "liquidation_clearance_fee_usd": 14.69,
+          "carry_adjusted_liq_price": 141689.6227,
+          "margin_call_price": 119920.0,
+          "adl_risk_quantile": 1,
+          "carry_usd": 0.71,
+          "carry_r": 0.028,
+          "fees_usd": 1.18,
+          "fees_r": 0.047,
+          "hold_hours": 24.0,
+          "event_level": "CAUTION",
+          "event_reason": "Deribit monthly options expiry 0.9h ago: half size",
+          "notes": []
+        }
+      },
+      "timeframes": {
+        "15m": {
+          "timeframe": "15m",
+          "price": 77948.01,
+          "ema20": 78224.67029127,
+          "ema50": 78514.85252619,
+          "sma200": 79406.0502,
+          "rsi14": 41.6,
+          "macd_hist": -54.92868897,
+          "macd_rising": false,
+          "atr14": 221.00857143,
+          "atr_pct": 0.28,
+          "high_20": 78804.01,
+          "low_20": 77911.0,
+          "regime": "BEARISH",
+          "score": -25.0
+        },
+        "1h": {
+          "timeframe": "1h",
+          "price": 77948.01,
+          "ema20": 78844.60829856,
+          "ema50": 79644.63077967,
+          "sma200": 80663.3615,
+          "rsi14": 38.3,
+          "macd_hist": -22.56043783,
+          "macd_rising": true,
+          "atr14": 884.40285714,
+          "atr_pct": 1.13,
+          "high_20": 81971.0,
+          "low_20": 76500.11,
+          "regime": "BEARISH",
+          "score": -24.5
+        },
+        "4h": {
+          "timeframe": "4h",
+          "price": 77948.01,
+          "ema20": 79852.54973696,
+          "ema50": 80573.96309859,
+          "sma200": 82703.8491,
+          "rsi14": 35.8,
+          "macd_hist": -302.17866912,
+          "macd_rising": false,
+          "atr14": 1158.40214286,
+          "atr_pct": 1.49,
+          "high_20": 81971.0,
+          "low_20": 76500.11,
+          "regime": "BEARISH",
+          "score": -25.0
+        },
+        "1d": {
+          "timeframe": "1d",
+          "price": 77948.01,
+          "ema20": 81101.53533291,
+          "ema50": 80605.20833187,
+          "sma200": 73164.7304,
+          "rsi14": 35.9,
+          "macd_hist": -452.31994651,
+          "macd_rising": false,
+          "atr14": 1978.52571429,
+          "atr_pct": 2.54,
+          "high_20": 84898.0,
+          "low_20": 76500.11,
+          "regime": "BEARISH",
+          "score": -9.0
+        }
+      },
+      "spot_flow": {
+        "1h": {
+          "total_usd": 87437185.5023138,
+          "buy_usd": 36255906.8888654,
+          "sell_usd": 51181278.6134484,
+          "cvd_usd": -14925371.724583,
+          "buy_pct": 41.47
+        },
+        "4h": {
+          "total_usd": 287221218.1110771,
+          "buy_usd": 136870524.599674,
+          "sell_usd": 150350693.51140308,
+          "cvd_usd": -13480168.911729097,
+          "buy_pct": 47.65
+        },
+        "24h": {
+          "total_usd": 2589353880.1414266,
+          "buy_usd": 1236294403.3678627,
+          "sell_usd": 1353059476.7735639,
+          "cvd_usd": -116765073.40570116,
+          "buy_pct": 47.75
+        },
+        "7d": {
+          "total_usd": 8317066818.220392,
+          "buy_usd": 4330402599.387394,
+          "sell_usd": 3986664218.8329983,
+          "cvd_usd": 343738380.5543957,
+          "buy_pct": 52.07
+        },
+        "orderbook": {
+          "bid_1pct_usd": 18590098.83,
+          "ask_1pct_usd": 9679811.07,
+          "imbalance_1pct": 31.5,
+          "bid_2pct_usd": 19268549.72,
+          "ask_2pct_usd": 12589373.98,
+          "imbalance_2pct": 21.0,
+          "support_wall_price": 77213.0,
+          "support_wall_usd": 1392464.65,
+          "resistance_wall_price": 78911.76,
+          "resistance_wall_usd": 1001654.59
+        }
+      },
+      "futures": {
+        "available": false,
+        "note": "No perpetual futures contract on Binance for BTCUSDT"
+      },
+      "relative_strength": {
+        "return_7d_pct": -3.99,
+        "btc_24h_pct": -0.06,
+        "btc_7d_pct": -3.99,
+        "alpha_24h_pct": 0.0,
+        "alpha_7d_pct": 0.0
+      },
+      "news": {
+        "sources_checked": [
+          "Federal Reserve (Press & Speeches)",
+          "Wall St. Banks (JPM/BlackRock/GS/MS)",
+          "Binance Official CMS",
+          "X/Twitter Whale Flow (Lookonchain/Arkham/Wu)",
+          "CoinGecko Trending",
+          "Forbes/Fortune/Bloomberg",
+          "Bitcoin Magazine",
+          "The Block",
+          "Blockworks",
+          "CryptoSlate",
+          "BeInCrypto",
+          "CoinDesk",
+          "Cointelegraph",
+          "Decrypt",
+          "Yahoo Finance"
+        ],
+        "headlines_checked": 90,
+        "bullish_catalysts": [
+          [
+            "CoinGecko Trending",
+            "social heat",
+            "BTC is Trending #2 Globally on CoinGecko Search"
+          ],
+          [
+            "X/Social/BTC",
+            "bullish/breakout",
+            "Bitcoin eyes $84,000 as whale withdrawals surge and institutional activity grows - Yahoo Finance"
+          ]
+        ],
+        "bearish_catalysts": [
+          [
+            "Yahoo/BTC-USD",
+            "hack/exploit, outflow/liquidation",
+            "Bitcoin, digital assets tumble as Binance says $6.3 billion  impacted in suspected record crypto hack"
+          ],
+          [
+            "Yahoo/BTC-USD",
+            "outflow/liquidation",
+            "Dow Jones Futures Fall, Nasdaq Futures Plunge 2% On Amazon, Intel After Google, ServiceNow, Fortinet Dive"
+          ],
+          [
+            "Yahoo/BTC-USD",
+            "outflow/liquidation",
+            "Bitcoin Bulls Take the Biggest Hit in a $1.49 Billion Crypto Liquidation Day"
+          ],
+          [
+            "X/Social/BTC",
+            "hack/exploit",
+            "North Korea Steals USD 6.36 Billion From Binance in the Largest Hack in History - TRM Labs"
+          ],
+          [
+            "X/Social/BTC",
+            "hack/exploit, outflow/liquidation",
+            "Bitcoin tumbles as Binance hack rattles crypto markets - CNBC"
+          ],
+          [
+            "X/Social/BTC",
+            "hack/exploit",
+            "Crypto giant Binance hit by $6.3bn hack suspected to be largest in history - BBC"
+          ]
+        ],
+        "event_risk_headlines": [
+          [
+            "Fed Press",
+            "scheduled event risk",
+            "Federal Reserve issues FOMC statement"
+          ]
+        ],
+        "fed_and_central_banks": [
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve Board announces approval of application by The Bank of Nova Scotia",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve issues FOMC statement",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Speeches",
+            "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Speeches",
+            "title": "Waller, The Signaling Value of the Summary of Economic Projections",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "bank_and_institutional": [
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB flags December hike but sees yield rise hitting growth - Reuters",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB Leaves Rates Unchanged as Challenges Mount for Lagarde\u2019s Successor - WSJ",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB, US Fed Hold Rates; Lagarde To Step Down \u2013 Wealth Managers React - Wealth Briefing",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "Lagarde Downplays Risk of Inflation Broadening as ECB Holds - Bloomberg.com",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "Fidelity's Timmer Warns Rising Rates Can Hurt Stocks Unless Earnings Keep Pace - Yahoo Finance",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "binance_official": [
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Will List Predict (PREDICT) with Seed Tag Applied",
+            "sentiment": "BULLISH",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-29)",
+            "sentiment": "BULLISH",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-28",
+            "sentiment": "BULLISH",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Exchange Adds Applovin Corp (APPB), Bending Spoons (BSPB), GE Vernova Inc (GEVB), GraniteShares 2x Short SK Hynix Daily ETF (SKDDB) and GraniteShares 2x Long SK Hynix Daily ETF (SKUUB) bStocks Trading Pairs on Binance Spot/Convert and Extends Zero Maker Fee Promotion - 2026-10-28",
+            "sentiment": "NEUTRAL",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)",
+            "sentiment": "BULLISH",
+            "is_token": false
+          }
+        ],
+        "twitter_x_flow": [
+          {
+            "source": "X/Social/BTC",
+            "title": "Binance Estimates $6.3 Billion Hacked in Crypto's Biggest Heist - Bloomberg.com",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BTC",
+            "title": "Binance targeted in $6.3 billion crypto heist, the largest ever - NBC News",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BTC",
+            "title": "BTC news: Binance hacker took over 18,270 bitcoin that no one can freeze - CoinDesk",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BTC",
+            "title": "Crypto giant Binance hit by $6.3bn hack suspected to be largest in history - BBC",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BTC",
+            "title": "Bitcoin eyes $84,000 as whale withdrawals surge and institutional activity grows - Yahoo Finance",
+            "sentiment": "BULLISH",
+            "tags": [
+              "bullish/breakout"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BTC",
+            "title": "Bitcoin tumbles as Binance hack rattles crypto markets - CNBC",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": true
+          }
+        ],
+        "magazines_and_press": [
+          {
+            "source": "Blockworks",
+            "title": "Yield Basis is making native BTC yield a reality",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "Bitcoin Magazine",
+            "title": "FutureBit Apollo Solo Miner Finds Bitcoin Block 973262, Earning 3.154 BTC",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "Forbes/Bloomberg/Fortune",
+            "title": "Binance Estimates $6.3 Billion Hacked in Crypto's Biggest Heist - Bloomberg.com",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": false
+          },
+          {
+            "source": "Bitcoin Magazine",
+            "title": "Bitcoin Price Briefly Slides to $76,300 as Binance Confirms Hack Estimated at $6.3 Billion",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": false
+          },
+          {
+            "source": "The Block",
+            "title": "Bitcoin slides below $77,000, BNB drops amid Binance hack",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": false
+          },
+          {
+            "source": "Blockworks",
+            "title": "Venezuela\u2019s sanctions are stablecoins\u2019 proof of concept",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "trending_social": {
+          "is_trending": true,
+          "trending_rank": 2,
+          "top_trending_coins": [
+            "HYPE",
+            "BTC",
+            "LIT",
+            "AAVE",
+            "BEAM",
+            "PEPE",
+            "BNB",
+            "ETH",
+            "QNT",
+            "ENA"
+          ]
+        },
+        "score": -12.5
+      },
+      "levels": {
+        "supports": [
+          77213.0,
+          76500.11,
+          75969.47428571
+        ],
+        "resistances": [
+          78911.76,
+          79926.52571429,
+          80184.120125
+        ]
       }
     },
-    "horizons": {
-      "4h": {
-        "horizon": "4h",
-        "hours": 4,
-        "prob_up_pct": 46.6,
-        "prob_down_pct": 53.4,
-        "direction": "DOWN",
-        "expected_price": 79569.40625866,
-        "expected_move_pct": -0.04,
-        "range_50_low": 79273.92392235,
-        "range_50_high": 79859.93055542,
-        "range_80_low": 78987.43787697,
-        "range_80_high": 80147.93467563
+    {
+      "symbol": "ETHUSDT",
+      "as_of": "2026-10-30T08:52:25Z",
+      "price": 2225.98,
+      "change_24h_pct": -3.741,
+      "high_24h": 2379.55,
+      "low_24h": 2174.08,
+      "volume_24h_usd": 1286844101.3,
+      "composite_score": -42.9,
+      "verdict": "STRONG BEARISH (High-Conviction Downside)",
+      "pillar_scores": {
+        "technicals_mtf": {
+          "score": -22.9,
+          "max": 25.0
+        },
+        "spot_orderflow_depth": {
+          "score": 1.3,
+          "max": 25.0
+        },
+        "futures_leverage": {
+          "score": 0.0,
+          "max": 25.0
+        },
+        "relative_strength_btc": {
+          "score": -5.8,
+          "max": 10.0
+        },
+        "news_catalysts": {
+          "score": -13.5,
+          "max": 15.0
+        },
+        "institutional_bonus": {
+          "score": -2.0,
+          "max": 10.0
+        }
       },
-      "24h": {
-        "horizon": "24h",
-        "hours": 24,
-        "prob_up_pct": 45.1,
-        "prob_down_pct": 54.9,
-        "direction": "DOWN",
-        "expected_price": 79476.19219916,
-        "expected_move_pct": -0.16,
-        "range_50_low": 78727.78613153,
-        "range_50_high": 80246.3784096,
-        "range_80_low": 78033.76722794,
-        "range_80_high": 80950.92724918
+      "horizons": {
+        "4h": {
+          "horizon": "4h",
+          "hours": 4,
+          "prob_up_pct": 41.5,
+          "prob_down_pct": 58.5,
+          "direction": "DOWN",
+          "expected_price": 2221.82008608,
+          "expected_move_pct": -0.19,
+          "range_50_low": 2208.28955375,
+          "range_50_high": 2235.11426725,
+          "range_80_low": 2194.01908261,
+          "range_80_high": 2247.13777504
+        },
+        "24h": {
+          "horizon": "24h",
+          "hours": 24,
+          "prob_up_pct": 36.9,
+          "prob_down_pct": 63.1,
+          "direction": "DOWN",
+          "expected_price": 2208.29753196,
+          "expected_move_pct": -0.79,
+          "range_50_low": 2170.13360324,
+          "range_50_high": 2244.45101777,
+          "range_80_low": 2135.19474477,
+          "range_80_high": 2278.49803986
+        },
+        "7d": {
+          "horizon": "7d",
+          "hours": 168,
+          "prob_up_pct": 30.7,
+          "prob_down_pct": 69.3,
+          "direction": "DOWN",
+          "expected_price": 2146.89100575,
+          "expected_move_pct": -3.55,
+          "range_50_low": 2053.02940965,
+          "range_50_high": 2253.92987136,
+          "range_80_low": 1969.38014622,
+          "range_80_high": 2347.74788336
+        }
       },
-      "7d": {
-        "horizon": "7d",
-        "hours": 168,
-        "prob_up_pct": 40.1,
-        "prob_down_pct": 59.9,
-        "direction": "DOWN",
-        "expected_price": 78844.84077666,
-        "expected_move_pct": -0.95,
-        "range_50_low": 76939.05889711,
-        "range_50_high": 80900.05042027,
-        "range_80_low": 75132.97100623,
-        "range_80_high": 82772.55862205
+      "volume_profile": {
+        "poc": 2347.709125,
+        "vah": 2405.5855,
+        "val": 2302.01725,
+        "vwap_24h": 2268.00393474,
+        "vwap_7d": 2318.33440493,
+        "vwap_24h_dist_pct": -1.85,
+        "state": "BELOW VALUE AREA (< VAL: Discount / Breakdown Zone)"
+      },
+      "institutional": {
+        "squeeze_4h": "NORMAL VOLATILITY",
+        "bb_width_4h_pct": 7.88,
+        "signals": [],
+        "bonus_score": 0.0
+      },
+      "vpin": null,
+      "wyckoff_microstructure": null,
+      "deribit_options": {
+        "max_pain_strike": 2200.0,
+        "current_spot": 2225.98,
+        "dist_to_max_pain_pct": -1.17,
+        "put_call_ratio": 0.988,
+        "total_call_oi": 24886.54,
+        "total_put_oi": 24589.28,
+        "total_open_interest_usd": 110132193.27,
+        "pinning_hazard": "HIGH_PINNING_MAGNET (Spot trapped near Max Pain)",
+        "payout_ladder": [
+          {
+            "strike": 1850.0,
+            "total_payout": 8447120.14
+          },
+          {
+            "strike": 1900.0,
+            "total_payout": 7295331.36
+          },
+          {
+            "strike": 1950.0,
+            "total_payout": 6236508.74
+          },
+          {
+            "strike": 2000.0,
+            "total_payout": 5288953.01
+          },
+          {
+            "strike": 2050.0,
+            "total_payout": 4474567.45
+          },
+          {
+            "strike": 2100.0,
+            "total_payout": 3819567.1
+          },
+          {
+            "strike": 2150.0,
+            "total_payout": 3355327.52
+          },
+          {
+            "strike": 2200.0,
+            "total_payout": 3119400.64
+          },
+          {
+            "strike": 2250.0,
+            "total_payout": 3156730.66
+          },
+          {
+            "strike": 2300.0,
+            "total_payout": 3441730.37
+          },
+          {
+            "strike": 2350.0,
+            "total_payout": 3933664.05
+          },
+          {
+            "strike": 2400.0,
+            "total_payout": 4598496.05
+          }
+        ],
+        "currency": "ETH",
+        "hours_to_monthly_expiry": 671.1,
+        "dealer_net_gamma_usd_m": 0.17,
+        "dealer_gamma_regime": "LONG_GAMMA (Volatility Suppressed)"
+      },
+      "smart_order_routing": {
+        "symbol": "ETHUSDT",
+        "side": "SELL",
+        "notional_usd": 2000.0,
+        "primary_venue": "OKX",
+        "recommended_action": "EXECUTE_SINGLE_VENUE",
+        "primary_quote": {
+          "venue": "OKX",
+          "symbol": "ETHUSDT",
+          "side": "SELL",
+          "notional_usd": 2000.0,
+          "best_price": 2225.0,
+          "vwap_price": 2224.733,
+          "fee_rate_pct": 0.05,
+          "fee_usd": 1.0,
+          "slippage_bps": 1.2,
+          "slippage_usd": 0.24,
+          "funding_rate_8h_pct": -0.0067,
+          "carry_24h_usd": 0.4,
+          "total_cost_usd": 1.64,
+          "net_cost_pct": 0.082
+        },
+        "venue_comparison": [
+          {
+            "venue": "OKX",
+            "symbol": "ETHUSDT",
+            "side": "SELL",
+            "notional_usd": 2000.0,
+            "best_price": 2225.0,
+            "vwap_price": 2224.733,
+            "fee_rate_pct": 0.05,
+            "fee_usd": 1.0,
+            "slippage_bps": 1.2,
+            "slippage_usd": 0.24,
+            "funding_rate_8h_pct": -0.0067,
+            "carry_24h_usd": 0.4,
+            "total_cost_usd": 1.64,
+            "net_cost_pct": 0.082
+          }
+        ],
+        "cost_savings_usd": 0.0,
+        "routing_split": [
+          {
+            "venue": "OKX",
+            "pct": 100,
+            "notional_usd": 2000.0
+          }
+        ],
+        "rationale": "Venue OKX provides lowest all-in cost ($1.64 / 0.082%) saving $0.00 vs worst venue."
+      },
+      "whale_blocks": {
+        "symbol": "ETHUSDT",
+        "total_blocks": 5,
+        "whale_buy_vol_usd": 2246494.96,
+        "whale_sell_vol_usd": 179639.93,
+        "whale_net_flow_usd": 2066855.03,
+        "whale_taker_buy_pct": 92.6,
+        "whale_buy_count": 4,
+        "whale_sell_count": 1,
+        "largest_print": {
+          "trade_id": 100005,
+          "symbol": "ETHUSDT",
+          "timestamp": 1793350330.387,
+          "price": 2650.0,
+          "qty": 433.9623,
+          "notional_usd": 1150000.09,
+          "side": "BUY",
+          "tier": "TITAN",
+          "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+          "is_taker_buy": true
+        },
+        "tier_breakdown": {
+          "TITAN": 1,
+          "MEGALODON": 1,
+          "SHARK": 1,
+          "WHALE": 2
+        },
+        "recent_blocks": [
+          {
+            "trade_id": 100005,
+            "symbol": "ETHUSDT",
+            "timestamp": 1793350330.387,
+            "price": 2650.0,
+            "qty": 433.9623,
+            "notional_usd": 1150000.09,
+            "side": "BUY",
+            "tier": "TITAN",
+            "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100004,
+            "symbol": "ETHUSDT",
+            "timestamp": 1793350285.387,
+            "price": 2655.3,
+            "qty": 245.283,
+            "notional_usd": 651299.95,
+            "side": "BUY",
+            "tier": "MEGALODON",
+            "tier_badge": "\ud83d\udc19 MEGALODON ($500K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100003,
+            "symbol": "ETHUSDT",
+            "timestamp": 1793350225.387,
+            "price": 2644.7,
+            "qty": 67.9245,
+            "notional_usd": 179639.93,
+            "side": "SELL",
+            "tier": "WHALE",
+            "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
+            "is_taker_buy": false
+          },
+          {
+            "trade_id": 100002,
+            "symbol": "ETHUSDT",
+            "timestamp": 1793350165.387,
+            "price": 2652.65,
+            "qty": 120.7547,
+            "notional_usd": 320319.95,
+            "side": "BUY",
+            "tier": "SHARK",
+            "tier_badge": "\ud83d\udc33 SHARK ($250K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100001,
+            "symbol": "ETHUSDT",
+            "timestamp": 1793350105.387,
+            "price": 2647.35,
+            "qty": 47.1698,
+            "notional_usd": 124874.97,
+            "side": "BUY",
+            "tier": "WHALE",
+            "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
+            "is_taker_buy": true
+          }
+        ]
+      },
+      "macro_onchain": {
+        "fear_greed_value": 30,
+        "fear_greed_label": "Fear",
+        "fear_greed_prev": 51,
+        "total_mcap_usd": 2629526609407.39,
+        "mcap_24h_change_pct": -4.81,
+        "btc_dominance_pct": 59.38,
+        "eth_dominance_pct": 10.3,
+        "market_season": "BTC DOMINANCE SEASON (BTC.D 59.4% > 56% - Select High-Alpha Alts Only)",
+        "stablecoin_total_usd": 288978152921.17,
+        "usdt_supply_usd": 180263255321.13,
+        "usdc_supply_usd": 71470564911.27,
+        "stablecoin_24h_flow_usd": -739640409.61,
+        "stablecoin_7d_flow_usd": -3573422890.47,
+        "chain_name": "Ethereum",
+        "chain_tvl_usd": 43338870107.96,
+        "chain_tvl_rank": 1,
+        "macro_bonus": -2.0,
+        "macro_notes": [
+          "DefiLlama Stablecoin Contraction: -$3.57B redeemed over 7d (tightening on-chain liquidity)"
+        ]
+      },
+      "kelly_trade_plan": {
+        "bias": "SHORT / HEDGE",
+        "spot_entry": 2225.98,
+        "limit_pullback_entry": 2268.00393474,
+        "stop_loss": 2300.164,
+        "tp1": 2114.704,
+        "tp2": 2040.52,
+        "reward_risk_ratio": 1.5,
+        "win_prob_pct": 63.1,
+        "expected_value_R": 0.58,
+        "quarter_kelly_risk_pct": 5.0,
+        "adaptive_kelly": {
+          "base_full_kelly": 0.385,
+          "base_quarter_kelly_pct": 5.0,
+          "adaptive_kelly_pct": 5.0,
+          "composite_multiplier": 1.1,
+          "squeeze_multiplier": 1.0,
+          "atr_multiplier": 1.1,
+          "vpin_multiplier": 1.0,
+          "atr_ratio": 0.79,
+          "volatility_regime": "NORMAL_VOLATILITY",
+          "calculated_risk_usd": 150.0,
+          "sizing_rationale": "ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+        },
+        "margin_plan": {
+          "ok": true,
+          "venue": "margin",
+          "side": "short",
+          "risk_usd": 25.0,
+          "qty": 0.3369998921600336,
+          "notional_usd": 750.16,
+          "leverage": 1.0,
+          "leverage_cap_tier": 4.0,
+          "leverage_cap_liq_safe": 5.8,
+          "margin_usd": 750.16,
+          "margin_pct_equity": 15.0,
+          "liquidation_price": 4047.2363636363634,
+          "liq_distance_pct": 81.82,
+          "stop_distance_pct": 3.33,
+          "liq_to_stop_ratio": 24.6,
+          "bankruptcy_price": 4451.96,
+          "maintenance_margin_usd": 3.75,
+          "mmr": 0.005,
+          "cum_deduction": 0.0,
+          "liquidation_clearance_fee_usd": 7.5,
+          "carry_adjusted_liq_price": 4046.265,
+          "margin_call_price": 3424.5846,
+          "adl_risk_quantile": 1,
+          "carry_usd": 0.36,
+          "carry_r": 0.014,
+          "fees_usd": 0.6,
+          "fees_r": 0.024,
+          "hold_hours": 24.0,
+          "event_level": "CAUTION",
+          "event_reason": "Deribit monthly options expiry 0.9h ago: half size",
+          "notes": []
+        }
+      },
+      "timeframes": {
+        "15m": {
+          "timeframe": "15m",
+          "price": 2225.98,
+          "ema20": 2237.36921707,
+          "ema50": 2250.94526718,
+          "sma200": 2287.2155,
+          "rsi14": 40.1,
+          "macd_hist": -1.71023073,
+          "macd_rising": false,
+          "atr14": 9.72,
+          "atr_pct": 0.44,
+          "high_20": 2259.02,
+          "low_20": 2224.13,
+          "regime": "BEARISH",
+          "score": -25.0
+        },
+        "1h": {
+          "timeframe": "1h",
+          "price": 2225.98,
+          "ema20": 2264.73932954,
+          "ema50": 2297.98066561,
+          "sma200": 2349.0377,
+          "rsi14": 37.0,
+          "macd_hist": -1.63836353,
+          "macd_rising": true,
+          "atr14": 35.83285714,
+          "atr_pct": 1.61,
+          "high_20": 2379.55,
+          "low_20": 2174.08,
+          "regime": "BEARISH",
+          "score": -24.5
+        },
+        "4h": {
+          "timeframe": "4h",
+          "price": 2225.98,
+          "ema20": 2307.82349012,
+          "ema50": 2344.31064748,
+          "sma200": 2506.1077,
+          "rsi14": 32.1,
+          "macd_hist": -11.80818557,
+          "macd_rising": false,
+          "atr14": 45.245,
+          "atr_pct": 2.03,
+          "high_20": 2391.55,
+          "low_20": 2174.08,
+          "regime": "BEARISH",
+          "score": -25.0
+        },
+        "1d": {
+          "timeframe": "1d",
+          "price": 2225.98,
+          "ema20": 2391.52875668,
+          "ema50": 2434.70900423,
+          "sma200": 2159.65615,
+          "rsi14": 28.9,
+          "macd_hist": -13.41807605,
+          "macd_rising": false,
+          "atr14": 87.10428571,
+          "atr_pct": 3.91,
+          "high_20": 2579.88,
+          "low_20": 2174.08,
+          "regime": "BEARISH",
+          "score": -17.0
+        }
+      },
+      "spot_flow": {
+        "1h": {
+          "total_usd": 34463110.805376,
+          "buy_usd": 18273695.578888,
+          "sell_usd": 16189415.226488002,
+          "cvd_usd": 2084280.3523999974,
+          "buy_pct": 53.02
+        },
+        "4h": {
+          "total_usd": 132477253.574759,
+          "buy_usd": 74636456.753099,
+          "sell_usd": 57840796.82166001,
+          "cvd_usd": 16795659.931438982,
+          "buy_pct": 56.34
+        },
+        "24h": {
+          "total_usd": 1284708143.5351462,
+          "buy_usd": 630042237.2010739,
+          "sell_usd": 654665906.3340724,
+          "cvd_usd": -24623669.132998466,
+          "buy_pct": 49.04
+        },
+        "7d": {
+          "total_usd": 3820082029.218132,
+          "buy_usd": 1926398969.1890738,
+          "sell_usd": 1893683060.0290582,
+          "cvd_usd": 32715909.160015583,
+          "buy_pct": 50.43
+        },
+        "orderbook": {
+          "bid_1pct_usd": 5040555.99,
+          "ask_1pct_usd": 7495350.44,
+          "imbalance_1pct": -19.6,
+          "bid_2pct_usd": 7040671.73,
+          "ask_2pct_usd": 8427331.75,
+          "imbalance_2pct": -9.0,
+          "support_wall_price": 2160.0,
+          "support_wall_usd": 1503187.63,
+          "resistance_wall_price": 2291.0,
+          "resistance_wall_usd": 5500065.1
+        }
+      },
+      "futures": {
+        "available": false,
+        "note": "No perpetual futures contract on Binance for ETHUSDT"
+      },
+      "relative_strength": {
+        "return_7d_pct": -6.77,
+        "btc_24h_pct": -0.06,
+        "btc_7d_pct": -3.99,
+        "alpha_24h_pct": -3.68,
+        "alpha_7d_pct": -2.78
+      },
+      "news": {
+        "sources_checked": [
+          "Federal Reserve (Press & Speeches)",
+          "Wall St. Banks (JPM/BlackRock/GS/MS)",
+          "Binance Official CMS",
+          "X/Twitter Whale Flow (Lookonchain/Arkham/Wu)",
+          "CoinGecko Trending",
+          "Forbes/Fortune/Bloomberg",
+          "Bitcoin Magazine",
+          "The Block",
+          "Blockworks",
+          "CryptoSlate",
+          "BeInCrypto",
+          "CoinDesk",
+          "Cointelegraph",
+          "Decrypt",
+          "Yahoo Finance"
+        ],
+        "headlines_checked": 90,
+        "bullish_catalysts": [
+          [
+            "CoinGecko Trending",
+            "social heat",
+            "ETH is Trending #8 Globally on CoinGecko Search"
+          ],
+          [
+            "Yahoo/ETH-USD",
+            "upgrade/partnership",
+            "A Major New Solana Blockchain Upgrade Is Now Live. But Here's Why Blockchain Upgrades Rarely Move the Needle for Crypto."
+          ],
+          [
+            "Yahoo/ETH-USD",
+            "ETF/institutional inflow",
+            "Ondo brings its tokenized portfolios to Solana"
+          ]
+        ],
+        "bearish_catalysts": [
+          [
+            "Yahoo/ETH-USD",
+            "outflow/liquidation",
+            "Bitcoin Bulls Take the Biggest Hit in a $1.49 Billion Crypto Liquidation Day"
+          ],
+          [
+            "Yahoo/ETH-USD",
+            "hack/exploit",
+            "Musk Warns \u201cEveryday Is Zeroday\u201d As Rumors Swirl On News Of A  Massive, $5.7 Billion Binance Hack"
+          ],
+          [
+            "Yahoo/ETH-USD",
+            "outflow/liquidation",
+            "Crypto Market Today, Oct. 29: Bitcoin Slides Below $80K as Big Tech Earnings Uncertainty and Market Volatility Intensify"
+          ],
+          [
+            "Yahoo/ETH-USD",
+            "hack/exploit, outflow/liquidation",
+            "Crypto Liquidations Top $628 Million in an Hour as Binance Hack Fears Sink Bitcoin"
+          ],
+          [
+            "Yahoo/ETH-USD",
+            "hack/exploit, outflow/liquidation",
+            "Is Binance Being Hacked? $2 Billion Outflow Puts Customer Funds in Question"
+          ],
+          [
+            "Yahoo/BTC-USD",
+            "hack/exploit, outflow/liquidation",
+            "Bitcoin, digital assets tumble as Binance says $6.3 billion  impacted in suspected record crypto hack"
+          ]
+        ],
+        "event_risk_headlines": [
+          [
+            "Fed Press",
+            "scheduled event risk",
+            "Federal Reserve issues FOMC statement"
+          ]
+        ],
+        "fed_and_central_banks": [
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve Board announces approval of application by The Bank of Nova Scotia",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve issues FOMC statement",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Speeches",
+            "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Speeches",
+            "title": "Waller, The Signaling Value of the Summary of Economic Projections",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "bank_and_institutional": [
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB flags December hike but sees yield rise hitting growth - Reuters",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB Leaves Rates Unchanged as Challenges Mount for Lagarde\u2019s Successor - WSJ",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB, US Fed Hold Rates; Lagarde To Step Down \u2013 Wealth Managers React - Wealth Briefing",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "Lagarde Downplays Risk of Inflation Broadening as ECB Holds - Bloomberg.com",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "Fidelity's Timmer Warns Rising Rates Can Hurt Stocks Unless Earnings Keep Pace - Yahoo Finance",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "binance_official": [
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Will List Predict (PREDICT) with Seed Tag Applied",
+            "sentiment": "BULLISH",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-29)",
+            "sentiment": "BULLISH",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-28",
+            "sentiment": "BULLISH",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Exchange Adds Applovin Corp (APPB), Bending Spoons (BSPB), GE Vernova Inc (GEVB), GraniteShares 2x Short SK Hynix Daily ETF (SKDDB) and GraniteShares 2x Long SK Hynix Daily ETF (SKUUB) bStocks Trading Pairs on Binance Spot/Convert and Extends Zero Maker Fee Promotion - 2026-10-28",
+            "sentiment": "NEUTRAL",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)",
+            "sentiment": "BULLISH",
+            "is_token": false
+          }
+        ],
+        "twitter_x_flow": [
+          {
+            "source": "X/Social/ETH",
+            "title": "Current price of Ethereum for October 29, 2026 - Fortune",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/ETH",
+            "title": "Institutional crypto investors rush to pull funds from exchanges after Binance hack - CoinDesk",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/ETH",
+            "title": "Ethereum Price Prediction: Can ETH Get Back to $2,700 by the End of November? - 24/7 Wall St.",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/ETH",
+            "title": "Current price of Ethereum for Oct. 27, 2026 - Fortune",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/ETH",
+            "title": "Analysts react as Binance freezes assets after $6.3 billion security breach - Reuters",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/ETH",
+            "title": "Ethereum Crash: Binance Hacker Sits on 195,000 ETH - CryptoTicker.io",
+            "sentiment": "BEARISH",
+            "tags": [
+              "outflow/liquidation"
+            ],
+            "is_token": true
+          }
+        ],
+        "magazines_and_press": [
+          {
+            "source": "Blockworks",
+            "title": "ETH derivatives reset and the next retail trade",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "Forbes/Bloomberg/Fortune",
+            "title": "Binance Estimates $6.3 Billion Hacked in Crypto's Biggest Heist - Bloomberg.com",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": false
+          },
+          {
+            "source": "Bitcoin Magazine",
+            "title": "Bitcoin Price Briefly Slides to $76,300 as Binance Confirms Hack Estimated at $6.3 Billion",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": false
+          },
+          {
+            "source": "The Block",
+            "title": "Bitcoin slides below $77,000, BNB drops amid Binance hack",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": false
+          },
+          {
+            "source": "Blockworks",
+            "title": "Venezuela\u2019s sanctions are stablecoins\u2019 proof of concept",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "CryptoSlate",
+            "title": "Circle and ACI plan USDC settlement pilot alongside Colombia\u2019s payment rails",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "trending_social": {
+          "is_trending": true,
+          "trending_rank": 8,
+          "top_trending_coins": [
+            "HYPE",
+            "BTC",
+            "LIT",
+            "AAVE",
+            "BEAM",
+            "PEPE",
+            "BNB",
+            "ETH",
+            "QNT",
+            "ENA"
+          ]
+        },
+        "score": -13.5
+      },
+      "levels": {
+        "supports": [
+          2174.08,
+          2160.0,
+          2138.87571429
+        ],
+        "resistances": [
+          2291.0,
+          2313.08428571,
+          2347.709125
+        ]
       }
     },
-    "volume_profile": {
-      "poc": 81704.54125,
-      "vah": 84898.0,
-      "val": 80498.1235,
-      "vwap_24h": 80110.6865875,
-      "vwap_7d": 81715.78590762,
-      "vwap_24h_dist_pct": -0.64,
-      "state": "BELOW VALUE AREA (< VAL: Discount / Breakdown Zone)"
+    {
+      "symbol": "SOLUSDT",
+      "as_of": "2026-10-30T08:52:27Z",
+      "price": 97.17,
+      "change_24h_pct": -2.713,
+      "high_24h": 103.18,
+      "low_24h": 92.34,
+      "volume_24h_usd": 461789475.91,
+      "composite_score": -19.0,
+      "verdict": "BEARISH (Leans Downward)",
+      "pillar_scores": {
+        "technicals_mtf": {
+          "score": -21.5,
+          "max": 25.0
+        },
+        "spot_orderflow_depth": {
+          "score": 11.1,
+          "max": 25.0
+        },
+        "futures_leverage": {
+          "score": 0.0,
+          "max": 25.0
+        },
+        "relative_strength_btc": {
+          "score": -4.0,
+          "max": 10.0
+        },
+        "news_catalysts": {
+          "score": -2.6,
+          "max": 15.0
+        },
+        "institutional_bonus": {
+          "score": -2.0,
+          "max": 10.0
+        }
+      },
+      "horizons": {
+        "4h": {
+          "horizon": "4h",
+          "hours": 4,
+          "prob_up_pct": 45.1,
+          "prob_down_pct": 54.9,
+          "direction": "DOWN",
+          "expected_price": 97.05607286,
+          "expected_move_pct": -0.12,
+          "range_50_low": 96.40608533,
+          "range_50_high": 97.71237378,
+          "range_80_low": 95.79883289,
+          "range_80_high": 98.35029488
+        },
+        "24h": {
+          "horizon": "24h",
+          "hours": 24,
+          "prob_up_pct": 43.5,
+          "prob_down_pct": 56.5,
+          "direction": "DOWN",
+          "expected_price": 96.71967839,
+          "expected_move_pct": -0.46,
+          "range_50_low": 94.86143023,
+          "range_50_high": 98.51426006,
+          "range_80_low": 93.17990751,
+          "range_80_high": 100.18609248
+        },
+        "7d": {
+          "horizon": "7d",
+          "hours": 168,
+          "prob_up_pct": 36.8,
+          "prob_down_pct": 63.2,
+          "direction": "DOWN",
+          "expected_price": 94.87284829,
+          "expected_move_pct": -2.36,
+          "range_50_low": 90.17956129,
+          "range_50_high": 99.77457084,
+          "range_80_low": 86.15569753,
+          "range_80_high": 104.34693129
+        }
+      },
+      "volume_profile": {
+        "poc": 97.01625,
+        "vah": 102.3375,
+        "val": 96.5325,
+        "vwap_24h": 97.38399982,
+        "vwap_7d": 100.2177471,
+        "vwap_24h_dist_pct": -0.22,
+        "state": "UPPER VALUE AREA (Between POC & VAH: Bullish Rotational)"
+      },
+      "institutional": {
+        "squeeze_4h": "NORMAL VOLATILITY",
+        "bb_width_4h_pct": 8.18,
+        "signals": [],
+        "bonus_score": 0.0
+      },
+      "vpin": null,
+      "wyckoff_microstructure": null,
+      "deribit_options": {
+        "max_pain_strike": 90.0,
+        "current_spot": 97.17,
+        "dist_to_max_pain_pct": -7.38,
+        "put_call_ratio": 1.011,
+        "total_call_oi": 4316.56,
+        "total_put_oi": 4365.63,
+        "total_open_interest_usd": 843648.25,
+        "pinning_hazard": "DISTANT_EXPIRY_FREEDOM",
+        "payout_ladder": [
+          {
+            "strike": 15.0,
+            "total_payout": 343143.12
+          },
+          {
+            "strike": 30.0,
+            "total_payout": 277762.47
+          },
+          {
+            "strike": 45.0,
+            "total_payout": 212738.72
+          },
+          {
+            "strike": 60.0,
+            "total_payout": 148942.08
+          },
+          {
+            "strike": 75.0,
+            "total_payout": 89364.47
+          },
+          {
+            "strike": 90.0,
+            "total_payout": 44292.75
+          },
+          {
+            "strike": 105.0,
+            "total_payout": 49095.25
+          },
+          {
+            "strike": 120.0,
+            "total_payout": 96410.56
+          },
+          {
+            "strike": 135.0,
+            "total_payout": 156090.71
+          },
+          {
+            "strike": 150.0,
+            "total_payout": 219367.17
+          },
+          {
+            "strike": 165.0,
+            "total_payout": 283689.61
+          },
+          {
+            "strike": 180.0,
+            "total_payout": 348316.28
+          }
+        ],
+        "currency": "SOL",
+        "hours_to_monthly_expiry": 671.1,
+        "dealer_net_gamma_usd_m": -0.16,
+        "dealer_gamma_regime": "SHORT_GAMMA (Volatility Amplified)"
+      },
+      "smart_order_routing": {
+        "symbol": "SOLUSDT",
+        "side": "SELL",
+        "notional_usd": 2000.0,
+        "primary_venue": "OKX",
+        "recommended_action": "EXECUTE_SINGLE_VENUE",
+        "primary_quote": {
+          "venue": "OKX",
+          "symbol": "SOLUSDT",
+          "side": "SELL",
+          "notional_usd": 2000.0,
+          "best_price": 97.08,
+          "vwap_price": 97.0684,
+          "fee_rate_pct": 0.05,
+          "fee_usd": 1.0,
+          "slippage_bps": 1.2,
+          "slippage_usd": 0.24,
+          "funding_rate_8h_pct": -0.024,
+          "carry_24h_usd": 1.44,
+          "total_cost_usd": 2.68,
+          "net_cost_pct": 0.134
+        },
+        "venue_comparison": [
+          {
+            "venue": "OKX",
+            "symbol": "SOLUSDT",
+            "side": "SELL",
+            "notional_usd": 2000.0,
+            "best_price": 97.08,
+            "vwap_price": 97.0684,
+            "fee_rate_pct": 0.05,
+            "fee_usd": 1.0,
+            "slippage_bps": 1.2,
+            "slippage_usd": 0.24,
+            "funding_rate_8h_pct": -0.024,
+            "carry_24h_usd": 1.44,
+            "total_cost_usd": 2.68,
+            "net_cost_pct": 0.134
+          }
+        ],
+        "cost_savings_usd": 0.0,
+        "routing_split": [
+          {
+            "venue": "OKX",
+            "pct": 100,
+            "notional_usd": 2000.0
+          }
+        ],
+        "rationale": "Venue OKX provides lowest all-in cost ($2.68 / 0.134%) saving $0.00 vs worst venue."
+      },
+      "whale_blocks": {
+        "symbol": "SOLUSDT",
+        "total_blocks": 5,
+        "whale_buy_vol_usd": 2246494.99,
+        "whale_sell_vol_usd": 179640.0,
+        "whale_net_flow_usd": 2066854.99,
+        "whale_taker_buy_pct": 92.6,
+        "whale_buy_count": 4,
+        "whale_sell_count": 1,
+        "largest_print": {
+          "trade_id": 100005,
+          "symbol": "SOLUSDT",
+          "timestamp": 1793350332.575,
+          "price": 185.0,
+          "qty": 6216.2162,
+          "notional_usd": 1150000.0,
+          "side": "BUY",
+          "tier": "TITAN",
+          "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+          "is_taker_buy": true
+        },
+        "tier_breakdown": {
+          "TITAN": 1,
+          "MEGALODON": 1,
+          "SHARK": 1,
+          "WHALE": 2
+        },
+        "recent_blocks": [
+          {
+            "trade_id": 100005,
+            "symbol": "SOLUSDT",
+            "timestamp": 1793350332.575,
+            "price": 185.0,
+            "qty": 6216.2162,
+            "notional_usd": 1150000.0,
+            "side": "BUY",
+            "tier": "TITAN",
+            "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100004,
+            "symbol": "SOLUSDT",
+            "timestamp": 1793350287.575,
+            "price": 185.37,
+            "qty": 3513.5135,
+            "notional_usd": 651300.0,
+            "side": "BUY",
+            "tier": "MEGALODON",
+            "tier_badge": "\ud83d\udc19 MEGALODON ($500K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100003,
+            "symbol": "SOLUSDT",
+            "timestamp": 1793350227.575,
+            "price": 184.63,
+            "qty": 972.973,
+            "notional_usd": 179640.0,
+            "side": "SELL",
+            "tier": "WHALE",
+            "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
+            "is_taker_buy": false
+          },
+          {
+            "trade_id": 100002,
+            "symbol": "SOLUSDT",
+            "timestamp": 1793350167.575,
+            "price": 185.185,
+            "qty": 1729.7297,
+            "notional_usd": 320319.99,
+            "side": "BUY",
+            "tier": "SHARK",
+            "tier_badge": "\ud83d\udc33 SHARK ($250K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100001,
+            "symbol": "SOLUSDT",
+            "timestamp": 1793350107.575,
+            "price": 184.815,
+            "qty": 675.6757,
+            "notional_usd": 124875.0,
+            "side": "BUY",
+            "tier": "WHALE",
+            "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
+            "is_taker_buy": true
+          }
+        ]
+      },
+      "macro_onchain": {
+        "fear_greed_value": 30,
+        "fear_greed_label": "Fear",
+        "fear_greed_prev": 51,
+        "total_mcap_usd": 2629526609407.39,
+        "mcap_24h_change_pct": -4.81,
+        "btc_dominance_pct": 59.38,
+        "eth_dominance_pct": 10.3,
+        "market_season": "BTC DOMINANCE SEASON (BTC.D 59.4% > 56% - Select High-Alpha Alts Only)",
+        "stablecoin_total_usd": 288978152921.17,
+        "usdt_supply_usd": 180263255321.13,
+        "usdc_supply_usd": 71470564911.27,
+        "stablecoin_24h_flow_usd": -739640409.61,
+        "stablecoin_7d_flow_usd": -3573422890.47,
+        "chain_name": "Solana",
+        "chain_tvl_usd": 5445362952.53,
+        "chain_tvl_rank": 5,
+        "macro_bonus": -2.0,
+        "macro_notes": [
+          "DefiLlama Stablecoin Contraction: -$3.57B redeemed over 7d (tightening on-chain liquidity)"
+        ]
+      },
+      "kelly_trade_plan": {
+        "bias": "SHORT / HEDGE",
+        "spot_entry": 97.17,
+        "limit_pullback_entry": 97.38399982,
+        "stop_loss": 100.4,
+        "tp1": 92.325,
+        "tp2": 89.095,
+        "reward_risk_ratio": 1.5,
+        "win_prob_pct": 56.5,
+        "expected_value_R": 0.41,
+        "quarter_kelly_risk_pct": 5.0,
+        "adaptive_kelly": {
+          "base_full_kelly": 0.275,
+          "base_quarter_kelly_pct": 5.0,
+          "adaptive_kelly_pct": 5.0,
+          "composite_multiplier": 1.1,
+          "squeeze_multiplier": 1.0,
+          "atr_multiplier": 1.1,
+          "vpin_multiplier": 1.0,
+          "atr_ratio": 0.78,
+          "volatility_regime": "NORMAL_VOLATILITY",
+          "calculated_risk_usd": 150.0,
+          "sizing_rationale": "ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+        },
+        "margin_plan": {
+          "ok": true,
+          "venue": "margin",
+          "side": "short",
+          "risk_usd": 25.0,
+          "qty": 7.739938080495347,
+          "notional_usd": 752.09,
+          "leverage": 1.0,
+          "leverage_cap_tier": 3.0,
+          "leverage_cap_liq_safe": 5.8,
+          "margin_usd": 752.09,
+          "margin_pct_equity": 15.0,
+          "liquidation_price": 176.67272727272726,
+          "liq_distance_pct": 81.82,
+          "stop_distance_pct": 3.32,
+          "liq_to_stop_ratio": 24.6,
+          "bankruptcy_price": 194.34,
+          "maintenance_margin_usd": 7.52,
+          "mmr": 0.01,
+          "cum_deduction": 0.0,
+          "liquidation_clearance_fee_usd": 11.28,
+          "carry_adjusted_liq_price": 176.6303,
+          "margin_call_price": 149.4923,
+          "adl_risk_quantile": 1,
+          "carry_usd": 0.36,
+          "carry_r": 0.014,
+          "fees_usd": 0.6,
+          "fees_r": 0.024,
+          "hold_hours": 24.0,
+          "event_level": "CAUTION",
+          "event_reason": "Deribit monthly options expiry 0.9h ago: half size",
+          "notes": []
+        }
+      },
+      "timeframes": {
+        "15m": {
+          "timeframe": "15m",
+          "price": 97.17,
+          "ema20": 97.36650148,
+          "ema50": 97.4717503,
+          "sma200": 98.7125,
+          "rsi14": 47.9,
+          "macd_hist": -0.12113222,
+          "macd_rising": false,
+          "atr14": 0.46428571,
+          "atr_pct": 0.48,
+          "high_20": 98.59,
+          "low_20": 96.78,
+          "regime": "BEARISH",
+          "score": -25.0
+        },
+        "1h": {
+          "timeframe": "1h",
+          "price": 97.17,
+          "ema20": 97.95828676,
+          "ema50": 99.33565247,
+          "sma200": 101.6962,
+          "rsi14": 43.9,
+          "macd_hist": 0.14304813,
+          "macd_rising": true,
+          "atr14": 1.81928571,
+          "atr_pct": 1.87,
+          "high_20": 103.18,
+          "low_20": 92.34,
+          "regime": "BEARISH",
+          "score": -19.0
+        },
+        "4h": {
+          "timeframe": "4h",
+          "price": 97.17,
+          "ema20": 99.84105507,
+          "ema50": 101.48526143,
+          "sma200": 109.7823,
+          "rsi14": 39.4,
+          "macd_hist": -0.43093408,
+          "macd_rising": true,
+          "atr14": 2.33714286,
+          "atr_pct": 2.41,
+          "high_20": 103.85,
+          "low_20": 92.34,
+          "regime": "BEARISH",
+          "score": -24.5
+        },
+        "1d": {
+          "timeframe": "1d",
+          "price": 97.17,
+          "ema20": 103.70727079,
+          "ema50": 104.9484758,
+          "sma200": 88.79765,
+          "rsi14": 33.6,
+          "macd_hist": -0.66039447,
+          "macd_rising": false,
+          "atr14": 4.10642857,
+          "atr_pct": 4.23,
+          "high_20": 113.4,
+          "low_20": 92.34,
+          "regime": "BEARISH",
+          "score": -19.0
+        }
+      },
+      "spot_flow": {
+        "1h": {
+          "total_usd": 8969994.182160001,
+          "buy_usd": 4993989.39135,
+          "sell_usd": 3976004.790810001,
+          "cvd_usd": 1017984.6005399991,
+          "buy_pct": 55.67
+        },
+        "4h": {
+          "total_usd": 38671347.48667999,
+          "buy_usd": 20296650.82942,
+          "sell_usd": 18374696.657259993,
+          "cvd_usd": 1921954.172160007,
+          "buy_pct": 52.48
+        },
+        "24h": {
+          "total_usd": 460340180.2321,
+          "buy_usd": 222230058.37879005,
+          "sell_usd": 238110121.85330996,
+          "cvd_usd": -15880063.474519908,
+          "buy_pct": 48.28
+        },
+        "7d": {
+          "total_usd": 1385756860.88478,
+          "buy_usd": 704429890.2992901,
+          "sell_usd": 681326970.5854899,
+          "cvd_usd": 23102919.713800192,
+          "buy_pct": 50.83
+        },
+        "orderbook": {
+          "bid_1pct_usd": 3186780.75,
+          "ask_1pct_usd": 1041437.69,
+          "imbalance_1pct": 50.7,
+          "bid_2pct_usd": 3861749.52,
+          "ask_2pct_usd": 1780980.77,
+          "imbalance_2pct": 36.9,
+          "support_wall_price": 97.08,
+          "support_wall_usd": 356311.17,
+          "resistance_wall_price": 100.0,
+          "resistance_wall_usd": 1411228.4
+        }
+      },
+      "futures": {
+        "available": false,
+        "note": "No perpetual futures contract on Binance for SOLUSDT"
+      },
+      "relative_strength": {
+        "return_7d_pct": -5.52,
+        "btc_24h_pct": -0.05,
+        "btc_7d_pct": -3.99,
+        "alpha_24h_pct": -2.66,
+        "alpha_7d_pct": -1.53
+      },
+      "news": {
+        "sources_checked": [
+          "Federal Reserve (Press & Speeches)",
+          "Wall St. Banks (JPM/BlackRock/GS/MS)",
+          "Binance Official CMS",
+          "X/Twitter Whale Flow (Lookonchain/Arkham/Wu)",
+          "CoinGecko Trending",
+          "Forbes/Fortune/Bloomberg",
+          "Bitcoin Magazine",
+          "The Block",
+          "Blockworks",
+          "CryptoSlate",
+          "BeInCrypto",
+          "CoinDesk",
+          "Cointelegraph",
+          "Decrypt",
+          "Yahoo Finance"
+        ],
+        "headlines_checked": 90,
+        "bullish_catalysts": [
+          [
+            "CoinGecko Trending",
+            "social heat",
+            "SOL is Trending #13 Globally on CoinGecko Search"
+          ],
+          [
+            "Yahoo/SOL-USD",
+            "upgrade/partnership",
+            "A Major New Solana Blockchain Upgrade Is Now Live. But Here's Why Blockchain Upgrades Rarely Move the Needle for Crypto."
+          ],
+          [
+            "Yahoo/SOL-USD",
+            "ETF/institutional inflow",
+            "Ondo brings its tokenized portfolios to Solana"
+          ],
+          [
+            "Yahoo/SOL-USD",
+            "ETF/institutional inflow",
+            "Wall Street embraces tokenization as DTCC launches new service"
+          ],
+          [
+            "Yahoo/SOL-USD",
+            "ETF/institutional inflow",
+            "DTCC puts Wall St. tokenization into production, Kalshi founders face felony charges in Utah"
+          ]
+        ],
+        "bearish_catalysts": [
+          [
+            "Yahoo/SOL-USD",
+            "outflow/liquidation",
+            "Bitcoin Bulls Take the Biggest Hit in a $1.49 Billion Crypto Liquidation Day"
+          ],
+          [
+            "Yahoo/SOL-USD",
+            "outflow/liquidation",
+            "Crypto Market Today, Oct. 29: Bitcoin Slides Below $80K as Big Tech Earnings Uncertainty and Market Volatility Intensify"
+          ],
+          [
+            "Yahoo/SOL-USD",
+            "outflow/liquidation",
+            "Is Sam Altman\u2019s AI Bot Bearish on Solana? ChatGPT AI Predicts SOL Price"
+          ],
+          [
+            "Yahoo/BTC-USD",
+            "hack/exploit, outflow/liquidation",
+            "Bitcoin, digital assets tumble as Binance says $6.3 billion  impacted in suspected record crypto hack"
+          ],
+          [
+            "Yahoo/BTC-USD",
+            "outflow/liquidation",
+            "Dow Jones Futures Fall, Nasdaq Futures Plunge 2% On Amazon, Intel After Google, ServiceNow, Fortinet Dive"
+          ],
+          [
+            "X/Social/SOL",
+            "outflow/liquidation",
+            "Solana Crash: SOL Falls Below $100. Is $80 Next? - CryptoTicker.io"
+          ]
+        ],
+        "event_risk_headlines": [
+          [
+            "Fed Press",
+            "scheduled event risk",
+            "Federal Reserve issues FOMC statement"
+          ]
+        ],
+        "fed_and_central_banks": [
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve Board announces approval of application by The Bank of Nova Scotia",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve issues FOMC statement",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Speeches",
+            "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Speeches",
+            "title": "Waller, The Signaling Value of the Summary of Economic Projections",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "bank_and_institutional": [
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB flags December hike but sees yield rise hitting growth - Reuters",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB Leaves Rates Unchanged as Challenges Mount for Lagarde\u2019s Successor - WSJ",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB, US Fed Hold Rates; Lagarde To Step Down \u2013 Wealth Managers React - Wealth Briefing",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "Lagarde Downplays Risk of Inflation Broadening as ECB Holds - Bloomberg.com",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "Fidelity's Timmer Warns Rising Rates Can Hurt Stocks Unless Earnings Keep Pace - Yahoo Finance",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "binance_official": [
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Will List Predict (PREDICT) with Seed Tag Applied",
+            "sentiment": "BULLISH",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-29)",
+            "sentiment": "BULLISH",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-28",
+            "sentiment": "BULLISH",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Exchange Adds Applovin Corp (APPB), Bending Spoons (BSPB), GE Vernova Inc (GEVB), GraniteShares 2x Short SK Hynix Daily ETF (SKDDB) and GraniteShares 2x Long SK Hynix Daily ETF (SKUUB) bStocks Trading Pairs on Binance Spot/Convert and Extends Zero Maker Fee Promotion - 2026-10-28",
+            "sentiment": "NEUTRAL",
+            "is_token": false
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)",
+            "sentiment": "BULLISH",
+            "is_token": false
+          }
+        ],
+        "twitter_x_flow": [
+          {
+            "source": "X/Social/SOL",
+            "title": "Switzerland breaks from European fund limits with first spot bitcoin ETF on SIX - CoinDesk",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/SOL",
+            "title": "Solana price prediction: $30.3 million out of the SOL ETFs in five trading days: what to watch now - CryptoTicker.io",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/SOL",
+            "title": "What Will 100 Solana (SOL) Be Worth by 2030? - 24/7 Wall St.",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/SOL",
+            "title": "Solana Price Today | Live SOL Price, Chart & Market Data - Binance",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/SOL",
+            "title": "Advanced AI-Powered Crypto Investment Research Platform - SoSoValue",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/SOL",
+            "title": "Institutional crypto investors rush to pull funds from exchanges after Binance hack - CoinDesk",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": true
+          }
+        ],
+        "magazines_and_press": [
+          {
+            "source": "CryptoSlate",
+            "title": "Hackers drain 9,400 SOL from bot wallets, and a copied key is blamed",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "Forbes/Bloomberg/Fortune",
+            "title": "Binance Estimates $6.3 Billion Hacked in Crypto's Biggest Heist - Bloomberg.com",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": false
+          },
+          {
+            "source": "Bitcoin Magazine",
+            "title": "Bitcoin Price Briefly Slides to $76,300 as Binance Confirms Hack Estimated at $6.3 Billion",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": false
+          },
+          {
+            "source": "The Block",
+            "title": "Bitcoin slides below $77,000, BNB drops amid Binance hack",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": false
+          },
+          {
+            "source": "Blockworks",
+            "title": "Venezuela\u2019s sanctions are stablecoins\u2019 proof of concept",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "CryptoSlate",
+            "title": "Circle and ACI plan USDC settlement pilot alongside Colombia\u2019s payment rails",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "trending_social": {
+          "is_trending": true,
+          "trending_rank": 13,
+          "top_trending_coins": [
+            "HYPE",
+            "BTC",
+            "LIT",
+            "AAVE",
+            "BEAM",
+            "PEPE",
+            "BNB",
+            "ETH",
+            "QNT",
+            "ENA"
+          ]
+        },
+        "score": -2.6
+      },
+      "levels": {
+        "supports": [
+          97.08,
+          97.01625,
+          96.5325
+        ],
+        "resistances": [
+          100.0,
+          101.27642857,
+          102.3375
+        ]
+      }
     },
-    "institutional": {
-      "squeeze_4h": "TTM SQUEEZE ACTIVE (Bollinger inside Keltner - Explosive Breakout Coiling)",
-      "bb_width_4h_pct": 2.07,
-      "signals": [
-        "4H VOLATILITY SQUEEZE ACTIVE (BB Width 2.07% inside Keltner): Coiling for large directional expansion"
-      ],
-      "bonus_score": 0.0
-    },
-    "macro_onchain": {
-      "fear_greed_value": 48,
-      "fear_greed_label": "Neutral",
-      "fear_greed_prev": 50,
-      "total_mcap_usd": 2684564562648.71,
-      "mcap_24h_change_pct": -2.43,
-      "btc_dominance_pct": 59.43,
-      "eth_dominance_pct": 10.45,
-      "market_season": "BTC DOMINANCE SEASON (BTC.D 59.4% > 56% - Select High-Alpha Alts Only)",
-      "stablecoin_total_usd": 291012044223.22,
-      "usdt_supply_usd": 181858159382.28,
-      "usdc_supply_usd": 71112173034.62,
-      "stablecoin_24h_flow_usd": -736255185.95,
-      "stablecoin_7d_flow_usd": -1951319049.28,
-      "chain_name": "Bitcoin",
-      "chain_tvl_usd": 4265856221.95,
-      "chain_tvl_rank": 6,
-      "macro_bonus": -2.0,
-      "macro_notes": [
-        "DefiLlama Stablecoin Contraction: -$1.95B redeemed over 7d (tightening on-chain liquidity)"
-      ]
-    },
-    "kelly_trade_plan": {
+    {
+      "symbol": "BNBUSDT",
+      "as_of": "2026-10-30T08:52:29Z",
+      "price": 705.52,
+      "change_24h_pct": -5.977,
+      "high_24h": 754.29,
+      "low_24h": 680.0,
+      "volume_24h_usd": 490606896.08,
+      "composite_score": -51.5,
+      "verdict": "STRONG BEARISH (High-Conviction Downside)",
+      "pillar_scores": {
+        "technicals_mtf": {
+          "score": -19.9,
+          "max": 25.0
+        },
+        "spot_orderflow_depth": {
+          "score": -13.5,
+          "max": 25.0
+        },
+        "futures_leverage": {
+          "score": 0.0,
+          "max": 25.0
+        },
+        "relative_strength_btc": {
+          "score": -7.4,
+          "max": 10.0
+        },
+        "news_catalysts": {
+          "score": -8.7,
+          "max": 15.0
+        },
+        "institutional_bonus": {
+          "score": -2.0,
+          "max": 10.0
+        }
+      },
+      "horizons": {
+        "4h": {
+          "horizon": "4h",
+          "hours": 4,
+          "prob_up_pct": 39.5,
+          "prob_down_pct": 60.5,
+          "direction": "DOWN",
+          "expected_price": 704.12917687,
+          "expected_move_pct": -0.2,
+          "range_50_low": 700.64388799,
+          "range_50_high": 707.66487844,
+          "range_80_low": 697.35993946,
+          "range_80_high": 711.12588795
+        },
+        "24h": {
+          "horizon": "24h",
+          "hours": 24,
+          "prob_up_pct": 38.3,
+          "prob_down_pct": 61.7,
+          "direction": "DOWN",
+          "expected_price": 701.20427162,
+          "expected_move_pct": -0.61,
+          "range_50_low": 690.64097228,
+          "range_50_high": 710.73759861,
+          "range_80_low": 674.40569718,
+          "range_80_high": 719.06653986
+        },
+        "7d": {
+          "horizon": "7d",
+          "hours": 168,
+          "prob_up_pct": 35.3,
+          "prob_down_pct": 64.7,
+          "direction": "DOWN",
+          "expected_price": 687.66867535,
+          "expected_move_pct": -2.53,
+          "range_50_low": 653.05483137,
+          "range_50_high": 719.73739882,
+          "range_80_low": 619.07211708,
+          "range_80_high": 745.96205078
+        }
+      },
+      "volume_profile": {
+        "poc": 744.7325,
+        "vah": 762.2,
+        "val": 708.77,
+        "vwap_24h": 716.67819336,
+        "vwap_7d": 731.19002969,
+        "vwap_24h_dist_pct": -1.56,
+        "state": "BELOW VALUE AREA (< VAL: Discount / Breakdown Zone)"
+      },
+      "institutional": {
+        "squeeze_4h": "NORMAL VOLATILITY",
+        "bb_width_4h_pct": 9.4,
+        "signals": [],
+        "bonus_score": 0.0
+      },
+      "vpin": null,
+      "wyckoff_microstructure": null,
+      "deribit_options": {
+        "max_pain_strike": 705.0,
+        "current_spot": 705.52,
+        "dist_to_max_pain_pct": -0.07,
+        "put_call_ratio": 1.045,
+        "total_call_oi": 25265.52,
+        "total_put_oi": 26401.72,
+        "total_open_interest_usd": 36452269.27,
+        "pinning_hazard": "HIGH_PINNING_MAGNET (Spot trapped near Max Pain)",
+        "payout_ladder": [
+          {
+            "strike": 585.0,
+            "total_payout": 2847669.23
+          },
+          {
+            "strike": 600.0,
+            "total_payout": 2474591.12
+          },
+          {
+            "strike": 615.0,
+            "total_payout": 2128715.32
+          },
+          {
+            "strike": 630.0,
+            "total_payout": 1815085.37
+          },
+          {
+            "strike": 645.0,
+            "total_payout": 1539679.93
+          },
+          {
+            "strike": 660.0,
+            "total_payout": 1309586.13
+          },
+          {
+            "strike": 675.0,
+            "total_payout": 1133205.13
+          },
+          {
+            "strike": 690.0,
+            "total_payout": 1020495.74
+          },
+          {
+            "strike": 705.0,
+            "total_payout": 983263.2
+          },
+          {
+            "strike": 720.0,
+            "total_payout": 1035501.55
+          },
+          {
+            "strike": 735.0,
+            "total_payout": 1156474.87
+          },
+          {
+            "strike": 750.0,
+            "total_payout": 1335432.42
+          }
+        ],
+        "currency": "BNB",
+        "hours_to_monthly_expiry": 671.1,
+        "dealer_net_gamma_usd_m": -0.65,
+        "dealer_gamma_regime": "SHORT_GAMMA (Volatility Amplified)"
+      },
+      "smart_order_routing": {
+        "symbol": "BNBUSDT",
+        "side": "SELL",
+        "notional_usd": 2000.0,
+        "primary_venue": "OKX",
+        "recommended_action": "EXECUTE_SINGLE_VENUE",
+        "primary_quote": {
+          "venue": "OKX",
+          "symbol": "BNBUSDT",
+          "side": "SELL",
+          "notional_usd": 2000.0,
+          "best_price": 704.47,
+          "vwap_price": 704.3855,
+          "fee_rate_pct": 0.05,
+          "fee_usd": 1.0,
+          "slippage_bps": 1.2,
+          "slippage_usd": 0.24,
+          "funding_rate_8h_pct": -0.0405,
+          "carry_24h_usd": 2.43,
+          "total_cost_usd": 3.67,
+          "net_cost_pct": 0.183
+        },
+        "venue_comparison": [
+          {
+            "venue": "OKX",
+            "symbol": "BNBUSDT",
+            "side": "SELL",
+            "notional_usd": 2000.0,
+            "best_price": 704.47,
+            "vwap_price": 704.3855,
+            "fee_rate_pct": 0.05,
+            "fee_usd": 1.0,
+            "slippage_bps": 1.2,
+            "slippage_usd": 0.24,
+            "funding_rate_8h_pct": -0.0405,
+            "carry_24h_usd": 2.43,
+            "total_cost_usd": 3.67,
+            "net_cost_pct": 0.183
+          }
+        ],
+        "cost_savings_usd": 0.0,
+        "routing_split": [
+          {
+            "venue": "OKX",
+            "pct": 100,
+            "notional_usd": 2000.0
+          }
+        ],
+        "rationale": "Venue OKX provides lowest all-in cost ($3.67 / 0.183%) saving $0.00 vs worst venue."
+      },
+      "whale_blocks": {
+        "symbol": "BNBUSDT",
+        "total_blocks": 5,
+        "whale_buy_vol_usd": 2246495.02,
+        "whale_sell_vol_usd": 179639.97,
+        "whale_net_flow_usd": 2066855.05,
+        "whale_taker_buy_pct": 92.6,
+        "whale_buy_count": 4,
+        "whale_sell_count": 1,
+        "largest_print": {
+          "trade_id": 100005,
+          "symbol": "BNBUSDT",
+          "timestamp": 1793350334.595,
+          "price": 740.0,
+          "qty": 1554.0541,
+          "notional_usd": 1150000.03,
+          "side": "BUY",
+          "tier": "TITAN",
+          "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+          "is_taker_buy": true
+        },
+        "tier_breakdown": {
+          "TITAN": 1,
+          "MEGALODON": 1,
+          "SHARK": 1,
+          "WHALE": 2
+        },
+        "recent_blocks": [
+          {
+            "trade_id": 100005,
+            "symbol": "BNBUSDT",
+            "timestamp": 1793350334.595,
+            "price": 740.0,
+            "qty": 1554.0541,
+            "notional_usd": 1150000.03,
+            "side": "BUY",
+            "tier": "TITAN",
+            "tier_badge": "\ud83d\udc51 TITAN ($1M+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100004,
+            "symbol": "BNBUSDT",
+            "timestamp": 1793350289.595,
+            "price": 741.48,
+            "qty": 878.3784,
+            "notional_usd": 651300.02,
+            "side": "BUY",
+            "tier": "MEGALODON",
+            "tier_badge": "\ud83d\udc19 MEGALODON ($500K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100003,
+            "symbol": "BNBUSDT",
+            "timestamp": 1793350229.595,
+            "price": 738.52,
+            "qty": 243.2432,
+            "notional_usd": 179639.97,
+            "side": "SELL",
+            "tier": "WHALE",
+            "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
+            "is_taker_buy": false
+          },
+          {
+            "trade_id": 100002,
+            "symbol": "BNBUSDT",
+            "timestamp": 1793350169.595,
+            "price": 740.74,
+            "qty": 432.4324,
+            "notional_usd": 320319.98,
+            "side": "BUY",
+            "tier": "SHARK",
+            "tier_badge": "\ud83d\udc33 SHARK ($250K+)",
+            "is_taker_buy": true
+          },
+          {
+            "trade_id": 100001,
+            "symbol": "BNBUSDT",
+            "timestamp": 1793350109.595,
+            "price": 739.26,
+            "qty": 168.9189,
+            "notional_usd": 124874.99,
+            "side": "BUY",
+            "tier": "WHALE",
+            "tier_badge": "\ud83d\udc0b WHALE ($100K+)",
+            "is_taker_buy": true
+          }
+        ]
+      },
+      "macro_onchain": {
+        "fear_greed_value": 30,
+        "fear_greed_label": "Fear",
+        "fear_greed_prev": 51,
+        "total_mcap_usd": 2629526609407.39,
+        "mcap_24h_change_pct": -4.81,
+        "btc_dominance_pct": 59.38,
+        "eth_dominance_pct": 10.3,
+        "market_season": "BTC DOMINANCE SEASON (BTC.D 59.4% > 56% - Select High-Alpha Alts Only)",
+        "stablecoin_total_usd": 288978152921.17,
+        "usdt_supply_usd": 180263255321.13,
+        "usdc_supply_usd": 71470564911.27,
+        "stablecoin_24h_flow_usd": -739640409.61,
+        "stablecoin_7d_flow_usd": -3573422890.47,
+        "chain_name": "BSC",
+        "chain_tvl_usd": 5301889480.31,
+        "chain_tvl_rank": 6,
+        "macro_bonus": -2.0,
+        "macro_notes": [
+          "DefiLlama Stablecoin Contraction: -$3.57B redeemed over 7d (tightening on-chain liquidity)"
+        ]
+      },
+      "kelly_trade_plan": {
+        "bias": "SHORT / HEDGE",
+        "spot_entry": 705.52,
+        "limit_pullback_entry": 706.88,
+        "stop_loss": 727.39535714,
+        "tp1": 672.70696428,
+        "tp2": 650.83160714,
+        "reward_risk_ratio": 1.5,
+        "win_prob_pct": 61.7,
+        "expected_value_R": 0.54,
+        "quarter_kelly_risk_pct": 5.0,
+        "adaptive_kelly": {
+          "base_full_kelly": 0.3617,
+          "base_quarter_kelly_pct": 5.0,
+          "adaptive_kelly_pct": 5.0,
+          "composite_multiplier": 1.0,
+          "squeeze_multiplier": 1.0,
+          "atr_multiplier": 1.0,
+          "vpin_multiplier": 1.0,
+          "atr_ratio": 0.83,
+          "volatility_regime": "NORMAL_VOLATILITY",
+          "calculated_risk_usd": 150.0,
+          "sizing_rationale": "Standard Quarter-Kelly in balanced volatility regime"
+        },
+        "margin_plan": {
+          "ok": true,
+          "venue": "margin",
+          "side": "short",
+          "risk_usd": 25.0,
+          "qty": 1.1428384844189106,
+          "notional_usd": 806.3,
+          "leverage": 1.0,
+          "leverage_cap_tier": 3.0,
+          "leverage_cap_liq_safe": 5.9,
+          "margin_usd": 806.3,
+          "margin_pct_equity": 16.1,
+          "liquidation_price": 1282.7636363636361,
+          "liq_distance_pct": 81.82,
+          "stop_distance_pct": 3.1,
+          "liq_to_stop_ratio": 26.4,
+          "bankruptcy_price": 1411.04,
+          "maintenance_margin_usd": 8.06,
+          "mmr": 0.01,
+          "cum_deduction": 0.0,
+          "liquidation_clearance_fee_usd": 12.09,
+          "carry_adjusted_liq_price": 1282.4558,
+          "margin_call_price": 1085.4154,
+          "adl_risk_quantile": 1,
+          "carry_usd": 0.39,
+          "carry_r": 0.015,
+          "fees_usd": 0.65,
+          "fees_r": 0.026,
+          "hold_hours": 24.0,
+          "event_level": "CAUTION",
+          "event_reason": "Deribit monthly options expiry 0.9h ago: half size",
+          "notes": []
+        }
+      },
+      "timeframes": {
+        "15m": {
+          "timeframe": "15m",
+          "price": 705.51,
+          "ema20": 711.12029014,
+          "ema50": 715.11581376,
+          "sma200": 726.9668,
+          "rsi14": 37.0,
+          "macd_hist": -1.30338249,
+          "macd_rising": true,
+          "atr14": 2.39142857,
+          "atr_pct": 0.34,
+          "high_20": 722.08,
+          "low_20": 704.58,
+          "regime": "BEARISH",
+          "score": -24.5
+        },
+        "1h": {
+          "timeframe": "1h",
+          "price": 705.51,
+          "ema20": 719.93154783,
+          "ema50": 732.14421238,
+          "sma200": 739.7894,
+          "rsi14": 36.2,
+          "macd_hist": 0.07860158,
+          "macd_rising": false,
+          "atr14": 14.58357143,
+          "atr_pct": 2.07,
+          "high_20": 754.29,
+          "low_20": 680.0,
+          "regime": "BEARISH",
+          "score": -21.5
+        },
+        "4h": {
+          "timeframe": "4h",
+          "price": 705.51,
+          "ema20": 734.03401602,
+          "ema50": 737.90039594,
+          "sma200": 749.62205,
+          "rsi14": 37.0,
+          "macd_hist": -5.43345342,
+          "macd_rising": false,
+          "atr14": 17.56,
+          "atr_pct": 2.49,
+          "high_20": 762.2,
+          "low_20": 680.0,
+          "regime": "BEARISH",
+          "score": -25.0
+        },
+        "1d": {
+          "timeframe": "1d",
+          "price": 705.51,
+          "ema20": 736.01260348,
+          "ema50": 733.16171695,
+          "sma200": 654.7354,
+          "rsi14": 39.1,
+          "macd_hist": -2.41665664,
+          "macd_rising": false,
+          "atr14": 23.64214286,
+          "atr_pct": 3.35,
+          "high_20": 762.2,
+          "low_20": 680.0,
+          "regime": "BEARISH",
+          "score": -9.0
+        }
+      },
+      "spot_flow": {
+        "1h": {
+          "total_usd": 6340201.182990001,
+          "buy_usd": 2429340.9947699998,
+          "sell_usd": 3910860.188220001,
+          "cvd_usd": -1481519.193450001,
+          "buy_pct": 38.32
+        },
+        "4h": {
+          "total_usd": 39680111.30571,
+          "buy_usd": 13651017.96443,
+          "sell_usd": 26029093.341280002,
+          "cvd_usd": -12378075.376850002,
+          "buy_pct": 34.4
+        },
+        "24h": {
+          "total_usd": 488750353.17406005,
+          "buy_usd": 212124750.92117,
+          "sell_usd": 276625602.25289005,
+          "cvd_usd": -64500851.331720054,
+          "buy_pct": 43.4
+        },
+        "7d": {
+          "total_usd": 1019097615.1242298,
+          "buy_usd": 472285401.12562,
+          "sell_usd": 546812213.9986098,
+          "cvd_usd": -74526812.87298977,
+          "buy_pct": 46.34
+        },
+        "orderbook": {
+          "bid_1pct_usd": 3704275.49,
+          "ask_1pct_usd": 3582156.38,
+          "imbalance_1pct": 1.7,
+          "bid_2pct_usd": 5861939.95,
+          "ask_2pct_usd": 4862210.17,
+          "imbalance_2pct": 9.3,
+          "support_wall_price": 690.0,
+          "support_wall_usd": 629224.8,
+          "resistance_wall_price": 706.88,
+          "resistance_wall_usd": 1238728.03
+        }
+      },
+      "futures": {
+        "available": false,
+        "note": "No perpetual futures contract on Binance for BNBUSDT"
+      },
+      "relative_strength": {
+        "return_7d_pct": -4.61,
+        "btc_24h_pct": -0.05,
+        "btc_7d_pct": -3.99,
+        "alpha_24h_pct": -5.92,
+        "alpha_7d_pct": -0.62
+      },
+      "news": {
+        "sources_checked": [
+          "Federal Reserve (Press & Speeches)",
+          "Wall St. Banks (JPM/BlackRock/GS/MS)",
+          "Binance Official CMS",
+          "X/Twitter Whale Flow (Lookonchain/Arkham/Wu)",
+          "CoinGecko Trending",
+          "Forbes/Fortune/Bloomberg",
+          "Bitcoin Magazine",
+          "The Block",
+          "Blockworks",
+          "CryptoSlate",
+          "BeInCrypto",
+          "CoinDesk",
+          "Cointelegraph",
+          "Decrypt",
+          "Yahoo Finance"
+        ],
+        "headlines_checked": 90,
+        "bullish_catalysts": [
+          [
+            "CoinGecko Trending",
+            "social heat",
+            "BNB is Trending #7 Globally on CoinGecko Search"
+          ],
+          [
+            "Yahoo/BNB-USD",
+            "ETF/institutional inflow",
+            "Ondo brings its tokenized portfolios to Solana"
+          ],
+          [
+            "X/Social/BNB",
+            "bullish/breakout",
+            "BNB-Based Simon's Cat Token Surges Following Binance Derivatives Launch - CoinMarketCap"
+          ],
+          [
+            "Binance CMS",
+            "Binance listing/launch",
+            "Binance Will List Predict (PREDICT) with Seed Tag Applied"
+          ],
+          [
+            "Binance CMS",
+            "Binance listing/launch",
+            "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-29)"
+          ],
+          [
+            "Binance CMS",
+            "ETF/institutional inflow, Binance listing/launch",
+            "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-28"
+          ]
+        ],
+        "bearish_catalysts": [
+          [
+            "Yahoo/BNB-USD",
+            "hack/exploit",
+            "Binance Hack Shows \u2018Everyday Is Zeroday,\u2019 Says Elon Musk: Attack on Platform Biggest Financial Heist in Crypto History"
+          ],
+          [
+            "Yahoo/BNB-USD",
+            "hack/exploit",
+            "Musk Warns \u201cEveryday Is Zeroday\u201d As Rumors Swirl On News Of A  Massive, $5.7 Billion Binance Hack"
+          ],
+          [
+            "Yahoo/BNB-USD",
+            "outflow/liquidation",
+            "Crypto Market Today, Oct. 29: Bitcoin Slides Below $80K as Big Tech Earnings Uncertainty and Market Volatility Intensify"
+          ],
+          [
+            "Yahoo/BNB-USD",
+            "hack/exploit, outflow/liquidation",
+            "Is Binance Being Hacked? $2 Billion Outflow Puts Customer Funds in Question"
+          ],
+          [
+            "Yahoo/BTC-USD",
+            "hack/exploit, outflow/liquidation",
+            "Bitcoin, digital assets tumble as Binance says $6.3 billion  impacted in suspected record crypto hack"
+          ],
+          [
+            "Yahoo/BTC-USD",
+            "outflow/liquidation",
+            "Dow Jones Futures Fall, Nasdaq Futures Plunge 2% On Amazon, Intel After Google, ServiceNow, Fortinet Dive"
+          ]
+        ],
+        "event_risk_headlines": [
+          [
+            "Fed Press",
+            "scheduled event risk",
+            "Federal Reserve issues FOMC statement"
+          ]
+        ],
+        "fed_and_central_banks": [
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve Board announces approval of application by The Bank of Nova Scotia",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Press",
+            "title": "Federal Reserve issues FOMC statement",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Speeches",
+            "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Fed Speeches",
+            "title": "Waller, The Signaling Value of the Summary of Economic Projections",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "bank_and_institutional": [
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB flags December hike but sees yield rise hitting growth - Reuters",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB Leaves Rates Unchanged as Challenges Mount for Lagarde\u2019s Successor - WSJ",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "ECB, US Fed Hold Rates; Lagarde To Step Down \u2013 Wealth Managers React - Wealth Briefing",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "Lagarde Downplays Risk of Inflation Broadening as ECB Holds - Bloomberg.com",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          },
+          {
+            "source": "Banks & Fed Flow",
+            "title": "Fidelity's Timmer Warns Rising Rates Can Hurt Stocks Unless Earnings Keep Pace - Yahoo Finance",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": false
+          }
+        ],
+        "binance_official": [
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Will List Predict (PREDICT) with Seed Tag Applied",
+            "sentiment": "BULLISH",
+            "is_token": true
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-29)",
+            "sentiment": "BULLISH",
+            "is_token": true
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-28",
+            "sentiment": "BULLISH",
+            "is_token": true
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Exchange Adds Applovin Corp (APPB), Bending Spoons (BSPB), GE Vernova Inc (GEVB), GraniteShares 2x Short SK Hynix Daily ETF (SKDDB) and GraniteShares 2x Long SK Hynix Daily ETF (SKUUB) bStocks Trading Pairs on Binance Spot/Convert and Extends Zero Maker Fee Promotion - 2026-10-28",
+            "sentiment": "NEUTRAL",
+            "is_token": true
+          },
+          {
+            "source": "Binance (New Cryptocurrency Listing)",
+            "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)",
+            "sentiment": "BULLISH",
+            "is_token": true
+          }
+        ],
+        "twitter_x_flow": [
+          {
+            "source": "X/Social/BNB",
+            "title": "Crypto Market Crash: BTC, ETH, BNB, & Others Retreat After $5.8B Binance Hack Report - CryptoRank",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BNB",
+            "title": "AI predicts Binance Coin (BNB) price for year-end - Cryptonews.net",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BNB",
+            "title": "BNB-Based Simon's Cat Token Surges Following Binance Derivatives Launch - CoinMarketCap",
+            "sentiment": "BULLISH",
+            "tags": [
+              "bullish/breakout"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BNB",
+            "title": "Binance hack rattles crypto markets as BNB falls 7%, Bitcoin slides - TradingView",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BNB",
+            "title": "Buy BNB: three exchanges with a MiCA licence - CryptoTicker.io",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          },
+          {
+            "source": "X/Social/BNB",
+            "title": "Bnb (BNB) Price USD Today, News, Charts, Market Cap - Coinbase",
+            "sentiment": "NEUTRAL",
+            "tags": [],
+            "is_token": true
+          }
+        ],
+        "magazines_and_press": [
+          {
+            "source": "CryptoSlate",
+            "title": "Trump\u2019s crypto firm joins Tether, Circle, and Ripple in $2.6 billion stablecoin freeze as Binance hack outflows near $6 billion",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "CryptoSlate",
+            "title": "Binance hack began with a $296 million XRP drain after 36-hour preparation",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "The Block",
+            "title": "Binance investigating hack as suspicious outflows reach up to $5.8 billion",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "The Block",
+            "title": "Bitcoin slides below $77,000, BNB drops amid Binance hack",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "Bitcoin Magazine",
+            "title": "Bitcoin Price Slides Below $79,000 as Binance Loses $5.8 Billion in Massive Hack",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": true
+          },
+          {
+            "source": "Bitcoin Magazine",
+            "title": "Bitcoin Price Briefly Slides to $76,300 as Binance Confirms Hack Estimated at $6.3 Billion",
+            "sentiment": "BEARISH",
+            "tags": [
+              "hack/exploit",
+              "outflow/liquidation"
+            ],
+            "is_token": true
+          }
+        ],
+        "trending_social": {
+          "is_trending": true,
+          "trending_rank": 7,
+          "top_trending_coins": [
+            "HYPE",
+            "BTC",
+            "LIT",
+            "AAVE",
+            "BEAM",
+            "PEPE",
+            "BNB",
+            "ETH",
+            "QNT",
+            "ENA"
+          ]
+        },
+        "score": -8.7
+      },
+      "levels": {
+        "supports": [
+          690.0,
+          681.87785714,
+          680.0
+        ],
+        "resistances": [
+          706.88,
+          729.16214286,
+          744.7325
+        ]
+      }
+    }
+  ],
+  "kelly_trade_plans": {
+    "BTC": {
       "bias": "SHORT / HEDGE",
-      "spot_entry": 79600.76,
-      "limit_pullback_entry": 80110.6865875,
-      "stop_loss": 80614.64388,
-      "tp1": 78079.93418,
-      "tp2": 77066.0503,
+      "spot_entry": 77948.0,
+      "limit_pullback_entry": 78911.76,
+      "stop_loss": 79274.60428571,
+      "tp1": 75958.09357144,
+      "tp2": 74631.48928573,
       "reward_risk_ratio": 1.5,
-      "win_prob_pct": 54.9,
-      "expected_value_R": 0.37,
+      "win_prob_pct": 59.8,
+      "expected_value_R": 0.49,
       "quarter_kelly_risk_pct": 5.0,
+      "adaptive_kelly": {
+        "base_full_kelly": 0.33,
+        "base_quarter_kelly_pct": 5.0,
+        "adaptive_kelly_pct": 5.0,
+        "composite_multiplier": 1.1,
+        "squeeze_multiplier": 1.0,
+        "atr_multiplier": 1.1,
+        "vpin_multiplier": 1.0,
+        "atr_ratio": 0.76,
+        "volatility_regime": "NORMAL_VOLATILITY",
+        "calculated_risk_usd": 150.0,
+        "sizing_rationale": "ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+      },
       "margin_plan": {
         "ok": true,
-        "venue": "perp",
+        "venue": "margin",
         "side": "short",
-        "risk_usd": 50.0,
-        "qty": 0.04931531212430321,
-        "notional_usd": 3925.54,
-        "leverage": 2.0,
+        "risk_usd": 25.0,
+        "qty": 0.018845107217952368,
+        "notional_usd": 1468.94,
+        "leverage": 1.0,
         "leverage_cap_tier": 5.0,
-        "leverage_cap_liq_safe": 33.9,
-        "margin_usd": 1962.77,
-        "margin_pct_equity": 39.3,
-        "liquidation_price": 119082.73696,
-        "liq_distance_pct": 49.6,
-        "stop_distance_pct": 1.27,
-        "liq_to_stop_ratio": 38.9,
-        "carry_usd": -0.92,
-        "carry_r": -0.018,
-        "fees_usd": 3.14,
-        "fees_r": 0.063,
+        "leverage_cap_liq_safe": 7.3,
+        "margin_usd": 1468.94,
+        "margin_pct_equity": 29.4,
+        "liquidation_price": 141723.63636363635,
+        "liq_distance_pct": 81.82,
+        "stop_distance_pct": 1.7,
+        "liq_to_stop_ratio": 48.1,
+        "bankruptcy_price": 155896.0,
+        "maintenance_margin_usd": 5.88,
+        "mmr": 0.004,
+        "cum_deduction": 0.0,
+        "liquidation_clearance_fee_usd": 14.69,
+        "carry_adjusted_liq_price": 141689.6227,
+        "margin_call_price": 119920.0,
+        "adl_risk_quantile": 1,
+        "carry_usd": 0.71,
+        "carry_r": 0.028,
+        "fees_usd": 1.18,
+        "fees_r": 0.047,
         "hold_hours": 24.0,
-        "event_level": "CLEAR",
-        "event_reason": "No scheduled macro or expiry event inside the risk window",
+        "event_level": "CAUTION",
+        "event_reason": "Deribit monthly options expiry 0.9h ago: half size",
         "notes": []
       }
     },
-    "timeframes": {
-      "15m": {
-        "timeframe": "15m",
-        "price": 79600.76,
-        "ema20": 79828.07359645,
-        "ema50": 79947.17426949,
-        "sma200": 80102.1127,
-        "rsi14": 37.6,
-        "macd_hist": -12.03330487,
-        "macd_rising": false,
-        "atr14": 137.39285714,
-        "atr_pct": 0.17,
-        "high_20": 80090.0,
-        "low_20": 79558.49,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "1h": {
-        "timeframe": "1h",
-        "price": 79600.76,
-        "ema20": 79979.78805339,
-        "ema50": 80227.32405709,
-        "sma200": 81586.41405,
-        "rsi14": 40.1,
-        "macd_hist": -36.56292324,
-        "macd_rising": false,
-        "atr14": 300.55928571,
-        "atr_pct": 0.38,
-        "high_20": 80844.7,
-        "low_20": 79451.35,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "4h": {
-        "timeframe": "4h",
-        "price": 79600.76,
-        "ema20": 80440.74596015,
-        "ema50": 81173.58860347,
-        "sma200": 83078.216,
-        "rsi14": 36.1,
-        "macd_hist": -8.55765644,
-        "macd_rising": false,
-        "atr14": 697.36142857,
-        "atr_pct": 0.88,
-        "high_20": 81213.64,
-        "low_20": 79220.74,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "1d": {
-        "timeframe": "1d",
-        "price": 79600.76,
-        "ema20": 81718.69711082,
-        "ema50": 80752.43446626,
-        "sma200": 73062.779,
-        "rsi14": 39.7,
-        "macd_hist": -392.02118542,
-        "macd_rising": false,
-        "atr14": 1900.90285714,
-        "atr_pct": 2.39,
-        "high_20": 84898.0,
-        "low_20": 79220.74,
-        "regime": "BEARISH",
-        "score": -9.0
-      }
-    },
-    "spot_flow": {
-      "1h": {
-        "total_usd": 29118082.8086808,
-        "buy_usd": 14513599.1102877,
-        "sell_usd": 14604483.698393099,
-        "cvd_usd": -90884.58810539916,
-        "buy_pct": 49.84
-      },
-      "4h": {
-        "total_usd": 100080701.9231064,
-        "buy_usd": 54412290.517438404,
-        "sell_usd": 45668411.405668,
-        "cvd_usd": 8743879.111770406,
-        "buy_pct": 54.37
-      },
-      "24h": {
-        "total_usd": 1177294482.884498,
-        "buy_usd": 677373935.859016,
-        "sell_usd": 499920547.02548194,
-        "cvd_usd": 177453388.833534,
-        "buy_pct": 57.54
-      },
-      "7d": {
-        "total_usd": 7771751305.168198,
-        "buy_usd": 3890128257.3490934,
-        "sell_usd": 3881623047.819104,
-        "cvd_usd": 8505209.529989243,
-        "buy_pct": 50.05
-      },
-      "orderbook": {
-        "bid_1pct_usd": 35835905.71,
-        "ask_1pct_usd": 20228651.58,
-        "imbalance_1pct": 27.8,
-        "bid_2pct_usd": 35835905.71,
-        "ask_2pct_usd": 23624821.78,
-        "imbalance_2pct": 20.5,
-        "support_wall_price": 79000.0,
-        "support_wall_usd": 7679063.86,
-        "resistance_wall_price": 80293.47,
-        "resistance_wall_usd": 1001693.96
-      }
-    },
-    "futures": {
-      "available": true,
-      "symbol": "BTCUSDT",
-      "funding_rate_pct": 0.01,
-      "bybit_funding_pct": 0.0033,
-      "okx_funding_pct": 0.01,
-      "coinm_funding_pct": 0.01,
-      "coinm_basis_pct": -0.0244,
-      "consensus_funding_pct": 0.0078,
-      "annualized_funding_pct": 8.5,
-      "basis_pct": -0.0499,
-      "open_interest_usd": 7754000745.12,
-      "bybit_oi_usd": 5094089801.26,
-      "okx_oi_usd": 2629494540.96,
-      "global_oi_usd": 15477585087.34,
-      "oi_change_1h_pct": 0.24,
-      "oi_change_4h_pct": 1.09,
-      "oi_change_24h_pct": 3.51,
-      "oi_regime": "SHORT BUILD-UP (Price down + OI up -> aggressive shorts entering)",
-      "whale_long_pct": 66.1,
-      "whale_ls_ratio": 1.95,
-      "retail_long_pct": 70.5,
-      "retail_ls_ratio": 2.39,
-      "taker_buy_sell_1h": 0.712,
-      "taker_buy_sell_4h": 0.93,
-      "taker_buy_sell_24h": 1.013,
-      "score": -9.0,
-      "notes": [
-        "Healthy neutral-positive cross-venue funding (+0.0078% avg): sustainable carry",
-        "Aggressive futures market selling (4h taker buy/sell ratio 0.93)"
-      ]
-    },
-    "relative_strength": {
-      "return_7d_pct": -4.13,
-      "btc_24h_pct": -0.69,
-      "btc_7d_pct": -4.13,
-      "alpha_24h_pct": 0.0,
-      "alpha_7d_pct": 0.0
-    },
-    "news": {
-      "sources_checked": [
-        "Federal Reserve (Press & Speeches)",
-        "Wall St. Banks (JPM/BlackRock/GS/MS)",
-        "Binance Official CMS",
-        "X/Twitter Whale Flow (Lookonchain/Arkham/Wu)",
-        "CoinGecko Trending",
-        "Forbes/Fortune/Bloomberg",
-        "Bitcoin Magazine",
-        "The Block",
-        "Blockworks",
-        "CryptoSlate",
-        "BeInCrypto",
-        "CoinDesk",
-        "Cointelegraph",
-        "Decrypt",
-        "Yahoo Finance"
-      ],
-      "headlines_checked": 90,
-      "bullish_catalysts": [
-        [
-          "CoinGecko Trending",
-          "social heat",
-          "BTC is Trending #13 Globally on CoinGecko Search"
-        ],
-        [
-          "Yahoo/BTC-USD",
-          "bullish/breakout",
-          "Bitcoin Heads for a Red October With 4 Bullish Signals Still Intact"
-        ],
-        [
-          "X/Social/BTC",
-          "ETF/institutional inflow",
-          "Equity weakness could damp demand for bitcoin after biggest ETF inflows in a month - CoinDesk"
-        ],
-        [
-          "Banks & Fed Flow",
-          "ETF/institutional inflow",
-          "SEC\u2019s Crypto Custody Proposal Could Change How Funds Hold Digital Assets - TradingView"
-        ]
-      ],
-      "bearish_catalysts": [
-        [
-          "Yahoo/BTC-USD",
-          "treasury buying pause",
-          "Bitcoin dips below $80k as Strategy pauses buying, Fed caution weighs"
-        ],
-        [
-          "X/Social/BTC",
-          "outflow/liquidation",
-          "Crypto traders seek shelter in bitcoin as altcoins slide and ETF flows wobble - CoinDesk"
-        ],
-        [
-          "X/Social/BTC",
-          "outflow/liquidation",
-          "How Bitcoin ETF Weekly Flows Kept $301M After Two Days of Outflows - Bitcoin Foundation"
-        ],
-        [
-          "X/Social/BTC",
-          "outflow/liquidation",
-          "Bitcoin ETFs Just Had Their Biggest Outflow Day Since June. Is the Selling Over? - 24/7 Wall St."
-        ]
-      ],
-      "event_risk_headlines": [
-        [
-          "Yahoo/BTC-USD",
-          "scheduled event risk",
-          "Crypto Market Today, Oct. 26: Bitcoin Slips Below $80,000 as Fed Decision Looms"
-        ],
-        [
-          "Banks & Fed Flow",
-          "scheduled event risk",
-          "Fed chair Jerome Powell says he will stay on central bank's board after term expires next month - ABC News - Breaking News, Latest News and Videos"
-        ],
-        [
-          "Banks & Fed Flow",
-          "scheduled event risk",
-          "Federal Reserve meeting: Rice experts available to discuss interest rates, inflation and economic outlook - Rice University"
-        ],
-        [
-          "Banks & Fed Flow",
-          "scheduled event risk",
-          "What To Expect From This Week\u2019s Federal Reserve Meeting - Investopedia"
-        ]
-      ],
-      "fed_and_central_banks": [
-        {
-          "source": "Fed Press",
-          "title": "Federal Reserve Board announces termination of enforcement actions with Gardner Bancshares, Inc. and Small Business Bank",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Press",
-          "title": "Minutes of the Board's discount rate meetings on August 17, September 9, and September 16, 2026",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Speeches",
-          "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Speeches",
-          "title": "Waller, The Signaling Value of the Summary of Economic Projections",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "bank_and_institutional": [
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Fed chair Jerome Powell says he will stay on central bank's board after term expires next month - ABC News - Breaking News, Latest News and Videos",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve is likely to hold interest rates steady in October. Here's what that means for consumers - CNBC",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve meeting: Rice experts available to discuss interest rates, inflation and economic outlook - Rice University",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "SEC's crypto fundraising rules face consumer group pushback - American Banker",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve to announce its latest interest rate move this week. Here's what economists expect. - CBS News",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "binance_official": [
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Notice on New Trading Pairs & Trading Bots Services on Binance Spot - 2026-10-28",
-          "sentiment": "NEUTRAL",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)",
-          "sentiment": "BULLISH",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Futures Will Launch USD\u24c8-Margined PREDICTUSDT Perpetual Contract Pre-Market Trading (2026-10-25)",
-          "sentiment": "BULLISH",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-21",
-          "sentiment": "BULLISH",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Exchange Adds RoboStrategy Inc (BOTB), Berkshire Hathaway (BRKBB), KraneShares STAR Market 50 ETF (KSTRB), Direxion Daily 20 Year Treasury Bull 3X ETF (TMFB) and Vistra Corp (VSTB) bStocks Trading Pairs on Binance Spot/Convert - 2026-10-21",
-          "sentiment": "NEUTRAL",
-          "is_token": false
-        }
-      ],
-      "twitter_x_flow": [
-        {
-          "source": "X/Social/BTC",
-          "title": "JPMorgan Says Bitcoin Will Beat Gold and Stocks \u2014 After Years of Crypto Skepticism - Yahoo Finance",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BTC",
-          "title": "Current price of Bitcoin for October 26, 2026 - Fortune",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BTC",
-          "title": "Equity weakness could damp demand for bitcoin after biggest ETF inflows in a month - CoinDesk",
-          "sentiment": "BULLISH",
-          "tags": [
-            "ETF/institutional inflow"
-          ],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BTC",
-          "title": "Bitcoin ETFs Just Had Their Biggest Outflow Day Since June. Is the Selling Over? - 24/7 Wall St.",
-          "sentiment": "BEARISH",
-          "tags": [
-            "outflow/liquidation"
-          ],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BTC",
-          "title": "How Bitcoin ETF Weekly Flows Kept $301M After Two Days of Outflows - Bitcoin Foundation",
-          "sentiment": "BEARISH",
-          "tags": [
-            "outflow/liquidation"
-          ],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BTC",
-          "title": "Do Bitcoin ETF Flows Really Predict Future Bitcoin Price Moves? This New Research Has Important Implications for BTC Investors. - Yahoo Finance",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        }
-      ],
-      "magazines_and_press": [
-        {
-          "source": "BeInCrypto",
-          "title": "10,000 Bitcoin Simulations Say BTC's Median Path to $1M Comes in 2033",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "Blockworks",
-          "title": "Yield Basis is making native BTC yield a reality",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "Forbes/Bloomberg/Fortune",
-          "title": "Dutch Crypto Groups Warn of Sell Off Over Wealth-Tax Carveout - Bloomberg.com",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Bitcoin Magazine",
-          "title": "Cold Storage Goes South: bitcoin++ Announces Antarctica Edition",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "The Block",
-          "title": "Circle faces up to 20% revenue risk from AI agents, Mizuho says",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Blockworks",
-          "title": "Venezuela\u2019s sanctions are stablecoins\u2019 proof of concept",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "trending_social": {
-        "is_trending": true,
-        "trending_rank": 13,
-        "top_trending_coins": [
-          "Q",
-          "AIN",
-          "PEARL",
-          "QNT",
-          "ONDO",
-          "OSMO",
-          "NEAR",
-          "HYPE",
-          "PENGU",
-          "XRP"
-        ]
-      },
-      "score": -0.4
-    },
-    "levels": {
-      "supports": [
-        79451.35,
-        79220.74,
-        79000.0
-      ],
-      "resistances": [
-        80293.47,
-        80844.7,
-        81213.64
-      ]
-    }
-  },
-  {
-    "symbol": "ETHUSDT",
-    "as_of": "2026-10-27T07:02:38Z",
-    "price": 2302.18,
-    "change_24h_pct": -0.951,
-    "high_24h": 2344.72,
-    "low_24h": 2295.88,
-    "volume_24h_usd": 382380281.66,
-    "composite_score": -28.7,
-    "verdict": "BEARISH (Leans Downward)",
-    "pillar_scores": {
-      "technicals_mtf": {
-        "score": -23.0,
-        "max": 25.0
-      },
-      "spot_orderflow_depth": {
-        "score": 6.5,
-        "max": 25.0
-      },
-      "futures_leverage": {
-        "score": -7.0,
-        "max": 25.0
-      },
-      "relative_strength_btc": {
-        "score": -1.3,
-        "max": 10.0
-      },
-      "news_catalysts": {
-        "score": -1.9,
-        "max": 15.0
-      },
-      "institutional_bonus": {
-        "score": -2.0,
-        "max": 10.0
-      }
-    },
-    "horizons": {
-      "4h": {
-        "horizon": "4h",
-        "hours": 4,
-        "prob_up_pct": 44.6,
-        "prob_down_pct": 55.4,
-        "direction": "DOWN",
-        "expected_price": 2299.60335383,
-        "expected_move_pct": -0.11,
-        "range_50_low": 2286.09819805,
-        "range_50_high": 2312.28232691,
-        "range_80_low": 2273.21460148,
-        "range_80_high": 2323.71976084
-      },
-      "24h": {
-        "horizon": "24h",
-        "hours": 24,
-        "prob_up_pct": 40.9,
-        "prob_down_pct": 59.1,
-        "direction": "DOWN",
-        "expected_price": 2290.03677798,
-        "expected_move_pct": -0.53,
-        "range_50_low": 2255.39623553,
-        "range_50_high": 2324.64982085,
-        "range_80_low": 2225.86533375,
-        "range_80_high": 2356.39230256
-      },
-      "7d": {
-        "horizon": "7d",
-        "hours": 168,
-        "prob_up_pct": 33.8,
-        "prob_down_pct": 66.2,
-        "direction": "DOWN",
-        "expected_price": 2248.77995022,
-        "expected_move_pct": -2.32,
-        "range_50_low": 2157.6165307,
-        "range_50_high": 2338.01421108,
-        "range_80_low": 2084.07206791,
-        "range_80_high": 2420.28139521
-      }
-    },
-    "volume_profile": {
-      "poc": 2401.488,
-      "vah": 2447.268,
-      "val": 2300.772,
-      "vwap_24h": 2320.08010809,
-      "vwap_7d": 2399.99398722,
-      "vwap_24h_dist_pct": -0.77,
-      "state": "LOWER VALUE AREA (Between VAL & POC: Mean-Reverting toward POC)"
-    },
-    "institutional": {
-      "squeeze_4h": "TTM SQUEEZE ACTIVE (Bollinger inside Keltner - Explosive Breakout Coiling)",
-      "bb_width_4h_pct": 3.95,
-      "signals": [
-        "4H VOLATILITY SQUEEZE ACTIVE (BB Width 3.95% inside Keltner): Coiling for large directional expansion"
-      ],
-      "bonus_score": 0.0
-    },
-    "macro_onchain": {
-      "fear_greed_value": 48,
-      "fear_greed_label": "Neutral",
-      "fear_greed_prev": 50,
-      "total_mcap_usd": 2684564562648.71,
-      "mcap_24h_change_pct": -2.43,
-      "btc_dominance_pct": 59.43,
-      "eth_dominance_pct": 10.45,
-      "market_season": "BTC DOMINANCE SEASON (BTC.D 59.4% > 56% - Select High-Alpha Alts Only)",
-      "stablecoin_total_usd": 291012044223.22,
-      "usdt_supply_usd": 181858159382.28,
-      "usdc_supply_usd": 71112173034.62,
-      "stablecoin_24h_flow_usd": -736255185.95,
-      "stablecoin_7d_flow_usd": -1951319049.28,
-      "chain_name": "Ethereum",
-      "chain_tvl_usd": 48278696351.15,
-      "chain_tvl_rank": 1,
-      "macro_bonus": -2.0,
-      "macro_notes": [
-        "DefiLlama Stablecoin Contraction: -$1.95B redeemed over 7d (tightening on-chain liquidity)"
-      ]
-    },
-    "kelly_trade_plan": {
+    "ETH": {
       "bias": "SHORT / HEDGE",
-      "spot_entry": 2302.18,
-      "limit_pullback_entry": 2320.08010809,
-      "stop_loss": 2364.42,
-      "tp1": 2208.82,
-      "tp2": 2146.58,
+      "spot_entry": 2225.98,
+      "limit_pullback_entry": 2268.00393474,
+      "stop_loss": 2300.164,
+      "tp1": 2114.704,
+      "tp2": 2040.52,
       "reward_risk_ratio": 1.5,
-      "win_prob_pct": 59.1,
-      "expected_value_R": 0.48,
+      "win_prob_pct": 63.1,
+      "expected_value_R": 0.58,
       "quarter_kelly_risk_pct": 5.0,
+      "adaptive_kelly": {
+        "base_full_kelly": 0.385,
+        "base_quarter_kelly_pct": 5.0,
+        "adaptive_kelly_pct": 5.0,
+        "composite_multiplier": 1.1,
+        "squeeze_multiplier": 1.0,
+        "atr_multiplier": 1.1,
+        "vpin_multiplier": 1.0,
+        "atr_ratio": 0.79,
+        "volatility_regime": "NORMAL_VOLATILITY",
+        "calculated_risk_usd": 150.0,
+        "sizing_rationale": "ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+      },
       "margin_plan": {
         "ok": true,
-        "venue": "perp",
+        "venue": "margin",
         "side": "short",
-        "risk_usd": 50.0,
-        "qty": 0.8033419023136217,
-        "notional_usd": 1849.44,
+        "risk_usd": 25.0,
+        "qty": 0.3369998921600336,
+        "notional_usd": 750.16,
         "leverage": 1.0,
         "leverage_cap_tier": 4.0,
-        "leverage_cap_liq_safe": 16.9,
-        "margin_usd": 1849.44,
-        "margin_pct_equity": 37.0,
-        "liquidation_price": 4592.8491,
-        "liq_distance_pct": 99.5,
-        "stop_distance_pct": 2.7,
-        "liq_to_stop_ratio": 36.8,
-        "carry_usd": -0.34,
-        "carry_r": -0.007,
-        "fees_usd": 1.48,
-        "fees_r": 0.03,
+        "leverage_cap_liq_safe": 5.8,
+        "margin_usd": 750.16,
+        "margin_pct_equity": 15.0,
+        "liquidation_price": 4047.2363636363634,
+        "liq_distance_pct": 81.82,
+        "stop_distance_pct": 3.33,
+        "liq_to_stop_ratio": 24.6,
+        "bankruptcy_price": 4451.96,
+        "maintenance_margin_usd": 3.75,
+        "mmr": 0.005,
+        "cum_deduction": 0.0,
+        "liquidation_clearance_fee_usd": 7.5,
+        "carry_adjusted_liq_price": 4046.265,
+        "margin_call_price": 3424.5846,
+        "adl_risk_quantile": 1,
+        "carry_usd": 0.36,
+        "carry_r": 0.014,
+        "fees_usd": 0.6,
+        "fees_r": 0.024,
         "hold_hours": 24.0,
-        "event_level": "CLEAR",
-        "event_reason": "No scheduled macro or expiry event inside the risk window",
+        "event_level": "CAUTION",
+        "event_reason": "Deribit monthly options expiry 0.9h ago: half size",
         "notes": []
       }
     },
-    "timeframes": {
-      "15m": {
-        "timeframe": "15m",
-        "price": 2302.18,
-        "ema20": 2312.34994762,
-        "ema50": 2315.77984398,
-        "sma200": 2319.9137,
-        "rsi14": 35.3,
-        "macd_hist": -1.04885194,
-        "macd_rising": false,
-        "atr14": 5.59,
-        "atr_pct": 0.24,
-        "high_20": 2323.45,
-        "low_20": 2300.84,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "1h": {
-        "timeframe": "1h",
-        "price": 2302.18,
-        "ema20": 2316.80985989,
-        "ema50": 2328.5830679,
-        "sma200": 2390.2368,
-        "rsi14": 39.9,
-        "macd_hist": -0.77972637,
-        "macd_rising": false,
-        "atr14": 12.12642857,
-        "atr_pct": 0.53,
-        "high_20": 2344.72,
-        "low_20": 2295.88,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "4h": {
-        "timeframe": "4h",
-        "price": 2302.18,
-        "ema20": 2339.98831418,
-        "ema50": 2377.94672506,
-        "sma200": 2540.7962,
-        "rsi14": 36.5,
-        "macd_hist": -0.35853718,
-        "macd_rising": false,
-        "atr14": 30.035,
-        "atr_pct": 1.3,
-        "high_20": 2390.24,
-        "low_20": 2282.46,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "1d": {
-        "timeframe": "1d",
-        "price": 2302.18,
-        "ema20": 2427.68242376,
-        "ema50": 2452.8424107,
-        "sma200": 2159.4518,
-        "rsi14": 32.0,
-        "macd_hist": -12.2529108,
-        "macd_rising": false,
-        "atr14": 90.15428571,
-        "atr_pct": 3.92,
-        "high_20": 2587.28,
-        "low_20": 2282.46,
-        "regime": "BEARISH",
-        "score": -17.0
-      }
-    },
-    "spot_flow": {
-      "1h": {
-        "total_usd": 7778846.527273001,
-        "buy_usd": 3164941.062436,
-        "sell_usd": 4613905.464837002,
-        "cvd_usd": -1448964.4024010017,
-        "buy_pct": 40.69
-      },
-      "4h": {
-        "total_usd": 28362274.674732998,
-        "buy_usd": 10829273.191987,
-        "sell_usd": 17533001.482745998,
-        "cvd_usd": -6703728.290758997,
-        "buy_pct": 38.18
-      },
-      "24h": {
-        "total_usd": 370575107.8915711,
-        "buy_usd": 197177069.932358,
-        "sell_usd": 173398037.9592131,
-        "cvd_usd": 23779031.97314489,
-        "buy_pct": 53.21
-      },
-      "7d": {
-        "total_usd": 3833764710.497421,
-        "buy_usd": 1934750411.494863,
-        "sell_usd": 1899014299.0025578,
-        "cvd_usd": 35736112.49230528,
-        "buy_pct": 50.47
-      },
-      "orderbook": {
-        "bid_1pct_usd": 16268961.66,
-        "ask_1pct_usd": 8160243.88,
-        "imbalance_1pct": 33.2,
-        "bid_2pct_usd": 20978810.0,
-        "ask_2pct_usd": 9395710.16,
-        "imbalance_2pct": 38.1,
-        "support_wall_price": 2290.0,
-        "support_wall_usd": 4018151.25,
-        "resistance_wall_price": 2355.0,
-        "resistance_wall_usd": 4357542.69
-      }
-    },
-    "futures": {
-      "available": true,
-      "symbol": "ETHUSDT",
-      "funding_rate_pct": 0.0065,
-      "bybit_funding_pct": 0.0018,
-      "okx_funding_pct": 0.01,
-      "coinm_funding_pct": 0.0093,
-      "coinm_basis_pct": -0.0444,
-      "consensus_funding_pct": 0.0061,
-      "annualized_funding_pct": 6.68,
-      "basis_pct": -0.0441,
-      "open_interest_usd": 5475526162.58,
-      "bybit_oi_usd": 1822877233.78,
-      "okx_oi_usd": 1502683949.8,
-      "global_oi_usd": 8801087346.16,
-      "oi_change_1h_pct": 0.22,
-      "oi_change_4h_pct": 0.54,
-      "oi_change_24h_pct": 1.85,
-      "oi_regime": "SHORT BUILD-UP (Price down + OI up -> aggressive shorts entering)",
-      "whale_long_pct": 63.9,
-      "whale_ls_ratio": 1.77,
-      "retail_long_pct": 78.0,
-      "retail_ls_ratio": 3.54,
-      "taker_buy_sell_1h": 0.738,
-      "taker_buy_sell_4h": 1.012,
-      "taker_buy_sell_24h": 1.018,
-      "score": -7.0,
-      "notes": [
-        "Healthy neutral-positive cross-venue funding (+0.0061% avg): sustainable carry",
-        "Retail long crowding: 78.0% of retail accounts are long while top whales are only 63.9% long"
-      ]
-    },
-    "relative_strength": {
-      "return_7d_pct": -6.0,
-      "btc_24h_pct": -0.68,
-      "btc_7d_pct": -4.12,
-      "alpha_24h_pct": -0.27,
-      "alpha_7d_pct": -1.88
-    },
-    "news": {
-      "sources_checked": [
-        "Federal Reserve (Press & Speeches)",
-        "Wall St. Banks (JPM/BlackRock/GS/MS)",
-        "Binance Official CMS",
-        "X/Twitter Whale Flow (Lookonchain/Arkham/Wu)",
-        "CoinGecko Trending",
-        "Forbes/Fortune/Bloomberg",
-        "Bitcoin Magazine",
-        "The Block",
-        "Blockworks",
-        "CryptoSlate",
-        "BeInCrypto",
-        "CoinDesk",
-        "Cointelegraph",
-        "Decrypt",
-        "Yahoo Finance"
-      ],
-      "headlines_checked": 90,
-      "bullish_catalysts": [
-        [
-          "Yahoo/BTC-USD",
-          "bullish/breakout",
-          "Bitcoin Heads for a Red October With 4 Bullish Signals Still Intact"
-        ],
-        [
-          "X/Social/ETH",
-          "ETF/institutional inflow",
-          "Equity weakness could damp demand for bitcoin after biggest ETF inflows in a month - CoinDesk"
-        ]
-      ],
-      "bearish_catalysts": [
-        [
-          "Yahoo/ETH-USD",
-          "unlock/dilution, outflow/liquidation, treasury buying pause",
-          "Tom Lee Says Crypto Faced Same \u2018Risk Off\u2019 Forces Behind AI Sell-Off: BMNR, ASST Add To Crypto Treasuries As MSTR Skips Bitcoin Buys"
-        ],
-        [
-          "Yahoo/BTC-USD",
-          "treasury buying pause",
-          "Bitcoin dips below $80k as Strategy pauses buying, Fed caution weighs"
-        ]
-      ],
-      "event_risk_headlines": [
-        [
-          "Yahoo/ETH-USD",
-          "scheduled event risk",
-          "Crypto Market Today, Oct. 26: Bitcoin Slips Below $80,000 as Fed Decision Looms"
-        ],
-        [
-          "Banks & Fed Flow",
-          "scheduled event risk",
-          "Fed chair Jerome Powell says he will stay on central bank's board after term expires next month - ABC News - Breaking News, Latest News and Videos"
-        ],
-        [
-          "Banks & Fed Flow",
-          "scheduled event risk",
-          "Federal Reserve meeting: Rice experts available to discuss interest rates, inflation and economic outlook - Rice University"
-        ]
-      ],
-      "fed_and_central_banks": [
-        {
-          "source": "Fed Press",
-          "title": "Federal Reserve Board announces termination of enforcement actions with Gardner Bancshares, Inc. and Small Business Bank",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Press",
-          "title": "Minutes of the Board's discount rate meetings on August 17, September 9, and September 16, 2026",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Speeches",
-          "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Speeches",
-          "title": "Waller, The Signaling Value of the Summary of Economic Projections",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "bank_and_institutional": [
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Fed chair Jerome Powell says he will stay on central bank's board after term expires next month - ABC News - Breaking News, Latest News and Videos",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve is likely to hold interest rates steady in October. Here's what that means for consumers - CNBC",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve meeting: Rice experts available to discuss interest rates, inflation and economic outlook - Rice University",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "SEC's crypto fundraising rules face consumer group pushback - American Banker",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve to announce its latest interest rate move this week. Here's what economists expect. - CBS News",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "binance_official": [
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Notice on New Trading Pairs & Trading Bots Services on Binance Spot - 2026-10-28",
-          "sentiment": "NEUTRAL",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)",
-          "sentiment": "BULLISH",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Futures Will Launch USD\u24c8-Margined PREDICTUSDT Perpetual Contract Pre-Market Trading (2026-10-25)",
-          "sentiment": "BULLISH",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-21",
-          "sentiment": "BULLISH",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Exchange Adds RoboStrategy Inc (BOTB), Berkshire Hathaway (BRKBB), KraneShares STAR Market 50 ETF (KSTRB), Direxion Daily 20 Year Treasury Bull 3X ETF (TMFB) and Vistra Corp (VSTB) bStocks Trading Pairs on Binance Spot/Convert - 2026-10-21",
-          "sentiment": "NEUTRAL",
-          "is_token": false
-        }
-      ],
-      "twitter_x_flow": [
-        {
-          "source": "X/Social/ETH",
-          "title": "If Crypto Falls Another 20%, Which Holds Up Best: Ethereum, Sui or Avalanche? Grok AI Ranks Them - Yahoo Finance",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/ETH",
-          "title": "Current price of Ethereum for October 23, 2026 - Fortune",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/ETH",
-          "title": "Ethereum ETFs Have Lost $1.1 Billion in Three Weeks. What Would Bring Buyers Back? - 24/7 Wall St.",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/ETH",
-          "title": "Equity weakness could damp demand for bitcoin after biggest ETF inflows in a month - CoinDesk",
-          "sentiment": "BULLISH",
-          "tags": [
-            "ETF/institutional inflow"
-          ],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/ETH",
-          "title": "Current price of Ethereum for Oct 26, 2026 - Fortune",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/ETH",
-          "title": "Ethereum Analysis: Could ETH Fall to $2,180 and Liquidate a $214 Million Whale? - Yahoo Finance",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        }
-      ],
-      "magazines_and_press": [
-        {
-          "source": "Blockworks",
-          "title": "ETH derivatives reset and the next retail trade",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "The Block",
-          "title": "Tom Lee insists \u2018crypto bull market is underway\u2019 as Bitmine adds 10,452 ETH",
-          "sentiment": "BULLISH",
-          "tags": [
-            "ETF/institutional inflow",
-            "bullish/breakout"
-          ],
-          "is_token": true
-        },
-        {
-          "source": "Forbes/Bloomberg/Fortune",
-          "title": "Dutch Crypto Groups Warn of Sell Off Over Wealth-Tax Carveout - Bloomberg.com",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Bitcoin Magazine",
-          "title": "Cold Storage Goes South: bitcoin++ Announces Antarctica Edition",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "The Block",
-          "title": "Circle faces up to 20% revenue risk from AI agents, Mizuho says",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Blockworks",
-          "title": "Venezuela\u2019s sanctions are stablecoins\u2019 proof of concept",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "trending_social": {
-        "is_trending": false,
-        "trending_rank": null,
-        "top_trending_coins": [
-          "Q",
-          "AIN",
-          "PEARL",
-          "QNT",
-          "ONDO",
-          "OSMO",
-          "NEAR",
-          "HYPE",
-          "PENGU",
-          "XRP"
-        ]
-      },
-      "score": -1.9
-    },
-    "levels": {
-      "supports": [
-        2300.772,
-        2295.88,
-        2290.0
-      ],
-      "resistances": [
-        2344.72,
-        2355.0,
-        2390.24
-      ]
-    }
-  },
-  {
-    "symbol": "SOLUSDT",
-    "as_of": "2026-10-27T07:02:40Z",
-    "price": 99.56,
-    "change_24h_pct": -1.65,
-    "high_24h": 102.73,
-    "low_24h": 99.46,
-    "volume_24h_usd": 158660566.6,
-    "composite_score": -17.5,
-    "verdict": "BEARISH (Leans Downward)",
-    "pillar_scores": {
-      "technicals_mtf": {
-        "score": -23.5,
-        "max": 25.0
-      },
-      "spot_orderflow_depth": {
-        "score": 16.9,
-        "max": 25.0
-      },
-      "futures_leverage": {
-        "score": -9.0,
-        "max": 25.0
-      },
-      "relative_strength_btc": {
-        "score": -2.4,
-        "max": 10.0
-      },
-      "news_catalysts": {
-        "score": 2.5,
-        "max": 15.0
-      },
-      "institutional_bonus": {
-        "score": -2.0,
-        "max": 10.0
-      }
-    },
-    "horizons": {
-      "4h": {
-        "horizon": "4h",
-        "hours": 4,
-        "prob_up_pct": 45.6,
-        "prob_down_pct": 54.4,
-        "direction": "DOWN",
-        "expected_price": 99.46664823,
-        "expected_move_pct": -0.09,
-        "range_50_low": 98.83945802,
-        "range_50_high": 100.06037751,
-        "range_80_low": 98.27344263,
-        "range_80_high": 100.62058104
-      },
-      "24h": {
-        "horizon": "24h",
-        "hours": 24,
-        "prob_up_pct": 42.8,
-        "prob_down_pct": 57.2,
-        "direction": "DOWN",
-        "expected_price": 99.10775689,
-        "expected_move_pct": -0.45,
-        "range_50_low": 97.57080262,
-        "range_50_high": 100.76194277,
-        "range_80_low": 96.19386784,
-        "range_80_high": 102.30117851
-      },
-      "7d": {
-        "horizon": "7d",
-        "hours": 168,
-        "prob_up_pct": 37.8,
-        "prob_down_pct": 62.2,
-        "direction": "DOWN",
-        "expected_price": 97.60648726,
-        "expected_move_pct": -1.96,
-        "range_50_low": 93.40588458,
-        "range_50_high": 101.7903552,
-        "range_80_low": 89.99646101,
-        "range_80_high": 105.73661334
-      }
-    },
-    "volume_profile": {
-      "poc": 104.57125,
-      "vah": 109.2,
-      "val": 101.5295,
-      "vwap_24h": 101.01890684,
-      "vwap_7d": 103.87480947,
-      "vwap_24h_dist_pct": -1.44,
-      "state": "BELOW VALUE AREA (< VAL: Discount / Breakdown Zone)"
-    },
-    "institutional": {
-      "squeeze_4h": "TTM SQUEEZE ACTIVE (Bollinger inside Keltner - Explosive Breakout Coiling)",
-      "bb_width_4h_pct": 3.38,
-      "signals": [
-        "4H VOLATILITY SQUEEZE ACTIVE (BB Width 3.38% inside Keltner): Coiling for large directional expansion"
-      ],
-      "bonus_score": 0.0
-    },
-    "macro_onchain": {
-      "fear_greed_value": 48,
-      "fear_greed_label": "Neutral",
-      "fear_greed_prev": 50,
-      "total_mcap_usd": 2684564562648.71,
-      "mcap_24h_change_pct": -2.43,
-      "btc_dominance_pct": 59.43,
-      "eth_dominance_pct": 10.45,
-      "market_season": "BTC DOMINANCE SEASON (BTC.D 59.4% > 56% - Select High-Alpha Alts Only)",
-      "stablecoin_total_usd": 291012044223.22,
-      "usdt_supply_usd": 181858159382.28,
-      "usdc_supply_usd": 71112173034.62,
-      "stablecoin_24h_flow_usd": -736255185.95,
-      "stablecoin_7d_flow_usd": -1951319049.28,
-      "chain_name": "Solana",
-      "chain_tvl_usd": 5714927146.45,
-      "chain_tvl_rank": 3,
-      "macro_bonus": -2.0,
-      "macro_notes": [
-        "DefiLlama Stablecoin Contraction: -$1.95B redeemed over 7d (tightening on-chain liquidity)"
-      ]
-    },
-    "kelly_trade_plan": {
+    "SOL": {
       "bias": "SHORT / HEDGE",
-      "spot_entry": 99.56,
-      "limit_pullback_entry": 99.59,
-      "stop_loss": 100.42035714,
-      "tp1": 98.26946428,
-      "tp2": 97.40910714,
+      "spot_entry": 97.17,
+      "limit_pullback_entry": 97.38399982,
+      "stop_loss": 100.4,
+      "tp1": 92.325,
+      "tp2": 89.095,
       "reward_risk_ratio": 1.5,
-      "win_prob_pct": 57.2,
-      "expected_value_R": 0.43,
+      "win_prob_pct": 56.5,
+      "expected_value_R": 0.41,
       "quarter_kelly_risk_pct": 5.0,
+      "adaptive_kelly": {
+        "base_full_kelly": 0.275,
+        "base_quarter_kelly_pct": 5.0,
+        "adaptive_kelly_pct": 5.0,
+        "composite_multiplier": 1.1,
+        "squeeze_multiplier": 1.0,
+        "atr_multiplier": 1.1,
+        "vpin_multiplier": 1.0,
+        "atr_ratio": 0.78,
+        "volatility_regime": "NORMAL_VOLATILITY",
+        "calculated_risk_usd": 150.0,
+        "sizing_rationale": "ATR multiplier 1.10x (COMPRESSED_ATR_EXPANSION_POTENTIAL)"
+      },
       "margin_plan": {
         "ok": true,
-        "venue": "perp",
+        "venue": "margin",
         "side": "short",
-        "risk_usd": 50.0,
-        "qty": 58.1154007741489,
-        "notional_usd": 5785.97,
-        "leverage": 3,
+        "risk_usd": 25.0,
+        "qty": 7.739938080495347,
+        "notional_usd": 752.09,
+        "leverage": 1.0,
         "leverage_cap_tier": 3.0,
-        "leverage_cap_liq_safe": 36.7,
-        "margin_usd": 1928.66,
-        "margin_pct_equity": 38.6,
-        "liquidation_price": 131.75106666666667,
-        "liq_distance_pct": 32.33,
-        "stop_distance_pct": 0.86,
-        "liq_to_stop_ratio": 37.4,
-        "carry_usd": -0.68,
-        "carry_r": -0.014,
-        "fees_usd": 4.63,
-        "fees_r": 0.093,
+        "leverage_cap_liq_safe": 5.8,
+        "margin_usd": 752.09,
+        "margin_pct_equity": 15.0,
+        "liquidation_price": 176.67272727272726,
+        "liq_distance_pct": 81.82,
+        "stop_distance_pct": 3.32,
+        "liq_to_stop_ratio": 24.6,
+        "bankruptcy_price": 194.34,
+        "maintenance_margin_usd": 7.52,
+        "mmr": 0.01,
+        "cum_deduction": 0.0,
+        "liquidation_clearance_fee_usd": 11.28,
+        "carry_adjusted_liq_price": 176.6303,
+        "margin_call_price": 149.4923,
+        "adl_risk_quantile": 1,
+        "carry_usd": 0.36,
+        "carry_r": 0.014,
+        "fees_usd": 0.6,
+        "fees_r": 0.024,
         "hold_hours": 24.0,
-        "event_level": "CLEAR",
-        "event_reason": "No scheduled macro or expiry event inside the risk window",
+        "event_level": "CAUTION",
+        "event_reason": "Deribit monthly options expiry 0.9h ago: half size",
         "notes": []
       }
     },
-    "timeframes": {
-      "15m": {
-        "timeframe": "15m",
-        "price": 99.56,
-        "ema20": 100.07508664,
-        "ema50": 100.39957405,
-        "sma200": 100.8681,
-        "rsi14": 29.9,
-        "macd_hist": -0.04156243,
-        "macd_rising": false,
-        "atr14": 0.22714286,
-        "atr_pct": 0.23,
-        "high_20": 100.66,
-        "low_20": 99.46,
-        "regime": "BEARISH",
-        "score": -25.0
+    "BNB": {
+      "bias": "SHORT / HEDGE",
+      "spot_entry": 705.52,
+      "limit_pullback_entry": 706.88,
+      "stop_loss": 727.39535714,
+      "tp1": 672.70696428,
+      "tp2": 650.83160714,
+      "reward_risk_ratio": 1.5,
+      "win_prob_pct": 61.7,
+      "expected_value_R": 0.54,
+      "quarter_kelly_risk_pct": 5.0,
+      "adaptive_kelly": {
+        "base_full_kelly": 0.3617,
+        "base_quarter_kelly_pct": 5.0,
+        "adaptive_kelly_pct": 5.0,
+        "composite_multiplier": 1.0,
+        "squeeze_multiplier": 1.0,
+        "atr_multiplier": 1.0,
+        "vpin_multiplier": 1.0,
+        "atr_ratio": 0.83,
+        "volatility_regime": "NORMAL_VOLATILITY",
+        "calculated_risk_usd": 150.0,
+        "sizing_rationale": "Standard Quarter-Kelly in balanced volatility regime"
       },
-      "1h": {
-        "timeframe": "1h",
-        "price": 99.56,
-        "ema20": 100.50800416,
-        "ema50": 101.06705009,
-        "sma200": 103.6814,
-        "rsi14": 35.7,
-        "macd_hist": -0.10689166,
-        "macd_rising": false,
-        "atr14": 0.57357143,
-        "atr_pct": 0.58,
-        "high_20": 102.73,
-        "low_20": 99.46,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "4h": {
-        "timeframe": "4h",
-        "price": 99.56,
-        "ema20": 101.4869837,
-        "ema50": 103.09115137,
-        "sma200": 111.5458,
-        "rsi14": 36.7,
-        "macd_hist": -0.04254326,
-        "macd_rising": false,
-        "atr14": 1.37928571,
-        "atr_pct": 1.39,
-        "high_20": 103.13,
-        "low_20": 98.62,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "1d": {
-        "timeframe": "1d",
-        "price": 99.56,
-        "ema20": 105.44939475,
-        "ema50": 105.72010664,
-        "sma200": 88.5773,
-        "rsi14": 32.9,
-        "macd_hist": -0.62907444,
-        "macd_rising": false,
-        "atr14": 3.90214286,
-        "atr_pct": 3.92,
-        "high_20": 116.81,
-        "low_20": 98.62,
-        "regime": "BEARISH",
-        "score": -19.0
-      }
-    },
-    "spot_flow": {
-      "1h": {
-        "total_usd": 4826020.26162,
-        "buy_usd": 2521737.30121,
-        "sell_usd": 2304282.96041,
-        "cvd_usd": 217454.34080000035,
-        "buy_pct": 52.25
-      },
-      "4h": {
-        "total_usd": 16396822.9009,
-        "buy_usd": 8304142.15712,
-        "sell_usd": 8092680.743780001,
-        "cvd_usd": 211461.41333999857,
-        "buy_pct": 50.64
-      },
-      "24h": {
-        "total_usd": 155554164.73343998,
-        "buy_usd": 84496433.71956001,
-        "sell_usd": 71057731.01387997,
-        "cvd_usd": 13438702.705680043,
-        "buy_pct": 54.32
-      },
-      "7d": {
-        "total_usd": 1193253010.44532,
-        "buy_usd": 596876736.1825899,
-        "sell_usd": 596376274.26273,
-        "cvd_usd": 500461.91985988617,
-        "buy_pct": 50.02
-      },
-      "orderbook": {
-        "bid_1pct_usd": 5629258.73,
-        "ask_1pct_usd": 3193799.09,
-        "imbalance_1pct": 27.6,
-        "bid_2pct_usd": 8147392.8,
-        "ask_2pct_usd": 3791133.2,
-        "imbalance_2pct": 36.5,
-        "support_wall_price": 99.0,
-        "support_wall_usd": 1153696.5,
-        "resistance_wall_price": 99.59,
-        "resistance_wall_usd": 331485.41
-      }
-    },
-    "futures": {
-      "available": true,
-      "symbol": "SOLUSDT",
-      "funding_rate_pct": 0.0042,
-      "bybit_funding_pct": -0.0025,
-      "okx_funding_pct": 0.01,
-      "coinm_funding_pct": 0.01,
-      "coinm_basis_pct": -0.0346,
-      "consensus_funding_pct": 0.0039,
-      "annualized_funding_pct": 4.27,
-      "basis_pct": -0.0589,
-      "open_interest_usd": 899780692.47,
-      "bybit_oi_usd": 597813084.15,
-      "okx_oi_usd": 325685010.95,
-      "global_oi_usd": 1823278787.57,
-      "oi_change_1h_pct": 0.34,
-      "oi_change_4h_pct": 1.06,
-      "oi_change_24h_pct": 3.08,
-      "oi_regime": "SHORT BUILD-UP (Price down + OI up -> aggressive shorts entering)",
-      "whale_long_pct": 70.2,
-      "whale_ls_ratio": 2.36,
-      "retail_long_pct": 75.8,
-      "retail_ls_ratio": 3.13,
-      "taker_buy_sell_1h": 0.778,
-      "taker_buy_sell_4h": 0.847,
-      "taker_buy_sell_24h": 0.975,
-      "score": -9.0,
-      "notes": [
-        "Healthy neutral-positive cross-venue funding (+0.0039% avg): sustainable carry",
-        "Aggressive futures market selling (4h taker buy/sell ratio 0.85)"
-      ]
-    },
-    "relative_strength": {
-      "return_7d_pct": -6.55,
-      "btc_24h_pct": -0.69,
-      "btc_7d_pct": -4.13,
-      "alpha_24h_pct": -0.96,
-      "alpha_7d_pct": -2.42
-    },
-    "news": {
-      "sources_checked": [
-        "Federal Reserve (Press & Speeches)",
-        "Wall St. Banks (JPM/BlackRock/GS/MS)",
-        "Binance Official CMS",
-        "X/Twitter Whale Flow (Lookonchain/Arkham/Wu)",
-        "CoinGecko Trending",
-        "Forbes/Fortune/Bloomberg",
-        "Bitcoin Magazine",
-        "The Block",
-        "Blockworks",
-        "CryptoSlate",
-        "BeInCrypto",
-        "CoinDesk",
-        "Cointelegraph",
-        "Decrypt",
-        "Yahoo Finance"
-      ],
-      "headlines_checked": 90,
-      "bullish_catalysts": [
-        [
-          "CoinGecko Trending",
-          "social heat",
-          "SOL is Trending #14 Globally on CoinGecko Search"
-        ],
-        [
-          "Yahoo/BTC-USD",
-          "bullish/breakout",
-          "Bitcoin Heads for a Red October With 4 Bullish Signals Still Intact"
-        ],
-        [
-          "X/Social/SOL",
-          "ETF/institutional inflow, bullish/breakout",
-          "Solana News: SOL Rebounds, Institutional Inflows Rise as Solana Marks Sixth Birthday - CoinMarketCap"
-        ]
-      ],
-      "bearish_catalysts": [
-        [
-          "Yahoo/BTC-USD",
-          "treasury buying pause",
-          "Bitcoin dips below $80k as Strategy pauses buying, Fed caution weighs"
-        ],
-        [
-          "X/Social/SOL",
-          "outflow/liquidation",
-          "Crypto traders seek shelter in bitcoin as altcoins slide and ETF flows wobble - CoinDesk"
-        ]
-      ],
-      "event_risk_headlines": [
-        [
-          "Yahoo/SOL-USD",
-          "scheduled event risk",
-          "Crypto Market Today, Oct. 26: Bitcoin Slips Below $80,000 as Fed Decision Looms"
-        ],
-        [
-          "Banks & Fed Flow",
-          "scheduled event risk",
-          "Fed chair Jerome Powell says he will stay on central bank's board after term expires next month - ABC News - Breaking News, Latest News and Videos"
-        ],
-        [
-          "Banks & Fed Flow",
-          "scheduled event risk",
-          "Federal Reserve meeting: Rice experts available to discuss interest rates, inflation and economic outlook - Rice University"
-        ]
-      ],
-      "fed_and_central_banks": [
-        {
-          "source": "Fed Press",
-          "title": "Federal Reserve Board announces termination of enforcement actions with Gardner Bancshares, Inc. and Small Business Bank",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Press",
-          "title": "Minutes of the Board's discount rate meetings on August 17, September 9, and September 16, 2026",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Speeches",
-          "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Speeches",
-          "title": "Waller, The Signaling Value of the Summary of Economic Projections",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "bank_and_institutional": [
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Fed chair Jerome Powell says he will stay on central bank's board after term expires next month - ABC News - Breaking News, Latest News and Videos",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve is likely to hold interest rates steady in October. Here's what that means for consumers - CNBC",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve meeting: Rice experts available to discuss interest rates, inflation and economic outlook - Rice University",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "SEC's crypto fundraising rules face consumer group pushback - American Banker",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve to announce its latest interest rate move this week. Here's what economists expect. - CBS News",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "binance_official": [
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Notice on New Trading Pairs & Trading Bots Services on Binance Spot - 2026-10-28",
-          "sentiment": "NEUTRAL",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)",
-          "sentiment": "BULLISH",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Futures Will Launch USD\u24c8-Margined PREDICTUSDT Perpetual Contract Pre-Market Trading (2026-10-25)",
-          "sentiment": "BULLISH",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-21",
-          "sentiment": "BULLISH",
-          "is_token": false
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Exchange Adds RoboStrategy Inc (BOTB), Berkshire Hathaway (BRKBB), KraneShares STAR Market 50 ETF (KSTRB), Direxion Daily 20 Year Treasury Bull 3X ETF (TMFB) and Vistra Corp (VSTB) bStocks Trading Pairs on Binance Spot/Convert - 2026-10-21",
-          "sentiment": "NEUTRAL",
-          "is_token": false
-        }
-      ],
-      "twitter_x_flow": [
-        {
-          "source": "X/Social/SOL",
-          "title": "What Will 100 Solana (SOL) Be Worth by 2030? - 24/7 Wall St.",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/SOL",
-          "title": "Crypto Solana SOL/USD Chart 15 minute - Finviz",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/SOL",
-          "title": "Solana Price Faces New Risk Despite Growing On-Chain Adoption - BeInCrypto",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/SOL",
-          "title": "Crypto traders seek shelter in bitcoin as altcoins slide and ETF flows wobble - CoinDesk",
-          "sentiment": "BEARISH",
-          "tags": [
-            "outflow/liquidation"
-          ],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/SOL",
-          "title": "Solana News: SOL Rebounds, Institutional Inflows Rise as Solana Marks Sixth Birthday - CoinMarketCap",
-          "sentiment": "BULLISH",
-          "tags": [
-            "ETF/institutional inflow",
-            "bullish/breakout"
-          ],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/SOL",
-          "title": "Solana price prediction: $30.3 million out of the SOL ETFs in five trading days: what to watch now - CryptoTicker.io",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        }
-      ],
-      "magazines_and_press": [
-        {
-          "source": "Forbes/Bloomberg/Fortune",
-          "title": "Dutch Crypto Groups Warn of Sell Off Over Wealth-Tax Carveout - Bloomberg.com",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Bitcoin Magazine",
-          "title": "Cold Storage Goes South: bitcoin++ Announces Antarctica Edition",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "The Block",
-          "title": "Circle faces up to 20% revenue risk from AI agents, Mizuho says",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Blockworks",
-          "title": "Venezuela\u2019s sanctions are stablecoins\u2019 proof of concept",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "CryptoSlate",
-          "title": "Faster Solana slots fail to stop memecoin bot snipers",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "BeInCrypto",
-          "title": "Yardeni Says AI Bubble Is Deflating, Not Bursting, as Bond Market Steps In",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "trending_social": {
-        "is_trending": true,
-        "trending_rank": 14,
-        "top_trending_coins": [
-          "Q",
-          "AIN",
-          "PEARL",
-          "QNT",
-          "ONDO",
-          "OSMO",
-          "NEAR",
-          "HYPE",
-          "PENGU",
-          "XRP"
-        ]
-      },
-      "score": 2.5
-    },
-    "levels": {
-      "supports": [
-        99.46,
-        99.0,
-        98.62
-      ],
-      "resistances": [
-        99.59,
-        102.73,
-        103.13
-      ]
-    }
-  },
-  {
-    "symbol": "BNBUSDT",
-    "as_of": "2026-10-27T07:02:43Z",
-    "price": 735.09,
-    "change_24h_pct": -0.713,
-    "high_24h": 747.47,
-    "low_24h": 732.45,
-    "volume_24h_usd": 79456852.8,
-    "composite_score": 0.5,
-    "verdict": "NEUTRAL / RANGE-BOUND (Mixed Signals - Wait for Breakout)",
-    "pillar_scores": {
-      "technicals_mtf": {
-        "score": -14.2,
-        "max": 25.0
-      },
-      "spot_orderflow_depth": {
-        "score": 13.5,
-        "max": 25.0
-      },
-      "futures_leverage": {
-        "score": -10.0,
-        "max": 25.0
-      },
-      "relative_strength_btc": {
-        "score": 1.6,
-        "max": 10.0
-      },
-      "news_catalysts": {
-        "score": 7.6,
-        "max": 15.0
-      },
-      "institutional_bonus": {
-        "score": 2.0,
-        "max": 10.0
-      }
-    },
-    "horizons": {
-      "4h": {
-        "horizon": "4h",
-        "hours": 4,
-        "prob_up_pct": 51.0,
-        "prob_down_pct": 49.0,
-        "direction": "SIDEWAYS / COIN FLIP",
-        "expected_price": 735.18664608,
-        "expected_move_pct": 0.01,
-        "range_50_low": 732.23196864,
-        "range_50_high": 738.17157958,
-        "range_80_low": 729.3102164,
-        "range_80_high": 741.03408003
-      },
-      "24h": {
-        "horizon": "24h",
-        "hours": 24,
-        "prob_up_pct": 52.2,
-        "prob_down_pct": 47.8,
-        "direction": "SIDEWAYS / COIN FLIP",
-        "expected_price": 735.82538771,
-        "expected_move_pct": 0.1,
-        "range_50_low": 727.75533738,
-        "range_50_high": 743.64988839,
-        "range_80_low": 720.85243809,
-        "range_80_high": 750.81710033
-      },
-      "7d": {
-        "horizon": "7d",
-        "hours": 168,
-        "prob_up_pct": 54.8,
-        "prob_down_pct": 45.2,
-        "direction": "UP",
-        "expected_price": 738.59464906,
-        "expected_move_pct": 0.48,
-        "range_50_low": 718.28327672,
-        "range_50_high": 758.76505784,
-        "range_80_low": 700.20940756,
-        "range_80_high": 777.52830006
-      }
-    },
-    "volume_profile": {
-      "poc": 747.20425,
-      "vah": 749.3205,
-      "val": 736.623,
-      "vwap_24h": 741.07571567,
-      "vwap_7d": 739.73785274,
-      "vwap_24h_dist_pct": -0.81,
-      "state": "BELOW VALUE AREA (< VAL: Discount / Breakdown Zone)"
-    },
-    "institutional": {
-      "squeeze_4h": "TTM SQUEEZE ACTIVE (Bollinger inside Keltner - Explosive Breakout Coiling)",
-      "bb_width_4h_pct": 3.13,
-      "signals": [
-        "BULLISH CVD ABSORPTION DIVERGENCE: Price wicked lower while Spot Taker Buy rose to 56.6% (Whale absorption of panic sellers)",
-        "4H VOLATILITY SQUEEZE ACTIVE (BB Width 3.13% inside Keltner): Coiling for large directional expansion"
-      ],
-      "bonus_score": 4.0
-    },
-    "macro_onchain": {
-      "fear_greed_value": 48,
-      "fear_greed_label": "Neutral",
-      "fear_greed_prev": 50,
-      "total_mcap_usd": 2684564562648.71,
-      "mcap_24h_change_pct": -2.43,
-      "btc_dominance_pct": 59.43,
-      "eth_dominance_pct": 10.45,
-      "market_season": "BTC DOMINANCE SEASON (BTC.D 59.4% > 56% - Select High-Alpha Alts Only)",
-      "stablecoin_total_usd": 291012044223.22,
-      "usdt_supply_usd": 181858159382.28,
-      "usdc_supply_usd": 71112173034.62,
-      "stablecoin_24h_flow_usd": -736255185.95,
-      "stablecoin_7d_flow_usd": -1951319049.28,
-      "chain_name": "BSC",
-      "chain_tvl_usd": 5492480097.6,
-      "chain_tvl_rank": 4,
-      "macro_bonus": -2.0,
-      "macro_notes": [
-        "DefiLlama Stablecoin Contraction: -$1.95B redeemed over 7d (tightening on-chain liquidity)"
-      ]
-    },
-    "kelly_trade_plan": {
-      "bias": "WAIT / RANGE SCALP",
-      "spot_entry": 735.09,
-      "limit_pullback_entry": 736.623,
-      "stop_loss": 733.18757143,
-      "tp1": 747.20425,
-      "tp2": 749.3205,
-      "reward_risk_ratio": 3.7,
-      "win_prob_pct": 52.2,
-      "expected_value_R": 1.45,
-      "quarter_kelly_risk_pct": 2.5,
       "margin_plan": {
         "ok": true,
-        "venue": "perp",
-        "side": "long",
-        "risk_usd": 19.41,
-        "qty": 10.202832306248213,
-        "notional_usd": 7500.0,
-        "leverage": 3,
+        "venue": "margin",
+        "side": "short",
+        "risk_usd": 25.0,
+        "qty": 1.1428384844189106,
+        "notional_usd": 806.3,
+        "leverage": 1.0,
         "leverage_cap_tier": 3.0,
-        "leverage_cap_liq_safe": 65.9,
-        "margin_usd": 2500.0,
-        "margin_pct_equity": 50.0,
-        "liquidation_price": 497.4109000000001,
-        "liq_distance_pct": 32.33,
-        "stop_distance_pct": 0.26,
-        "liq_to_stop_ratio": 124.9,
-        "carry_usd": 0.25,
-        "carry_r": 0.013,
-        "fees_usd": 6.0,
-        "fees_r": 0.309,
+        "leverage_cap_liq_safe": 5.9,
+        "margin_usd": 806.3,
+        "margin_pct_equity": 16.1,
+        "liquidation_price": 1282.7636363636361,
+        "liq_distance_pct": 81.82,
+        "stop_distance_pct": 3.1,
+        "liq_to_stop_ratio": 26.4,
+        "bankruptcy_price": 1411.04,
+        "maintenance_margin_usd": 8.06,
+        "mmr": 0.01,
+        "cum_deduction": 0.0,
+        "liquidation_clearance_fee_usd": 12.09,
+        "carry_adjusted_liq_price": 1282.4558,
+        "margin_call_price": 1085.4154,
+        "adl_risk_quantile": 1,
+        "carry_usd": 0.39,
+        "carry_r": 0.015,
+        "fees_usd": 0.65,
+        "fees_r": 0.026,
         "hold_hours": 24.0,
-        "event_level": "CLEAR",
-        "event_reason": "No scheduled macro or expiry event inside the risk window",
-        "notes": [
-          "size cut to fit 3x and 50% of equity as margin"
-        ]
+        "event_level": "CAUTION",
+        "event_reason": "Deribit monthly options expiry 0.9h ago: half size",
+        "notes": []
       }
-    },
-    "timeframes": {
-      "15m": {
-        "timeframe": "15m",
-        "price": 735.09,
-        "ema20": 738.16412861,
-        "ema50": 740.06134208,
-        "sma200": 741.105,
-        "rsi14": 29.7,
-        "macd_hist": -0.24162862,
-        "macd_rising": false,
-        "atr14": 1.18,
-        "atr_pct": 0.16,
-        "high_20": 743.22,
-        "low_20": 734.78,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "1h": {
-        "timeframe": "1h",
-        "price": 735.09,
-        "ema20": 740.12446744,
-        "ema50": 740.28904706,
-        "sma200": 737.85055,
-        "rsi14": 38.7,
-        "macd_hist": -0.96810751,
-        "macd_rising": false,
-        "atr14": 2.86285714,
-        "atr_pct": 0.39,
-        "high_20": 747.47,
-        "low_20": 734.78,
-        "regime": "BEARISH",
-        "score": -25.0
-      },
-      "4h": {
-        "timeframe": "4h",
-        "price": 735.09,
-        "ema20": 739.79642254,
-        "ema50": 738.23504689,
-        "sma200": 752.86675,
-        "rsi14": 44.8,
-        "macd_hist": -0.47285765,
-        "macd_rising": false,
-        "atr14": 7.55642857,
-        "atr_pct": 1.03,
-        "high_20": 748.65,
-        "low_20": 718.0,
-        "regime": "BEARISH",
-        "score": -17.0
-      },
-      "1d": {
-        "timeframe": "1d",
-        "price": 735.09,
-        "ema20": 740.85664466,
-        "ema50": 734.38692475,
-        "sma200": 652.9368,
-        "rsi14": 46.7,
-        "macd_hist": 0.53083245,
-        "macd_rising": false,
-        "atr14": 17.59785714,
-        "atr_pct": 2.39,
-        "high_20": 776.23,
-        "low_20": 705.86,
-        "regime": "BULLISH",
-        "score": 8.5
-      }
-    },
-    "spot_flow": {
-      "1h": {
-        "total_usd": 2760778.38115,
-        "buy_usd": 1285899.74724,
-        "sell_usd": 1474878.6339099999,
-        "cvd_usd": -188978.88666999992,
-        "buy_pct": 46.58
-      },
-      "4h": {
-        "total_usd": 12226550.450719997,
-        "buy_usd": 7654564.752789999,
-        "sell_usd": 4571985.697929998,
-        "cvd_usd": 3082579.0548600014,
-        "buy_pct": 62.61
-      },
-      "24h": {
-        "total_usd": 77525652.17918998,
-        "buy_usd": 38940396.09481001,
-        "sell_usd": 38585256.08437997,
-        "cvd_usd": 355140.010430038,
-        "buy_pct": 50.23
-      },
-      "7d": {
-        "total_usd": 557655462.7265599,
-        "buy_usd": 246904404.67162,
-        "sell_usd": 310751058.05493987,
-        "cvd_usd": -63846653.383319855,
-        "buy_pct": 44.28
-      },
-      "orderbook": {
-        "bid_1pct_usd": 4674545.96,
-        "ask_1pct_usd": 3075804.06,
-        "imbalance_1pct": 20.6,
-        "bid_2pct_usd": 6069008.15,
-        "ask_2pct_usd": 5451548.26,
-        "imbalance_2pct": 5.4,
-        "support_wall_price": 731.0,
-        "support_wall_usd": 390618.62,
-        "resistance_wall_price": 750.0,
-        "resistance_wall_usd": 409119.0
-      }
-    },
-    "futures": {
-      "available": true,
-      "symbol": "BNBUSDT",
-      "funding_rate_pct": 0.0,
-      "bybit_funding_pct": -0.0028,
-      "okx_funding_pct": 0.0062,
-      "coinm_funding_pct": 0.0117,
-      "coinm_basis_pct": 0.0755,
-      "consensus_funding_pct": 0.0011,
-      "annualized_funding_pct": 1.24,
-      "basis_pct": 0.0365,
-      "open_interest_usd": 407651416.45,
-      "bybit_oi_usd": 103474207.61,
-      "okx_oi_usd": 56367299.0,
-      "global_oi_usd": 567492923.06,
-      "oi_change_1h_pct": -0.1,
-      "oi_change_4h_pct": -1.08,
-      "oi_change_24h_pct": 0.04,
-      "oi_regime": "LONG LIQUIDATION / FLUSH (Price down + OI down -> leveraged longs washed out)",
-      "whale_long_pct": 55.5,
-      "whale_ls_ratio": 1.25,
-      "retail_long_pct": 72.7,
-      "retail_ls_ratio": 2.66,
-      "taker_buy_sell_1h": 0.706,
-      "taker_buy_sell_4h": 0.774,
-      "taker_buy_sell_24h": 1.071,
-      "score": -10.0,
-      "notes": [
-        "Healthy neutral-positive cross-venue funding (+0.0011% avg): sustainable carry",
-        "Retail long crowding: 72.7% of retail accounts are long while top whales are only 55.5% long",
-        "Aggressive futures market selling (4h taker buy/sell ratio 0.77)"
-      ]
-    },
-    "relative_strength": {
-      "return_7d_pct": -0.89,
-      "btc_24h_pct": -0.69,
-      "btc_7d_pct": -4.13,
-      "alpha_24h_pct": -0.03,
-      "alpha_7d_pct": 3.24
-    },
-    "news": {
-      "sources_checked": [
-        "Federal Reserve (Press & Speeches)",
-        "Wall St. Banks (JPM/BlackRock/GS/MS)",
-        "Binance Official CMS",
-        "X/Twitter Whale Flow (Lookonchain/Arkham/Wu)",
-        "CoinGecko Trending",
-        "Forbes/Fortune/Bloomberg",
-        "Bitcoin Magazine",
-        "The Block",
-        "Blockworks",
-        "CryptoSlate",
-        "BeInCrypto",
-        "CoinDesk",
-        "Cointelegraph",
-        "Decrypt",
-        "Yahoo Finance"
-      ],
-      "headlines_checked": 90,
-      "bullish_catalysts": [
-        [
-          "Yahoo/BNB-USD",
-          "bullish/breakout",
-          "Bitcoin Hits Weekly High as Crypto Market Rebounds"
-        ],
-        [
-          "Yahoo/BTC-USD",
-          "bullish/breakout",
-          "Bitcoin Heads for a Red October With 4 Bullish Signals Still Intact"
-        ],
-        [
-          "X/Social/BNB",
-          "bullish/breakout",
-          "BNB-Based Simon's Cat Token Surges Following Binance Derivatives Launch - CoinMarketCap"
-        ],
-        [
-          "Binance CMS",
-          "Binance listing/launch",
-          "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)"
-        ],
-        [
-          "Binance CMS",
-          "Binance listing/launch",
-          "Binance Futures Will Launch USD\u24c8-Margined PREDICTUSDT Perpetual Contract Pre-Market Trading (2026-10-25)"
-        ],
-        [
-          "Binance CMS",
-          "ETF/institutional inflow, Binance listing/launch",
-          "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-21"
-        ]
-      ],
-      "bearish_catalysts": [
-        [
-          "Yahoo/BTC-USD",
-          "treasury buying pause",
-          "Bitcoin dips below $80k as Strategy pauses buying, Fed caution weighs"
-        ],
-        [
-          "Binance CMS",
-          "regulatory/delist",
-          "Binance Futures Will Delist PTBUSDT and MITOUSDT USD\u24c8-M Perpetual Contracts (2026-10-23)"
-        ],
-        [
-          "Binance CMS",
-          "regulatory/delist",
-          "Binance Will Delist EPIC, QUICK on 2026-10-28"
-        ]
-      ],
-      "event_risk_headlines": [
-        [
-          "Yahoo/BTC-USD",
-          "scheduled event risk",
-          "Crypto Market Today, Oct. 26: Bitcoin Slips Below $80,000 as Fed Decision Looms"
-        ],
-        [
-          "Banks & Fed Flow",
-          "scheduled event risk",
-          "Fed chair Jerome Powell says he will stay on central bank's board after term expires next month - ABC News - Breaking News, Latest News and Videos"
-        ],
-        [
-          "Banks & Fed Flow",
-          "scheduled event risk",
-          "Federal Reserve meeting: Rice experts available to discuss interest rates, inflation and economic outlook - Rice University"
-        ]
-      ],
-      "fed_and_central_banks": [
-        {
-          "source": "Fed Press",
-          "title": "Federal Reserve Board announces termination of enforcement actions with Gardner Bancshares, Inc. and Small Business Bank",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Press",
-          "title": "Minutes of the Board's discount rate meetings on August 17, September 9, and September 16, 2026",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Speeches",
-          "title": "Bowman, Supervisory Modernization After Silicon Valley Bank",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Fed Speeches",
-          "title": "Waller, The Signaling Value of the Summary of Economic Projections",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "bank_and_institutional": [
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Fed chair Jerome Powell says he will stay on central bank's board after term expires next month - ABC News - Breaking News, Latest News and Videos",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve is likely to hold interest rates steady in October. Here's what that means for consumers - CNBC",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve meeting: Rice experts available to discuss interest rates, inflation and economic outlook - Rice University",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "SEC's crypto fundraising rules face consumer group pushback - American Banker",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Banks & Fed Flow",
-          "title": "Federal Reserve to announce its latest interest rate move this week. Here's what economists expect. - CBS News",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "binance_official": [
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Notice on New Trading Pairs & Trading Bots Services on Binance Spot - 2026-10-28",
-          "sentiment": "NEUTRAL",
-          "is_token": true
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)",
-          "sentiment": "BULLISH",
-          "is_token": true
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Futures Will Launch USD\u24c8-Margined PREDICTUSDT Perpetual Contract Pre-Market Trading (2026-10-25)",
-          "sentiment": "BULLISH",
-          "is_token": true
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-21",
-          "sentiment": "BULLISH",
-          "is_token": true
-        },
-        {
-          "source": "Binance (New Cryptocurrency Listing)",
-          "title": "Binance Exchange Adds RoboStrategy Inc (BOTB), Berkshire Hathaway (BRKBB), KraneShares STAR Market 50 ETF (KSTRB), Direxion Daily 20 Year Treasury Bull 3X ETF (TMFB) and Vistra Corp (VSTB) bStocks Trading Pairs on Binance Spot/Convert - 2026-10-21",
-          "sentiment": "NEUTRAL",
-          "is_token": true
-        }
-      ],
-      "twitter_x_flow": [
-        {
-          "source": "X/Social/BNB",
-          "title": "BNB News: Binance Launches Pump.fun-Style Token Launch Model for Wallet Users - CoinMarketCap",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BNB",
-          "title": "CZ reacts to BNB Chain\u2019s new L1 plan with no separate token - Crypto News",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BNB",
-          "title": "Crypto Price Analysis Oct-23: ETH, XRP, ADA, BNB, and HYPE - CryptoPotato",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BNB",
-          "title": "BNB Price Today | Live BNB Price, Chart & Market Data - Binance",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BNB",
-          "title": "Binance Founder CZ Says Crypto Will Be AI Era\u2019s Core Currency, Sees Bigger Role for BNB Chain - bloomingbit",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "X/Social/BNB",
-          "title": "BNB-Based Simon's Cat Token Surges Following Binance Derivatives Launch - CoinMarketCap",
-          "sentiment": "BULLISH",
-          "tags": [
-            "bullish/breakout"
-          ],
-          "is_token": true
-        }
-      ],
-      "magazines_and_press": [
-        {
-          "source": "The Block",
-          "title": "CZ pitches BNB Chain\u2019s role in AI as BNB Standard rings Nasdaq bell",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": true
-        },
-        {
-          "source": "Forbes/Bloomberg/Fortune",
-          "title": "Dutch Crypto Groups Warn of Sell Off Over Wealth-Tax Carveout - Bloomberg.com",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Bitcoin Magazine",
-          "title": "Cold Storage Goes South: bitcoin++ Announces Antarctica Edition",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "The Block",
-          "title": "Circle faces up to 20% revenue risk from AI agents, Mizuho says",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "Blockworks",
-          "title": "Venezuela\u2019s sanctions are stablecoins\u2019 proof of concept",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        },
-        {
-          "source": "CryptoSlate",
-          "title": "Faster Solana slots fail to stop memecoin bot snipers",
-          "sentiment": "NEUTRAL",
-          "tags": [],
-          "is_token": false
-        }
-      ],
-      "trending_social": {
-        "is_trending": false,
-        "trending_rank": null,
-        "top_trending_coins": [
-          "Q",
-          "AIN",
-          "PEARL",
-          "QNT",
-          "ONDO",
-          "OSMO",
-          "NEAR",
-          "HYPE",
-          "PENGU",
-          "XRP"
-        ]
-      },
-      "score": 7.6
-    },
-    "levels": {
-      "supports": [
-        732.45,
-        731.0,
-        718.0
-      ],
-      "resistances": [
-        747.20425,
-        747.47,
-        748.65
-      ]
     }
   }
-]
+}

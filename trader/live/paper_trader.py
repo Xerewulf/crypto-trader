@@ -30,6 +30,7 @@ import asyncio
 import datetime
 import html
 import json
+import hmac
 import math
 import os
 import sys
@@ -61,6 +62,31 @@ try:
     import margin
 except ImportError:
     margin = None
+
+try:
+    import binance_client
+except ImportError:
+    binance_client = None
+
+try:
+    import notifier
+except ImportError:
+    notifier = None
+
+try:
+    import regime_hmm
+except ImportError:
+    regime_hmm = None
+
+try:
+    import stat_arb
+except ImportError:
+    stat_arb = None
+
+try:
+    import ai_agent
+except ImportError:
+    ai_agent = None
 STATE = os.path.join(HERE, "state.json")
 TRADES = os.path.join(HERE, "trades.jsonl")
 LOG = os.path.join(HERE, "events.log")
@@ -432,8 +458,10 @@ def evaluate_institutional(sym, bars_1h, side=None, news_sentiment=0.0):
     short_funding_ok = fut["funding_8h"] > -0.0005
 
     sig = None
-    long_valid = (is_spring or is_long_pullback) and long_ob_ok and long_funding_ok and (side in (None, "long"))
-    short_valid = (is_upthrust or is_short_rejection) and short_ob_ok and short_funding_ok and (side in (None, "short"))
+    long_vwap_ok = (b["c"] >= vwap_24h) if vwap_24h else True
+    short_vwap_ok = (b["c"] <= vwap_24h) if vwap_24h else True
+    long_valid = (is_spring or is_long_pullback) and long_ob_ok and long_funding_ok and long_vwap_ok and (side in (None, "long"))
+    short_valid = (is_upthrust or is_short_rejection) and short_ob_ok and short_funding_ok and short_vwap_ok and (side in (None, "short"))
 
     if long_valid and (not short_valid or is_spring or b["tb"] > 55.0):
         setup_name = "Wyckoff Spring (CVD Absorption at VAL/Low)" if is_spring else "Volume Profile VWAP/EMA20 Pullback"
@@ -552,7 +580,8 @@ def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     hours = max(1, math.ceil((ms - p["opened_ms"]) / HOUR_MS))
     prop = close_qty / (p.get("initial_qty") or p["qty"])
     initial_notional = (p.get("initial_qty") or p["qty"]) * p["entry"]
-    borrowed = (initial_notional * (1.0 - 1.0 / CFG["leverage"]) if p["side"] == "long" else initial_notional) * prop
+    lev = p.get("leverage") or CFG["leverage"]
+    borrowed = (initial_notional * (1.0 - 1.0 / lev) if p["side"] == "long" else initial_notional) * prop
     interest = borrowed * CFG["borrow_rate_hourly"] * hours
     prop_entry_fee = p["entry_fee"] * prop
     net = gross - prop_entry_fee - exit_fee - interest
@@ -562,7 +591,14 @@ def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     p["partial_costs"] = p.get("partial_costs", 0.0) + (prop_entry_fee + exit_fee + interest)
     p["qty"] -= close_qty
     p["notional"] = p["qty"] * p["entry"]
-    p["margin"] = p["notional"] / CFG["leverage"]
+    p["margin"] = p["notional"] / lev
+
+    # Omni-channel push notification
+    if notifier:
+        try:
+            notifier.notify_scale_out(p, tier_label, exit_px, net)
+        except Exception as n_err:
+            log("Notifier scale-out alert error for %s: %s" % (p["symbol"], n_err))
 
     r_gain = net / (p["risk_usd"] * prop) if (p["risk_usd"] * prop) > 0 else 0.0
     log("CONVEX SCALE-OUT #%d %s %s [%s] at %s: Qty %s (%.0f%%), Net %s (%+.2fR). Remaining: %s. Account: %s" % (
@@ -573,21 +609,26 @@ def partial_close_position(s, p, close_qty, exit_px, ms, tier_label):
     return net
 
 
-def close_position(s, p, exit_px, ms, outcome):
+def close_position(s, p, exit_px, ms, outcome, is_liquidation=False):
     rem_qty = p["qty"]
     gross = (exit_px - p["entry"]) * rem_qty if p["side"] == "long" else (p["entry"] - exit_px) * rem_qty
     exit_fee = rem_qty * exit_px * CFG["fee_rate"]
     hours = max(1, math.ceil((ms - p["opened_ms"]) / HOUR_MS))
     prop = rem_qty / (p.get("initial_qty") or rem_qty)
     initial_notional = (p.get("initial_qty") or rem_qty) * p["entry"]
-    borrowed = (initial_notional * (1.0 - 1.0 / CFG["leverage"]) if p["side"] == "long" else initial_notional) * prop
+    lev = p.get("leverage") or CFG["leverage"]
+    borrowed = (initial_notional * (1.0 - 1.0 / lev) if p["side"] == "long" else initial_notional) * prop
     interest = borrowed * CFG["borrow_rate_hourly"] * hours
     rem_entry_fee = p["entry_fee"] * prop
-    rem_net = gross - rem_entry_fee - exit_fee - interest
+    liq_fee = 0.0
+    if is_liquidation:
+        base = base_asset(p["symbol"])
+        liq_fee = margin.liquidation_clearance_fee(rem_qty * exit_px, base) if margin else (rem_qty * exit_px * 0.015)
+    rem_net = gross - rem_entry_fee - exit_fee - interest - liq_fee
 
     s["realized"] += rem_net
     total_net = rem_net + p.get("partial_realized", 0.0)
-    total_costs = p.get("partial_costs", 0.0) + rem_entry_fee + exit_fee + interest
+    total_costs = p.get("partial_costs", 0.0) + rem_entry_fee + exit_fee + interest + liq_fee
     total_r = total_net / p["risk_usd"] if p["risk_usd"] > 0 else 0.0
 
     t = dict(
@@ -596,6 +637,8 @@ def close_position(s, p, exit_px, ms, outcome):
         closed=iso(ms),
         closed_ms=ms,
         outcome=outcome,
+        is_liquidation=is_liquidation,
+        liquidation_fee=round(liq_fee, 2),
         gross=round(gross, 2),
         costs=round(total_costs, 2),
         net=round(total_net, 2),
@@ -608,6 +651,20 @@ def close_position(s, p, exit_px, ms, outcome):
 
     s["last_exit_bar"][p["symbol"]] = (ms // HOUR_MS) * HOUR_MS
     del s["positions"][p["symbol"]]
+
+    # Cancel any remaining resting bracket algo orders on live exchange
+    if s.get("live_broker"):
+        try:
+            s["live_broker"].cancel_all_orders(p["symbol"])
+        except Exception as b_err:
+            log("Warning: Failed to cancel resting broker orders for %s: %s" % (p["symbol"], b_err))
+
+    # Omni-channel push notification
+    if notifier:
+        try:
+            notifier.notify_position_closed(p, exit_px, total_net, total_r, outcome)
+        except Exception as n_err:
+            log("Notifier close alert error for %s: %s" % (p["symbol"], n_err))
 
     log("CLOSED #%d %s %s [%s] at %s: total net %s (%+.2fR). Account: %s" % (
         p["id"], p["side"].upper(), p["symbol"], outcome, fp(exit_px),
@@ -640,8 +697,12 @@ def manage_positions(s):
                             p["stop"] = vwap * 1.002
 
                 if p["side"] == "long":
+                    # Check Liquidation first
+                    if p.get("liq_px") and b["l"] <= p["liq_px"]:
+                        close_position(s, p, p["liq_px"], max(b["t"], p["opened_ms"]), "LIQUIDATION [MARGIN EXHAUSTION]", is_liquidation=True)
+                        done = True
                     # TP1 Check (40% scale-out at 1.8R + move stop to Breakeven)
-                    if not p.get("tp1_hit") and b["h"] >= p["tp1_px"]:
+                    elif not p.get("tp1_hit") and b["h"] >= p["tp1_px"]:
                         p["tp1_hit"] = True
                         be_stop = p["entry"] * (1.0 + CFG["fee_rate"] * 2.5)
                         p["stop"] = max(p["stop"], be_stop)
@@ -656,7 +717,7 @@ def manage_positions(s):
                         partial_close_position(s, p, close_qty, p["tp2_px"], b["t"], "TP2 (+3.5R Scale-Out)")
 
                     # Stop-Loss / Breakeven / Trailing Exit
-                    if b["l"] <= p["stop"]:
+                    elif b["l"] <= p["stop"]:
                         px = min(p["stop"], b["o"]) * (1 - slip)
                         lbl = "TRAILING-VWAP-EXIT" if p.get("trail_vwap") else (
                             "BREAKEVEN-EXIT (+0.72R Locked)" if p.get("tp1_hit") else "STOP-LOSS (-1.0R)"
@@ -664,8 +725,12 @@ def manage_positions(s):
                         close_position(s, p, px, max(b["t"], p["opened_ms"]), lbl)
                         done = True
                 else: # Short
+                    # Check Liquidation first
+                    if p.get("liq_px") and b["h"] >= p["liq_px"]:
+                        close_position(s, p, p["liq_px"], max(b["t"], p["opened_ms"]), "LIQUIDATION [MARGIN EXHAUSTION]", is_liquidation=True)
+                        done = True
                     # TP1 Check (40% scale-out at 1.8R + move stop to Breakeven)
-                    if not p.get("tp1_hit") and b["l"] <= p["tp1_px"]:
+                    elif not p.get("tp1_hit") and b["l"] <= p["tp1_px"]:
                         p["tp1_hit"] = True
                         be_stop = p["entry"] * (1.0 - CFG["fee_rate"] * 2.5)
                         p["stop"] = min(p["stop"], be_stop)
@@ -680,13 +745,22 @@ def manage_positions(s):
                         partial_close_position(s, p, close_qty, p["tp2_px"], b["t"], "TP2 (+3.5R Scale-Out)")
 
                     # Stop-Loss / Breakeven / Trailing Exit
-                    if b["h"] >= p["stop"]:
+                    elif b["h"] >= p["stop"]:
                         px = max(p["stop"], b["o"]) * (1 + slip)
                         lbl = "TRAILING-VWAP-EXIT" if p.get("trail_vwap") else (
                             "BREAKEVEN-EXIT (+0.72R Locked)" if p.get("tp1_hit") else "STOP-LOSS (-1.0R)"
                         )
                         close_position(s, p, px, max(b["t"], p["opened_ms"]), lbl)
                         done = True
+
+                if not done and margin and not p.get("margin_call_warned"):
+                    base = base_asset(sym)
+                    h_stat = margin.position_health(p["entry"], b["c"], p["side"], p.get("leverage", CFG["leverage"]), venue="margin", base=base, stop_price=p["stop"])
+                    if h_stat["status"] in ("MARGIN_CALL", "CRITICAL"):
+                        p["margin_call_warned"] = True
+                        log("MARGIN CALL WARNING #%d %s %s: Status %s | Margin Level %.2f | Liq buffer %.2f%%!" % (
+                            p["id"], p["side"].upper(), sym, h_stat["status"], h_stat["margin_level"], h_stat["distance_to_liq_pct"]
+                        ))
 
                 if done:
                     break
@@ -740,7 +814,10 @@ def process_live_tick(s, sym, px, ms=None):
             changed = True
 
         # Stop-Loss / Breakeven / Trailing Exit Check
-        if px <= p["stop"]:
+        if p.get("liq_px") and px <= p["liq_px"]:
+            close_position(s, p, p["liq_px"], ms, "LIQUIDATION [MARGIN EXHAUSTION] [MILLI-SEC WS]", is_liquidation=True)
+            changed = True
+        elif px <= p["stop"]:
             exit_px = min(p["stop"], px) * (1.0 - slip)
             lbl = "TRAILING-VWAP-EXIT [MILLI-SEC WS]" if p.get("trail_vwap") else (
                 "BREAKEVEN-EXIT (+0.72R Locked) [MILLI-SEC WS]" if p.get("tp1_hit") else "STOP-LOSS (-1.0R) [MILLI-SEC WS]"
@@ -769,12 +846,25 @@ def process_live_tick(s, sym, px, ms=None):
             changed = True
 
         # Stop-Loss / Breakeven / Trailing Exit Check
-        if px >= p["stop"]:
+        if p.get("liq_px") and px >= p["liq_px"]:
+            close_position(s, p, p["liq_px"], ms, "LIQUIDATION [MARGIN EXHAUSTION] [MILLI-SEC WS]", is_liquidation=True)
+            changed = True
+        elif px >= p["stop"]:
             exit_px = max(p["stop"], px) * (1.0 + slip)
             lbl = "TRAILING-VWAP-EXIT [MILLI-SEC WS]" if p.get("trail_vwap") else (
                 "BREAKEVEN-EXIT (+0.72R Locked) [MILLI-SEC WS]" if p.get("tp1_hit") else "STOP-LOSS (-1.0R) [MILLI-SEC WS]"
             )
             close_position(s, p, exit_px, ms, lbl)
+            changed = True
+
+    if not changed and margin and not p.get("margin_call_warned"):
+        base = base_asset(sym)
+        h_stat = margin.position_health(p["entry"], px, side, p.get("leverage", CFG["leverage"]), venue="margin", base=base, stop_price=p["stop"])
+        if h_stat["status"] in ("MARGIN_CALL", "CRITICAL"):
+            p["margin_call_warned"] = True
+            log("MARGIN CALL WARNING #%d %s %s: Status %s | Margin Level %.2f | Liq buffer %.2f%%!" % (
+                p["id"], side.upper(), sym, h_stat["status"], h_stat["margin_level"], h_stat["distance_to_liq_pct"]
+            ))
             changed = True
 
     if changed:
@@ -783,9 +873,12 @@ def process_live_tick(s, sym, px, ms=None):
         return True
     return False
 
-def compute_trade_risk(score, macro_score=0.0):
-    """Phase 1: Edward Thorp's Fractional Kelly criterion scaled by conviction."""
+def compute_trade_risk(score, macro_score=0.0, regime_id=None):
+    """Phase 1 & 6: Edward Thorp's Fractional Kelly criterion scaled by conviction and HMM regime."""
     base = CFG.get("risk_usd_base", 50.0)
+    # Volatile Shock / Liquidation cascade regime de-rates risk by 75%
+    if regime_id == 2:
+        return base * 0.25
     if score >= 90:
         mult = 2.4 if macro_score >= 1.0 else 2.0
         return min(CFG.get("risk_usd_max", 125.0), base * mult)
@@ -1002,9 +1095,10 @@ def scan_signals(s):
             log("SIGNAL %s %s SKIPPED: Risk distance %s is below minimum spread safety threshold" % (sym, side, fp(risk_dist)))
             continue
 
-        # Phase 1: Adaptive Conviction Kelly Sizing
+        # Phase 1 & 6: Adaptive Conviction Kelly Sizing & HMM Regime Protection
         macro_score = s.get("news", {}).get("macro_score", 0.0)
-        target_risk = compute_trade_risk(sig["score"], macro_score)
+        regime_id = sig.get("hmm_regime", {}).get("current_regime")
+        target_risk = compute_trade_risk(sig["score"], macro_score, regime_id=regime_id)
 
         # Margin Doctrine: Scheduled Event Risk Guard
         if margin:
@@ -1068,10 +1162,30 @@ def scan_signals(s):
         ms = now_ms()
         liq_px = margin.liquidation_price(entry_px, side, eff_lev, "margin", base) if margin else 0.0
 
+        # Live Binance Order Execution (Testnet or Live)
+        broker_orders = None
+        if s.get("live_broker"):
+            try:
+                broker_orders = s["live_broker"].place_bracket(
+                    symbol=sym,
+                    side="BUY" if side == "long" else "SELL",
+                    qty=qty,
+                    stop_loss_price=stop_px,
+                    tp1_price=tp1_px
+                )
+                log("LIVE BINANCE ORDER PLACED %s [%s]: Entry placed with bracket stops (Stop: %s, TP1: %s)" % (
+                    sym, side.upper(), fp(stop_px), fp(tp1_px)
+                ))
+            except Exception as b_err:
+                log("LIVE BINANCE ORDER ERROR %s [%s]: %s (skipping entry)" % (sym, side.upper(), b_err))
+                s["diag"][sym]["signal"] += " (live error: %s)" % b_err
+                continue
+
         p = {
             "id": s["next_id"],
             "symbol": sym,
             "side": side,
+            "broker_orders": broker_orders,
             "setup": sig["setup"] + (" (Micro 5m)" if micro_compressed else ""),
             "score": sig["score"],
             "signal_bar": diag["bar"],
@@ -1101,6 +1215,13 @@ def scan_signals(s):
         s["next_id"] += 1
         s["positions"][sym] = p
         s["marks"][sym] = cur_p
+
+        # Omni-channel push notification
+        if notifier:
+            try:
+                notifier.notify_setup_opened(p)
+            except Exception as n_err:
+                log("Notifier open alert error for %s: %s" % (sym, n_err))
 
         log("OPENED CONVEX #%d %s %s [%s]: %s %s at %s (%.0fx margin, liq %s) | Stop %s | TP1 %s (40%%) | TP2 %s (30%%) | Sized Risk %s (Score %d)" % (
             p["id"], side.upper(), sym, p["setup"],
@@ -1491,7 +1612,26 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 .pos{color:#22c55e}.neg{color:#ef4444}.muted{color:#64748b}
 #hb.ok{color:#22c55e;font-weight:600}#hb.bad{color:#ef4444;font-weight:700}
 .log{background:#020617;border:1px solid #1e293b;border-radius:8px;padding:10px;font:12px Consolas,monospace;max-height:420px;overflow:auto}
+.nav-switcher{display:flex;justify-content:space-between;align-items:center;background:#060a12;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.nav-tabs{display:flex;align-items:center;gap:8px}
+.nav-tab{background:#0f172a;border:1px solid #1e293b;color:#94a3b8;padding:7px 14px;border-radius:6px;font-weight:700;font-size:13px;text-decoration:none;transition:0.15s;display:inline-flex;align-items:center;gap:6px}
+.nav-tab:hover{border-color:#38bdf8;color:#f8fafc}
+.nav-tab.active{background:#1d4ed8;border-color:#3b82f6;color:#ffffff;box-shadow:0 0 12px rgba(59,130,246,0.35)}
+.nav-tab.gh{background:#0b1120;border-color:#334155;color:#cbd5e1}
+.nav-status{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#22c55e;font-family:monospace}
+.status-dot{width:8px;height:8px;border-radius:50%%;background:#22c55e;box-shadow:0 0 8px #22c55e}
 </style></head><body>
+<nav class="nav-switcher">
+  <div class="nav-tabs">
+    <a href="index.html" class="nav-tab">🎮 Interactive Simulator</a>
+    <a href="dashboard.html" class="nav-tab active">⚡ 24/7 Cloud Bot Dashboard</a>
+    <a href="https://github.com/Xerewulf/crypto-trader" target="_blank" class="nav-tab gh">🐙 GitHub Source</a>
+  </div>
+  <div class="nav-status">
+    <span class="status-dot"></span>
+    <span id="nav-mode-text">24/7 CLOUD AUTOMATION ACTIVE</span>
+  </div>
+</nav>
 <h1>Binance Institutional Paper Trader &amp; Millisecond Execution Monitor</h1>
 <div class="banner">
   <b>MARKET-WIDE QUANT ENGINE ACTIVE:</b> Scanning dynamically across all liquid Binance USDT pairs (%d coins). Executing 7-Day Volume Profile (VAL/POC/VAH), 24h Rolling VWAP, Spot Taker CVD Absorption, and Order-Book Depth Imbalances (&plusmn;1%%) with Convex Multi-Tier Exits (TP1 1.8R, TP2 3.5R, Trailing Runner) and Conviction Kelly Sizing. Paper trading only: no real capital risked.
@@ -1710,18 +1850,26 @@ setInterval(function() {
   wsClock.textContent = d.toTimeString().split(' ')[0] + '.' + ms + ' UTC';
 }, 33);
 
-// Background state sync (every 3 seconds)
+// Background state sync (every 3 seconds, handles static state.json on GitHub Pages)
 var initialPosCount = %d;
-setInterval(function() {
-  fetch('/api/state?_t=' + Date.now())
+function syncState() {
+  var url = (window.location.protocol === 'file:' || window.location.hostname.includes('github.io')) ? 'state.json?_t=' : '/api/state?_t=';
+  fetch(url + Date.now())
     .then(function(res){ return res.json(); })
     .then(function(s){
       if (s && s.positions && Object.keys(s.positions).length !== initialPosCount) {
         location.reload();
       }
     })
-    .catch(function(){});
-}, 3000);
+    .catch(function(){
+      if (url.startsWith('/api')) {
+        fetch('state.json?_t=' + Date.now()).then(function(r){ return r.json(); }).then(function(s){
+          if (s && s.positions && Object.keys(s.positions).length !== initialPosCount) location.reload();
+        }).catch(function(){});
+      }
+    });
+}
+setInterval(syncState, 3000);
 
 // High-Frequency 10-Second News Stream Sync (in-place DOM update)
 function escHtml(str) {
@@ -1792,7 +1940,8 @@ setInterval(function() {
 
 
 def save(s):
-    write_atomic(STATE, json.dumps(s, indent=1))
+    s_clean = {k: v for k, v in s.items() if k != "live_broker"}
+    write_atomic(STATE, json.dumps(s_clean, indent=1))
 
 
 def print_status(s):
@@ -1867,8 +2016,11 @@ async def async_ws_ticks(s):
 async def async_scanner_loop(s):
     while True:
         try:
-            manage_positions(s)
-            scan_signals(s)
+            await asyncio.to_thread(manage_positions, s)
+            await asyncio.to_thread(scan_signals, s)
+            ms = now_ms()
+            s["heartbeat"] = iso(ms)
+            s["heartbeat_ms"] = ms
             save(s)
             write_dashboard(s)
         except Exception as e:
@@ -1879,7 +2031,38 @@ async def async_scanner_loop(s):
 async def async_local_server(s, port=8765):
     try:
         from aiohttp import web
-        app = web.Application()
+        import base64
+
+        host = os.getenv("HOST", "0.0.0.0")
+        port = int(os.getenv("PORT", port))
+        auth_user = os.getenv("DASHBOARD_USERNAME")
+        auth_pass = os.getenv("DASHBOARD_PASSWORD")
+
+        middlewares = []
+        if auth_user and auth_pass:
+            @web.middleware
+            async def basic_auth_middleware(request, handler):
+                # Public healthcheck endpoint does not require authentication
+                if request.path == "/health":
+                    return await handler(request)
+
+                auth_header = request.headers.get("Authorization")
+                if auth_header and auth_header.startswith("Basic "):
+                    try:
+                        decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+                        user, pwd = decoded.split(":", 1)
+                        if hmac.compare_digest(user, auth_user) and hmac.compare_digest(pwd, auth_pass):
+                            return await handler(request)
+                    except Exception:
+                        pass
+                return web.Response(
+                    status=401,
+                    headers={"WWW-Authenticate": 'Basic realm="Crypto Trader 24/7 Web Dashboard"'},
+                    text="Unauthorized: Please provide valid credentials."
+                )
+            middlewares.append(basic_auth_middleware)
+
+        app = web.Application(middlewares=middlewares)
 
         async def handle_index(req):
             if os.path.exists(DASH):
@@ -1888,22 +2071,37 @@ async def async_local_server(s, port=8765):
             return web.Response(text="Dashboard initializing...", content_type="text/plain")
 
         async def handle_state(req):
-            return web.json_response(s, headers={"Access-Control-Allow-Origin": "*"})
+            s_clean = {k: v for k, v in s.items() if k != "live_broker"}
+            return web.json_response(s_clean, headers={"Access-Control-Allow-Origin": "*"})
 
         async def handle_news(req):
             return web.json_response(s.get("news", {}), headers={"Access-Control-Allow-Origin": "*"})
 
+        async def handle_health(req):
+            _, _, eq = equity_parts(s)
+            return web.json_response({
+                "status": "healthy",
+                "uptime_ms": now_ms() - s.get("init_ms", now_ms()),
+                "equity": round(eq, 2),
+                "open_positions": len(s.get("positions", {})),
+                "heartbeat_age_s": round((now_ms() - (s.get("heartbeat_ms") or now_ms())) / 1000.0, 1),
+                "broker": "live" if s.get("live_broker") else "paper"
+            }, headers={"Access-Control-Allow-Origin": "*"})
+
         app.router.add_get("/", handle_index)
         app.router.add_get("/api/state", handle_state)
         app.router.add_get("/api/news", handle_news)
+        app.router.add_get("/health", handle_health)
 
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, "127.0.0.1", port)
+        site = web.TCPSite(runner, host, port)
         await site.start()
-        log("Ultra-low latency HTTP server live: http://localhost:%d" % port)
+        log("Ultra-low latency HTTP server live: http://%s:%d (auth=%s)" % (
+            host, port, "enabled" if (auth_user and auth_pass) else "disabled"
+        ))
     except Exception as e:
-        log("Local HTTP server failed to bind (port %d in use?): %s" % (port, e))
+        log("Local HTTP server failed to bind on %s:%d: %s" % (host if 'host' in locals() else '0.0.0.0', port, e))
 
 
 async def async_news_task(s):
@@ -1933,10 +2131,14 @@ async def async_news_task(s):
 
 async def async_run(s):
     log("Starting Binance Millisecond Execution Engine (Async WebSockets + Live Dashboard + Omni-News Monitor)...")
-    cycle(s)
+    ms = now_ms()
+    s["heartbeat"] = iso(ms)
+    s["heartbeat_ms"] = ms
+    save(s)
+    await async_local_server(s, 8765)
+    await asyncio.to_thread(cycle, s)
     save(s)
     write_dashboard(s)
-    await async_local_server(s, 8765)
     await asyncio.gather(
         async_ws_ticks(s),
         async_scanner_loop(s),
@@ -1948,6 +2150,8 @@ def main():
     ap = argparse.ArgumentParser(description="Binance Institutional Paper Trader.")
     ap.add_argument("cmd", choices=["run", "once", "status", "reset"])
     ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--live", action="store_true", help="Execute real orders on Binance Futures (requires API keys)")
+    ap.add_argument("--testnet", action="store_true", help="Execute live orders on Binance Futures Testnet")
     a = ap.parse_args()
 
     if a.cmd == "reset":
@@ -1961,6 +2165,21 @@ def main():
         return 0
 
     s = load_state()
+
+    # Initialize Live Binance Client if requested via CLI flags or Cloud Environment Variables
+    is_live = getattr(a, "live", False) or os.getenv("BINANCE_MODE", "").lower() == "live"
+    is_testnet = getattr(a, "testnet", False) or os.getenv("BINANCE_MODE", "").lower() == "testnet" or os.getenv("BINANCE_TESTNET", "").lower() in ("true", "1", "yes") or os.getenv("TESTNET", "").lower() in ("true", "1", "yes")
+
+    if is_live or is_testnet:
+        if binance_client:
+            client = binance_client.BinanceClient(testnet=not is_live)
+            if client.is_configured():
+                s["live_broker"] = client
+                log("Connected to Binance %s Live Execution Broker!" % ("TESTNET" if not is_live else "PRODUCTION"))
+            else:
+                log("Warning: API credentials missing in trader/credentials.json or env vars. Running in PAPER mode.")
+        else:
+            log("Warning: binance_client module unavailable. Running in PAPER mode.")
 
     if a.cmd == "status":
         print_status(s)
@@ -2033,3 +2252,7 @@ if __name__ == "__main__":
         sys.exit(main())
     except KeyboardInterrupt:
         sys.exit(0)
+
+
+# Alias for cloud and external callers
+scan_market = scan_signals

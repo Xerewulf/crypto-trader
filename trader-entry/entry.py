@@ -354,6 +354,19 @@ def offline_file(path, sym):
 BINANCE_HOSTS = ("https://api.binance.com", "https://data-api.binance.vision")
 
 
+KNOWN_CRYPTO = {
+    "BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI",
+    "DOT", "NEAR", "APT", "TRX", "LTC", "BCH", "UNI", "MATIC", "POL", "PEPE",
+    "SHIB", "FET", "RENDER", "TAO", "WIF", "ICP", "ETC", "XLM", "FIL", "AAVE",
+    "AR", "TIA", "ATOM", "RUNE", "INJ", "KAS", "IMX", "GRT", "HBAR", "FTM",
+    "SEI", "STX", "THETA", "OP", "ARB", "ALGO", "LDO", "BLUR", "PENDLE", "JUP"
+}
+
+
+def is_crypto_sym(sym):
+    s = str(sym or "").upper().strip()
+    return any(s.endswith(quote) for quote in ("USDT", "FDUSD", "USDC", "BUSD")) or s in KNOWN_CRYPTO
+
 def to_binance(sym):
     s = re.sub(r"[\s/\-_]+", "", str(sym or "").upper())
     if s.endswith(".USD"):
@@ -418,7 +431,7 @@ def fetch_binance_chart(sym, interval):
 
 
 def get_chart(sym, interval, day=None, offline=None, today=None):
-    """Bars for one ticker, from Binance (live) or a saved Yahoo file (--offline)."""
+    """Bars for one ticker, from Binance (live crypto), Yahoo (live stock), or a saved Yahoo file (--offline)."""
     sym = sym.upper()
     if offline:
         f = offline_file(offline, sym)
@@ -433,7 +446,17 @@ def get_chart(sym, interval, day=None, offline=None, today=None):
         if gran and gran != interval:
             raise EntryError("%s has %s bars, not %s: use --interval %s" % (sym, gran, interval, gran))
         return ch
-    return fetch_binance_chart(sym, interval)
+    if is_crypto_sym(sym):
+        return fetch_binance_chart(sym, interval)
+    today = today or to_eastern(utc_now()).date()
+    text = yahoo_get(chart_path(sym, chart_range(day or today, today, interval), interval))
+    ch = parse_chart(text, sym)
+    if ch["symbol"] != yahoo_symbol(sym):
+        raise EntryError("the chart file holds %s, not %s" % (ch["symbol"], sym))
+    gran = ch["meta"].get("dataGranularity")
+    if gran and gran != interval:
+        raise EntryError("%s has %s bars, not %s: use --interval %s" % (sym, gran, interval, gran))
+    return ch
 
 
 # ---------------------------------------------------------------- the rule
@@ -455,14 +478,7 @@ def read_config(path):
 
 
 def r2(x):
-    if x is None:
-        return None
-    f = float(x)
-    if 0 < abs(f) < 0.0001:
-        return round(f, 8) + 0.0
-    if 0 < abs(f) < 1.0:
-        return round(f, 6) + 0.0
-    return round(f, 2) + 0.0   # + 0.0 turns -0.0 into 0.0
+    return None if x is None else round(float(x), 2) + 0.0   # + 0.0 turns -0.0 into 0.0
 
 
 def fmt_p(x):
@@ -471,7 +487,7 @@ def fmt_p(x):
     f = float(x)
     if 0 < abs(f) < 0.0001:
         return ("$%.8f" % f).rstrip("0").rstrip(".")
-    if 0 < abs(f) < 1.0:
+    if 0 < abs(f) < 0.01:
         return ("$%.6f" % f).rstrip("0").rstrip(".")
     return "$%.2f" % f
 
@@ -907,7 +923,7 @@ def _load(a, sym, now):
 def cmd_check(a):
     cfg = read_config(a.config)
     opts = _opts(a, cfg)
-    sym = a.symbol.upper() if a.offline else to_binance(a.symbol)
+    sym = a.symbol.upper() if a.offline else (to_binance(a.symbol) if is_crypto_sym(a.symbol) else a.symbol.upper())
     chart, now = _load(a, sym, parse_now(a.now) if a.now else None)
     res = evaluate(chart, now, **opts)
     if a.write:
@@ -925,7 +941,7 @@ def cmd_check(a):
 def cmd_watch(a):
     cfg = read_config(a.config)
     opts = _opts(a, cfg)
-    sym = a.symbol.upper() if a.offline else to_binance(a.symbol)
+    sym = a.symbol.upper() if a.offline else (to_binance(a.symbol) if is_crypto_sym(a.symbol) else a.symbol.upper())
     if a.every <= 0:
         raise EntryError("--every must be above 0 seconds")
     start = parse_now(a.now) if a.now else None
@@ -992,22 +1008,33 @@ def cmd_watchlist(a):
     if a.json:
         print(json.dumps([{"symbol": s, "result": public(r) if r else None, "error": e} for s, r, e in rows], indent=2))
     else:
-        print("%-10s  %-9s  %-8s  %-10s  %-10s  %-10s  %s" % ("SYMBOL", "STATUS", "TIME", "PRICE", "LEVEL", "LAST", "VS LEVEL"))
+        has_crypto = any(is_crypto_sym(s) for s, _, _ in rows)
+        if has_crypto:
+            print("%-10s  %-9s  %-8s  %-10s  %-10s  %-10s  %s" % ("SYMBOL", "STATUS", "TIME", "PRICE", "LEVEL", "LAST", "VS LEVEL"))
+        else:
+            print("%-6s  %-9s  %-8s  %-8s  %-9s  %-9s  %s" % ("SYMBOL", "STATUS", "TIME", "PRICE", "LEVEL", "LAST", "VS LEVEL"))
         for s, r, e in rows:
             if e:
-                print("%-10s  error: %s" % (s, e))
+                print(("%-10s  error: %s" if has_crypto else "%-6s  error: %s") % (s, e))
                 continue
             t = r.get("trigger") or {}
             last = r.get("last") or {}
             status = SHORT.get(r["phase"], r["status"]) if r["status"] != "triggered" else "triggered"
-            print("%-10s  %-9s  %-8s  %-10s  %-10s  %-10s  %s" % (
-                s, status[:9], t.get("time") or "-", fmt_p(t["price"]) if t else "-",
-                fmt_p(r["level"]) if r.get("level") is not None else "-",
-                fmt_p(last["close"]) if last else "-",
-                ("%+.2f%%" % last["vs_level_pct"]) if last.get("vs_level_pct") is not None else "-"))
+            if has_crypto:
+                print("%-10s  %-9s  %-8s  %-10s  %-10s  %-10s  %s" % (
+                    s, status[:9], t.get("time") or "-", fmt_p(t["price"]) if t else "-",
+                    fmt_p(r["level"]) if r.get("level") is not None else "-",
+                    fmt_p(last["close"]) if last else "-",
+                    ("%+.2f%%" % last["vs_level_pct"]) if last.get("vs_level_pct") is not None else "-"))
+            else:
+                print("%-6s  %-9s  %-8s  %-8s  %-9s  %-9s  %s" % (
+                    s, status[:9], t.get("time") or "-", ("$%.2f" % t["price"]) if t else "-",
+                    ("$%.2f" % r["level"]) if r.get("level") is not None else "-",
+                    ("$%.2f" % last["close"]) if last else "-",
+                    ("%+.2f%%" % last["vs_level_pct"]) if last.get("vs_level_pct") is not None else "-"))
         n = sum(1 for _, r, _ in rows if r and r["status"] == "triggered")
         print("%d of %d triggered. Pick one, then: entry.py check <TICKER> --write, and /trader-exit." % (n, len(rows)))
-        print("Free %s bars. Nothing was placed." % ("Yahoo" if a.offline else "Binance Spot"))
+        print("Free %s bars%s. Nothing was placed." % ("Binance Spot" if has_crypto else "Yahoo", "" if has_crypto else ", 15m delayed"))
     return 0 if any(r and r["status"] == "triggered" for _, r, _ in rows) else 1
 
 

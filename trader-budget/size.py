@@ -388,10 +388,13 @@ def size_trade(plan, cfg, budget=None, limit=None, price=None, cash=None, today=
     available = max(round(available, 2), 0.0)
 
     limits = []
+    sym_str = str(plan.get("symbol", "") or "")
+    is_crypto = sym_str.endswith(("USDT", "BUSD", "FDUSD", "USDC")) or c.get("market") == "binance"
+    unit_single = "unit" if is_crypto else "share"
     max_loss = _f(c.get("max_loss_per_trade_usd"))
     if max_loss:
         limits.append({"name": "max loss", "usd": max_loss, "per": risk, "shares": shares_for(max_loss, risk, frac),
-                       "how": "%s max loss / %s risk a unit" % (money(max_loss), _price(risk))})
+                       "how": "%s max loss / %s risk a %s" % (money(max_loss), _price(risk), unit_single)})
     cap_pct = _f(c.get("max_position_pct"))
     if cap_pct:
         cap = round(budget * cap_pct / 100.0, 2)
@@ -449,8 +452,12 @@ def bracket_order(s):
     if s["order_type"] == "limit":
         o["limit_price"] = _price(s["entry"])
     setup = SETUP_WORDS.get(s["setup"], s["setup"] or "day trade")
-    why = ("%s on %s: %s units, bound by your %s (%s x %s = %s at the stop)"
-           % (setup, s["symbol"], q_s, {"max loss": "%s max loss per trade" % money(s["max_loss_per_trade_usd"] or 0),
+    sym_str = str(s["symbol"] or "")
+    is_crypto = sym_str.endswith(("USDT", "BUSD", "FDUSD", "USDC")) or s.get("market") == "binance"
+    unit_word = "units" if is_crypto else "shares"
+    unit_single = "unit" if is_crypto else "share"
+    why = ("%s on %s: %s %s, bound by your %s (%s x %s = %s at the stop)"
+           % (setup, s["symbol"], q_s, unit_word, {"max loss": "%s max loss per trade" % money(s["max_loss_per_trade_usd"] or 0),
                                         "position cap": "position cap", "max order": "max order",
                                         "cash": "cash after the buffer"}[s["bound_by"]],
               q_s, _price(s["risk_per_share"]), money(s["max_loss"])))
@@ -478,13 +485,17 @@ def plan_report(s, order, notes=()):
         lines.append(n)
     src = {"plan": "the plan's entry", "price": "the latest price, above the plan's entry",
            "limit": "your limit price"}[s["entry_from"]]
-    lines.append("Sized at %s (%s). Risk %s a unit (entry %s minus stop %s). Reward:risk %.2f."
-                 % (_price(s["entry"]), src, _price(s["risk_per_share"]), _price(s["entry"]), _price(s["stop"]),
+    sym_str = str(s["symbol"] or "")
+    is_crypto = sym_str.endswith(("USDT", "BUSD", "FDUSD", "USDC")) or s.get("market") == "binance"
+    unit_word = "units" if is_crypto else "shares"
+    unit_single = "unit" if is_crypto else "share"
+    lines.append("Sized at %s (%s). Risk %s a %s (entry %s minus stop %s). Reward:risk %.2f."
+                 % (_price(s["entry"]), src, _price(s["risk_per_share"]), unit_single, _price(s["entry"]), _price(s["stop"]),
                     s["reward_risk"]))
     lines.append("")
     lines.append("Limits (the smallest one wins):")
     for l in s["limits"]:
-        lines.append("  %-13s %-58s %10s units%s" % (l["name"], l["how"], _qty_str(l["shares"]),
+        lines.append("  %-13s %-58s %10s %s%s" % (l["name"], l["how"], _qty_str(l["shares"]), unit_word,
                                                      "  <- binds" if l["binds"] else ""))
     lines.append("")
     if order is None:
@@ -492,8 +503,9 @@ def plan_report(s, order, notes=()):
         lines.append("Education and tooling, not financial advice.")
         return "\n".join(lines)
     q_s = _qty_str(s["qty"])
+    size_asset_label = s["symbol"] if is_crypto else ("shares of " + s["symbol"])
     lines.append("Size: %s %s = %s at %s. Max loss at the stop: %s x %s = %s."
-                 % (q_s, s["symbol"], money(s["cost"]), _price(s["entry"]), q_s,
+                 % (q_s, size_asset_label, money(s["cost"]), _price(s["entry"]), q_s,
                     _price(s["risk_per_share"]), money(s["max_loss"])))
     lines.append("A stop is an order, not a promise: in a fast market it can fill below %s." % _price(s["stop"]))
     lines.append("")
