@@ -204,5 +204,156 @@ class Check(unittest.TestCase):
         self.assertEqual(state["last_check"], now.isoformat())
 
 
+class Realtime10sNewsMonitorTests(unittest.TestCase):
+    def setUp(self):
+        self.nm = load(os.path.join("trader", "live"), "news_monitor")
+        self.pt = load(os.path.join("trader", "live"), "paper_trader")
+        self.nm.clear_cache()
+
+    def test_10s_poll_interval_and_tiered_ttl_cache(self):
+        self.assertEqual(self.nm.POLL_INTERVAL_SECONDS, 10)
+        self.assertEqual(self.pt.CFG["news_poll_seconds"], 10)
+        self.assertEqual(self.nm.FEED_TTL_SECONDS["CoinDesk"], 10)
+        self.assertEqual(self.nm.FEED_TTL_SECONDS["The Block"], 30)
+        self.assertEqual(self.nm.FEED_TTL_SECONDS["Banks & Fed Flow"], 60)
+
+        calls = []
+        orig_get = self.nm._http_get
+
+        def fake_get(url, timeout=8):
+            calls.append(url)
+            return "<rss><channel><item><title>Bitcoin ETF inflows surge to record high</title><pubDate>Fri, 30 Oct 2026 11:00:00 +0000</pubDate></item></channel></rss>"
+
+        try:
+            self.nm._http_get = fake_get
+            t0 = 1793358300.0
+            body1, cached1 = self.nm._http_get_cached("https://example.com/feed.xml", ttl=10, now_ts=t0)
+            self.assertFalse(cached1)
+            self.assertEqual(len(calls), 1)
+
+            # Poll 5 seconds later -> served from memory cache without network call
+            body2, cached2 = self.nm._http_get_cached("https://example.com/feed.xml", ttl=10, now_ts=t0 + 5.0)
+            self.assertTrue(cached2)
+            self.assertEqual(body1, body2)
+            self.assertEqual(len(calls), 1)
+        finally:
+            self.nm._http_get = orig_get
+
+    def test_stale_archive_filtering_and_freshness_weight(self):
+        now_ts = 1793358600.0  # 2026-10-30 11:10:00 UTC
+        # Old 2025 Binance announcement title should resolve to 2025 timestamp (>24h old)
+        old_ts = self.nm.parse_pub_timestamp(
+            "",
+            title="Solayer (LAYER) Airdrop Continues (2025-06-16)",
+            release_ms=now_ts * 1000,
+            now_ts=now_ts,
+        )
+        self.assertGreater(now_ts - old_ts, 86400 * 30)
+
+        # Freshness weight multipliers
+        self.assertEqual(self.nm.freshness_weight(300), 2.0)    # 5 min old -> 2.0x
+        self.assertEqual(self.nm.freshness_weight(3600), 1.25)  # 1 hour old -> 1.25x
+        self.assertEqual(self.nm.freshness_weight(14400), 1.0)  # 4 hours old -> 1.0x
+        self.assertEqual(self.nm.freshness_weight(50000), 0.6)  # 14 hours old -> 0.6x
+
+    def test_dynamic_token_extraction_and_scoped_vetoes(self):
+        toks_delist = self.nm._detect_tokens("Binance Will Delist EPIC, QUICK on 2026-10-28")
+        self.assertIn("EPIC", toks_delist)
+        self.assertIn("QUICK", toks_delist)
+
+        toks_perp = self.nm._detect_tokens(
+            "Binance Futures Will Launch USD-Margined PREDICTUSDT Perpetual Contract"
+        )
+        self.assertIn("PREDICT", toks_perp)
+
+        toks_custom = self.nm._detect_tokens(
+            "Major mainnet upgrade announced for ZROUSDT ecosystem",
+            extra_symbols=["ZROUSDT"],
+        )
+        self.assertIn("ZRO", toks_custom)
+
+        # Non-systemic generic regulatory article should NOT trigger a market-wide CRYPTO crisis
+        minor_article = {
+            "category": "news",
+            "title": "Canada Draft Stablecoin Rules Cap Redemption Fees at 1% in regulatory probe",
+            "tags": ["regulatory/delist"],
+        }
+        self.assertFalse(self.nm._is_systemic_macro_crisis(minor_article))
+
+        # Fed hawkish rate hike headwind IS a systemic macro event
+        fed_shock = {
+            "category": "fed",
+            "title": "Federal Reserve announces surprise rate hike amid hot inflation",
+            "tags": ["Fed/macro headwind"],
+        }
+        self.assertTrue(self.nm._is_systemic_macro_crisis(fed_shock))
+
+    def test_open_position_news_guard(self):
+        s = self.pt.fresh_state()
+        s["marks"]["SOLUSDT"] = 185.0
+        s["positions"]["SOLUSDT"] = {
+            "id": 1,
+            "symbol": "SOLUSDT",
+            "side": "long",
+            "setup": "Wyckoff Spring",
+            "opened": "2026-10-30 10:00:00 UTC",
+            "opened_ms": 1793354400000,
+            "entry": 180.0,
+            "initial_stop": 175.0,
+            "stop": 175.0,
+            "tp1_px": 189.0,
+            "tp2_px": 197.5,
+            "tp1_hit": False,
+            "tp2_hit": False,
+            "trail_vwap": False,
+            "initial_qty": 10.0,
+            "qty": 10.0,
+            "notional": 1800.0,
+            "leverage": 3.0,
+            "margin": 600.0,
+            "risk_usd": 50.0,
+            "entry_fee": 0.72,
+            "partial_realized": 0.0,
+            "partial_costs": 0.0,
+            "checked_ms": 1793354400000,
+        }
+
+        # 1. Moderate bearish news shock while in profit -> tightens stop to Breakeven
+        news_moderate = {
+            "token_vetoes": {},
+            "token_scores": {"SOL": -5.0},
+        }
+        changed = self.pt.evaluate_news_on_open_positions(s, news_moderate)
+        self.assertTrue(changed)
+        self.assertGreater(s["positions"]["SOLUSDT"]["stop"], 180.0)
+        self.assertIn("SOLUSDT", s["positions"])
+
+        # 2. Critical token-specific hack/delist veto -> emergency position exit
+        news_critical = {
+            "token_vetoes": {
+                "SOL": {
+                    "veto_long": True,
+                    "veto_short": False,
+                    "severity": "CRITICAL",
+                    "reason": "HIGH RISK BEARISH CATALYST: Critical exploit on SOL protocol",
+                }
+            },
+            "token_scores": {"SOL": -8.0},
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            orig_trades = self.pt.TRADES
+            orig_log = self.pt.LOG
+            try:
+                self.pt.TRADES = os.path.join(tmpdir, "trades.jsonl")
+                self.pt.LOG = os.path.join(tmpdir, "events.log")
+                changed2 = self.pt.evaluate_news_on_open_positions(s, news_critical)
+                self.assertTrue(changed2)
+                self.assertNotIn("SOLUSDT", s["positions"])
+                self.assertEqual(s["closed"][-1]["outcome"], "NEWS-VETO-EMERGENCY-EXIT")
+            finally:
+                self.pt.TRADES = orig_trades
+                self.pt.LOG = orig_log
+
+
 if __name__ == "__main__":
     unittest.main()

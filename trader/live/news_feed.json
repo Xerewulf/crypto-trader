@@ -1,7 +1,12 @@
 {
- "updated": "2026-10-30 08:52:05 UTC",
- "updated_ms": 1793350325958,
- "macro_score": -4.6,
+ "updated": "2026-10-30 11:22:33 UTC",
+ "updated_ms": 1793359353031,
+ "poll_interval_sec": 10,
+ "cache_stats": {
+  "cache_hits": 0,
+  "live_fetches": 13
+ },
+ "macro_score": -5.5,
  "trending_coins": [
   {
    "rank": 1,
@@ -11,617 +16,781 @@
   },
   {
    "rank": 2,
-   "symbol": "BTC",
-   "name": "Bitcoin",
-   "market_cap_rank": 1
-  },
-  {
-   "rank": 3,
-   "symbol": "LIT",
-   "name": "Lighter",
-   "market_cap_rank": 85
-  },
-  {
-   "rank": 4,
-   "symbol": "AAVE",
-   "name": "Aave",
-   "market_cap_rank": 49
-  },
-  {
-   "rank": 5,
    "symbol": "BEAM",
    "name": "Beam",
    "market_cap_rank": 157
   },
   {
-   "rank": 6,
-   "symbol": "PEPE",
-   "name": "Pepe",
-   "market_cap_rank": 48
-  },
-  {
-   "rank": 7,
+   "rank": 3,
    "symbol": "BNB",
    "name": "BNB",
    "market_cap_rank": 4
   },
   {
-   "rank": 8,
-   "symbol": "ETH",
-   "name": "Ethereum",
-   "market_cap_rank": 2
+   "rank": 4,
+   "symbol": "PEPE",
+   "name": "Pepe",
+   "market_cap_rank": 47
   },
   {
-   "rank": 9,
-   "symbol": "QNT",
-   "name": "Quant",
-   "market_cap_rank": 36
+   "rank": 5,
+   "symbol": "BTC",
+   "name": "Bitcoin",
+   "market_cap_rank": 1
   },
   {
-   "rank": 10,
-   "symbol": "ENA",
-   "name": "Ethena",
-   "market_cap_rank": 41
+   "rank": 6,
+   "symbol": "AERO",
+   "name": "Aerodrome Finance",
+   "market_cap_rank": 103
   },
   {
-   "rank": 11,
+   "rank": 7,
    "symbol": "UNI",
    "name": "Uniswap",
    "market_cap_rank": 26
   },
   {
+   "rank": 8,
+   "symbol": "AAVE",
+   "name": "Aave",
+   "market_cap_rank": 49
+  },
+  {
+   "rank": 9,
+   "symbol": "NEAR",
+   "name": "NEAR Protocol",
+   "market_cap_rank": 21
+  },
+  {
+   "rank": 10,
+   "symbol": "KNTQ",
+   "name": "Kinetiq",
+   "market_cap_rank": 181
+  },
+  {
+   "rank": 11,
+   "symbol": "PENGU",
+   "name": "Pudgy Penguins",
+   "market_cap_rank": 114
+  },
+  {
    "rank": 12,
-   "symbol": "KAS",
-   "name": "Kaspa",
-   "market_cap_rank": 76
+   "symbol": "DRV",
+   "name": "Derive",
+   "market_cap_rank": 124
   }
  ],
  "token_scores": {
-  "BTC": -11.2,
-  "ETH": -3.7,
-  "SOL": -1.5,
-  "BNB": -1.0,
-  "XRP": -4.5,
-  "NEAR": -1.5,
-  "FIL": 3.8,
+  "BTC": -5.6,
+  "ETH": -3.1,
+  "SOL": -0.9,
+  "BNB": 1.1,
+  "XRP": -3.0,
+  "NEAR": 2.0,
   "PEPE": 2.0,
-  "ENA": 2.0,
   "UNI": 2.0,
-  "AAVE": 2.0
+  "AAVE": 2.0,
+  "HYPE": 2.9,
+  "SHIB": -1.5,
+  "PREDICT": 2.2,
+  "MSTR": 0.9
  },
  "token_vetoes": {
   "CRYPTO": {
    "veto_long": true,
    "veto_short": false,
-   "reason": "HIGH RISK BEARISH CATALYST: Hackers Publish Work Details of 41,000 Homeland Security Emp (Decrypt)"
-  },
-  "BTC": {
-   "veto_long": true,
-   "veto_short": false,
-   "reason": "HIGH RISK BEARISH CATALYST: Binance hack rattles markets as BNB falls 8%, Bitcoin nears  (Cointelegraph)"
-  },
-  "ETH": {
-   "veto_long": true,
-   "veto_short": false,
-   "reason": "HIGH RISK BEARISH CATALYST: $6 billion Binance hack sends bitcoin, ether tumbling; Stand (CoinDesk)"
-  },
-  "BNB": {
-   "veto_long": true,
-   "veto_short": false,
-   "reason": "HIGH RISK BEARISH CATALYST: Binance hack rattles markets as BNB falls 8%, Bitcoin nears  (Cointelegraph)"
+   "severity": "CRITICAL",
+   "reason": "HIGH RISK BEARISH CATALYST: Binance points to engineer\u2019s hacked laptop in $6.3B breach (Cointelegraph)"
   },
   "XRP": {
    "veto_long": true,
    "veto_short": false,
-   "reason": "HIGH RISK BEARISH CATALYST: Trump\u2019s crypto firm joins Tether, Circle, and Ripple in $2.6 (CryptoSlate)"
+   "severity": "CRITICAL",
+   "reason": "HIGH RISK BEARISH CATALYST: Binance hack began with a $296 million XRP drain after 36-hour prepara (CryptoSlate)"
+  },
+  "BTC": {
+   "veto_long": true,
+   "veto_short": false,
+   "severity": "CRITICAL",
+   "reason": "HIGH RISK BEARISH CATALYST: Bitcoin slides below $77,000, BNB drops amid Binance hack (The Block)"
+  },
+  "ETH": {
+   "veto_long": true,
+   "veto_short": false,
+   "severity": "CRITICAL",
+   "reason": "HIGH RISK BEARISH CATALYST: $6 billion Binance hack sends bitcoin, ether tumbling; Standard Charte (Banks & Fed Flow)"
   },
   "SOL": {
    "veto_long": true,
    "veto_short": false,
-   "reason": "HIGH RISK BEARISH CATALYST: Hackers drain 9,400 SOL from bot wallets, and a copied key i (CryptoSlate)"
+   "severity": "CRITICAL",
+   "reason": "HIGH RISK BEARISH CATALYST: Hackers drain 9,400 SOL from bot wallets, and a copied key is blamed (CryptoSlate)"
   },
-  "NEAR": {
+  "BNB": {
    "veto_long": true,
    "veto_short": false,
-   "reason": "HIGH RISK BEARISH CATALYST: Trump\u2019s crypto firm joins Tether, Circle, and Ripple in $2.6 (CryptoSlate)"
+   "severity": "CRITICAL",
+   "reason": "HIGH RISK BEARISH CATALYST: Bitcoin slides below $77,000, BNB drops amid Binance hack (The Block)"
   }
  },
- "total_headlines": 164,
+ "breaking_alerts": [
+  {
+   "source": "CryptoSlate",
+   "sentiment": "BEARISH",
+   "tokens": [
+    "CRYPTO"
+   ],
+   "tags": [
+    "hack/exploit"
+   ],
+   "title": "Binance uncovers more breach points in $6 billion hack",
+   "time": "11:13:40 UTC"
+  }
+ ],
+ "new_count": 2,
+ "total_headlines": 103,
  "headlines": [
   {
-   "source": "Binance (Crypto Airdrop)",
-   "category": "binance",
-   "title": "Solayer (LAYER) Airdrop Continues: Second Binance HODLer Airdrops Announced \u2013 Earn LAYER With Retroactive BNB Simple Earn Subscriptions (2025-06-16)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BNB"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Crypto Airdrop)",
-   "category": "binance",
-   "title": "Solayer (LAYER) Airdrop Continues: Third Binance HODLer Airdrops Announced \u2013 Earn LAYER With Retroactive BNB Simple Earn Subscriptions (2025-08-18)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BNB"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Crypto Airdrop)",
-   "category": "binance",
-   "title": "MyShell (SHELL) Airdrop Continues: Second Binance HODLer Airdrops Announced \u2013 Earn SHELL With Retroactive BNB Simple Earn Subscriptions and Enjoy Up to 29.9% APR with SHELL Locked Products (2025-08-27)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BNB"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Crypto Airdrop)",
-   "category": "binance",
-   "title": "Introducing Avantis (AVNT) on Binance HODLer Airdrops! Earn AVNT With Retroactive BNB Simple Earn Subscriptions",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BNB"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Crypto Airdrop)",
-   "category": "binance",
-   "title": "Solayer (LAYER) Airdrop Continues: Fourth Binance HODLer Airdrops Announced \u2013 Earn LAYER With Retroactive BNB Simple Earn Subscriptions (2025-09-19)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BNB"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (API Updates)",
-   "category": "binance",
-   "title": "Binance Futures API Updates (2024-10-30)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (API Updates)",
-   "category": "binance",
-   "title": "Introducing Binance Announcements WebSocket: Subscribe to Get Real-Time Updates and Promotions",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (API Updates)",
-   "category": "binance",
-   "title": "Binance Futures API Updates (2025-10-09)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (API Updates)",
-   "category": "binance",
-   "title": "Notice on Binance Spot API Update (2025-11-18)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (API Updates)",
-   "category": "binance",
-   "title": "Notice on Binance Spot API Update (2026-06-25)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Maintenance Updates)",
-   "category": "binance",
-   "title": "Wallet Maintenance for Ethereum Network (ETH) - 2026-10-15",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "ETH"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Maintenance Updates)",
-   "category": "binance",
-   "title": "Binance Will Support the Filecoin (FIL) Network Upgrade & Hard Fork - 2026-10-19",
-   "pubDate": "",
-   "sentiment": "BULLISH",
-   "tags": [
-    "upgrade/partnership"
-   ],
-   "tokens": [
-    "FIL"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Maintenance Updates)",
-   "category": "binance",
-   "title": "Binance Will Support the Velodrome Finance (VELODROME) Token Merge to Aerodrome (AERO) and the AERO Contract Swap",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Maintenance Updates)",
-   "category": "binance",
-   "title": "Wallet Maintenance for Ethereum Network (ETH) - 2026-10-28",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "ETH"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Maintenance Updates)",
-   "category": "binance",
-   "title": "Binance Will Support Scheduled Upgrade for Stock Trading Services - 2026-10-31",
-   "pubDate": "",
-   "sentiment": "BULLISH",
-   "tags": [
-    "upgrade/partnership"
-   ],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Delisting)",
-   "category": "binance",
-   "title": "Notice of Removal of Spot Trading Pairs - 2026-10-23",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Delisting)",
-   "category": "binance",
-   "title": "Binance Futures Will Delist PTBUSDT and MITOUSDT USD\u24c8-M Perpetual Contracts (2026-10-23)",
-   "pubDate": "",
+   "source": "CryptoSlate",
+   "category": "magazine",
+   "title": "Binance uncovers more breach points in $6 billion hack",
+   "pubDate": "Fri, 30 Oct 2026 11:13:40 +0000",
+   "pub_ts": 1793358820,
+   "age_min": 8.9,
    "sentiment": "BEARISH",
    "tags": [
-    "regulatory/delist"
+    "hack/exploit"
    ],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "11:13:40 UTC",
+   "is_new": true
   },
   {
-   "source": "Binance (Delisting)",
-   "category": "binance",
-   "title": "Binance Alpha Will Remove PTB, AA, OWL, DORA, ELIZAOS, MEMES, \u54ed\u54ed\u9a6c  (2026-10-23)",
-   "pubDate": "",
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "Crypto liquidations jump to $1.57 billion as Binance hack sends bitcoin, ether lower",
+   "pubDate": "Fri, 30 Oct 2026 11:09:24 +0000",
+   "pub_ts": 1793358564,
+   "age_min": 13.2,
+   "sentiment": "MIXED",
+   "tags": [
+    "bullish/breakout",
+    "hack/exploit",
+    "outflow/liquidation"
+   ],
+   "tokens": [
+    "BTC",
+    "ETH"
+   ],
+   "time": "11:09:24 UTC",
+   "is_new": true
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "EIP-7702 didn\u2019t cause Binance hack, but may have amplified losses",
+   "pubDate": "Fri, 30 Oct 2026 11:00:10 +0000",
+   "pub_ts": 1793358010,
+   "age_min": 22.4,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "11:00:10 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "Binance hacker\u2019s Bitcoin haul tops Coinbase\u2019s corporate treasury",
+   "pubDate": "Fri, 30 Oct 2026 10:54:30 +0000",
+   "pub_ts": 1793357670,
+   "age_min": 28.1,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "10:54:30 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "South Africa\u2019s Crypto Grew 52% in A Bear Market. Then Came the Permission Slips",
+   "pubDate": "Fri, 30 Oct 2026 10:45:05 +0000",
+   "pub_ts": 1793357105,
+   "age_min": 37.5,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "10:45:05 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (Delisting)",
-   "category": "binance",
-   "title": "Notice of Removal of Margin Trading Pairs - 2026-10-30",
-   "pubDate": "",
+   "source": "Banks & Fed Flow",
+   "category": "bank",
+   "title": "More ECB hikes may be needed to stop inflation, Panetta says - San Luis Obispo Tribune",
+   "pubDate": "Fri, 30 Oct 2026 10:41:06 GMT",
+   "pub_ts": 1793356866,
+   "age_min": 41.5,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "10:41:06 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (Delisting)",
-   "category": "binance",
-   "title": "Notice of Removal of Spot Trading Pairs - 2026-10-30",
-   "pubDate": "",
+   "source": "CryptoSlate",
+   "category": "magazine",
+   "title": "Polymarket suffers second multimillion-dollar security breach in just four months",
+   "pubDate": "Fri, 30 Oct 2026 10:30:57 +0000",
+   "pub_ts": 1793356257,
+   "age_min": 51.6,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "10:30:57 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Banks & Fed Flow",
+   "category": "bank",
+   "title": "How much further could the ECB raise interest rates? UBS gives its outlook - Yahoo Finance",
+   "pubDate": "Fri, 30 Oct 2026 10:27:33 GMT",
+   "pub_ts": 1793356053,
+   "age_min": 55.0,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "10:27:33 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (Latest Activities)",
-   "category": "binance",
-   "title": "Binance P2P Kenya: Earn USDT Rewards with Lightning Instant M-pesa & Instant M-pesa Paybill",
-   "pubDate": "",
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Elon Musk is Trolling the Binance Hack, and CZ Reminds Him of SpaceX Investment",
+   "pubDate": "Fri, 30 Oct 2026 10:26:55 +0000",
+   "pub_ts": 1793356015,
+   "age_min": 55.6,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "10:26:55 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Forbes/Bloomberg/Fortune",
+   "category": "magazine",
+   "title": "Explainer: Gone in 20 minutes: How the biggest heist in crypto history unfolded - Reuters",
+   "pubDate": "Fri, 30 Oct 2026 10:14:46 GMT",
+   "pub_ts": 1793355286,
+   "age_min": 67.8,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "10:14:46 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (Latest Activities)",
-   "category": "binance",
-   "title": "Region-Exclusive: Invite Friends to Binance and Share a 30,000 USDT Prize Pool",
-   "pubDate": "",
+   "source": "Decrypt",
+   "category": "news",
+   "title": "Trezor Warns CryptoBilis Buyers After Report of Hardware Implant in Safe 5",
+   "pubDate": "Fri, 30 Oct 2026 10:07:29 +0000",
+   "pub_ts": 1793354849,
+   "age_min": 75.1,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "10:07:29 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (Latest Activities)",
-   "category": "binance",
-   "title": "CIS & CEE Exclusive: Binance P2P Launches Merchant Referral Program",
-   "pubDate": "",
+   "source": "Forbes/Bloomberg/Fortune",
+   "category": "magazine",
+   "title": "Binance Estimates $6.3 Billion Hacked in Crypto's Biggest Heist - Bloomberg.com",
+   "pubDate": "Fri, 30 Oct 2026 09:56:41 GMT",
+   "pub_ts": 1793354201,
+   "age_min": 85.9,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "09:56:41 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "THORChain\u2019s RUNE jumps 13% after Binance\u2019s record $6.3B hack",
+   "pubDate": "Fri, 30 Oct 2026 09:52:29 +0000",
+   "pub_ts": 1793353949,
+   "age_min": 90.1,
+   "sentiment": "MIXED",
+   "tags": [
+    "bullish/breakout",
+    "hack/exploit"
+   ],
+   "tokens": [
+    "RUNE"
+   ],
+   "time": "09:52:29 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "Strategy CFO Andrew Kang resigns as company posts record operating profit",
+   "pubDate": "Fri, 30 Oct 2026 09:41:07 +0000",
+   "pub_ts": 1793353267,
+   "age_min": 101.4,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "09:41:07 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (Latest Activities)",
-   "category": "binance",
-   "title": "Hold USD1 to Share 120 Million WLFI Tokens, Plus Up to 2.5 Million USD1 for New Holdings (2026-10-30)",
-   "pubDate": "",
+   "source": "Decrypt",
+   "category": "news",
+   "title": "Binance Finds 'Additional Points of Breach' in $6.3B Hack",
+   "pubDate": "Fri, 30 Oct 2026 09:31:59 +0000",
+   "pub_ts": 1793352719,
+   "age_min": 110.6,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "09:31:59 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "Trezor warns CryptoBilis buyers to move funds over suspected implant",
+   "pubDate": "Fri, 30 Oct 2026 09:26:45 +0000",
+   "pub_ts": 1793352405,
+   "age_min": 115.8,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "09:26:45 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (Latest Activities)",
-   "category": "binance",
-   "title": "Join the Virtual Pumpkin Fun to Share $5,000 in Token Voucher Rewards",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Latest Binance News)",
-   "category": "binance",
-   "title": "Binance Futures Updates Trading Fee Discount for TradFi Perps (2026-11-05)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Latest Binance News)",
-   "category": "binance",
-   "title": "Binance Earn Yield Arena: Earn Up to 35% APR With This Week\u2019s New Limited-Time Offers! (2026-10-28)",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Latest Binance News)",
-   "category": "binance",
-   "title": "Important Notice on PREDICT Airdrop Token Allocation",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Latest Binance News)",
-   "category": "binance",
-   "title": "Security Incident Update",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (Latest Binance News)",
-   "category": "binance",
-   "title": "Predict (PREDICT) Listing Will Be Postponed",
-   "pubDate": "",
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:52:05 UTC"
-  },
-  {
-   "source": "Binance (New Cryptocurrency Listing)",
-   "category": "binance",
-   "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-26)",
-   "pubDate": "",
+   "source": "CryptoSlate",
+   "category": "magazine",
+   "title": "Walmart, Microsoft and JPMorgan block NYSE-backed venture from tokenizing their shares",
+   "pubDate": "Fri, 30 Oct 2026 09:10:06 +0000",
+   "pub_ts": 1793351406,
+   "age_min": 132.5,
    "sentiment": "BULLISH",
    "tags": [
-    "Binance listing/launch"
+    "ETF/institutional inflow"
    ],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "09:10:06 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (New Cryptocurrency Listing)",
-   "category": "binance",
-   "title": "Binance Exchange Adds Applovin Corp (APPB), Bending Spoons (BSPB), GE Vernova Inc (GEVB), GraniteShares 2x Short SK Hynix Daily ETF (SKDDB) and GraniteShares 2x Long SK Hynix Daily ETF (SKUUB) bStocks Trading Pairs on Binance Spot/Convert and Extends Zero Maker Fee Promotion - 2026-10-28",
-   "pubDate": "",
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "Live updates: Binance uncovers more breach points in $6.3B hack",
+   "pubDate": "Fri, 30 Oct 2026 09:08:25 +0000",
+   "pub_ts": 1793351305,
+   "age_min": 134.1,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "09:08:25 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Banks & Fed Flow",
+   "category": "bank",
+   "title": "Week Ahead for FX, Bonds: Decisions From Fed, Other Central Banks in Focus - WSJ",
+   "pubDate": "Fri, 30 Oct 2026 09:06:04 GMT",
+   "pub_ts": 1793351164,
+   "age_min": 136.5,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "09:06:04 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (New Cryptocurrency Listing)",
-   "category": "binance",
-   "title": "Binance Will Add 5 bStocks Tokenized Securities as Collateral Asset - 2026-10-28",
-   "pubDate": "",
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Shiba Inu Team Urges Traders to Take Care After $20 Million Liquidation Wave",
+   "pubDate": "Fri, 30 Oct 2026 08:59:57 +0000",
+   "pub_ts": 1793350797,
+   "age_min": 142.6,
+   "sentiment": "BEARISH",
+   "tags": [
+    "outflow/liquidation"
+   ],
+   "tokens": [
+    "SHIB"
+   ],
+   "time": "08:59:57 UTC",
+   "is_new": false
+  },
+  {
+   "source": "The Block",
+   "category": "magazine",
+   "title": "Coinbase Q3 net income jumps 66% as prediction markets gain traction",
+   "pubDate": "Fri, 30 Oct 2026 08:57:09 +0000",
+   "pub_ts": 1793350629,
+   "age_min": 145.4,
    "sentiment": "BULLISH",
    "tags": [
-    "ETF/institutional inflow",
-    "Binance listing/launch"
+    "bullish/breakout"
    ],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "08:57:09 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (New Cryptocurrency Listing)",
-   "category": "binance",
-   "title": "Binance Futures Will Launch Multiple TradFi USD\u24c8-Margined Perpetual Contracts (2026-10-29)",
-   "pubDate": "",
-   "sentiment": "BULLISH",
+   "source": "The Block",
+   "category": "magazine",
+   "title": "Trezor reports suspected hardware implant in Safe 5 sold by CryptoBilis",
+   "pubDate": "Fri, 30 Oct 2026 08:55:39 +0000",
+   "pub_ts": 1793350539,
+   "age_min": 146.9,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "08:55:39 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "Live updates: Binance finds more breaches in $6.3 billion hack; AI spending fears hit tech",
+   "pubDate": "Fri, 30 Oct 2026 08:36:52 +0000",
+   "pub_ts": 1793349412,
+   "age_min": 165.7,
+   "sentiment": "BEARISH",
    "tags": [
-    "Binance listing/launch"
+    "hack/exploit"
    ],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "08:36:52 UTC",
+   "is_new": false
   },
   {
-   "source": "Binance (New Cryptocurrency Listing)",
-   "category": "binance",
-   "title": "Binance Will List Predict (PREDICT) with Seed Tag Applied",
-   "pubDate": "",
-   "sentiment": "BULLISH",
+   "source": "Banks & Fed Flow",
+   "category": "bank",
+   "title": "ECB, US Fed Hold Rates; Lagarde To Step Down - Wealth Managers React - Wealth Briefing",
+   "pubDate": "Fri, 30 Oct 2026 08:31:44 GMT",
+   "pub_ts": 1793349104,
+   "age_min": 170.8,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "08:31:44 UTC",
+   "is_new": false
+  },
+  {
+   "source": "X/Twitter Whale Flow",
+   "category": "twitter",
+   "title": "Binance Hit by a $6.3B Security Nightmare: Nikita Bier Mocks CZ, While ZachXBT Spots a Bigger Threat - CryptoRank",
+   "pubDate": "Fri, 30 Oct 2026 08:07:35 GMT",
+   "pub_ts": 1793347655,
+   "age_min": 195.0,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "08:07:35 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Oil Hits 1-Month High as Next Week\u2019s Midterms Set Up an Iran Test",
+   "pubDate": "Fri, 30 Oct 2026 08:03:55 +0000",
+   "pub_ts": 1793347435,
+   "age_min": 198.6,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "08:03:55 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CryptoSlate",
+   "category": "magazine",
+   "title": "Circle and ACI plan USDC settlement pilot alongside Colombia\u2019s payment rails",
+   "pubDate": "Fri, 30 Oct 2026 08:00:23 +0000",
+   "pub_ts": 1793347223,
+   "age_min": 202.2,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "08:00:23 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "Binance hacker dumps a little-known 2017 token and it crashes 90%",
+   "pubDate": "Fri, 30 Oct 2026 07:54:07 +0000",
+   "pub_ts": 1793346847,
+   "age_min": 208.4,
+   "sentiment": "BEARISH",
    "tags": [
-    "Binance listing/launch"
+    "unlock/dilution",
+    "outflow/liquidation"
    ],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "07:54:07 UTC",
+   "is_new": false
   },
   {
-   "source": "Fed Press",
-   "category": "fed",
-   "title": "Federal Reserve Board announces approval of application by The Bank of Nova Scotia",
-   "pubDate": "Thu, 29 Oct 2026 20:30:00 GMT",
+   "source": "X/Twitter Whale Flow",
+   "category": "twitter",
+   "title": "Binance Hit by a $6.3B Security Nightmare: Nikita Bier Mocks CZ, While ZachXBT Spots a Bigger Threat - CryptoPotato",
+   "pubDate": "Fri, 30 Oct 2026 07:40:00 GMT",
+   "pub_ts": 1793346000,
+   "age_min": 222.6,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "07:40:00 UTC",
+   "is_new": false
   },
   {
-   "source": "Fed Press",
-   "category": "fed",
-   "title": "Federal Reserve issues FOMC statement",
-   "pubDate": "Wed, 28 Oct 2026 18:00:00 GMT",
+   "source": "X/Twitter Whale Flow",
+   "category": "twitter",
+   "title": "Ethereum Can Hit $10K in 2026 on French Banking Crisis - Arthur Hayes - CoinMarketCap",
+   "pubDate": "Fri, 30 Oct 2026 07:35:05 GMT",
+   "pub_ts": 1793345705,
+   "age_min": 227.5,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "ETH"
+   ],
+   "time": "07:35:05 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Bank of Japan Holds Rates, Closing a Week Where Every Dissent Called for a Hike",
+   "pubDate": "Fri, 30 Oct 2026 07:00:29 +0000",
+   "pub_ts": 1793343629,
+   "age_min": 262.1,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "07:00:29 UTC",
+   "is_new": false
   },
   {
-   "source": "Fed Press",
-   "category": "fed",
-   "title": "Federal Reserve Board announces termination of enforcement actions with Gardner Bancshares, Inc. and Small Business Bank",
-   "pubDate": "Fri, 16 Oct 2026 15:00:00 GMT",
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Fidelity's Timmer Warns Rising Rates Can Hurt Stocks Unless Earnings Keep Pace",
+   "pubDate": "Fri, 30 Oct 2026 06:58:33 +0000",
+   "pub_ts": 1793343513,
+   "age_min": 264.0,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "06:58:33 UTC",
+   "is_new": false
   },
   {
-   "source": "Fed Press",
-   "category": "fed",
-   "title": "Minutes of the Board's discount rate meetings on August 17, September 9, and September 16, 2026",
-   "pubDate": "Tue, 13 Oct 2026 18:00:00 GMT",
+   "source": "X/Twitter Whale Flow",
+   "category": "twitter",
+   "title": "The $6.3 billion Binance hack: What we know so far about the biggest crypto heist in history - Fortune",
+   "pubDate": "Fri, 30 Oct 2026 06:49:00 GMT",
+   "pub_ts": 1793342940,
+   "age_min": 273.6,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "06:49:00 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CryptoSlate",
+   "category": "magazine",
+   "title": "Central banks map their role in a payments system shared with stablecoins",
+   "pubDate": "Fri, 30 Oct 2026 06:30:55 +0000",
+   "pub_ts": 1793341855,
+   "age_min": 291.6,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "06:30:55 UTC",
+   "is_new": false
   },
   {
-   "source": "Fed Press",
-   "category": "fed",
-   "title": "Federal Reserve Board releases results of the 2025 Survey of Consumer Finances, which provides the public and policymakers with detailed insights into the economic condition of American families",
-   "pubDate": "Fri, 9 Oct 2026 14:00:00 GMT",
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "Bitcoin, ether and XRP selloff wipes out $1.5 billion in leveraged crypto bets",
+   "pubDate": "Fri, 30 Oct 2026 06:22:00 +0000",
+   "pub_ts": 1793341320,
+   "age_min": 300.6,
+   "sentiment": "BEARISH",
+   "tags": [
+    "unlock/dilution"
+   ],
+   "tokens": [
+    "BTC",
+    "ETH",
+    "XRP"
+   ],
+   "time": "06:22:00 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Amazon's After-Hours Drop Leaves It Below Wall Street's Lowest Price Target",
+   "pubDate": "Fri, 30 Oct 2026 06:05:30 +0000",
+   "pub_ts": 1793340330,
+   "age_min": 317.1,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "08:52:05 UTC"
+   "time": "06:05:30 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "Here\u2019s what happened in crypto today",
+   "pubDate": "Fri, 30 Oct 2026 06:00:00 +0000",
+   "pub_ts": 1793340000,
+   "age_min": 322.6,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "06:00:00 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "Strategy eyes more Bitcoin buys as Saylor touts $30B credit capacity",
+   "pubDate": "Fri, 30 Oct 2026 05:53:07 +0000",
+   "pub_ts": 1793339587,
+   "age_min": 329.4,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "05:53:07 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "North Korea\u2019s TraderTraitor linked to $6.3B Binance hack",
+   "pubDate": "Fri, 30 Oct 2026 05:51:41 +0000",
+   "pub_ts": 1793339501,
+   "age_min": 330.9,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "05:51:41 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "XRP Ledger developers tighten the rules for who can hold 'restricted' tokens",
+   "pubDate": "Fri, 30 Oct 2026 05:45:27 +0000",
+   "pub_ts": 1793339127,
+   "age_min": 337.1,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "XRP"
+   ],
+   "time": "05:45:27 UTC",
+   "is_new": false
   }
  ]
 }

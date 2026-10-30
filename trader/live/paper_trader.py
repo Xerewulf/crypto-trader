@@ -125,7 +125,8 @@ CFG = {
     "daily_loss_limit": 150.0,        # Hard 3% daily loss guard
     "max_entries_per_day": 10,
     "max_open_positions": 4,          # Up to 4 concurrent positions across the entire market
-    "poll_seconds": 30,
+    "poll_seconds": 10,
+    "news_poll_seconds": 10,          # High-frequency 10-second crypto & macro news polling
     "stale_signal_minutes": 30,
     "cooldown_bars": 2,
     "tp1_r": 1.8,                     # Phase 1: Tier 1 exit (40% at 1.8R, move stop to Breakeven)
@@ -1033,7 +1034,8 @@ def scan_signals(s):
         age_min = (now_ms() - bar["ct"]) / 60000.0
         side = sig["side"]
         base = base_asset(sym)
-        news_veto = s.get("news", {}).get("token_vetoes", {}).get(base)
+        veto_map = s.get("news", {}).get("token_vetoes", {})
+        news_veto = veto_map.get(base) or veto_map.get("CRYPTO")
         if news_veto:
             if side == "long" and news_veto.get("veto_long"):
                 why = news_veto.get("reason", "Bearish news veto")
@@ -1244,14 +1246,86 @@ def refresh_marks(s):
                 pass
 
 
+def evaluate_news_on_open_positions(s, news_data=None):
+    """Real-Time 10-Second Position Protection Guard:
+    Evaluates open positions against newly detected breaking news vetoes and extreme sentiment shocks.
+    - If a token-specific CRITICAL opposing veto hits (e.g., hack/exploit or delisting on an open Long,
+      or Binance listing squeeze on an open Short), triggers an immediate protective exit.
+    - If a broader opposing veto or heavy opposing news shock hits while the position is in profit,
+      tightens the stop-loss to Breakeven so a winning trade cannot turn into a loss."""
+    news_data = news_data if news_data is not None else s.get("news", {})
+    if not news_data or not s.get("positions"):
+        return False
+
+    vetoes = news_data.get("token_vetoes") or {}
+    scores = news_data.get("token_scores") or {}
+    changed = False
+    ms = now_ms()
+    slip = CFG["slippage"]
+
+    for sym in list(s["positions"].keys()):
+        p = s["positions"].get(sym)
+        if not p:
+            continue
+        base = base_asset(sym)
+        side = p["side"]
+        mark = s.get("marks", {}).get(sym, p["entry"])
+        tok_veto = vetoes.get(base)
+        sys_veto = vetoes.get("CRYPTO")
+        t_score = scores.get(base, 0.0)
+
+        if side == "long":
+            if tok_veto and tok_veto.get("veto_long") and tok_veto.get("severity") == "CRITICAL":
+                exit_px = mark * (1.0 - slip)
+                log("EMERGENCY NEWS VETO EXIT #%d LONG %s: %s" % (p["id"], sym, tok_veto.get("reason", "Critical bearish news")))
+                close_position(s, p, exit_px, ms, "NEWS-VETO-EMERGENCY-EXIT")
+                changed = True
+                continue
+            opposing_shock = (
+                (tok_veto and tok_veto.get("veto_long"))
+                or (sys_veto and sys_veto.get("veto_long"))
+                or t_score <= -4.5
+            )
+            if opposing_shock and mark > p["entry"] * (1.0 + CFG["fee_rate"] * 3.0):
+                be_stop = p["entry"] * (1.0 + CFG["fee_rate"] * 2.5)
+                if be_stop > p["stop"]:
+                    p["stop"] = be_stop
+                    log("NEWS GUARD STOP TIGHTENED #%d LONG %s -> Breakeven (%s) on bearish catalyst" % (p["id"], sym, fp(p["stop"])))
+                    changed = True
+        else:
+            if tok_veto and tok_veto.get("veto_short"):
+                exit_px = mark * (1.0 + slip)
+                log("EMERGENCY NEWS VETO EXIT #%d SHORT %s: %s" % (p["id"], sym, tok_veto.get("reason", "Bullish listing squeeze")))
+                close_position(s, p, exit_px, ms, "NEWS-VETO-EMERGENCY-EXIT")
+                changed = True
+                continue
+            opposing_shock = (sys_veto and sys_veto.get("veto_short")) or t_score >= 4.5
+            if opposing_shock and mark < p["entry"] * (1.0 - CFG["fee_rate"] * 3.0):
+                be_stop = p["entry"] * (1.0 - CFG["fee_rate"] * 2.5)
+                if be_stop < p["stop"]:
+                    p["stop"] = be_stop
+                    log("NEWS GUARD STOP TIGHTENED #%d SHORT %s -> Breakeven (%s) on bullish catalyst" % (p["id"], sym, fp(p["stop"])))
+                    changed = True
+
+    return changed
+
+
 def refresh_news(s):
     if not news_monitor:
         return
     try:
-        news_data = news_monitor.fetch_all_news()
+        news_data = news_monitor.fetch_all_news(extra_symbols=s.get("universe"))
         s["news"] = news_data
         s["last_news_ms"] = now_ms()
-        log("News monitor updated: %d headlines tracked across 25+ sources | Macro sentiment %+.1f" % (
+        for alert in news_data.get("breaking_alerts", []):
+            log("BREAKING NEWS [%s] (%s) %s: %s" % (
+                alert.get("sentiment", "INFO"),
+                ",".join(alert.get("tokens", [])),
+                alert.get("source", ""),
+                alert.get("title", "")[:90],
+            ))
+        evaluate_news_on_open_positions(s, news_data)
+        log("News monitor updated (10s cycle): %d headlines tracked across 25+ sources | Macro sentiment %+.1f" % (
             news_data.get("total_headlines", 0), news_data.get("macro_score", 0.0)
         ))
     except Exception as e:
@@ -1259,7 +1333,8 @@ def refresh_news(s):
 
 
 def cycle(s):
-    if not s.get("news") or (now_ms() - s.get("last_news_ms", 0) > 180 * 1000):
+    news_interval_ms = int(CFG.get("news_poll_seconds", 10) * 1000)
+    if not s.get("news") or (now_ms() - s.get("last_news_ms", 0) >= news_interval_ms):
         refresh_news(s)
     if not s.get("funding_arb") or (now_ms() - s.get("last_funding_arb_ms", 0) > 10 * 60 * 1000):
         scan_funding_arbitrage(s)
@@ -1591,23 +1666,23 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 <h2>Active Positions (3x Isolated Margin &amp; Convex Multi-Tier Exits, Max %d Open)</h2>
 <table><tr><th>#</th><th>Symbol</th><th>Side</th><th>Institutional Setup</th><th>Entry</th><th>Live Mark</th><th>Stop-Loss / Trail</th><th>TP1 (1.8R, 40%%)</th><th>TP2 (3.5R, 30%%)</th><th>Runner (30%%)</th><th>Qty (Open / Total)</th><th>Notional</th><th>Margin</th><th>Unrealized</th><th>R Multiple</th><th>Opened (UTC)</th></tr>%s</table>
 
-<h2>25-Source Omni-Channel Live News &amp; Macro Intelligence Stream</h2>
+<h2>25-Source Omni-Channel Live News &amp; Macro Intelligence Stream (10-Second Auto-Sync)</h2>
 <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px;margin-bottom:12px;">
   <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:10px;">
-    <div><b>Macro Fiat Pulse:</b> <span class="%s"><b>%+.1f</b></span> (%s)</div>
-    <div class="badge">Headlines Tracked: %d</div>
-    <div class="badge">Last Scanned: %s</div>
+    <div><b>Macro Fiat Pulse:</b> <span id="news-macro-score" class="%s"><b>%+.1f</b></span> (<span id="news-macro-txt">%s</span>)</div>
+    <div class="badge" id="news-total-hl">Headlines Tracked: %d</div>
+    <div class="badge" id="news-last-scan">Last Scanned: %s (10s Poll)</div>
     <div style="margin-left:auto;font-size:12px;color:#94a3b8;">Binance CMS, Federal Reserve, X Whale Alerts, Wall St Banks, Forbes, Bloomberg, CoinDesk, Decrypt, The Block</div>
   </div>
   <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
     <span style="font-size:12px;color:#94a3b8;font-weight:600;">CoinGecko Global Trending Heat:</span>
-    %s
+    <span id="news-trending-pills">%s</span>
   </div>
-  %s
+  <div id="news-veto-container">%s</div>
   <div style="max-height:280px;overflow:auto;margin-top:8px;">
     <table style="margin-bottom:0;">
-      <tr><th>Time (UTC)</th><th>Source</th><th>Sentiment</th><th>Impacted Coins</th><th>Headline &amp; Narrative Catalyst</th></tr>
-      %s
+      <thead><tr><th>Time (UTC)</th><th>Source</th><th>Sentiment</th><th>Impacted Coins</th><th>Headline &amp; Narrative Catalyst</th></tr></thead>
+      <tbody id="news-tbody">%s</tbody>
     </table>
   </div>
 </div>
@@ -1795,6 +1870,47 @@ function syncState() {
     });
 }
 setInterval(syncState, 3000);
+
+// High-Frequency 10-Second News Stream Sync (in-place DOM update)
+function escHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+setInterval(function() {
+  fetch('/api/news?_t=' + Date.now())
+    .then(function(res){ return res.json(); })
+    .then(function(nw){
+      if (!nw || !nw.headlines) return;
+      var ms = Number(nw.macro_score || 0);
+      var mEl = document.getElementById('news-macro-score');
+      if (mEl) {
+        mEl.className = ms > 0 ? 'pos' : (ms < 0 ? 'neg' : 'muted');
+        mEl.innerHTML = '<b>' + (ms > 0 ? '+' : '') + ms.toFixed(1) + '</b>';
+      }
+      var mTxt = document.getElementById('news-macro-txt');
+      if (mTxt) mTxt.textContent = ms > 0 ? 'Bullish Tailwind' : (ms < 0 ? 'Bearish Headwind' : 'Neutral');
+      var hlEl = document.getElementById('news-total-hl');
+      if (hlEl) hlEl.textContent = 'Headlines Tracked: ' + (nw.total_headlines || nw.headlines.length);
+      var lsEl = document.getElementById('news-last-scan');
+      if (lsEl && nw.updated) lsEl.textContent = 'Last Scanned: ' + nw.updated.slice(11, 19) + ' UTC (10s Poll)';
+      var tb = document.getElementById('news-tbody');
+      if (tb) {
+        tb.innerHTML = nw.headlines.slice(0, 20).map(function(h){
+          var sent = h.sentiment || 'NEUTRAL';
+          var sCls = sent === 'BULLISH' ? 'pos' : (sent === 'BEARISH' ? 'neg' : 'muted');
+          var toks = (h.tokens || []).map(function(t){
+            return "<span class='badge' style='background:#1e293b;color:#38bdf8;font-size:11px;'>" + escHtml(t) + "</span>";
+          }).join(' ');
+          var newTag = h.is_new ? " <span class='badge' style='background:#7c2d12;color:#fed7aa;font-size:10px;'>NEW</span>" : "";
+          return "<tr><td style='color:#94a3b8;font-family:monospace;font-size:11px;'>" + escHtml(h.time || '') + "</td>" +
+                 "<td><span class='badge'>" + escHtml(h.source || '') + "</span></td>" +
+                 "<td class='" + sCls + "'><b>[" + escHtml(sent) + "]</b></td>" +
+                 "<td>" + toks + "</td>" +
+                 "<td style='white-space:normal;font-size:13px;'>" + escHtml(h.title || '') + newTag + "</td></tr>";
+        }).join('');
+      }
+    })
+    .catch(function(){});
+}, 10000);
 </script>
 </body></html>""" % (
         len(s.get("universe", [])),
@@ -1992,17 +2108,25 @@ async def async_news_task(s):
     while True:
         try:
             if news_monitor:
-                news_data = await asyncio.to_thread(news_monitor.fetch_all_news)
+                news_data = await asyncio.to_thread(news_monitor.fetch_all_news, s.get("universe"))
                 s["news"] = news_data
                 s["last_news_ms"] = now_ms()
-                log("News monitor refreshed: %d headlines tracked across 25+ sources | Macro sentiment %+.1f" % (
+                for alert in news_data.get("breaking_alerts", []):
+                    log("BREAKING NEWS [%s] (%s) %s: %s" % (
+                        alert.get("sentiment", "INFO"),
+                        ",".join(alert.get("tokens", [])),
+                        alert.get("source", ""),
+                        alert.get("title", "")[:90],
+                    ))
+                evaluate_news_on_open_positions(s, news_data)
+                log("News monitor refreshed (10s cycle): %d headlines tracked across 25+ sources | Macro sentiment %+.1f" % (
                     news_data.get("total_headlines", 0), news_data.get("macro_score", 0.0)
                 ))
                 save(s)
                 write_dashboard(s)
         except Exception as e:
             log("Background news monitor error: %s" % e)
-        await asyncio.sleep(180.0)
+        await asyncio.sleep(float(CFG.get("news_poll_seconds", 10)))
 
 
 async def async_run(s):

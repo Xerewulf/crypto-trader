@@ -41,12 +41,19 @@ import urllib.request
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 ANALYST_DIR = os.path.join(ROOT_DIR, "trader-analyst")
+LIVE_DIR = os.path.join(ROOT_DIR, "trader", "live")
 if ANALYST_DIR not in sys.path:
     sys.path.insert(0, ANALYST_DIR)
+if LIVE_DIR not in sys.path:
+    sys.path.insert(0, LIVE_DIR)
 
 import math  # noqa: E402
 import statistics  # noqa: E402
 import predict  # noqa: E402
+try:
+    import news_monitor
+except ImportError:
+    news_monitor = None
 try:
     import margin  # noqa: E402
 except ImportError:
@@ -91,6 +98,8 @@ PRICE_CACHE_TS = 0.0
 FUTURES_PREMIUM_CACHE = []
 FUTURES_PREMIUM_CACHE_TS = 0.0
 FORECAST_CACHE = {}
+NEWS_CACHE = {}
+NEWS_POLL_SECONDS = 10.0
 WS_STATS = {
     "connected": False,
     "ticks_received": 0,
@@ -1217,6 +1226,16 @@ class AppHandler(BaseHTTPRequestHandler):
             picks = sorted(cached.values(), key=lambda x: -float(x.get("composite_score") or 0.0))
             return self._send_json({"picks": picks})
 
+        if p == "/api/news":
+            global NEWS_CACHE
+            force = (qs.get("refresh") or ["0"])[0] == "1"
+            if (force or not NEWS_CACHE) and news_monitor:
+                try:
+                    NEWS_CACHE = news_monitor.fetch_all_news(extra_symbols=DEFAULT_WATCHLIST, force=force)
+                except Exception as e:
+                    return self._send_json({"error": str(e)}, status=500)
+            return self._send_json(NEWS_CACHE or {"headlines": [], "macro_score": 0.0})
+
         if p == "/api/arbitrage/opportunities":
             try:
                 min_apy = float((qs.get("min_apy") or ["5.0"])[0])
@@ -1627,6 +1646,20 @@ def background_trigger_worker():
         time.sleep(2.5)
 
 
+def background_news_worker():
+    """Continuously poll 25+ crypto & macro news feeds every 10 seconds."""
+    global NEWS_CACHE
+    while True:
+        t0 = time.time()
+        try:
+            if news_monitor:
+                NEWS_CACHE = news_monitor.fetch_all_news(extra_symbols=DEFAULT_WATCHLIST)
+        except Exception:
+            pass
+        elapsed = time.time() - t0
+        time.sleep(max(1.0, NEWS_POLL_SECONDS - elapsed))
+
+
 def main():
     ap = argparse.ArgumentParser(description="Local iPhone 13 Crypto Paper-Trading Simulator Server")
     ap.add_argument("--host", default="0.0.0.0", help="Bind host (0.0.0.0 allows local Wi-Fi iPhone access)")
@@ -1637,6 +1670,8 @@ def main():
 
     t = threading.Thread(target=background_trigger_worker, daemon=True)
     t.start()
+    t_news = threading.Thread(target=background_news_worker, daemon=True)
+    t_news.start()
 
     if HAS_AIOHTTP:
         ws_t = threading.Thread(target=start_ws_feeder_thread, daemon=True)
