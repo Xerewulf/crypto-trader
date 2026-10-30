@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GodTrader Pro — Local Crypto Paper-Trading & 10-Source AI Terminal</title>
+  <title>GodTrader Pro - Local Crypto Paper-Trading & 10-Source AI Terminal</title>
   <style>
     :root {
       --bg: #070b12;
@@ -704,6 +704,13 @@
           <span>25-Source Omni-Intelligence (Fed / Banks / X / Magazines)</span>
           <button class="btn-action" onclick="loadForecast(currentSymbol, true)">↻ Refresh Live</button>
         </div>
+        <div id="live10sNewsBar" style="background:#080d17;border:1px solid var(--border);padding:7px 9px;border-radius:7px;margin-bottom:8px;font-size:11px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-weight:800;color:var(--cyan);">⚡ 10s Live Crypto &amp; Macro Wire</span>
+            <span id="live10sNewsStamp" style="font-size:10px;color:var(--muted);">Polling every 10s...</span>
+          </div>
+          <div id="live10sNewsItems" style="color:#cbd5e1;max-height:95px;overflow-y:auto;">Syncing 25+ feeds...</div>
+        </div>
         <div id="aiReportContainer" style="font-size:12px;line-height:1.5;">Loading 25-source institutional analysis...</div>
       </div>
     </section>
@@ -1250,13 +1257,45 @@
       } catch (e) {}
     }
 
+    async function fetchLiveNews() {
+      try {
+        const r = await fetch("/api/news?_t=" + Date.now());
+        const nw = await r.json();
+        if (!nw || !nw.headlines) return;
+        const stampEl = document.getElementById("live10sNewsStamp");
+        if (stampEl) {
+          const mScore = Number(nw.macro_score || 0);
+          const mSign = mScore > 0 ? "+" : "";
+          stampEl.textContent = `Macro ${mSign}${mScore.toFixed(1)} | ${(nw.updated || "").slice(11, 19)}`;
+        }
+        const box = document.getElementById("live10sNewsItems");
+        if (box) {
+          box.innerHTML = nw.headlines.slice(0, 6).map(h => {
+            const cls = h.sentiment === "BULLISH" ? "up" : (h.sentiment === "BEARISH" ? "down" : "");
+            const toks = (h.tokens || []).join(",");
+            return `<div style="margin-bottom:3px;">• <b class="${cls}">[${h.sentiment}]</b> <span style="color:#93c5fd;">(${toks})</span> ${h.title} <span style="color:var(--muted);font-size:10px;">- ${h.source}</span></div>`;
+          }).join("");
+        }
+        if (nw.breaking_alerts && nw.breaking_alerts.length) {
+          const topAlert = nw.breaking_alerts[0];
+          const key = topAlert.title + "|" + topAlert.time;
+          if (window._lastBreakingKey !== key) {
+            window._lastBreakingKey = key;
+            toast(`BREAKING [${topAlert.sentiment}] (${(topAlert.tokens || []).join(",")}): ${topAlert.title.slice(0, 70)}`);
+          }
+        }
+      } catch (e) {}
+    }
+
     loadPicksMap().then(() => {
       fetchState();
       fetchKlines();
+      fetchLiveNews();
       loadForecast(currentSymbol, false);
     });
     setInterval(fetchState, 3000);
     setInterval(fetchKlines, 8000);
+    setInterval(fetchLiveNews, 10000);
   </script>
 </body>
 </html>
