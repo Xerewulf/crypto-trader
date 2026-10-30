@@ -553,8 +553,11 @@ def render_moves(moves, move_pct=MOVE_PCT):
     for m in moves:
         flag = "MOVING" if abs(m["pct"]) >= move_pct else ""
         when = (" at %s ET" % to_eastern(m["time"]).strftime("%H:%M")) if m.get("time") else ""
-        out.append("%-10s %s %+.2f%% vs 24h open %s%s  %s" % (
-            m["ticker"], _fmt_price(m["price"]), m["pct"], _fmt_price(m["prev_close"]),
+        ticker = str(m.get("ticker", ""))
+        is_crypto = ticker.endswith(("USDT", "BUSD", "FDUSD", "USDC")) or m.get("is_crypto", False)
+        ref_label = "24h open" if is_crypto else "yesterday's close"
+        out.append("%-10s %s %+.2f%% vs %s %s%s  %s" % (
+            m["ticker"], _fmt_price(m["price"]), m["pct"], ref_label, _fmt_price(m["prev_close"]),
             when, flag))
     return out
 

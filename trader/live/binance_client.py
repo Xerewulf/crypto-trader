@@ -196,6 +196,24 @@ class BinanceClient:
         rounded = round(float(price) / tick) * tick
         return f"{rounded:.{precision}f}"
 
+    def validate_order_filters(self, symbol, qty=None, price=None):
+        """Validates that quantity and notional satisfy Binance symbol filters."""
+        rules = self.symbol_filters.get(symbol)
+        if not rules:
+            self.load_exchange_info()
+            rules = self.symbol_filters.get(symbol, {"stepSize": 0.001, "minQty": 0.001, "minNotional": 5.0})
+
+        min_qty = float(rules.get("minQty", 0.001))
+        min_notional = float(rules.get("minNotional", 5.0))
+
+        if qty is not None and float(qty) < min_qty - 1e-9:
+            raise BinanceAPIError(-1013, f"Quantity {qty} is below symbol minimum lot size {min_qty} for {symbol}.")
+
+        if qty is not None and price is not None and float(price) > 0:
+            notional = float(qty) * float(price)
+            if notional < min_notional - 1e-4:
+                raise BinanceAPIError(-1013, f"Order notional ${notional:.2f} is below minimum notional ${min_notional:.2f} for {symbol}.")
+
     # ---------------------------------------------------------------- authenticated account
 
     def get_account(self):
@@ -266,6 +284,7 @@ class BinanceClient:
             "type": order_type.upper(),
         }
         if qty is not None:
+            self.validate_order_filters(symbol, qty=qty, price=price)
             params["quantity"] = self.format_qty(symbol, float(qty))
         if price is not None:
             params["price"] = self.format_price(symbol, float(price))
