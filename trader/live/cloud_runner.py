@@ -119,9 +119,12 @@ def build_static_site(dest_dir="_site"):
     if os.path.isfile(DASHBOARD_FILE):
         shutil.copyfile(DASHBOARD_FILE, os.path.join(dest_dir, "dashboard.html"))
 
-    # 2b. BNB Specialist Terminal -> bnb.html
+    # 2b. BNB Specialist Terminal -> bnb.html & bnb/index.html
     if os.path.isfile(BNB_HTML_FILE):
         shutil.copyfile(BNB_HTML_FILE, os.path.join(dest_dir, "bnb.html"))
+        bnb_dir = os.path.join(dest_dir, "bnb")
+        os.makedirs(bnb_dir, exist_ok=True)
+        shutil.copyfile(BNB_HTML_FILE, os.path.join(bnb_dir, "index.html"))
 
     # 3. JSON data feeds for dynamic client queries
     for src in (STATE_FILE, TRADES_FILE, NEWS_FILE, FORECAST_FILE, BNB_STATE_FILE, BNB_MODEL_FILE):
@@ -132,6 +135,39 @@ def build_static_site(dest_dir="_site"):
     with open(os.path.join(dest_dir, ".nojekyll"), "w", encoding="utf-8") as fh:
         fh.write("")
 
+    # 4b. Create 404.html with client redirect & navigational fallback
+    page_404 = """<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GodTrader Terminal Portal</title>
+  <script>
+    (function() {
+      var p = window.location.pathname;
+      if (p.endsWith('/bnb') || p.endsWith('/bnb/')) {
+        window.location.replace('bnb.html');
+      } else if (p.endsWith('/dashboard') || p.endsWith('/dashboard/')) {
+        window.location.replace('dashboard.html');
+      }
+    })();
+  </script>
+</head>
+<body style="background:#090d16;color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;">
+  <div style="background:#0f172a;border:1px solid #1e293b;padding:32px 40px;border-radius:12px;max-width:540px;box-shadow:0 12px 36px rgba(0,0,0,0.5);">
+    <h1 style="color:#f3ba2f;margin-top:0;font-size:22px;">Institutional Crypto Trader Terminal</h1>
+    <p style="color:#94a3b8;font-size:14px;line-height:1.5;">The requested page could not be found directly. Please choose your desired desk:</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px;">
+      <a href="index.html" style="background:#1e293b;border:1px solid #334155;color:#38bdf8;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">🎮 Multi-Coin Margin Terminal (Phase 1–6)</a>
+      <a href="bnb.html" style="background:linear-gradient(135deg,#f3ba2f,#d97706);color:#090d16;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:800;font-size:14px;">🟡 BNB Long & Short AI Specialist (10Y Trained)</a>
+      <a href="dashboard.html" style="background:#1e293b;border:1px solid #334155;color:#22c55e;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">⚡ 24/7 Cloud Bot Live Execution Dashboard</a>
+    </div>
+  </div>
+</body>
+</html>
+"""
+    with open(os.path.join(dest_dir, "404.html"), "w", encoding="utf-8") as fh:
+        fh.write(page_404)
+
     # 5. Mirror to docs/ for root GitHub Pages serving
     docs_dir = os.path.join(ROOT, "docs")
     if os.path.abspath(dest_dir) != os.path.abspath(docs_dir):
@@ -141,6 +177,8 @@ def build_static_site(dest_dir="_site"):
             d_item = os.path.join(docs_dir, item)
             if os.path.isfile(s_item):
                 shutil.copyfile(s_item, d_item)
+            elif os.path.isdir(s_item):
+                shutil.copytree(s_item, d_item, dirs_exist_ok=True)
 
     print("[%s] GitHub Pages static assets assembled successfully." % now_iso(), flush=True)
 
