@@ -17,9 +17,11 @@ For any new code, feature, bugfix, or refactoring in `Xerewulf/crypto-trader`:
    - `chore/<task-name>`: Tooling, rules, dependencies, workflow updates
    - `refactor/<target>`: Structural code improvements
 
-3. **Pre-Commit Verification**:
-   - Run unit tests (`cd tests; python -m unittest discover -s . -p "test_*.py"`) and verify that all test suites pass with zero regressions.
-   - Verify that no secrets, credentials, or transient logs are being committed.
+3. **Pre-Commit Verification & Absolute Zero-Secret Guardrail**:
+   - **MANDATORY SENSITIVE DATA CHECK**: Never commit, stage, or deploy sensitive data, private credentials, API keys, secret keys, seed phrases, private tokens (Binance, Telegram, Discord, Alpaca, etc.), passwords, or `.env` / `credentials.json` files to Git or GitHub under any circumstance.
+   - Run `git diff --cached` and verify that staged changes contain ONLY dummy placeholder values (e.g., `YOUR_BINANCE_API_KEY_HERE`) and zero real secrets.
+   - Run unit tests (`$env:PYTHONPATH="tests"; python -m unittest tests/test_*.py`) and verify that all test suites pass with zero regressions.
+   - Verify that all credential files are explicitly listed in `.gitignore` and ignored.
 
 4. **Commit & Push Flow**:
    - Commit with clean, semantic commit messages (e.g., `feat(module): description`).

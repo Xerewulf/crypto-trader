@@ -56,7 +56,7 @@ HOSTS = ("query2", "query1")
 INTERVALS = {"1m": 60, "5m": 300}
 DEFAULTS = {"flat_by": "23:55", "min_reward_risk": 1.0, "market": "binance"}
 ATR_BARS = 14
-MIN_RISK_PCT = Decimal("0.02")     # risk under 0.02% of the price is inside the spread's noise
+MIN_RISK_PCT = Decimal("0.05")     # risk under 0.05% of the price is inside the spread's noise
 CENT = Decimal("0.01")
 EPOCH = datetime.datetime(1970, 1, 1)
 BINANCE_HOSTS = ("https://api.binance.com", "https://data-api.binance.vision")
@@ -564,11 +564,21 @@ def read_config(path):
     return cfg
 
 
-def resolve_flat_by(day, explicit, cfg, entry_time):
+def resolve_flat_by(day, explicit, cfg, entry_time, is_crypto=False):
     """(HH:MM, note). The config's flat-by moves up with a 1:00 p.m. early close."""
-    t = parse_hhmm(explicit or cfg.get("flat_by") or DEFAULTS["flat_by"], "--flat-by" if explicit else "flat_by")
+    default_flat = "23:55" if is_crypto else "15:55"
+    if explicit:
+        chosen_flat = explicit
+    elif cfg.get("flat_by") and cfg.get("flat_by") != "23:55":
+        chosen_flat = cfg.get("flat_by")
+    elif not is_crypto:
+        chosen_flat = "15:55"
+    else:
+        chosen_flat = default_flat
+
+    t = parse_hhmm(chosen_flat, "--flat-by" if explicit else "flat_by")
     note = ""
-    if str(cfg.get("market") or "").lower() != "binance":
+    if not is_crypto:
         s = session(day) if day else None
         if s:
             close_dt = datetime.datetime.combine(day, s[1])
@@ -598,7 +608,9 @@ def gather(a):
             raise PlanError("--symbol needs --entry PRICE")
         if (a.or_high is None) != (a.or_low is None):
             raise PlanError("give both --or-high and --or-low, or neither")
-        sym = a.symbol.upper() if a.offline else to_binance(a.symbol)
+        sym_raw = a.symbol.upper()
+        is_crypto = sym_raw.endswith(("USDT", "BUSD", "FDUSD", "USDC")) or getattr(a, "binance", False)
+        sym = to_binance(a.symbol) if is_crypto else sym_raw
         info = {"symbol": sym, "entry": a.entry, "setup": a.setup or ("orb" if a.or_high is not None else "level"),
                 "date": a.date, "entry_time": a.time, "entry_bar": a.entry_bar, "interval": a.interval or "5m",
                 "or_high": a.or_high, "or_low": a.or_low, "or_minutes": a.or_minutes, "source": "flags"}
@@ -656,7 +668,8 @@ def build_plan(a, now_utc):
         atr, atr_n = atr_of(bars)
     c = compute(info["entry"], stop_rule, stop_param, target_rule, target_param, info["or_high"], info["or_low"],
                 atr, atr_n)
-    flat_by, flat_note = resolve_flat_by(day, a.flat_by, cfg, entry_time)
+    is_crypto_sym = str(info.get("symbol", "")).endswith(("USDT", "BUSD", "FDUSD", "USDC"))
+    flat_by, flat_note = resolve_flat_by(day, a.flat_by, cfg, entry_time, is_crypto=is_crypto_sym)
     orr = None
     if info["or_high"] is not None and info["or_low"] is not None:
         orr = {"high": float(cents(info["or_high"])), "low": float(cents(info["or_low"])),

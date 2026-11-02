@@ -26,7 +26,14 @@ ANALYST_DIR = os.path.join(ROOT_DIR, "trader-analyst")
 if ANALYST_DIR not in sys.path:
     sys.path.insert(0, ANALYST_DIR)
 
+LIVE_DIR = os.path.join(ROOT_DIR, "trader", "live")
+if LIVE_DIR not in sys.path:
+    sys.path.insert(0, LIVE_DIR)
 import predict  # noqa: E402
+try:
+    import bnb_sim_engine
+except ImportError:
+    bnb_sim_engine = None
 
 WALLET_PATH = os.path.join(ROOT_DIR, "trader", "sim_wallet.json")
 FORECAST_PATH = os.path.join(ROOT_DIR, "trader", "forecast.json")
@@ -531,6 +538,10 @@ class AppHandler(BaseHTTPRequestHandler):
 
         if p in ("/", "/index.html"):
             return self._send_file(os.path.join(APP_DIR, "index.html"), "text/html; charset=utf-8")
+        if p in ("/bnb", "/bnb.html"):
+            return self._send_file(os.path.join(APP_DIR, "bnb.html"), "text/html; charset=utf-8")
+        if p == "/api/bnb/state":
+            return self._send_json(bnb_sim_engine.sync_and_evaluate_bnb(auto_execute_if_flat=True))
         if p == "/manifest.json":
             return self._send_file(os.path.join(APP_DIR, "manifest.json"), "application/manifest+json; charset=utf-8")
 
@@ -597,6 +608,36 @@ class AppHandler(BaseHTTPRequestHandler):
             payload = {}
 
         try:
+            if p == "/api/bnb/order":
+                action = str(payload.get("action") or "OPEN").upper()
+                if action == "OPEN":
+                    res = bnb_sim_engine.open_bnb_position(
+                        side=payload.get("side", "SHORT"),
+                        leverage=payload.get("leverage", 2.0),
+                        risk_usd=payload.get("risk_usd"),
+                        notional_usd=payload.get("notional_usd"),
+                        stop_loss=payload.get("stop_loss"),
+                        tp1=payload.get("tp1"),
+                        tp2=payload.get("tp2"),
+                        playbook=payload.get("playbook") or "Institutional BNB Execution",
+                    )
+                elif action == "CLOSE":
+                    res = bnb_sim_engine.close_bnb_position(
+                        close_pct=payload.get("close_pct", 100.0),
+                        reason=payload.get("reason", "Manual Close"),
+                    )
+                elif action == "BRACKETS":
+                    res = bnb_sim_engine.update_bnb_brackets(
+                        stop_loss=payload.get("stop_loss"),
+                        tp1=payload.get("tp1"),
+                        tp2=payload.get("tp2"),
+                        auto_pilot=payload.get("auto_pilot"),
+                    )
+                elif action == "RESET":
+                    res = bnb_sim_engine.reset_bnb_state(payload.get("starting_equity") or 10000.0)
+                else:
+                    raise ValueError("Unknown BNB action: %s" % action)
+                return self._send_json({"ok": True, "result": res, "state": bnb_sim_engine.sync_and_evaluate_bnb(auto_execute_if_flat=False)})
             if p == "/api/order":
                 res = place_sim_order(payload)
                 return self._send_json({"ok": True, "result": res, "state": check_triggers_and_enrich()})
