@@ -830,8 +830,18 @@
 
     async function loadBnbBundle() {
       try {
-        const res = await fetch('/api/bnb/state?_t=' + Date.now());
-        const data = await res.json();
+        let data = null;
+        const isClientSide = (window.location.protocol === 'file:' || window.location.hostname.includes('github.io'));
+        if (!isClientSide) {
+          try {
+            const res = await fetch('/api/bnb/state?_t=' + Date.now());
+            if (res.ok) data = await res.json();
+          } catch (e) {}
+        }
+        if (!data || !data.wallet) {
+          const res = await fetch('bnb_state.json?_t=' + Date.now());
+          if (res.ok) data = await res.json();
+        }
         if (data && data.wallet) {
           const firstLoad = !bnbState;
           bnbState = data;
@@ -1265,23 +1275,141 @@
       });
     }
 
+    async function sendBnbOrder(payload) {
+      const isClientSide = (window.location.protocol === 'file:' || window.location.hostname.includes('github.io'));
+      if (!isClientSide) {
+        try {
+          const res = await fetch('/api/bnb/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            const d = await res.json();
+            if (d.ok) {
+              await loadBnbBundle();
+              return true;
+            } else if (d.error) {
+              alert(d.error);
+              return false;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // Client-side execution engine fallback for GitHub Pages
+      if (!bnbState || !bnbState.wallet) return false;
+      const w = bnbState.wallet;
+      const px = livePrice || (bnbState.live_setup ? bnbState.live_setup.live_price : 735.0);
+
+      if (payload.action === 'RESET') {
+        w.cash_balance = 10000.0;
+        w.total_equity = 10000.0;
+        w.realized_pnl_usd = 0.0;
+        w.total_trades = 0;
+        w.winning_trades = 0;
+        w.losing_trades = 0;
+        w.win_rate_pct = 0.0;
+        w.active_position = null;
+        w.closed_trades = [];
+        renderBnbBundle(false);
+        return true;
+      }
+
+      if (payload.action === 'BRACKETS') {
+        if (payload.auto_pilot !== undefined) w.auto_pilot = payload.auto_pilot;
+        if (w.active_position) {
+          if (payload.stop_loss) w.active_position.stop_loss = payload.stop_loss;
+          if (payload.tp1) w.active_position.tp1_price = payload.tp1;
+          if (payload.tp2) w.active_position.tp2_price = payload.tp2;
+        }
+        renderBnbBundle(false);
+        return true;
+      }
+
+      if (payload.action === 'CLOSE') {
+        if (!w.active_position) return false;
+        const p = w.active_position;
+        const pct = Math.min(100, Math.max(1, payload.close_pct || 100));
+        const closeQty = p.qty * (pct / 100.0);
+        const rawPnl = p.side === 'LONG' ? (px - p.entry_price) * closeQty : (p.entry_price - px) * closeQty;
+        const fee = closeQty * px * 0.0005;
+        const netPnl = rawPnl - fee;
+        const rMult = netPnl / Math.max(1, p.planned_risk_usd * (pct / 100.0));
+
+        w.cash_balance += (closeQty * px / p.leverage) + netPnl;
+        w.realized_pnl_usd += netPnl;
+        w.total_trades += 1;
+        if (netPnl >= 0) w.winning_trades += 1; else w.losing_trades += 1;
+        w.win_rate_pct = Math.round(100.0 * w.winning_trades / w.total_trades);
+
+        w.closed_trades = w.closed_trades || [];
+        w.closed_trades.unshift({
+          closed_at: new Date().toISOString(),
+          side: p.side,
+          playbook: payload.reason || p.playbook,
+          entry_price: p.entry_price,
+          stop_loss: p.stop_loss,
+          exit_price: px,
+          reason: payload.reason || 'Manual Close',
+          r_multiple: parseFloat(rMult.toFixed(2)),
+          net_pnl_usd: parseFloat(netPnl.toFixed(2))
+        });
+
+        if (pct >= 99) {
+          w.active_position = null;
+        } else {
+          p.qty -= closeQty;
+        }
+        w.total_equity = w.cash_balance;
+        renderBnbBundle(false);
+        return true;
+      }
+
+      if (payload.action === 'OPEN') {
+        const side = (payload.side || 'LONG').toUpperCase();
+        const lev = payload.leverage || 2;
+        const riskUsd = payload.risk_usd || 150;
+        const sl = payload.stop_loss || (side === 'LONG' ? px * 0.98 : px * 1.02);
+        const dist = Math.max(0.5, Math.abs(px - sl));
+        const qty = parseFloat((riskUsd / dist).toFixed(4));
+        const margin = (qty * px) / lev;
+
+        w.active_position = {
+          symbol: 'BNBUSDT',
+          side: side,
+          entry_price: px,
+          qty: qty,
+          initial_qty: qty,
+          leverage: lev,
+          margin_allocated_usd: margin,
+          stop_loss: sl,
+          tp1_price: payload.tp1 || (side === 'LONG' ? px * 1.035 : px * 0.965),
+          tp2_price: payload.tp2 || (side === 'LONG' ? px * 1.070 : px * 0.930),
+          planned_risk_usd: riskUsd,
+          playbook: payload.playbook || 'Manual Trade',
+          opened_at: new Date().toISOString(),
+          entry_fee_usd: margin * 0.001
+        };
+        w.cash_balance = Math.max(0, w.cash_balance - margin);
+        renderBnbBundle(false);
+        return true;
+      }
+      return false;
+    }
+
     async function executeAiRecommended() {
       if (!bnbState || !bnbState.live_setup) return;
       const ls = bnbState.live_setup;
-      await fetch('/api/bnb/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'OPEN',
-          side: ls.recommended_side,
-          leverage: 2,
-          stop_loss: ls.stop_loss,
-          tp1: ls.tp1_price,
-          tp2: ls.tp2_price,
-          playbook: ls.playbook_name
-        })
+      await sendBnbOrder({
+        action: 'OPEN',
+        side: ls.recommended_side,
+        leverage: 2,
+        stop_loss: ls.stop_loss,
+        tp1: ls.tp1_price,
+        tp2: ls.tp2_price,
+        playbook: ls.playbook_name
       });
-      await loadBnbBundle();
     }
 
     async function submitBnbOrder() {
@@ -1289,44 +1417,27 @@
       const stopLoss = parseFloat(document.getElementById('inpStop').value);
       const tp1 = parseFloat(document.getElementById('inpTp1').value);
       const tp2 = parseFloat(document.getElementById('inpTp2').value);
-      const res = await fetch('/api/bnb/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'OPEN',
-          side: selectedSide,
-          leverage: selectedLev,
-          risk_usd: riskUsd,
-          stop_loss: stopLoss,
-          tp1: tp1,
-          tp2: tp2,
-          playbook: `Manual Institutional ${selectedSide} (${selectedLev}x)`
-        })
+      await sendBnbOrder({
+        action: 'OPEN',
+        side: selectedSide,
+        leverage: selectedLev,
+        risk_usd: riskUsd,
+        stop_loss: stopLoss,
+        tp1: tp1,
+        tp2: tp2,
+        playbook: `Manual Institutional ${selectedSide} (${selectedLev}x)`
       });
-      const d = await res.json();
-      if (!d.ok && d.error) alert(d.error);
-      await loadBnbBundle();
     }
 
     async function scaleOutPosition(pct, reason) {
-      await fetch('/api/bnb/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'CLOSE', close_pct: pct, reason: reason })
-      });
-      await loadBnbBundle();
+      await sendBnbOrder({ action: 'CLOSE', close_pct: pct, reason: reason });
     }
 
     async function moveStopBreakeven() {
       if (!bnbState || !bnbState.wallet || !bnbState.wallet.active_position) return;
       const pos = bnbState.wallet.active_position;
       const be = pos.side === 'LONG' ? pos.entry_price * 1.001 : pos.entry_price * 0.999;
-      await fetch('/api/bnb/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'BRACKETS', stop_loss: be })
-      });
-      await loadBnbBundle();
+      await sendBnbOrder({ action: 'BRACKETS', stop_loss: be });
     }
 
     async function flipBnbPosition() {
@@ -1334,41 +1445,27 @@
       const curSide = bnbState.wallet.active_position.side;
       const newSide = curSide === 'LONG' ? 'SHORT' : 'LONG';
       const dp = bnbState.live_setup.dual_plans[newSide];
-      await fetch('/api/bnb/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'OPEN',
-          side: newSide,
-          leverage: selectedLev,
-          stop_loss: dp.stop,
-          tp1: dp.tp1,
-          tp2: dp.tp2,
-          playbook: `Flipped ${curSide} -> ${newSide}: ${dp.playbook}`
-        })
+      await sendBnbOrder({ action: 'CLOSE', close_pct: 100, reason: 'Flip Position' });
+      await sendBnbOrder({
+        action: 'OPEN',
+        side: newSide,
+        leverage: selectedLev,
+        stop_loss: dp.stop,
+        tp1: dp.tp1,
+        tp2: dp.tp2,
+        playbook: `Flipped ${curSide} -> ${newSide}: ${dp.playbook}`
       });
-      await loadBnbBundle();
     }
 
     async function toggleAutoPilot() {
       if (!bnbState || !bnbState.wallet) return;
       const next = !bnbState.wallet.auto_pilot;
-      await fetch('/api/bnb/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'BRACKETS', auto_pilot: next })
-      });
-      await loadBnbBundle();
+      await sendBnbOrder({ action: 'BRACKETS', auto_pilot: next });
     }
 
     async function resetBnbWallet() {
       if (!confirm('Reset BNB Long & Short Simulator Wallet back to $10,000.00?')) return;
-      await fetch('/api/bnb/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'RESET', starting_equity: 10000 })
-      });
-      await loadBnbBundle();
+      await sendBnbOrder({ action: 'RESET', starting_equity: 10000 });
     }
 
     // Live Binance Millisecond aggTrade WebSocket specifically for BNBUSDT

@@ -653,9 +653,7 @@
     <div class="brand-group">
       <span class="site-title">GodTrader Binance Margin Terminal</span>
       <div class="sim-controls">
-        <span class="badge-sim live" id="simStatusBadge">● SIMULATION RUNNING</span>
-        <button class="btn-sim start" id="btnStartSim" onclick="setSimState(true)">▶ START</button>
-        <button class="btn-sim stop" id="btnStopSim" onclick="setSimState(false)">⏹ STOP</button>
+        <span class="badge-sim live" id="simStatusBadge">● SIMULATION ACTIVE</span>
       </div>
       <span class="badge-sim live" id="wsClobBadge" style="background:rgba(16,185,129,0.15);border:1px solid var(--green);color:#34d399;">⚡ WS CLOB: <span id="wsTickRate">0.0</span> ticks/s</span>
       <a href="/bnb" style="text-decoration:none;background:linear-gradient(135deg,#f3ba2f,#d97706);color:#090d16;font-weight:900;font-size:12px;padding:6px 12px;border-radius:7px;margin-left:8px;box-shadow:0 0 12px rgba(243,186,47,0.35);">🟡 BNB Long &amp; Short AI Desk (10Y Trained) →</a>
@@ -683,8 +681,7 @@
       <button type="button" id="tabSORBtn" class="nav-pill" onclick="switchDesk('sor')">🌐 SOR & Multi-Venue Risk (Phase 4)</button>
       <button type="button" id="tabHeatmapBtn" class="nav-pill" onclick="switchDesk('heatmap')">🌊 Liquidity Heatmap & PWA (Phase 5)</button>
       <button type="button" id="tabAiQuantBtn" class="nav-pill" onclick="switchDesk('ai-quant')">🧠 AI Quant & Debate (Phase 6)</button>
-      <button type="button" id="btnPwaInstall" class="nav-pill" style="display:none; background:#065f46; color:#a7f3d0; border-color:#059669;" onclick="triggerPwaInstall()">📲 Install App</button>
-      <button type="button" id="btnNotificationToggle" class="nav-pill" style="background:#1e293b; color:#cbd5e1;" onclick="togglePushNotifications()">🔔 Push Alerts</button>
+
       <a href="dashboard.html" class="nav-pill">🤖 24/7 Cloud Bot Dashboard</a>
       <a href="https://github.com/Xerewulf/crypto-trader" target="_blank" class="nav-pill gh">🐙 GitHub Source</a>
     </div>
@@ -1767,10 +1764,7 @@
             Install GodTrader as a native desktop or mobile application on Windows, macOS, iOS, or Android with offline caching and instant launch:
           </p>
           <div style="display:flex; gap:10px; align-items:center;">
-            <button type="button" class="btn-action" style="background:#059669; color:#fff; font-weight:800; padding:8px 14px;" onclick="triggerPwaInstall()">
-              📲 Install Native App
-            </button>
-            <span style="font-size:11px; color:#94a3b8;" id="pwaStatusDesc">Click to install or Add to Home Screen in Safari.</span>
+            <span style="font-size:11px; color:#94a3b8;" id="pwaStatusDesc">In Chrome/Edge: click Install in address bar. In iOS Safari: tap Share ➔ Add to Home Screen.</span>
           </div>
           <div style="font-size:11px; color:#64748b; background:rgba(15,23,42,0.4); padding:6px 10px; border-radius:4px;">
             Service Worker Cache: <b style="color:#2dd4bf;">godtrader-pwa-v5</b> (Shell, HTML, Manifest, Offline Fallback).
@@ -1789,15 +1783,7 @@
             Receive instant operating system desktop & mobile notifications for large whale trades and margin liquidation risk:
           </p>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <button type="button" class="btn-action" style="background:#2563eb; color:#fff; font-weight:800; padding:8px 14px;" onclick="requestPushPermission()">
-              🔔 Enable Native Alerts
-            </button>
-            <button type="button" class="btn-action" style="background:#334155; color:#e2e8f0; padding:8px 14px;" onclick="testPushNotification()">
-              ⚡ Send Test Notification
-            </button>
-            <button type="button" class="btn-action" style="background:#334155; color:#e2e8f0; padding:8px 14px;" onclick="playChimeSound()">
-              🎵 Test Sound Chime
-            </button>
+            <span style="font-size:12px; color:#94a3b8;">Real-time order flow and block trades monitor automatically dispatches desktop and audio alerts when active.</span>
           </div>
           <div style="font-size:11px; color:#64748b; background:rgba(15,23,42,0.4); padding:6px 10px; border-radius:4px;">
             Notification Status: <b id="pushPermissionBadge" style="color:#38bdf8;">Default (Click to Enable)</b>
