@@ -21,36 +21,7 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 #hb.ok{color:#22c55e;font-weight:600}#hb.bad{color:#ef4444;font-weight:700}
 .log{background:#020617;border:1px solid #1e293b;border-radius:8px;padding:10px;font:12px Consolas,monospace;max-height:420px;overflow:auto}
 
-.ctrl-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px 16px;margin:12px 0}
-.ctrl-left{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-.ctrl-right{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto}
-.ctrl-tag{font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:0.5px}
-.ctrl-btn{border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s ease}
-.ctrl-btn:hover{filter:brightness(1.15)}
-.btn-sim{background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb}
-.btn-live{background:#854d0e;color:#fef08a;border:1px solid #eab308;animation:pulse 2s infinite}
-.btn-running{background:#064e3b;color:#6ee7b7;border:1px solid #059669}
-.btn-paused{background:#78350f;color:#fde68a;border:1px solid #d97706}
-.strat-group{display:flex;gap:4px}
-.strat-btn{background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:5px 10px;border-radius:5px;font-size:11px;cursor:pointer}
-.strat-btn.active{background:#3b82f6;color:#ffffff;border-color:#60a5fa;font-weight:700}
-.btn-api{background:#312e81;color:#c7d2fe;border:1px solid #4f46e5}
-.btn-reset{background:#334155;color:#e2e8f0;border:1px solid #475569}
-.btn-flatten{background:#991b1b;color:#fecaca;border:1px solid #dc2626;font-weight:700}
-.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999}
-.modal-card{background:#0f172a;border:1px solid #334155;border-radius:12px;width:90%;max-width:540px;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.8)}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.modal-head h3{margin:0;font-size:17px;color:#f8fafc}
-.close-x{background:none;border:none;color:#94a3b8;font-size:24px;cursor:pointer}
-.modal-desc{font-size:12px;color:#94a3b8;line-height:1.5;margin-bottom:16px}
-.form-row{margin-bottom:12px}
-.form-row label{display:block;font-size:12px;color:#cbd5e1;margin-bottom:4px;font-weight:600}
-.form-row input[type=text],.form-row input[type=password]{width:100%;box-sizing:border-box;background:#020617;border:1px solid #334155;color:#f8fafc;padding:8px 12px;border-radius:6px;font-size:13px;font-family:monospace}
-.modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
-.btn-test{background:#0284c7;color:#fff}
-.btn-save{background:#16a34a;color:#fff}
-.toast{position:fixed;bottom:24px;right:24px;background:#1e293b;border:1px solid #3b82f6;color:#f8fafc;padding:12px 20px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.5);z-index:10000;font-size:13px;font-weight:600;display:none}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(234,179,8,0.7)}70%{box-shadow:0 0 0 8px rgba(234,179,8,0)}100%{box-shadow:0 0 0 0 rgba(234,179,8,0)}}
+
 
 .nav-switcher{display:flex;justify-content:space-between;align-items:center;background:#060a12;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;margin-bottom:14px;flex-wrap:wrap;gap:10px}
 .nav-tabs{display:flex;align-items:center;gap:8px}
@@ -87,59 +58,7 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
   <span class="badge" style="margin-left:auto;color:#a78bfa;">Instant Millisecond Execution</span>
 </div>
 
-<div class="ctrl-bar">
-  <div class="ctrl-left">
-    <span class="ctrl-tag">MOD:</span>
-    <button id="mode-btn" class="ctrl-btn btn-sim" onclick="toggleTradingMode()">🛡️ SİMÜLASYON (SANAL)</button>
-    <span class="ctrl-tag">BOT:</span>
-    <button id="bot-toggle-btn" class="ctrl-btn btn-running" onclick="toggleBotRun()">▶ AKTİF</button>
-    <span class="ctrl-tag">STRATEJİ:</span>
-    <div class="strat-group">
-      <button class="strat-btn " onclick="changeStrategy('SCALPER')">⚡ 5m Scalper</button>
-      <button class="strat-btn " onclick="changeStrategy('AGGRESSIVE_TREND')">🚀 Agresif Trend</button>
-      <button class="strat-btn active" onclick="changeStrategy('HYBRID')">🏆 Hybrid (God-Level)</button>
-      <button class="strat-btn " onclick="changeStrategy('FUNDING_ARB')">📈 Arbitraj</button>
-    </div>
-  </div>
-  <div class="ctrl-right">
-    <button class="ctrl-btn btn-api" onclick="openApiModal()">🔑 Binance API Bağla</button>
-    <button class="ctrl-btn btn-reset" onclick="resetSimWallet()">🔄 Simülasyon Sıfırla</button>
-    <button class="ctrl-btn btn-flatten" onclick="emergencyFlattenAll()">🚨 TÜMÜNÜ KAPAT</button>
-  </div>
-</div>
 
-<div id="api-modal" class="modal-bg" style="display:none;">
-  <div class="modal-card">
-    <div class="modal-head">
-      <h3>🔑 Binance Futures API Bağlantısı</h3>
-      <button class="close-x" onclick="closeApiModal()">&times;</button>
-    </div>
-    <p class="modal-desc">
-      Gerçek Binance hesabınızda vadeli işlem yapmak için API Key ve Secret girin. 
-      Anahtarlar yalnızca yerel sunucunuzda saklanır. 
-      <b>Güvenlik Kuralı:</b> Yalnızca <i>"Enable Futures"</i> yetkisi verin; Para Çekme (Withdrawal) yetkisini ASLA açmayın.
-    </p>
-    <div class="form-row">
-      <label>Binance API Key:</label>
-      <input type="text" id="api-key-input" placeholder="Binance API Key..." />
-    </div>
-    <div class="form-row">
-      <label>Binance API Secret:</label>
-      <input type="password" id="api-secret-input" placeholder="Binance API Secret..." />
-    </div>
-    <div class="form-row" style="display:flex;align-items:center;gap:8px;">
-      <input type="checkbox" id="api-testnet-check" />
-      <label for="api-testnet-check" style="margin:0;">Binance Futures Testnet (Test Ağı)</label>
-    </div>
-    <div id="api-test-result" style="display:none;margin:10px 0;padding:10px;border-radius:6px;font-size:13px;"></div>
-    <div class="modal-actions">
-      <button class="ctrl-btn btn-test" onclick="testApiKeys()">🔍 Test Et & Bakiye Getir</button>
-      <button class="ctrl-btn btn-save" onclick="saveAndActivateLive()">⚡ Kaydet ve Canlı İşlemi Aç</button>
-      <button class="ctrl-btn" onclick="closeApiModal()">Kapat</button>
-    </div>
-  </div>
-</div>
-<div id="toast" class="toast"></div>
 
 <div>Status: <span id="hb">connecting...</span> &middot; Last cycle: 2026-11-02 11:08:12 UTC &middot; Cycles: 6150 &middot; Initialized: 2026-10-26 06:11:44 UTC &middot; <i>Streaming live via WebSockets (Zero Reload Lag)</i></div>
 
@@ -158,7 +77,7 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 <h2>Live Equity Curve</h2><svg viewBox="0 0 1000 220" width="100%" height="220"><line x1="45" x2="990" y1="57.8" y2="57.8" stroke="#475569" stroke-dasharray="4 4"/><text x="2" y="54.8" fill="#94a3b8" font-size="11">$5,000.00</text><text x="2" y="20" fill="#94a3b8" font-size="11">$5,042.31</text><text x="2" y="198" fill="#94a3b8" font-size="11">$4,868.82</text><polyline fill="none" stroke="#ef4444" stroke-width="2.5" points="45.0,57.8 45.5,57.8 45.9,57.8 46.4,57.8 46.9,57.8 47.4,57.8 47.9,57.8 48.4,57.8 48.8,57.8 49.3,57.8 49.8,57.8 50.3,57.8 50.8,57.8 51.3,57.8 51.7,57.8 52.2,57.8 52.7,57.8 53.2,57.8 53.6,57.8 54.1,57.8 54.6,57.8 55.1,57.8 55.6,57.8 56.0,57.8 56.6,57.8 57.1,71.0 57.6,83.9 58.1,84.5 58.6,94.8 59.0,94.2 59.5,100.0 59.9,95.4 60.5,91.2 60.9,85.8 61.4,89.1 61.9,88.1 62.3,81.6 62.8,73.8 63.3,77.8 63.7,76.8 64.2,80.5 64.7,74.7 65.2,82.9 65.6,89.0 66.1,91.0 66.6,96.7 67.0,97.0 67.5,106.3 68.0,109.0 68.5,108.0 68.9,94.7 69.4,91.4 69.9,101.4 70.4,99.8 70.8,97.1 71.4,99.4 71.9,105.0 72.3,109.1 72.8,108.2 73.3,107.6 73.8,99.3 74.2,93.8 74.7,86.8 75.2,80.2 76.0,86.9 76.1,83.1 76.6,93.7 77.0,89.2 77.5,81.7 78.0,85.2 78.4,79.1 78.9,83.6 79.3,64.5 79.8,65.8 80.2,81.5 80.7,79.8 81.2,80.2 81.6,74.4 82.1,89.4 82.5,89.2 83.0,107.6 83.4,105.3 83.9,106.4 84.6,123.1 85.1,112.7 85.6,93.4 86.0,68.1 86.5,103.5 86.9,96.0 87.4,134.7 87.8,136.5 88.3,144.9 88.8,123.4 89.2,120.8 89.7,108.8 90.7,149.6 91.2,117.9 91.7,104.8 95.4,35.8 175.7,112.0 176.1,105.5 176.6,134.4 177.0,137.1 177.5,142.4 178.0,132.5 178.4,132.8 178.9,130.1 180.8,152.4 186.3,103.9 189.6,120.2 191.4,117.0 198.7,191.2 200.9,182.4 204.5,177.4 211.5,169.7 213.3,169.5 216.3,200.0 219.2,141.0 222.6,145.5 223.8,139.2 250.5,133.2 270.3,146.8 287.2,92.5 322.2,76.0 359.1,65.3 385.9,68.0 406.9,66.7 438.1,77.4 475.2,71.0 478.2,71.2 483.8,75.9 507.1,155.7 530.3,185.7 549.3,183.3 580.1,190.8 584.2,172.3 613.8,121.0 615.0,136.5 620.3,174.6 643.5,12.0 644.9,42.1 662.9,57.6 664.2,60.5 681.3,60.5 715.4,60.5 748.5,60.5 770.5,60.5 771.2,60.5 788.2,65.5 789.6,60.6 804.2,82.3 805.5,72.5 990.0,131.5"/></svg>
 
 <h2>Active Positions (3x Isolated Margin &amp; Convex Multi-Tier Exits, Max 4 Open)</h2>
-<table><tr><th>#</th><th>Symbol</th><th>Side</th><th>Institutional Setup</th><th>Entry</th><th>Live Mark</th><th>Stop-Loss / Trail</th><th>TP1 (1.8R, 40%)</th><th>TP2 (3.5R, 30%)</th><th>Runner (30%)</th><th>Qty (Open / Total)</th><th>Notional</th><th>Margin</th><th>Unrealized</th><th>R Multiple</th><th>Opened (UTC)</th><th>Eylem</th></tr><tr id='pos-row-ZECUSDT' data-pos-sym='ZECUSDT' data-entry='1247.16051800' data-qty='2.23599695' data-fee='1.11545885' data-risk='50.00' data-side='short'><td>#9</td><td><b>ZECUSDT</b></td><td class='neg'>SHORT (SELL)</td><td>1h EMA20 Bearish Rejection</td><td>1247.16</td><td id='pos-mark-ZECUSDT' class='ticker-cell' data-sym='ZECUSDT'><b>1247.69</b></td><td>1269.52</td><td>1206.91</td><td>1168.90</td><td><span class='muted'>Waiting TP2</span></td><td>2.236 / 2.236</td><td>$2,788.65</td><td>$1,394.32</td><td id='pos-pnl-ZECUSDT' class='neg'>-$2.30</td><td id='pos-r-ZECUSDT' class='neg'>-0.05R</td><td>11-02 11:08</td><td><button onclick='closePos("ZECUSDT")' style='background:#dc2626;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;'>✕ Kapat</button></td></tr><tr id='pos-row-XRPUSDT' data-pos-sym='XRPUSDT' data-entry='1.24915012' data-qty='5120.18251183' data-fee='2.55835064' data-risk='50.00' data-side='short'><td>#10</td><td><b>XRPUSDT</b></td><td class='neg'>SHORT (SELL)</td><td>1h EMA20 Bearish Rejection</td><td>1.2492</td><td id='pos-mark-XRPUSDT' class='ticker-cell' data-sym='XRPUSDT'><b>1.2494</b></td><td>1.2589</td><td>1.2316</td><td>1.2150</td><td><span class='muted'>Waiting TP2</span></td><td>5120.1825 / 5120.1825</td><td>$6,395.88</td><td>$2,131.96</td><td id='pos-pnl-XRPUSDT' class='neg'>-$3.84</td><td id='pos-r-XRPUSDT' class='neg'>-0.08R</td><td>11-02 11:08</td><td><button onclick='closePos("XRPUSDT")' style='background:#dc2626;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;'>✕ Kapat</button></td></tr></table>
+<table><tr><th>#</th><th>Symbol</th><th>Side</th><th>Institutional Setup</th><th>Entry</th><th>Live Mark</th><th>Stop-Loss / Trail</th><th>TP1 (1.8R, 40%)</th><th>TP2 (3.5R, 30%)</th><th>Runner (30%)</th><th>Qty (Open / Total)</th><th>Notional</th><th>Margin</th><th>Unrealized</th><th>R Multiple</th><th>Opened (UTC)</th></tr><tr id='pos-row-ZECUSDT' data-pos-sym='ZECUSDT' data-entry='1247.16051800' data-qty='2.23599695' data-fee='1.11545885' data-risk='50.00' data-side='short'><td>#9</td><td><b>ZECUSDT</b></td><td class='neg'>SHORT (SELL)</td><td>1h EMA20 Bearish Rejection</td><td>1247.16</td><td id='pos-mark-ZECUSDT' class='ticker-cell' data-sym='ZECUSDT'><b>1247.69</b></td><td>1269.52</td><td>1206.91</td><td>1168.90</td><td><span class='muted'>Waiting TP2</span></td><td>2.236 / 2.236</td><td>$2,788.65</td><td>$1,394.32</td><td id='pos-pnl-ZECUSDT' class='neg'>-$2.30</td><td id='pos-r-ZECUSDT' class='neg'>-0.05R</td><td>11-02 11:08</td></tr><tr id='pos-row-XRPUSDT' data-pos-sym='XRPUSDT' data-entry='1.24915012' data-qty='5120.18251183' data-fee='2.55835064' data-risk='50.00' data-side='short'><td>#10</td><td><b>XRPUSDT</b></td><td class='neg'>SHORT (SELL)</td><td>1h EMA20 Bearish Rejection</td><td>1.2492</td><td id='pos-mark-XRPUSDT' class='ticker-cell' data-sym='XRPUSDT'><b>1.2494</b></td><td>1.2589</td><td>1.2316</td><td>1.2150</td><td><span class='muted'>Waiting TP2</span></td><td>5120.1825 / 5120.1825</td><td>$6,395.88</td><td>$2,131.96</td><td id='pos-pnl-XRPUSDT' class='neg'>-$3.84</td><td id='pos-r-XRPUSDT' class='neg'>-0.08R</td><td>11-02 11:08</td></tr></table>
 
 <h2>25-Source Omni-Channel Live News &amp; Macro Intelligence Stream (10-Second Auto-Sync)</h2>
 <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px;margin-bottom:12px;">
@@ -191,7 +110,7 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 <table><tr><th>#</th><th>Symbol</th><th>Side</th><th>Setup</th><th>Opened</th><th>Closed</th><th>Entry</th><th>Exit</th><th>Outcome</th><th>Fees/Carry</th><th>Net Profit</th><th>R Return</th><th>Account Balance</th></tr><tr><td>#8</td><td><b>BNBUSDT</b></td><td class='neg'>SHORT</td><td class='small'>1h EMA20 Bearish Rejection</td><td>10-31 22:11</td><td>11-01 08:35</td><td>703.79</td><td>708.49</td><td class='neg'>STOP-LOSS (-1.0R)</td><td>$7.89</td><td class='neg'>-$59.44</td><td class='neg'>-1.19R</td><td>$4,938.15</td></tr><tr><td>#7</td><td><b>MUBUSDT</b></td><td class='neg'>SHORT</td><td class='small'>1h EMA20 Bearish Rejection (Micro 5m)</td><td>10-30 15:28</td><td>10-30 23:21</td><td>891.53</td><td>890.82</td><td class='neg'>TRAILING-VWAP-EXIT</td><td>$6.43</td><td class='pos'>+$101.43</td><td class='pos'>+1.69R</td><td>$4,997.59</td></tr><tr><td>#6</td><td><b>ASTERUSDT</b></td><td class='neg'>SHORT</td><td class='small'>1h EMA20 Bearish Rejection (Micro 5m)</td><td>10-30 08:06</td><td>10-30 15:17</td><td>0.6855</td><td>0.6849</td><td class='pos'>BREAKEVEN-EXIT (+0.72R Locked)</td><td>$5.89</td><td class='pos'>+$24.11</td><td class='pos'>+0.64R</td><td>$4,896.16</td></tr><tr><td>#3</td><td><b>SNDKBUSDT</b></td><td class='pos'>LONG</td><td class='small'>Wyckoff Spring (CVD Absorption at VAL/Low)</td><td>10-26 09:01</td><td>10-30 09:20</td><td>1247.53</td><td>1257.13</td><td class='neg'>TRAILING-VWAP-EXIT</td><td>$3.21</td><td class='pos'>+$90.12</td><td class='pos'>+1.80R</td><td>$4,872.05</td></tr><tr><td>#5</td><td><b>ETHUSDT</b></td><td class='neg'>SHORT</td><td class='small'>1h EMA20 Bearish Rejection</td><td>10-29 13:28</td><td>10-29 14:36</td><td>2327.79</td><td>2346.09</td><td class='neg'>STOP-LOSS (-1.0R)</td><td>$5.51</td><td class='neg'>-$56.82</td><td class='neg'>-1.14R</td><td>$4,868.54</td></tr><tr><td>#4</td><td><b>ADAUSDT</b></td><td class='pos'>LONG</td><td class='small'>Wyckoff Spring (CVD Absorption at VAL/Low)</td><td>10-27 06:06</td><td>10-27 10:06</td><td>0.2042</td><td>0.2018</td><td class='neg'>STOP-LOSS (-1.0R)</td><td>$3.60</td><td class='neg'>-$54.44</td><td class='neg'>-1.09R</td><td>$4,838.75</td></tr><tr><td>#2</td><td><b>WLDUSDT</b></td><td class='pos'>LONG</td><td class='small'>Wyckoff Spring (CVD Absorption at VAL/Low)</td><td>10-26 09:01</td><td>10-27 09:46</td><td>0.4407</td><td>0.4295</td><td class='neg'>STOP-LOSS (-1.0R)</td><td>$2.24</td><td class='neg'>-$52.62</td><td class='neg'>-1.05R</td><td>$4,893.19</td></tr><tr><td>#1</td><td><b>XRPUSDT</b></td><td class='neg'>SHORT</td><td class='small'>1h EMA20 Bearish Rejection</td><td>10-26 08:21</td><td>10-26 11:53</td><td>1.2770</td><td>1.2964</td><td class='neg'>STOP-LOSS (-1.0R) [MILLI-SEC WS]</td><td>$3.00</td><td class='neg'>-$54.19</td><td class='neg'>-1.08R</td><td>$4,945.81</td></tr></table>
 
 <h2>Execution Decision Log (Newest First)</h2>
-<div class="log"><div>[2026-11-02 11:08:03 UTC] SIGNAL SOPHUSDT LONG [Volume Profile VWAP/EMA20 Pullback] SKIPPED: HIGH RISK BEARISH CATALYST: Binance hack fallout, U.S. midterms and jobs report: Crypto Week Ahead (CoinDesk)</div><div>[2026-11-02 11:08:03 UTC] OPENED CONVEX #10 SHORT XRPUSDT [1h EMA20 Bearish Rejection]: SELL SHORT 5120.1825 at 1.2492 (3x margin, liq 1.5141) | Stop 1.2589 | TP1 1.2316 (40%) | TP2 1.2150 (30%) | Sized Risk $50.00 (Score 75)</div><div>[2026-11-02 11:08:02 UTC] OPENED CONVEX #9 SHORT ZECUSDT [1h EMA20 Bearish Rejection]: SELL SHORT 2.236 at 1247.16 (2x margin, liq 1700.67) | Stop 1269.52 | TP1 1206.91 (40%) | TP2 1168.90 (30%) | Sized Risk $50.00 (Score 75)</div><div>[2026-11-02 11:07:59 UTC] SETUP DETECTED SOPHUSDT [LONG]: Volume Profile VWAP/EMA20 Pullback (Score 75) | LONG: Volume Profile VWAP/EMA20 Pullback | Taker Buy 56.9% | Imb +33.2% | Funding +0.0100% | News: -1.2</div><div>[2026-11-02 11:07:14 UTC] SCAN UNIUSDT [LONG] bar 2026-11-02 10:00: UPPER VALUE (POC to VAH) | Check: No Setup | Taker Buy 44.5% | Imb +32.0% | Funding +0.0100% | Trend bullish | News: -1.2</div><div>[2026-11-02 11:07:12 UTC] SETUP DETECTED XRPUSDT [SHORT]: 1h EMA20 Bearish Rejection (Score 75) | SHORT: 1h EMA20 Bearish Rejection | Taker Buy 33.2% | Imb +14.7% | Funding +0.0100% | News: -1.2</div><div>[2026-11-02 11:07:10 UTC] SCAN NEARUSDT [SHORT] bar 2026-11-02 10:00: DISCOUNT / BREAKDOWN (&lt; VAL) | Check: No Setup | Taker Buy 45.3% | Imb +3.6% | Funding +0.0100% | Trend bearish | News: +0.8</div><div>[2026-11-02 11:07:09 UTC] SCAN BNBUSDT [SHORT] bar 2026-11-02 10:00: LOWER VALUE (VAL to POC) | Check: No Setup | Taker Buy 28.2% | Imb +4.0% | Funding +0.0100% | Trend bearish | News: -1.2</div><div>[2026-11-02 11:07:07 UTC] SETUP DETECTED ZECUSDT [SHORT]: 1h EMA20 Bearish Rejection (Score 75) | SHORT: 1h EMA20 Bearish Rejection | Taker Buy 41.0% | Imb -3.8% | Funding +0.0100% | News: -1.2</div><div>[2026-11-02 11:07:05 UTC] SCAN SOLUSDT [SHORT] bar 2026-11-02 10:00: LOWER VALUE (VAL to POC) | Check: No Setup | Taker Buy 53.6% | Imb -30.6% | Funding +0.0100% | Trend bearish | News: +0.8</div><div>[2026-11-02 11:07:03 UTC] SCAN ETHUSDT [LONG] bar 2026-11-02 10:00: UPPER VALUE (POC to VAH) | Check: No Setup | Taker Buy 14.5% | Imb -9.4% | Funding +0.0100% | Trend bullish | News: -1.2</div><div>[2026-11-02 11:07:02 UTC] SCAN BTCUSDT [LONG] bar 2026-11-02 10:00: LOWER VALUE (VAL to POC) | Check: No Setup | Taker Buy 39.2% | Imb -33.3% | Funding +0.0100% | Trend bullish | News: -11.9</div><div>[2026-11-02 11:06:59 UTC] Universe discovery updated: 37 liquid coins actively monitored across Binance.</div><div>[2026-11-02 11:06:57 UTC] CLOSED #8 SHORT BNBUSDT [STOP-LOSS (-1.0R)] at 708.49: total net -$59.44 (-1.19R). Account: $4,938.15</div><div>[2026-11-02 11:06:56 UTC] News monitor updated (10s cycle): 61 headlines tracked across 25+ sources | Macro sentiment -4.1</div></div>
+<div class="log"><div>[2026-11-02 13:31:59 UTC] NEWS GUARD STOP TIGHTENED #1 LONG SOLUSDT -&gt; Breakeven (180.18) on bearish catalyst</div><div>[2026-11-02 13:31:21 UTC] EMERGENCY FLATTEN COMPLETE: 1 positions closed.</div><div>[2026-11-02 13:31:21 UTC] CLOSED #99 LONG TESTUSDT [EMERGENCY MANUAL FLATTEN] at 10.20: total net +$19.18 (+0.38R). Account: $5,019.18</div><div>[2026-11-02 13:31:21 UTC] EMERGENCY FLATTEN TRIGGERED: Liquidating all open positions immediately!</div><div>[2026-11-02 11:55:18 UTC] NEWS GUARD STOP TIGHTENED #1 LONG SOLUSDT -&gt; Breakeven (180.18) on bearish catalyst</div><div>[2026-11-02 11:54:46 UTC] EMERGENCY FLATTEN COMPLETE: 1 positions closed.</div><div>[2026-11-02 11:54:46 UTC] CLOSED #99 LONG TESTUSDT [EMERGENCY MANUAL FLATTEN] at 10.20: total net +$19.18 (+0.38R). Account: $5,019.18</div><div>[2026-11-02 11:54:46 UTC] EMERGENCY FLATTEN TRIGGERED: Liquidating all open positions immediately!</div><div>[2026-11-02 11:50:49 UTC] SIGNAL SOPHUSDT LONG [Volume Profile VWAP/EMA20 Pullback] SKIPPED: HIGH RISK BEARISH CATALYST: Binance hack fallout, U.S. midterms and jobs report: Crypto Week Ahead (CoinDesk)</div><div>[2026-11-02 11:50:49 UTC] SIGNAL XRPUSDT SHORT [1h EMA20 Bearish Rejection] SKIPPED: Signal candle closed 51 min ago (stale limit 30 min)</div><div>[2026-11-02 11:50:49 UTC] SIGNAL ZECUSDT SHORT [1h EMA20 Bearish Rejection] SKIPPED: Signal candle closed 51 min ago (stale limit 30 min)</div><div>[2026-11-02 11:50:48 UTC] SETUP DETECTED SOPHUSDT [LONG]: Volume Profile VWAP/EMA20 Pullback (Score 75) | LONG: Volume Profile VWAP/EMA20 Pullback | Taker Buy 56.9% | Imb +20.4% | Funding -0.0524% | News: -1.0</div><div>[2026-11-02 11:49:30 UTC] SCAN UNIUSDT [LONG] bar 2026-11-02 10:00: UPPER VALUE (POC to VAH) | Check: No Setup | Taker Buy 44.5% | Imb +36.4% | Funding +0.0100% | Trend bullish | News: -1.0</div><div>[2026-11-02 11:49:28 UTC] SETUP DETECTED XRPUSDT [SHORT]: 1h EMA20 Bearish Rejection (Score 75) | SHORT: 1h EMA20 Bearish Rejection | Taker Buy 33.2% | Imb +10.4% | Funding +0.0100% | News: -1.0</div><div>[2026-11-02 11:49:13 UTC] SCAN NEARUSDT [SHORT] bar 2026-11-02 10:00: DISCOUNT / BREAKDOWN (&lt; VAL) | Check: No Setup | Taker Buy 45.3% | Imb +3.4% | Funding +0.0100% | Trend bearish | News: -1.0</div><div>[2026-11-02 11:49:11 UTC] SCAN BNBUSDT [SHORT] bar 2026-11-02 10:00: LOWER VALUE (VAL to POC) | Check: No Setup | Taker Buy 28.2% | Imb +9.7% | Funding +0.0000% | Trend bearish | News: -1.0</div><div>[2026-11-02 11:49:09 UTC] SETUP DETECTED ZECUSDT [SHORT]: 1h EMA20 Bearish Rejection (Score 75) | SHORT: 1h EMA20 Bearish Rejection | Taker Buy 41.0% | Imb -3.8% | Funding +0.0100% | News: -1.0</div><div>[2026-11-02 11:49:06 UTC] SCAN SOLUSDT [SHORT] bar 2026-11-02 10:00: LOWER VALUE (VAL to POC) | Check: No Setup | Taker Buy 53.6% | Imb -2.9% | Funding +0.0100% | Trend bearish | News: +1.0</div><div>[2026-11-02 11:49:04 UTC] SCAN ETHUSDT [LONG] bar 2026-11-02 10:00: UPPER VALUE (POC to VAH) | Check: No Setup | Taker Buy 14.5% | Imb -3.9% | Funding -0.0004% | Trend bullish | News: -1.0</div><div>[2026-11-02 11:49:02 UTC] SCAN BTCUSDT [LONG] bar 2026-11-02 10:00: LOWER VALUE (VAL to POC) | Check: No Setup | Taker Buy 39.2% | Imb -24.8% | Funding +0.0088% | Trend bullish | News: -8.4</div><div>[2026-11-02 11:49:00 UTC] Universe discovery updated: 37 liquid coins actively monitored across Binance.</div><div>[2026-11-02 11:48:59 UTC] News monitor updated (10s cycle): 50 headlines tracked across 25+ sources | Macro sentiment -3.3</div><div>[2026-11-02 11:37:07 UTC] NEWS GUARD STOP TIGHTENED #1 LONG SOLUSDT -&gt; Breakeven (180.18) on bearish catalyst</div><div>[2026-11-02 11:36:32 UTC] EMERGENCY FLATTEN COMPLETE: 1 positions closed.</div><div>[2026-11-02 11:36:32 UTC] CLOSED #99 LONG TESTUSDT [EMERGENCY MANUAL FLATTEN] at 10.20: total net +$19.18 (+0.38R). Account: $5,019.18</div><div>[2026-11-02 11:36:32 UTC] EMERGENCY FLATTEN TRIGGERED: Liquidating all open positions immediately!</div></div>
 
 <script>
 var hb = 1793617692491;
@@ -406,181 +325,7 @@ setInterval(function() {
     .catch(function(){});
 }, 3000);
 
-function showToast(msg, isErr) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  t.style.borderColor = isErr ? '#ef4444' : '#22c55e';
-  setTimeout(function(){ t.style.display = 'none'; }, 3500);
-}
 
-function toggleBotRun() {
-  fetch('/api/bot/toggle', {method: 'POST'})
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      showToast('Bot Durumu: ' + res.bot_status);
-      setTimeout(function(){ location.reload(); }, 600);
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function toggleTradingMode() {
-  fetch('/api/state')
-    .then(function(r){ return r.json(); })
-    .then(function(s){
-      var cur = s.mode || 'SIMULATION';
-      var target = cur === 'SIMULATION' ? 'LIVE' : 'SIMULATION';
-      if (target === 'LIVE') {
-        openApiModal();
-        return;
-      }
-      fetch('/api/bot/mode', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({mode: target})
-      }).then(function(r){ return r.json(); })
-        .then(function(res){
-          if (res.ok) {
-            showToast('İşlem Modu: ' + res.mode);
-            setTimeout(function(){ location.reload(); }, 600);
-          } else {
-            showToast(res.error, true);
-          }
-        });
-    });
-}
-
-function changeStrategy(strat) {
-  fetch('/api/bot/strategy', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({strategy: strat})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) {
-        showToast('Strateji Aktif: ' + res.strategy_profile);
-        setTimeout(function(){ location.reload(); }, 600);
-      } else {
-        showToast(res.error, true);
-      }
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function emergencyFlattenAll() {
-  if (!confirm('DİKKAT: Açık olan tüm vadeli pozisyonlar piyasa fiyatından ANINDA kapatılacak. Emin misiniz?')) return;
-  fetch('/api/bot/flatten', {method: 'POST'})
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      showToast(res.status);
-      setTimeout(function(){ location.reload(); }, 800);
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function closePos(sym) {
-  if (!confirm(sym + ' pozisyonunu kapatmak istiyor musunuz?')) return;
-  fetch('/api/bot/close_position', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({symbol: sym})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) {
-        showToast(res.status);
-        setTimeout(function(){ location.reload(); }, 800);
-      } else {
-        showToast(res.error, true);
-      }
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function resetSimWallet() {
-  var cash = prompt('Simülasyon sanal bakiyesini girin (USDT):', '5000');
-  if (!cash) return;
-  fetch('/api/bot/reset_sim', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({starting_cash: parseFloat(cash)})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      showToast(res.status);
-      setTimeout(function(){ location.reload(); }, 800);
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function openApiModal() {
-  document.getElementById('api-modal').style.display = 'flex';
-}
-function closeApiModal() {
-  document.getElementById('api-modal').style.display = 'none';
-}
-
-function testApiKeys() {
-  var key = document.getElementById('api-key-input').value.trim();
-  var secret = document.getElementById('api-secret-input').value.trim();
-  var testnet = document.getElementById('api-testnet-check').checked;
-  var resDiv = document.getElementById('api-test-result');
-
-  if (!key || !secret) {
-    resDiv.style.display = 'block';
-    resDiv.style.background = '#450a0a';
-    resDiv.style.color = '#fecaca';
-    resDiv.textContent = 'Lütfen hem API Key hem API Secret girin.';
-    return;
-  }
-
-  resDiv.style.display = 'block';
-  resDiv.style.background = '#1e293b';
-  resDiv.style.color = '#93c5fd';
-  resDiv.textContent = 'Binance Futures bağlantısı test ediliyor...';
-
-  fetch('/api/bot/credentials', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({api_key: key, api_secret: secret, testnet: testnet, test_only: true})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) {
-        resDiv.style.background = '#064e3b';
-        resDiv.style.color = '#6ee7b7';
-        resDiv.innerHTML = '✅ <b>Başarılı!</b> Binance Vadeli Hesabına Bağlandı.<br>Kullanılabilir Bakiye: <b>$' + res.usdt_available + ' USDT</b>';
-      } else {
-        resDiv.style.background = '#450a0a';
-        resDiv.style.color = '#fecaca';
-        resDiv.innerHTML = '❌ <b>Hata:</b> ' + res.error;
-      }
-    }).catch(function(e){
-      resDiv.style.background = '#450a0a';
-      resDiv.style.color = '#fecaca';
-      resDiv.textContent = 'Ağ Hatası: ' + e;
-    });
-}
-
-function saveAndActivateLive() {
-  var key = document.getElementById('api-key-input').value.trim();
-  var secret = document.getElementById('api-secret-input').value.trim();
-  var testnet = document.getElementById('api-testnet-check').checked;
-
-  fetch('/api/bot/credentials', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({api_key: key, api_secret: secret, testnet: testnet, test_only: false})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) {
-        // Activate live mode
-        fetch('/api/bot/mode', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({mode: 'LIVE'})
-        }).then(function(){
-          showToast('⚡ CANLI BINANCE FUTURES İŞLEMLERİ AKTİF EDİLDİ!');
-          closeApiModal();
-          setTimeout(function(){ location.reload(); }, 1000);
-        });
-      } else {
-        showToast('Hata: ' + res.error, true);
-      }
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
 
 }, 10000);
 </script>

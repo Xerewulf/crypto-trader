@@ -1655,14 +1655,13 @@ def write_dashboard(s):
         tp2_str = ("<span class='pos'><b>%s</b></span><br><span style='font-size:11px;color:#22c55e;'>CLOSED (+3.5R)</span>" % fp(p.get("tp2_px"))) if p.get("tp2_hit") else fp(p.get("tp2_px"))
         runner_str = "<span class='pos' style='font-weight:600;'>Running 30%% (1h VWAP)</span>" if p.get("trail_vwap") else "<span class='muted'>Waiting TP2</span>"
 
-        close_btn = "<button onclick='closePos(\"%s\")' style='background:#dc2626;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;'>✕ Kapat</button>" % p["symbol"]
         rows_open += (
             "<tr id='pos-row-%s' data-pos-sym='%s' data-entry='%.8f' data-qty='%.8f' data-fee='%.8f' data-risk='%.2f' data-side='%s'>"
             "<td>#%d</td><td><b>%s</b></td><td class='%s'>%s</td><td>%s</td>"
             "<td>%s</td><td id='pos-mark-%s' class='ticker-cell' data-sym='%s'><b>%s</b></td>"
             "<td>%s%s%s</td><td>%s</td><td>%s</td><td>%s</td>"
             "<td>%s / %s</td><td>%s</td><td>%s</td>"
-            "<td id='pos-pnl-%s' class='%s'>%s</td><td id='pos-r-%s' class='%s'>%+.2fR</td><td>%s</td><td>%s</td></tr>"
+            "<td id='pos-pnl-%s' class='%s'>%s</td><td id='pos-r-%s' class='%s'>%+.2fR</td><td>%s</td></tr>"
         ) % (
             p["symbol"], p["symbol"], p["entry"], p["qty"], p.get("entry_fee", 0.0), p["risk_usd"], p["side"],
             p["id"], p["symbol"], "pos" if p["side"] == "long" else "neg",
@@ -1673,7 +1672,7 @@ def write_dashboard(s):
             ("%.4f" % p["qty"]).rstrip("0").rstrip("."),
             ("%.4f" % (p.get("initial_qty") or p["qty"])).rstrip("0").rstrip("."),
             usd(p["notional"]), usd(p["margin"]),
-            p["symbol"], cls(u), usd(u, True), p["symbol"], cls(u), u / p["risk_usd"], p["opened"][5:16], close_btn
+            p["symbol"], cls(u), usd(u, True), p["symbol"], cls(u), u / p["risk_usd"], p["opened"][5:16]
         )
     if not rows_open:
         rows_open = "<tr><td colspan='16' class='muted'>No active positions open. Scanning dynamically across all liquid Binance USDT pairs.</td></tr>"
@@ -1829,36 +1828,7 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 #hb.ok{color:#22c55e;font-weight:600}#hb.bad{color:#ef4444;font-weight:700}
 .log{background:#020617;border:1px solid #1e293b;border-radius:8px;padding:10px;font:12px Consolas,monospace;max-height:420px;overflow:auto}
 
-.ctrl-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px 16px;margin:12px 0}
-.ctrl-left{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-.ctrl-right{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto}
-.ctrl-tag{font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:0.5px}
-.ctrl-btn{border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s ease}
-.ctrl-btn:hover{filter:brightness(1.15)}
-.btn-sim{background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb}
-.btn-live{background:#854d0e;color:#fef08a;border:1px solid #eab308;animation:pulse 2s infinite}
-.btn-running{background:#064e3b;color:#6ee7b7;border:1px solid #059669}
-.btn-paused{background:#78350f;color:#fde68a;border:1px solid #d97706}
-.strat-group{display:flex;gap:4px}
-.strat-btn{background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:5px 10px;border-radius:5px;font-size:11px;cursor:pointer}
-.strat-btn.active{background:#3b82f6;color:#ffffff;border-color:#60a5fa;font-weight:700}
-.btn-api{background:#312e81;color:#c7d2fe;border:1px solid #4f46e5}
-.btn-reset{background:#334155;color:#e2e8f0;border:1px solid #475569}
-.btn-flatten{background:#991b1b;color:#fecaca;border:1px solid #dc2626;font-weight:700}
-.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999}
-.modal-card{background:#0f172a;border:1px solid #334155;border-radius:12px;width:90%%;max-width:540px;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.8)}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.modal-head h3{margin:0;font-size:17px;color:#f8fafc}
-.close-x{background:none;border:none;color:#94a3b8;font-size:24px;cursor:pointer}
-.modal-desc{font-size:12px;color:#94a3b8;line-height:1.5;margin-bottom:16px}
-.form-row{margin-bottom:12px}
-.form-row label{display:block;font-size:12px;color:#cbd5e1;margin-bottom:4px;font-weight:600}
-.form-row input[type=text],.form-row input[type=password]{width:100%%;box-sizing:border-box;background:#020617;border:1px solid #334155;color:#f8fafc;padding:8px 12px;border-radius:6px;font-size:13px;font-family:monospace}
-.modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
-.btn-test{background:#0284c7;color:#fff}
-.btn-save{background:#16a34a;color:#fff}
-.toast{position:fixed;bottom:24px;right:24px;background:#1e293b;border:1px solid #3b82f6;color:#f8fafc;padding:12px 20px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.5);z-index:10000;font-size:13px;font-weight:600;display:none}
-@keyframes pulse{0%%{box-shadow:0 0 0 0 rgba(234,179,8,0.7)}70%%{box-shadow:0 0 0 8px rgba(234,179,8,0)}100%%{box-shadow:0 0 0 0 rgba(234,179,8,0)}}
+
 
 .nav-switcher{display:flex;justify-content:space-between;align-items:center;background:#060a12;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;margin-bottom:14px;flex-wrap:wrap;gap:10px}
 .nav-tabs{display:flex;align-items:center;gap:8px}
@@ -1895,59 +1865,7 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
   <span class="badge" style="margin-left:auto;color:#a78bfa;">Instant Millisecond Execution</span>
 </div>
 
-<div class="ctrl-bar">
-  <div class="ctrl-left">
-    <span class="ctrl-tag">MOD:</span>
-    <button id="mode-btn" class="ctrl-btn %s" onclick="toggleTradingMode()">%s</button>
-    <span class="ctrl-tag">BOT:</span>
-    <button id="bot-toggle-btn" class="ctrl-btn %s" onclick="toggleBotRun()">%s</button>
-    <span class="ctrl-tag">STRATEJİ:</span>
-    <div class="strat-group">
-      <button class="strat-btn %s" onclick="changeStrategy('SCALPER')">⚡ 5m Scalper</button>
-      <button class="strat-btn %s" onclick="changeStrategy('AGGRESSIVE_TREND')">🚀 Agresif Trend</button>
-      <button class="strat-btn %s" onclick="changeStrategy('HYBRID')">🏆 Hybrid (God-Level)</button>
-      <button class="strat-btn %s" onclick="changeStrategy('FUNDING_ARB')">📈 Arbitraj</button>
-    </div>
-  </div>
-  <div class="ctrl-right">
-    <button class="ctrl-btn btn-api" onclick="openApiModal()">🔑 Binance API Bağla</button>
-    <button class="ctrl-btn btn-reset" onclick="resetSimWallet()">🔄 Simülasyon Sıfırla</button>
-    <button class="ctrl-btn btn-flatten" onclick="emergencyFlattenAll()">🚨 TÜMÜNÜ KAPAT</button>
-  </div>
-</div>
 
-<div id="api-modal" class="modal-bg" style="display:none;">
-  <div class="modal-card">
-    <div class="modal-head">
-      <h3>🔑 Binance Futures API Bağlantısı</h3>
-      <button class="close-x" onclick="closeApiModal()">&times;</button>
-    </div>
-    <p class="modal-desc">
-      Gerçek Binance hesabınızda vadeli işlem yapmak için API Key ve Secret girin. 
-      Anahtarlar yalnızca yerel sunucunuzda saklanır. 
-      <b>Güvenlik Kuralı:</b> Yalnızca <i>"Enable Futures"</i> yetkisi verin; Para Çekme (Withdrawal) yetkisini ASLA açmayın.
-    </p>
-    <div class="form-row">
-      <label>Binance API Key:</label>
-      <input type="text" id="api-key-input" placeholder="Binance API Key..." />
-    </div>
-    <div class="form-row">
-      <label>Binance API Secret:</label>
-      <input type="password" id="api-secret-input" placeholder="Binance API Secret..." />
-    </div>
-    <div class="form-row" style="display:flex;align-items:center;gap:8px;">
-      <input type="checkbox" id="api-testnet-check" />
-      <label for="api-testnet-check" style="margin:0;">Binance Futures Testnet (Test Ağı)</label>
-    </div>
-    <div id="api-test-result" style="display:none;margin:10px 0;padding:10px;border-radius:6px;font-size:13px;"></div>
-    <div class="modal-actions">
-      <button class="ctrl-btn btn-test" onclick="testApiKeys()">🔍 Test Et & Bakiye Getir</button>
-      <button class="ctrl-btn btn-save" onclick="saveAndActivateLive()">⚡ Kaydet ve Canlı İşlemi Aç</button>
-      <button class="ctrl-btn" onclick="closeApiModal()">Kapat</button>
-    </div>
-  </div>
-</div>
-<div id="toast" class="toast"></div>
 
 <div>Status: <span id="hb">connecting...</span> &middot; Last cycle: %s &middot; Cycles: %d &middot; Initialized: %s &middot; <i>Streaming live via WebSockets (Zero Reload Lag)</i></div>
 
@@ -1966,7 +1884,7 @@ th{color:#94a3b8;font-weight:600;font-size:12px;background:#1e293b}.small{font-s
 <h2>Live Equity Curve</h2>%s
 
 <h2>Active Positions (3x Isolated Margin &amp; Convex Multi-Tier Exits, Max %d Open)</h2>
-<table><tr><th>#</th><th>Symbol</th><th>Side</th><th>Institutional Setup</th><th>Entry</th><th>Live Mark</th><th>Stop-Loss / Trail</th><th>TP1 (1.8R, 40%%)</th><th>TP2 (3.5R, 30%%)</th><th>Runner (30%%)</th><th>Qty (Open / Total)</th><th>Notional</th><th>Margin</th><th>Unrealized</th><th>R Multiple</th><th>Opened (UTC)</th><th>Eylem</th></tr>%s</table>
+<table><tr><th>#</th><th>Symbol</th><th>Side</th><th>Institutional Setup</th><th>Entry</th><th>Live Mark</th><th>Stop-Loss / Trail</th><th>TP1 (1.8R, 40%%)</th><th>TP2 (3.5R, 30%%)</th><th>Runner (30%%)</th><th>Qty (Open / Total)</th><th>Notional</th><th>Margin</th><th>Unrealized</th><th>R Multiple</th><th>Opened (UTC)</th></tr>%s</table>
 
 <h2>25-Source Omni-Channel Live News &amp; Macro Intelligence Stream (10-Second Auto-Sync)</h2>
 <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px;margin-bottom:12px;">
@@ -2214,195 +2132,13 @@ setInterval(function() {
     .catch(function(){});
 }, 3000);
 
-function showToast(msg, isErr) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  t.style.borderColor = isErr ? '#ef4444' : '#22c55e';
-  setTimeout(function(){ t.style.display = 'none'; }, 3500);
-}
 
-function toggleBotRun() {
-  fetch('/api/bot/toggle', {method: 'POST'})
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      showToast('Bot Durumu: ' + res.bot_status);
-      setTimeout(function(){ location.reload(); }, 600);
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function toggleTradingMode() {
-  fetch('/api/state')
-    .then(function(r){ return r.json(); })
-    .then(function(s){
-      var cur = s.mode || 'SIMULATION';
-      var target = cur === 'SIMULATION' ? 'LIVE' : 'SIMULATION';
-      if (target === 'LIVE') {
-        openApiModal();
-        return;
-      }
-      fetch('/api/bot/mode', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({mode: target})
-      }).then(function(r){ return r.json(); })
-        .then(function(res){
-          if (res.ok) {
-            showToast('İşlem Modu: ' + res.mode);
-            setTimeout(function(){ location.reload(); }, 600);
-          } else {
-            showToast(res.error, true);
-          }
-        });
-    });
-}
-
-function changeStrategy(strat) {
-  fetch('/api/bot/strategy', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({strategy: strat})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) {
-        showToast('Strateji Aktif: ' + res.strategy_profile);
-        setTimeout(function(){ location.reload(); }, 600);
-      } else {
-        showToast(res.error, true);
-      }
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function emergencyFlattenAll() {
-  if (!confirm('DİKKAT: Açık olan tüm vadeli pozisyonlar piyasa fiyatından ANINDA kapatılacak. Emin misiniz?')) return;
-  fetch('/api/bot/flatten', {method: 'POST'})
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      showToast(res.status);
-      setTimeout(function(){ location.reload(); }, 800);
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function closePos(sym) {
-  if (!confirm(sym + ' pozisyonunu kapatmak istiyor musunuz?')) return;
-  fetch('/api/bot/close_position', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({symbol: sym})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) {
-        showToast(res.status);
-        setTimeout(function(){ location.reload(); }, 800);
-      } else {
-        showToast(res.error, true);
-      }
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function resetSimWallet() {
-  var cash = prompt('Simülasyon sanal bakiyesini girin (USDT):', '5000');
-  if (!cash) return;
-  fetch('/api/bot/reset_sim', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({starting_cash: parseFloat(cash)})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      showToast(res.status);
-      setTimeout(function(){ location.reload(); }, 800);
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
-
-function openApiModal() {
-  document.getElementById('api-modal').style.display = 'flex';
-}
-function closeApiModal() {
-  document.getElementById('api-modal').style.display = 'none';
-}
-
-function testApiKeys() {
-  var key = document.getElementById('api-key-input').value.trim();
-  var secret = document.getElementById('api-secret-input').value.trim();
-  var testnet = document.getElementById('api-testnet-check').checked;
-  var resDiv = document.getElementById('api-test-result');
-
-  if (!key || !secret) {
-    resDiv.style.display = 'block';
-    resDiv.style.background = '#450a0a';
-    resDiv.style.color = '#fecaca';
-    resDiv.textContent = 'Lütfen hem API Key hem API Secret girin.';
-    return;
-  }
-
-  resDiv.style.display = 'block';
-  resDiv.style.background = '#1e293b';
-  resDiv.style.color = '#93c5fd';
-  resDiv.textContent = 'Binance Futures bağlantısı test ediliyor...';
-
-  fetch('/api/bot/credentials', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({api_key: key, api_secret: secret, testnet: testnet, test_only: true})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) {
-        resDiv.style.background = '#064e3b';
-        resDiv.style.color = '#6ee7b7';
-        resDiv.innerHTML = '✅ <b>Başarılı!</b> Binance Vadeli Hesabına Bağlandı.<br>Kullanılabilir Bakiye: <b>$' + res.usdt_available + ' USDT</b>';
-      } else {
-        resDiv.style.background = '#450a0a';
-        resDiv.style.color = '#fecaca';
-        resDiv.innerHTML = '❌ <b>Hata:</b> ' + res.error;
-      }
-    }).catch(function(e){
-      resDiv.style.background = '#450a0a';
-      resDiv.style.color = '#fecaca';
-      resDiv.textContent = 'Ağ Hatası: ' + e;
-    });
-}
-
-function saveAndActivateLive() {
-  var key = document.getElementById('api-key-input').value.trim();
-  var secret = document.getElementById('api-secret-input').value.trim();
-  var testnet = document.getElementById('api-testnet-check').checked;
-
-  fetch('/api/bot/credentials', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({api_key: key, api_secret: secret, testnet: testnet, test_only: false})
-  }).then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) {
-        // Activate live mode
-        fetch('/api/bot/mode', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({mode: 'LIVE'})
-        }).then(function(){
-          showToast('⚡ CANLI BINANCE FUTURES İŞLEMLERİ AKTİF EDİLDİ!');
-          closeApiModal();
-          setTimeout(function(){ location.reload(); }, 1000);
-        });
-      } else {
-        showToast('Hata: ' + res.error, true);
-      }
-    }).catch(function(e){ showToast('Hata: ' + e, true); });
-}
 
 }, 10000);
 </script>
 </body></html>""" % (
         len(s.get("universe", [])),
         btc_color, btc_lead_txt,
-        "btn-live" if s.get("mode") == "LIVE" else "btn-sim",
-        "⚡ CANLI (GERÇEK)" if s.get("mode") == "LIVE" else "🛡️ SİMÜLASYON (SANAL)",
-        "btn-running" if s.get("bot_status") == "RUNNING" else "btn-paused",
-        "▶ AKTİF" if s.get("bot_status") == "RUNNING" else "⏸ DURAKLATILDI",
-        "active" if s.get("strategy_profile") == "SCALPER" else "",
-        "active" if s.get("strategy_profile") == "AGGRESSIVE_TREND" else "",
-        "active" if s.get("strategy_profile") in ("HYBRID", None) else "",
-        "active" if s.get("strategy_profile") == "FUNDING_ARB" else "",
         s.get("heartbeat") or "-", s["cycles"], s["created"],
         cls(st["pnl"]), st["equity"], usd(st["equity"]),
         cls(st["pnl"]), usd(st["pnl"], True), st["roi"],
