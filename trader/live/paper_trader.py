@@ -240,8 +240,9 @@ def fetch_api(hosts, path, timeout=12):
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 return json.loads(r.read().decode("utf-8"))
         except Exception as e:
-            last = e
-    raise RuntimeError("API unreachable (%s): %s" % (path.split("?")[0], last))
+            last = repr(e)
+    safe_err = str(last).encode("ascii", "replace").decode("ascii")
+    raise RuntimeError("API unreachable (%s): %s" % (path.split("?")[0], safe_err))
 
 
 def klines(sym, interval, limit=200, start=None):
@@ -1177,7 +1178,10 @@ def scan_signals(s):
         if s["last_eval"].get(sym, 0) >= last_closed_open:
             continue
 
-        bars_1h = [b for b in klines(sym, "1h", 180) if b["ct"] < now_ms()]
+        try:
+            bars_1h = [b for b in klines(sym, "1h", 180) if b["ct"] < now_ms()]
+        except Exception as _ke:
+            continue
         if len(bars_1h) < 60:
             continue
 

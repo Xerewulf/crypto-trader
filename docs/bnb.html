@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BNB Long & Short Institutional AI Simulator — 10-Year Trained Quant Desk</title>
+  <style>
+    :root {
+      --bg: #060911;
+      --panel: #0c1220;
+      --panel-2: #121b2e;
+      --border: #1e2d47;
+      --text: #f1f5f9;
+      --muted: #8b9bb4;
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.14);
+      --red: #f43f5e;
+      --red-bg: rgba(244, 63, 94, 0.14);
+      --gold: #f3ba2f;
+      --gold-bg: rgba(243, 186, 47, 0.14);
+      --accent: #3b82f6;
+      --cyan: #06b6d4;
+      --purple: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, #090e1a 0%, #111827 50%, #090e1a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .bnb-logo {
+      background: var(--gold);
+      color: #090d16;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 5px 10px;
+      border-radius: 7px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 12px rgba(243, 186, 47, 0.35);
+    }
+
+    .site-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .nav-link {
+      text-decoration: none;
+      color: #cbd5e1;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      padding: 6px 11px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.15s;
+    }
+    .nav-link:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .ws-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: #09101d;
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-family: monospace;
+    }
+    .ws-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+    .ws-dot.live {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .wallet-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .metric-pill {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 5px 11px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+    }
+    .metric-pill .k {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .metric-pill .v {
+      font-size: 14px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      margin-top: 1px;
+    }
+
+    .btn-sm {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 7px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+    .btn-sm:hover {
+      border-color: var(--gold);
+    }
+    .btn-sm.active-pilot {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: var(--green);
+      color: #6ee7b7;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 430px;
+      gap: 14px;
+      padding: 14px;
+      max-width: 1780px;
+      margin: 0 auto;
+    }
+    @media (max-width: 1180px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(30, 45, 71, 0.6);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: var(--panel-2);
+      color: #cbd5e1;
+      border: 1px solid var(--border);
+    }
+    .badge-gold {
+      background: var(--gold-bg);
+      color: var(--gold);
+      border-color: rgba(243, 186, 47, 0.4);
+    }
+    .badge-green {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red);
+      border-color: rgba(244, 63, 94, 0.4);
+    }
+
+    .pos { color: var(--green) !important; }
+    .neg { color: var(--red) !important; }
+    .gold { color: var(--gold) !important; }
+    .muted { color: var(--muted); }
+
+    /* Hero Ticker Strip */
+    .hero-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .hero-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+    }
+    .hero-box .lbl {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .hero-box .val {
+      font-size: 18px;
+      font-weight: 800;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+    .hero-box .sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      padding: 8px 9px;
+      text-align: left;
+      border-bottom: 1px solid rgba(30, 45, 71, 0.6);
+    }
+    th {
+      background: var(--panel-2);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    /* Order Ticket */
+    .side-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .side-btn {
+      padding: 11px;
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .side-btn.active-long {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: var(--green);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+    }
+    .side-btn.active-short {
+      background: var(--red-bg);
+      color: var(--red);
+      border-color: var(--red);
+      box-shadow: 0 0 12px rgba(244, 63, 94, 0.2);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .field input, .field select {
+      width: 100%;
+      background: #080d18;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .lev-pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .lev-pill {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      padding: 7px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+      cursor: pointer;
+    }
+    .lev-pill.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--gold-bg);
+    }
+
+    .exec-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 900;
+      border: none;
+      cursor: pointer;
+      margin-top: 6px;
+      letter-spacing: 0.3px;
+    }
+    .exec-btn.long {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #031c14;
+    }
+    .exec-btn.short {
+      background: linear-gradient(135deg, #f43f5e, #e11d48);
+      color: #fff;
+    }
+    .exec-btn.ai {
+      background: linear-gradient(135deg, #f3ba2f, #d97706);
+      color: #090d16;
+      margin-bottom: 10px;
+    }
+
+    .vp-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      margin-bottom: 3px;
+      font-family: monospace;
+    }
+    .vp-track {
+      flex: 1;
+      height: 11px;
+      background: #080d18;
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+    .vp-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+
+    .tab-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      color: var(--gold);
+      border-color: var(--gold);
+      background: var(--gold-bg);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVIGATION & WALLET BAR -->
+  <div class="topbar">
+    <div class="brand-group">
+      <span class="bnb-logo">BNB / USDT</span>
+      <span class="site-title">Institutional Long &amp; Short AI Specialist Simulator</span>
+      <span class="badge badge-gold">10-Year Trained (2017–2026)</span>
+      <a href="/" class="nav-link">← Multi-Coin Terminal</a>
+    </div>
+
+    <div class="ws-pill">
+      <span class="ws-dot" id="wsDot"></span>
+      <span id="wsText">Connecting BNB aggTrade Stream...</span>
+      <span class="gold" id="wsTps">0 trades/s</span>
+    </div>
+
+    <div class="wallet-strip">
+      <div class="metric-pill">
+        <span class="k">Total Equity</span>
+        <span class="v" id="wEquity">$10,000.00</span>
+      </div>
+      <div class="metric-pill">
+        <span class="k">Free Cash</span>
+        <span class="v" id="wCash">$10,000.00</span>
+      </div>
+      <div class="metric-pill">
+        <span class="k">Unrealized P&amp;L</span>
+        <span class="v" id="wUnreal">$0.00 (0.00R)</span>
+      </div>
+      <div class="metric-pill">
+        <span class="k">Realized P&amp;L</span>
+        <span class="v" id="wRealized">$0.00</span>
+      </div>
+      <div class="metric-pill">
+        <span class="k">Long / Short W/L</span>
+        <span class="v" id="wStats">0W / 0L</span>
+      </div>
+      <button class="btn-sm active-pilot" id="btnAutoPilot" onclick="toggleAutoPilot()">🤖 AI Auto-Pilot: ON</button>
+      <button class="btn-sm" onclick="resetBnbWallet()">Reset $10k</button>
+    </div>
+  </div>
+
+  <!-- MAIN 2-COLUMN DESK -->
+  <div class="layout">
+
+    <!-- LEFT COLUMN: LIVE MICROSTRUCTURE CHART, VOLUME PROFILE, 10-YEAR TRAINING & HISTORY AUDIT -->
+    <div>
+      <!-- HERO BNB REAL-TIME METRICS -->
+      <div class="hero-strip">
+        <div class="hero-box">
+          <div class="lbl">BNBUSDT Live Spot / Perp</div>
+          <div class="val gold" id="hPrice">$709.19</div>
+          <div class="sub" id="hVwapDist">24h VWAP: $712.53</div>
+        </div>
+        <div class="hero-box">
+          <div class="lbl">AI Directional Verdict</div>
+          <div class="val neg" id="hVerdict">SHORT BIAS</div>
+          <div class="sub" id="hScore">Composite Score: -58.9 / 100</div>
+        </div>
+        <div class="hero-box">
+          <div class="lbl">7-Day Volume Profile</div>
+          <div class="val" id="hPoc">POC $707.74</div>
+          <div class="sub" id="hValVah">VAL $696.44 | VAH $745.76</div>
+        </div>
+        <div class="hero-box">
+          <div class="lbl">Spot Taker Buy &amp; CVD</div>
+          <div class="val" id="hTakerBuy">4h: 41.0%</div>
+          <div class="sub" id="hCvd">24h CVD: -$2.54M</div>
+        </div>
+        <div class="hero-box">
+          <div class="lbl">Whale vs Retail L/S</div>
+          <div class="val" id="hWhale">Whales 52% L</div>
+          <div class="sub neg" id="hRetail">Retail 73.0% Crowded Long</div>
+        </div>
+        <div class="hero-box">
+          <div class="lbl">10Y Trained Expectancy</div>
+          <div class="val pos" id="h10yExp">+0.78R / trade</div>
+          <div class="sub" id="h10yWr">2017–2026 Walk-Forward</div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE BNB CHART WITH VOLUME PROFILE (VAL/POC/VAH), VWAP & ACTIVE BRACKETS -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            📈 BNBUSDT Live Order-Flow Chart — 7d Volume Profile (VAL / POC / VAH), 24h VWAP &amp; Active Long/Short Targets
+          </h2>
+          <div class="tab-row">
+            <button class="tab-btn active" id="tf-15m" onclick="setChartTf('15m')">15m Micro</button>
+            <button class="tab-btn" id="tf-1h" onclick="setChartTf('1h')">1h Structure</button>
+            <button class="tab-btn" id="tf-4h" onclick="setChartTf('4h')">4h Swing</button>
+            <button class="tab-btn" id="tf-1d" onclick="setChartTf('1d')">1d Macro</button>
+          </div>
+        </div>
+        <div style="position:relative; width:100%; height:360px; background:#070b14; border-radius:8px; border:1px solid var(--border); overflow:hidden;">
+          <canvas id="bnbChart" style="width:100%; height:100%; display:block;"></canvas>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; margin-top:8px; font-size:11px; color:var(--muted);">
+          <div>
+            <span style="color:#f3ba2f; font-weight:700;">━━ 24h VWAP</span> &nbsp;|&nbsp;
+            <span style="color:#38bdf8; font-weight:700;">╌╌ 7d POC (Fair Value)</span> &nbsp;|&nbsp;
+            <span style="color:#a855f7; font-weight:700;">┈┈ 7d VAH / VAL (70% Value Area)</span>
+          </div>
+          <div id="chartPosLegend">Active Trade Overlay: Displayed automatically on chart</div>
+        </div>
+      </div>
+
+      <!-- 10-YEAR BNB HISTORICAL TRAINING LAB (2017-2026) -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            🧠 10-Year BNB Historical Training Lab (2017–2026: 3,284 Daily + 19,684 4h Bars Analyzed)
+          </h2>
+          <span class="badge badge-green" id="trainBadge">Walk-Forward Validated</span>
+        </div>
+
+        <div class="hero-strip" id="trainSummaryStrip">
+          <div class="hero-box">
+            <div class="lbl">Historical Span</div>
+            <div class="val" style="font-size:15px;">2017 – 2026 (10Y)</div>
+            <div class="sub" id="tBarsCount">3,284 1d + 19,684 4h bars</div>
+          </div>
+          <div class="hero-box">
+            <div class="lbl">Total Trained Trades</div>
+            <div class="val" id="tTotalTrades">--</div>
+            <div class="sub" id="tWinRate">Win Rate: --%</div>
+          </div>
+          <div class="hero-box">
+            <div class="lbl">Cumulative R Return</div>
+            <div class="val pos" id="tCumR">+--R</div>
+            <div class="sub" id="tExpR">Expectancy: +--R / trade</div>
+          </div>
+          <div class="hero-box">
+            <div class="lbl">Profit Factor / Max DD</div>
+            <div class="val pos" id="tPf">--</div>
+            <div class="sub" id="tMaxDd">Max Drawdown: --%</div>
+          </div>
+        </div>
+
+        <h3 style="font-size:12px; color:var(--gold); text-transform:uppercase; margin:12px 0 6px;">
+          4 Institutional BNB Long &amp; Short Playbooks (Calibrated on 2017–2026 Microstructure)
+        </h3>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Playbook Name</th>
+                <th>Side</th>
+                <th>10Y Trades</th>
+                <th>Win Rate</th>
+                <th>Total R</th>
+                <th>Expectancy / Trade</th>
+                <th>Profit Factor</th>
+                <th>Quarter-Kelly Risk</th>
+              </tr>
+            </thead>
+            <tbody id="playbookTableBody">
+              <tr><td colspan="8" class="muted">Loading 10-year trained playbooks...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size:12px; color:#38bdf8; text-transform:uppercase; margin:14px 0 6px;">
+          Year-by-Year BNB Market Regimes &amp; Long/Short Strategy Performance (2017 – 2026)
+        </h3>
+        <div style="overflow-x:auto; max-height:290px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>BNB Macro Regime &amp; Fundamental Catalyst</th>
+                <th>Open → Close</th>
+                <th>High / Low</th>
+                <th>Spot Return</th>
+                <th>Avg Taker Buy</th>
+                <th>Sim Trades (L / S)</th>
+                <th>Sim Win Rate</th>
+                <th>Net R</th>
+              </tr>
+            </thead>
+            <tbody id="yearlyTableBody">
+              <tr><td colspan="9" class="muted">Loading 2017-2026 yearly regime breakdown...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PREVIOUS BNB TRADING HISTORY AUDIT (timemachine_bnb_long.json POST-MORTEM) -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            🔍 Previous BNB Trading History Inspection &amp; Quantitative Upgrade Audit (`timemachine_bnb_long.json`)
+          </h2>
+          <span class="badge badge-red">Prior Strategy Flaws Fixed</span>
+        </div>
+        <div id="prevAuditContainer" style="font-size:12.5px; line-height:1.55;">
+          Loading audit of previous BNB trading history...
+        </div>
+      </div>
+
+      <!-- CLOSED BNB LONG & SHORT TRADE HISTORY -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📜 Live Session Closed BNB Trades &amp; Recent 10Y Walk-Forward Executions</h2>
+        </div>
+        <div style="overflow-x:auto; max-height:300px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Time (UTC)</th>
+                <th>Side</th>
+                <th>Playbook</th>
+                <th>Entry</th>
+                <th>Stop</th>
+                <th>Exit</th>
+                <th>Outcome / Reason</th>
+                <th>R Multiple</th>
+                <th>Net P&amp;L</th>
+              </tr>
+            </thead>
+            <tbody id="closedTradesBody">
+              <tr><td colspan="9" class="muted">No closed trades yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: AI SIGNAL, ACTIVE POSITION, DUAL LONG/SHORT EXECUTION TICKET, VOLUME PROFILE & NEWS -->
+    <div>
+      <!-- ACTIVE BNB POSITION MANAGER -->
+      <div class="card" id="activePosCard" style="border-color: var(--gold);">
+        <div class="card-header">
+          <h2 class="card-title">⚡ Active BNB Position (3x Max Safe Tier &amp; Convex Exits)</h2>
+          <span class="badge badge-gold" id="posStatusBadge">Scanning</span>
+        </div>
+        <div id="activePosContent">
+          <div class="muted" style="font-size:12px;">No open BNB position. Use the AI 1-Click button or Order Ticket below.</div>
+        </div>
+      </div>
+
+      <!-- AI RECOMMENDED BNB LONG/SHORT PLAYBOOK -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🎯 Expert AI Recommended BNB Setup</h2>
+          <span class="badge badge-red" id="aiConvBadge">Conviction: --/100</span>
+        </div>
+        <div id="aiSetupSummary" style="font-size:12.5px; line-height:1.5; margin-bottom:10px;">
+          Evaluating 25-source BNB order flow...
+        </div>
+        <button class="exec-btn ai" id="btnExecAi" onclick="executeAiRecommended()">
+          ⚡ Execute AI Recommended BNB Trade Now
+        </button>
+      </div>
+
+      <!-- MANUAL LONG & SHORT EXECUTION TICKET -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🎛️ BNB Long &amp; Short Execution Desk (Isolated Margin / Perp)</h2>
+          <span class="badge">Quarter-Kelly Sized</span>
+        </div>
+
+        <div class="side-tabs">
+          <button class="side-btn" id="tabLong" onclick="selectSide('LONG')">🟢 LONG (BUY BNB)</button>
+          <button class="side-btn active-short" id="tabShort" onclick="selectSide('SHORT')">🔴 SHORT (SELL BNB)</button>
+        </div>
+
+        <div class="lev-pills">
+          <div class="lev-pill" id="lev-1" onclick="selectLev(1)">1x Spot/Perp</div>
+          <div class="lev-pill active" id="lev-2" onclick="selectLev(2)">2x Optimal</div>
+          <div class="lev-pill" id="lev-3" onclick="selectLev(3)">3x Max BNB Tier</div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Risk Budget ($ at Stop-Loss)</label>
+            <input type="number" id="inpRiskUsd" value="150" step="25" min="20" max="1000" onchange="recalcTicketPreview()" />
+          </div>
+          <div class="field">
+            <label>Stop-Loss Price ($)</label>
+            <input type="number" id="inpStop" step="0.1" onchange="recalcTicketPreview()" />
+          </div>
+          <div class="field">
+            <label>TP1 (40% Scale @ 1.6R)</label>
+            <input type="number" id="inpTp1" step="0.1" />
+          </div>
+          <div class="field">
+            <label>TP2 (35% Scale @ 3.0R)</label>
+            <input type="number" id="inpTp2" step="0.1" />
+          </div>
+        </div>
+
+        <div id="ticketPreviewBox" style="background:#080d18; border:1px solid var(--border); border-radius:8px; padding:10px; font-size:11.5px; line-height:1.55; margin-bottom:8px;">
+          Calculating position size &amp; liquidation safety buffer...
+        </div>
+
+        <button class="exec-btn short" id="btnSubmitOrder" onclick="submitBnbOrder()">
+          🔴 OPEN SHORT BNB POSITION
+        </button>
+      </div>
+
+      <!-- 7-DAY VOLUME PROFILE HISTOGRAM -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📊 7-Day BNB Volume Profile (VAL / POC / VAH)</h2>
+          <span class="badge" id="vpStateBadge">UPPER VALUE</span>
+        </div>
+        <div id="vpBinsContainer" style="max-height:220px; overflow-y:auto;"></div>
+      </div>
+
+      <!-- 25-SOURCE LIVE BNB NEWS & CATALYSTS -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📰 Live BNB &amp; Macro News Catalysts (25+ Sources)</h2>
+          <span class="badge badge-gold" id="newsCountBadge">Live</span>
+        </div>
+        <div id="newsListContainer" style="max-height:340px; overflow-y:auto; font-size:12px;">
+          Loading BNB headlines...
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let bnbState = null;
+    let selectedSide = 'SHORT';
+    let selectedLev = 2;
+    let chartTf = '15m';
+    let chartBars = [];
+    let livePrice = 709.19;
+    let wsTradeCount = 0;
+    let lastWsSec = Date.now();
+
+    function fmtUsd(v, signed = false) {
+      const n = Number(v || 0);
+      const s = signed ? (n > 0 ? '+$' : n < 0 ? '-$' : '$') : (n < 0 ? '-$' : '$');
+      return s + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function selectSide(side) {
+      selectedSide = side;
+      document.getElementById('tabLong').className = 'side-btn' + (side === 'LONG' ? ' active-long' : '');
+      document.getElementById('tabShort').className = 'side-btn' + (side === 'SHORT' ? ' active-short' : '');
+      const btn = document.getElementById('btnSubmitOrder');
+      if (side === 'LONG') {
+        btn.className = 'exec-btn long';
+        btn.textContent = `🟢 OPEN LONG BNB (${selectedLev}x)`;
+      } else {
+        btn.className = 'exec-btn short';
+        btn.textContent = `🔴 OPEN SHORT BNB (${selectedLev}x)`;
+      }
+      if (bnbState && bnbState.live_setup && bnbState.live_setup.dual_plans) {
+        const dp = bnbState.live_setup.dual_plans[side];
+        if (dp) {
+          document.getElementById('inpStop').value = dp.stop;
+          document.getElementById('inpTp1').value = dp.tp1;
+          document.getElementById('inpTp2').value = dp.tp2;
+        }
+      }
+      recalcTicketPreview();
+    }
+
+    function selectLev(lev) {
+      selectedLev = lev;
+      [1, 2, 3].forEach(l => {
+        document.getElementById('lev-' + l).className = 'lev-pill' + (l === lev ? ' active' : '');
+      });
+      selectSide(selectedSide);
+    }
+
+    function recalcTicketPreview() {
+      const riskUsd = parseFloat(document.getElementById('inpRiskUsd').value) || 150;
+      const stopPx = parseFloat(document.getElementById('inpStop').value) || (selectedSide === 'LONG' ? livePrice * 0.985 : livePrice * 1.015);
+      const dist = Math.abs(livePrice - stopPx);
+      if (dist <= 0) return;
+      const qty = riskUsd / dist;
+      const notional = qty * livePrice;
+      const marginReq = notional / selectedLev;
+      const mmr = 0.01;
+      const liqPx = selectedSide === 'LONG'
+        ? Math.max(0, livePrice * (1 - 1 / selectedLev + mmr))
+        : livePrice * (1 + 1 / selectedLev - mmr);
+      const liqBuf = Math.abs(livePrice - liqPx) / dist;
+
+      const tp1 = selectedSide === 'LONG' ? (livePrice + 1.6 * dist) : (livePrice - 1.6 * dist);
+      const tp2 = selectedSide === 'LONG' ? (livePrice + 3.0 * dist) : (livePrice - 3.0 * dist);
+      document.getElementById('inpTp1').value = tp1.toFixed(2);
+      document.getElementById('inpTp2').value = tp2.toFixed(2);
+
+      const safeBadge = liqBuf >= 2.0
+        ? `<span class="pos"><b>SAFE (${liqBuf.toFixed(1)}x Stop Dist)</b></span>`
+        : `<span class="neg"><b>TIGHT (${liqBuf.toFixed(1)}x)</b></span>`;
+
+      document.getElementById('ticketPreviewBox').innerHTML = `
+        <div><b>Sized Position:</b> ${qty.toFixed(3)} BNB (${fmtUsd(notional)} Notional | ${fmtUsd(marginReq)} Margin @ ${selectedLev}x)</div>
+        <div><b>Stop Distance:</b> $${dist.toFixed(2)} (${(dist / livePrice * 100).toFixed(2)}%) &middot; <b>Max Loss at Stop:</b> -${fmtUsd(riskUsd)} (-1.0R)</div>
+        <div><b>Est. Liquidation:</b> $${liqPx.toFixed(2)} &middot; <b>Liq Safety Buffer:</b> ${safeBadge}</div>
+      `;
+    }
+
+    async function loadBnbBundle() {
+      try {
+        const res = await fetch('/api/bnb/state?_t=' + Date.now());
+        const data = await res.json();
+        if (data && data.wallet) {
+          const firstLoad = !bnbState;
+          bnbState = data;
+          renderBnbBundle(firstLoad);
+        }
+      } catch (e) {
+        console.error('BNB state load error:', e);
+      }
+    }
+
+    function renderBnbBundle(firstLoad) {
+      const w = bnbState.wallet;
+      const ls = bnbState.live_setup;
+      const fc = bnbState.forecast || {};
+      const m10 = bnbState.model_10y || {};
+      livePrice = ls.live_price;
+
+      // Top Wallet Bar
+      const eqEl = document.getElementById('wEquity');
+      eqEl.textContent = fmtUsd(w.total_equity);
+      eqEl.className = 'v ' + (w.total_return_usd >= 0 ? 'pos' : 'neg');
+      document.getElementById('wCash').textContent = fmtUsd(w.cash_balance);
+
+      const unEl = document.getElementById('wUnreal');
+      unEl.textContent = `${fmtUsd(w.unrealized_pnl, true)} (${w.unrealized_r >= 0 ? '+' : ''}${w.unrealized_r.toFixed(2)}R)`;
+      unEl.className = 'v ' + (w.unrealized_pnl >= 0 ? 'pos' : 'neg');
+
+      const reEl = document.getElementById('wRealized');
+      reEl.textContent = fmtUsd(w.realized_pnl, true);
+      reEl.className = 'v ' + (w.realized_pnl >= 0 ? 'pos' : 'neg');
+
+      document.getElementById('wStats').textContent = `${w.winning_trades}W / ${w.losing_trades}L (L:${w.long_trades} S:${w.short_trades})`;
+
+      const apBtn = document.getElementById('btnAutoPilot');
+      apBtn.textContent = `🤖 AI Auto-Pilot: ${w.auto_pilot ? 'ON' : 'OFF'}`;
+      apBtn.className = 'btn-sm' + (w.auto_pilot ? ' active-pilot' : '');
+
+      // Hero Strip
+      const ms = ls.microstructure;
+      document.getElementById('hPrice').textContent = '$' + livePrice.toFixed(2);
+      document.getElementById('hVwapDist').textContent = `24h VWAP: $${ms.vwap_24h.toFixed(2)} (${((livePrice / ms.vwap_24h - 1) * 100).toFixed(2)}%)`;
+
+      const vEl = document.getElementById('hVerdict');
+      vEl.textContent = ls.recommended_side === 'SHORT' ? '🔴 SHORT / HEDGE' : '🟢 LONG / ACCUMULATE';
+      vEl.className = 'val ' + (ls.recommended_side === 'SHORT' ? 'neg' : 'pos');
+      document.getElementById('hScore').textContent = `Composite Score: ${ls.composite_score > 0 ? '+' : ''}${ls.composite_score} / 100`;
+
+      document.getElementById('hPoc').textContent = `POC $${ms.vp_poc.toFixed(2)}`;
+      document.getElementById('hValVah').textContent = `VAL $${ms.vp_val.toFixed(2)} | VAH $${ms.vp_vah.toFixed(2)}`;
+      document.getElementById('hTakerBuy').textContent = `4h Buy: ${ms.taker_buy_4h_pct}% (1h: ${ms.taker_buy_1h_pct}%)`;
+      document.getElementById('hCvd').textContent = `24h Net CVD: ${fmtUsd(ms.cvd_24h_usd, true)}`;
+
+      if (fc.futures) {
+        document.getElementById('hWhale').textContent = `Whales ${fc.futures.top_trader_long_pct || 52.2}% Long`;
+        document.getElementById('hRetail').textContent = `Retail ${fc.futures.retail_long_pct || 73.0}% Long`;
+      }
+
+      if (m10.overall_backtest) {
+        const ob = m10.overall_backtest;
+        document.getElementById('h10yExp').textContent = `+${ob.expectancy_per_trade_r}R / trade`;
+        document.getElementById('h10yWr').textContent = `${ob.win_rate_pct}% WR (${ob.total_trades} trades, PF ${ob.profit_factor})`;
+        document.getElementById('tBarsCount').textContent = `${m10.total_1d_bars} 1d + ${m10.total_4h_bars} 4h bars`;
+        document.getElementById('tTotalTrades').textContent = `${ob.total_trades} (${ob.winning_trades}W / ${ob.losing_trades}L)`;
+        document.getElementById('tWinRate').textContent = `Win Rate: ${ob.win_rate_pct}%`;
+        document.getElementById('tCumR').textContent = `+${ob.cumulative_r}R`;
+        document.getElementById('tExpR').textContent = `Expectancy: +${ob.expectancy_per_trade_r}R / trade`;
+        document.getElementById('tPf').textContent = `PF ${ob.profit_factor}x`;
+        document.getElementById('tMaxDd').textContent = `Max Drawdown: ${ob.max_drawdown_pct}%`;
+      }
+
+      // Render Playbooks Table
+      if (m10.playbooks) {
+        document.getElementById('playbookTableBody').innerHTML = m10.playbooks.map(pb => `
+          <tr>
+            <td><b>${pb.name}</b></td>
+            <td><span class="badge ${pb.side === 'LONG' ? 'badge-green' : 'badge-red'}">${pb.side}</span></td>
+            <td>${pb.trades} (${pb.wins}W)</td>
+            <td class="pos"><b>${pb.win_rate_pct}%</b></td>
+            <td class="pos"><b>+${pb.total_r}R</b></td>
+            <td class="pos"><b>+${pb.expectancy_r}R</b></td>
+            <td><b>${pb.profit_factor}x</b></td>
+            <td><span class="badge badge-gold">${pb.quarter_kelly_risk_pct}% Equity</span></td>
+          </tr>
+        `).join('');
+      }
+
+      // Render Yearly Breakdown Table
+      if (m10.yearly_breakdown) {
+        document.getElementById('yearlyTableBody').innerHTML = m10.yearly_breakdown.map(yr => `
+          <tr>
+            <td><b class="gold">${yr.year}</b></td>
+            <td>${yr.regime_label}</td>
+            <td>$${yr.open} → <b>$${yr.close}</b></td>
+            <td>$${yr.high} / $${yr.low}</td>
+            <td class="${yr.return_pct >= 0 ? 'pos' : 'neg'}"><b>${yr.return_pct >= 0 ? '+' : ''}${yr.return_pct}%</b></td>
+            <td>${yr.avg_taker_buy_pct}%</td>
+            <td>${yr.sim_trades} (${yr.sim_longs}L / ${yr.sim_shorts}S)</td>
+            <td>${yr.sim_win_rate_pct}%</td>
+            <td class="${yr.sim_net_r >= 0 ? 'pos' : 'neg'}"><b>${yr.sim_net_r >= 0 ? '+' : ''}${yr.sim_net_r}R</b></td>
+          </tr>
+        `).join('');
+      }
+
+      // Render Previous BNB History Audit
+      if (m10.previous_history_audit && m10.previous_history_audit.found) {
+        const pa = m10.previous_history_audit;
+        document.getElementById('prevAuditContainer').innerHTML = `
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:8px; margin-bottom:10px;">
+            <div class="hero-box">
+              <div class="lbl">Prior File Audited</div>
+              <div class="val" style="font-size:13px;">${pa.previous_strategy}</div>
+              <div class="sub">Last Entry (${pa.last_plan_date}): $${pa.last_plan_entry} (SL $${pa.last_plan_stop})</div>
+            </div>
+            <div class="hero-box">
+              <div class="lbl">Oct 23 10,000 Monte Carlo</div>
+              <div class="val neg">${pa.mc_10000_avg_r}R Expectancy</div>
+              <div class="sub">Target Prob: ${pa.mc_10000_win_prob_pct}% vs Stop: ${pa.mc_10000_stop_prob_pct}%</div>
+            </div>
+            <div class="hero-box">
+              <div class="lbl">Prior 26 ORB Sessions (Sept 26–Oct 21)</div>
+              <div class="val">${pa.past_26_days_wins}W / ${pa.past_26_days_losses}L (${pa.past_26_days_win_rate_pct}%)</div>
+              <div class="sub">Avg Stop Dist: Only ${pa.avg_orb_stop_distance_pct}% (Noise Sweep Zone)</div>
+            </div>
+            <div class="hero-box">
+              <div class="lbl">Downtrend vs Bounce Split</div>
+              <div class="val neg">Bear Phase WR: ${pa.bear_phase_win_rate_pct}%</div>
+              <div class="sub pos">Bounce Phase WR: ${pa.bull_phase_win_rate_pct}%</div>
+            </div>
+          </div>
+          <div style="background:#080d18; border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:8px;">
+            <b class="neg">Why the Previous Long-Only ORB Struggled:</b>
+            <ul style="margin:5px 0 0 18px; padding:0;">
+              ${pa.root_cause_diagnosis.map(d => `<li>${d}</li>`).join('')}
+            </ul>
+          </div>
+          <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:10px;">
+            <b class="pos">How Our 10-Year Trained Long &amp; Short Program Solves It:</b>
+            <ul style="margin:5px 0 0 18px; padding:0;">
+              ${pa.institutional_upgrades_applied.map(u => `<li>${u}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      // Render Active Position Card
+      const pos = w.active_position;
+      const posBadge = document.getElementById('posStatusBadge');
+      const posBox = document.getElementById('activePosContent');
+      if (pos) {
+        posBadge.textContent = `OPEN #${pos.id} ${pos.side} (${pos.leverage}x)`;
+        posBadge.className = 'badge ' + (pos.side === 'LONG' ? 'badge-green' : 'badge-red');
+        const uCls = pos.unrealized_pnl_usd >= 0 ? 'pos' : 'neg';
+        posBox.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div>
+              <span class="badge ${pos.side === 'LONG' ? 'badge-green' : 'badge-red'}" style="font-size:13px;">
+                ${pos.side === 'LONG' ? '🟢 LONG' : '🔴 SHORT'} ${pos.qty} BNB (${pos.leverage}x)
+              </span>
+              <span class="muted" style="font-size:11px; margin-left:6px;">${pos.playbook}</span>
+            </div>
+            <div class="${uCls}" style="font-size:16px; font-weight:900;" id="livePosPnl">
+              ${fmtUsd(pos.unrealized_pnl_usd, true)} (${pos.unrealized_r >= 0 ? '+' : ''}${pos.unrealized_r}R)
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; background:#080d18; padding:10px; border-radius:8px; font-size:12px; margin-bottom:10px;">
+            <div><span class="muted">Entry Price:</span><br><b>$${pos.entry_price.toFixed(2)}</b></div>
+            <div><span class="muted">Live Mark:</span><br><b class="gold" id="livePosMark">$${livePrice.toFixed(2)}</b></div>
+            <div><span class="muted">Liq Price (${pos.liq_buffer_mult}x Safe):</span><br><b>$${pos.liquidation_price.toFixed(2)}</b></div>
+            <div><span class="muted">Stop-Loss:</span><br><b class="neg">$${pos.stop_loss.toFixed(2)}</b> ${pos.tp1_hit ? '<span class="badge badge-green">BE</span>' : ''}</div>
+            <div><span class="muted">TP1 (1.6R, 40%):</span><br><b class="pos">$${pos.tp1_price.toFixed(2)}</b> ${pos.tp1_hit ? '✓' : ''}</div>
+            <div><span class="muted">TP2 (3.0R, 35%):</span><br><b class="pos">$${pos.tp2_price.toFixed(2)}</b> ${pos.tp2_hit ? '✓' : ''}</div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;">
+            <button class="btn-sm" onclick="scaleOutPosition(40, 'Manual TP1 Scale-Out (40%)')">Scale 40%</button>
+            <button class="btn-sm" onclick="moveStopBreakeven()">Stop → BE</button>
+            <button class="btn-sm" onclick="flipBnbPosition()">🔄 Flip ${pos.side === 'LONG' ? 'Short' : 'Long'}</button>
+            <button class="btn-sm" style="border-color:var(--red); color:var(--red);" onclick="scaleOutPosition(100, 'Manual Close 100%')">✖ Close 100%</button>
+          </div>
+        `;
+      } else {
+        posBadge.textContent = 'FLAT / READY';
+        posBadge.className = 'badge';
+        posBox.innerHTML = `<div class="muted" style="font-size:12px;">No open BNB position. Click <b>Execute AI Recommended BNB Trade</b> or submit a custom Long/Short ticket below.</div>`;
+      }
+
+      // Render AI Setup Card
+      document.getElementById('aiConvBadge').textContent = `Conviction: ${ls.conviction_score}/100`;
+      document.getElementById('aiConvBadge').className = 'badge ' + (ls.recommended_side === 'SHORT' ? 'badge-red' : 'badge-green');
+      document.getElementById('aiSetupSummary').innerHTML = `
+        <div style="margin-bottom:6px;">
+          <b class="${ls.recommended_side === 'SHORT' ? 'neg' : 'pos'}">[${ls.recommended_side}] ${ls.playbook_name}</b>
+        </div>
+        <div style="background:#080d18; border:1px solid var(--border); padding:8px; border-radius:7px; margin-bottom:8px; font-size:11.5px;">
+          <b>Entry:</b> $${ls.entry_market.toFixed(2)} (Ideal Limit: $${ls.entry_limit_ideal.toFixed(2)}) &middot;
+          <b>Stop:</b> <span class="neg">$${ls.stop_loss.toFixed(2)}</span> (${ls.stop_distance_pct}%) &middot;
+          <b>TP1:</b> <span class="pos">$${ls.tp1_price.toFixed(2)}</span> &middot;
+          <b>TP2:</b> <span class="pos">$${ls.tp2_price.toFixed(2)}</span>
+        </div>
+        <ul style="margin:0 0 0 16px; padding:0; font-size:11.5px; color:#cbd5e1;">
+          ${(ls.rationale || []).map(r => `<li style="margin-bottom:3px;">${r}</li>`).join('')}
+        </ul>
+      `;
+      const btnAi = document.getElementById('btnExecAi');
+      btnAi.textContent = `⚡ Execute AI ${ls.recommended_side} Setup @ $${livePrice.toFixed(2)} (SL $${ls.stop_loss.toFixed(2)} | TP1 $${ls.tp1_price.toFixed(2)})`;
+
+      if (firstLoad) {
+        selectSide(ls.recommended_side);
+        chartBars = ls.bars_15m || [];
+        drawBnbChart();
+      } else if (chartTf === '15m' && ls.bars_15m) {
+        chartBars = ls.bars_15m;
+        drawBnbChart();
+      }
+
+      // Render Volume Profile Histogram
+      document.getElementById('vpStateBadge').textContent = ms.vp_state;
+      if (ms.vp_bins) {
+        const revBins = [...ms.vp_bins].reverse();
+        document.getElementById('vpBinsContainer').innerHTML = revBins.map(b => {
+          const col = b.is_poc ? '#f3ba2f' : (b.in_va ? '#3b82f6' : '#334155');
+          const lbl = b.is_poc ? 'POC' : '';
+          return `
+            <div class="vp-bar-row">
+              <span style="width:58px; color:${b.is_poc ? '#f3ba2f' : '#94a3b8'}; font-weight:${b.is_poc ? '800' : '400'};">$${b.price.toFixed(1)}</span>
+              <div class="vp-track">
+                <div class="vp-fill" style="width:${b.pct_max}%; background:${col};"></div>
+              </div>
+              <span style="width:42px; text-align:right; color:${b.taker_buy_pct >= 50 ? '#10b981' : '#f43f5e'};">${b.taker_buy_pct}%B</span>
+              <span style="width:28px; color:#f3ba2f; font-weight:800;">${lbl}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render News
+      const newsItems = (fc.news && fc.news.items) ? fc.news.items : [];
+      document.getElementById('newsCountBadge').textContent = `${newsItems.length} Live Feeds`;
+      if (newsItems.length > 0) {
+        document.getElementById('newsListContainer').innerHTML = newsItems.slice(0, 22).map(n => {
+          const sCls = n.sentiment === 'BULLISH' ? 'pos' : (n.sentiment === 'BEARISH' ? 'neg' : 'muted');
+          return `
+            <div style="padding:7px 0; border-bottom:1px solid rgba(30,45,71,0.5);">
+              <div style="display:flex; justify-content:space-between; font-size:10.5px; margin-bottom:2px;">
+                <span class="badge">${n.source}</span>
+                <span class="${sCls}"><b>${n.sentiment}</b> (${(n.tags || []).join(', ') || 'market'})</span>
+              </div>
+              <div style="color:#e2e8f0; line-height:1.35;">${n.title}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Closed Trades + 10Y Recent Walk-Forward Trades
+      const liveClosed = (w.closed_trades || []).map(t => ({
+        time: t.closed_at.replace('T', ' ').slice(0, 16),
+        side: t.side,
+        playbook: '[LIVE SIM] ' + t.playbook,
+        entry: t.entry_price,
+        stop: t.stop_loss,
+        exit: t.exit_price,
+        outcome: t.reason,
+        r: t.r_multiple,
+        pnl: fmtUsd(t.net_pnl_usd, true),
+      }));
+      const histClosed = (m10.recent_backtest_trades || []).map(t => ({
+        time: t.closed_time,
+        side: t.side,
+        playbook: '[10Y WALK-FORWARD] ' + t.playbook,
+        entry: t.entry,
+        stop: t.stop,
+        exit: t.exit,
+        outcome: t.outcome,
+        r: t.r,
+        pnl: `${t.r >= 0 ? '+' : ''}${t.r}R`,
+      }));
+      const allClosed = [...liveClosed, ...histClosed];
+      document.getElementById('closedTradesBody').innerHTML = allClosed.slice(0, 35).map(t => `
+        <tr>
+          <td class="muted">${t.time}</td>
+          <td><span class="badge ${t.side === 'LONG' ? 'badge-green' : 'badge-red'}">${t.side}</span></td>
+          <td>${t.playbook}</td>
+          <td>$${Number(t.entry).toFixed(2)}</td>
+          <td>$${Number(t.stop).toFixed(2)}</td>
+          <td><b>$${Number(t.exit).toFixed(2)}</b></td>
+          <td>${t.outcome}</td>
+          <td class="${t.r >= 0 ? 'pos' : 'neg'}"><b>${t.r >= 0 ? '+' : ''}${t.r}R</b></td>
+          <td class="${t.r >= 0 ? 'pos' : 'neg'}"><b>${t.pnl}</b></td>
+        </tr>
+      `).join('');
+    }
+
+    async function setChartTf(tf) {
+      chartTf = tf;
+      ['15m', '1h', '4h', '1d'].forEach(k => {
+        document.getElementById('tf-' + k).className = 'tab-btn' + (k === tf ? ' active' : '');
+      });
+      try {
+        const res = await fetch(`/api/klines?symbol=BNBUSDT&interval=${tf}&limit=80`);
+        const d = await res.json();
+        if (d && d.bars) {
+          chartBars = d.bars;
+          drawBnbChart();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function drawBnbChart() {
+      const canvas = document.getElementById('bnbChart');
+      if (!canvas || !chartBars || chartBars.length < 5) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const W = rect.width;
+      const H = rect.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const padL = 12, padR = 72, padT = 16, padB = 26;
+      const cW = W - padL - padR;
+      const cH = H - padT - padB;
+
+      let minP = Math.min(...chartBars.map(b => b.l));
+      let maxP = Math.max(...chartBars.map(b => b.h));
+
+      // Include active position or setup brackets in price range
+      const ls = bnbState ? bnbState.live_setup : null;
+      const pos = (bnbState && bnbState.wallet) ? bnbState.wallet.active_position : null;
+      if (pos) {
+        minP = Math.min(minP, pos.stop_loss, pos.tp1_price);
+        maxP = Math.max(maxP, pos.stop_loss, pos.tp1_price);
+      } else if (ls) {
+        minP = Math.min(minP, ls.stop_loss, ls.tp1_price);
+        maxP = Math.max(maxP, ls.stop_loss, ls.tp1_price);
+      }
+      const range = Math.max(1.0, maxP - minP);
+      minP -= range * 0.06;
+      maxP += range * 0.06;
+
+      const Y = p => padT + ((maxP - p) / (maxP - minP)) * cH;
+      const stepX = cW / chartBars.length;
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(30, 45, 71, 0.45)';
+      ctx.lineWidth = 1;
+      ctx.font = '10px monospace';
+      ctx.fillStyle = '#8b9bb4';
+      for (let i = 0; i <= 5; i++) {
+        const p = minP + (maxP - minP) * (i / 5);
+        const y = Y(p);
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(W - padR, y);
+        ctx.stroke();
+        ctx.fillText('$' + p.toFixed(2), W - padR + 5, y + 3);
+      }
+
+      // Draw Volume Profile horizontal levels (POC, VAL, VAH, 24h VWAP)
+      if (ls && ls.microstructure) {
+        const ms = ls.microstructure;
+        const drawLevel = (px, color, dash, label) => {
+          if (px < minP || px > maxP) return;
+          const y = Y(px);
+          ctx.save();
+          ctx.strokeStyle = color;
+          ctx.setLineDash(dash);
+          ctx.lineWidth = 1.3;
+          ctx.beginPath();
+          ctx.moveTo(padL, y);
+          ctx.lineTo(W - padR, y);
+          ctx.stroke();
+          ctx.fillStyle = color;
+          ctx.font = 'bold 10px sans-serif';
+          ctx.fillText(`${label} $${px.toFixed(2)}`, padL + 6, y - 4);
+          ctx.restore();
+        };
+        drawLevel(ms.vwap_24h, '#f3ba2f', [], '24h VWAP');
+        drawLevel(ms.vp_poc, '#38bdf8', [5, 4], '7d POC');
+        drawLevel(ms.vp_val, '#a855f7', [2, 3], '7d VAL');
+        drawLevel(ms.vp_vah, '#a855f7', [2, 3], '7d VAH');
+      }
+
+      // Draw Active Position or AI Planned Entry / Stop / TP1 Lines
+      const refEntry = pos ? pos.entry_price : (ls ? ls.entry_market : null);
+      const refStop = pos ? pos.stop_loss : (ls ? ls.stop_loss : null);
+      const refTp1 = pos ? pos.tp1_price : (ls ? ls.tp1_price : null);
+      const refSide = pos ? pos.side : (ls ? ls.recommended_side : 'SHORT');
+
+      if (refStop && refTp1) {
+        const drawBracket = (px, col, tag) => {
+          if (px < minP || px > maxP) return;
+          const y = Y(px);
+          ctx.save();
+          ctx.strokeStyle = col;
+          ctx.setLineDash([4, 2]);
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(padL + cW * 0.35, y);
+          ctx.lineTo(W - padR, y);
+          ctx.stroke();
+          ctx.fillStyle = col;
+          ctx.font = 'bold 10px monospace';
+          ctx.fillText(`${tag} $${px.toFixed(2)}`, W - padR - 125, y - 4);
+          ctx.restore();
+        };
+        drawBracket(refStop, '#f43f5e', `${refSide} STOP`);
+        drawBracket(refTp1, '#10b981', `${refSide} TP1 (1.6R)`);
+      }
+
+      // Draw Candlesticks
+      chartBars.forEach((b, i) => {
+        const x = padL + i * stepX + stepX * 0.5;
+        const isUp = b.c >= b.o;
+        ctx.strokeStyle = isUp ? '#10b981' : '#f43f5e';
+        ctx.fillStyle = isUp ? '#10b981' : '#f43f5e';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x, Y(b.h));
+        ctx.lineTo(x, Y(b.l));
+        ctx.stroke();
+
+        const yO = Y(b.o);
+        const yC = Y(b.c);
+        const top = Math.min(yO, yC);
+        const bh = Math.max(2, Math.abs(yC - yO));
+        ctx.fillRect(x - stepX * 0.32, top, stepX * 0.64, bh);
+      });
+    }
+
+    async function executeAiRecommended() {
+      if (!bnbState || !bnbState.live_setup) return;
+      const ls = bnbState.live_setup;
+      await fetch('/api/bnb/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'OPEN',
+          side: ls.recommended_side,
+          leverage: 2,
+          stop_loss: ls.stop_loss,
+          tp1: ls.tp1_price,
+          tp2: ls.tp2_price,
+          playbook: ls.playbook_name
+        })
+      });
+      await loadBnbBundle();
+    }
+
+    async function submitBnbOrder() {
+      const riskUsd = parseFloat(document.getElementById('inpRiskUsd').value) || 150;
+      const stopLoss = parseFloat(document.getElementById('inpStop').value);
+      const tp1 = parseFloat(document.getElementById('inpTp1').value);
+      const tp2 = parseFloat(document.getElementById('inpTp2').value);
+      const res = await fetch('/api/bnb/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'OPEN',
+          side: selectedSide,
+          leverage: selectedLev,
+          risk_usd: riskUsd,
+          stop_loss: stopLoss,
+          tp1: tp1,
+          tp2: tp2,
+          playbook: `Manual Institutional ${selectedSide} (${selectedLev}x)`
+        })
+      });
+      const d = await res.json();
+      if (!d.ok && d.error) alert(d.error);
+      await loadBnbBundle();
+    }
+
+    async function scaleOutPosition(pct, reason) {
+      await fetch('/api/bnb/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'CLOSE', close_pct: pct, reason: reason })
+      });
+      await loadBnbBundle();
+    }
+
+    async function moveStopBreakeven() {
+      if (!bnbState || !bnbState.wallet || !bnbState.wallet.active_position) return;
+      const pos = bnbState.wallet.active_position;
+      const be = pos.side === 'LONG' ? pos.entry_price * 1.001 : pos.entry_price * 0.999;
+      await fetch('/api/bnb/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'BRACKETS', stop_loss: be })
+      });
+      await loadBnbBundle();
+    }
+
+    async function flipBnbPosition() {
+      if (!bnbState || !bnbState.wallet || !bnbState.wallet.active_position) return;
+      const curSide = bnbState.wallet.active_position.side;
+      const newSide = curSide === 'LONG' ? 'SHORT' : 'LONG';
+      const dp = bnbState.live_setup.dual_plans[newSide];
+      await fetch('/api/bnb/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'OPEN',
+          side: newSide,
+          leverage: selectedLev,
+          stop_loss: dp.stop,
+          tp1: dp.tp1,
+          tp2: dp.tp2,
+          playbook: `Flipped ${curSide} -> ${newSide}: ${dp.playbook}`
+        })
+      });
+      await loadBnbBundle();
+    }
+
+    async function toggleAutoPilot() {
+      if (!bnbState || !bnbState.wallet) return;
+      const next = !bnbState.wallet.auto_pilot;
+      await fetch('/api/bnb/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'BRACKETS', auto_pilot: next })
+      });
+      await loadBnbBundle();
+    }
+
+    async function resetBnbWallet() {
+      if (!confirm('Reset BNB Long & Short Simulator Wallet back to $10,000.00?')) return;
+      await fetch('/api/bnb/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'RESET', starting_equity: 10000 })
+      });
+      await loadBnbBundle();
+    }
+
+    // Live Binance Millisecond aggTrade WebSocket specifically for BNBUSDT
+    function connectBnbWebSocket() {
+      try {
+        const ws = new WebSocket('wss://stream.binance.com:9443/ws/bnbusdt@aggTrade');
+        ws.onopen = () => {
+          document.getElementById('wsDot').className = 'ws-dot live';
+          document.getElementById('wsText').textContent = 'BNBUSDT CLOB Live';
+        };
+        ws.onmessage = (ev) => {
+          const msg = JSON.parse(ev.data);
+          const px = parseFloat(msg.p);
+          if (!px) return;
+          livePrice = px;
+          wsTradeCount++;
+          const now = Date.now();
+          if (now - lastWsSec >= 1000) {
+            document.getElementById('wsTps').textContent = wsTradeCount + ' trades/s';
+            wsTradeCount = 0;
+            lastWsSec = now;
+          }
+          document.getElementById('hPrice').textContent = '$' + px.toFixed(2);
+          const mEl = document.getElementById('livePosMark');
+          if (mEl) mEl.textContent = '$' + px.toFixed(2);
+
+          // Real-time millisecond P&L update for open BNB position
+          if (bnbState && bnbState.wallet && bnbState.wallet.active_position) {
+            const p = bnbState.wallet.active_position;
+            const rawU = p.side === 'LONG' ? (px - p.entry_price) * p.qty : (p.entry_price - px) * p.qty;
+            const netU = rawU + (p.partial_realized_pnl || 0) - (p.entry_fee_usd || 0);
+            const rMult = netU / Math.max(1, p.planned_risk_usd);
+            const pEl = document.getElementById('livePosPnl');
+            if (pEl) {
+              pEl.className = netU >= 0 ? 'pos' : 'neg';
+              pEl.textContent = `${fmtUsd(netU, true)} (${rMult >= 0 ? '+' : ''}${rMult.toFixed(2)}R)`;
+            }
+            const unTop = document.getElementById('wUnreal');
+            if (unTop) {
+              unTop.className = 'v ' + (netU >= 0 ? 'pos' : 'neg');
+              unTop.textContent = `${fmtUsd(netU, true)} (${rMult >= 0 ? '+' : ''}${rMult.toFixed(2)}R)`;
+            }
+            const eqTop = document.getElementById('wEquity');
+            if (eqTop) {
+              const totEq = bnbState.wallet.cash_balance + rawU;
+              eqTop.textContent = fmtUsd(totEq);
+            }
+          }
+        };
+        ws.onclose = () => {
+          document.getElementById('wsDot').className = 'ws-dot';
+          setTimeout(connectBnbWebSocket, 1500);
+        };
+      } catch (e) {
+        setTimeout(connectBnbWebSocket, 2000);
+      }
+    }
+
+    window.addEventListener('resize', drawBnbChart);
+    loadBnbBundle();
+    connectBnbWebSocket();
+    setInterval(loadBnbBundle, 6000);
+  </script>
+</body>
+</html>
