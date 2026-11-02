@@ -1,102 +1,101 @@
 {
- "updated": "2026-11-02 11:06:56 UTC",
- "updated_ms": 1793617616143,
+ "updated": "2026-11-02 13:36:23 UTC",
+ "updated_ms": 1793626583723,
  "poll_interval_sec": 10,
  "cache_stats": {
   "cache_hits": 0,
   "live_fetches": 13
  },
- "macro_score": -4.1,
+ "macro_score": -3.4,
  "trending_coins": [
   {
    "rank": 1,
-   "symbol": "DACITYCOIN",
-   "name": "AudaCity",
-   "market_cap_rank": 808
+   "symbol": "SI",
+   "name": "Super Inu",
+   "market_cap_rank": 846
   },
   {
    "rank": 2,
-   "symbol": "PEARL",
-   "name": "Pearl",
-   "market_cap_rank": 98
+   "symbol": "DACITYCOIN",
+   "name": "AudaCity",
+   "market_cap_rank": 863
   },
   {
    "rank": 3,
-   "symbol": "MON",
-   "name": "Monad",
-   "market_cap_rank": 154
-  },
-  {
-   "rank": 4,
    "symbol": "BTC",
    "name": "Bitcoin",
    "market_cap_rank": 1
   },
   {
-   "rank": 5,
-   "symbol": "PENGU",
-   "name": "Pudgy Penguins",
-   "market_cap_rank": 113
-  },
-  {
-   "rank": 6,
-   "symbol": "KNTQ",
-   "name": "Kinetiq",
-   "market_cap_rank": 197
-  },
-  {
-   "rank": 7,
-   "symbol": "SOL",
-   "name": "Solana",
-   "market_cap_rank": 7
-  },
-  {
-   "rank": 8,
+   "rank": 4,
    "symbol": "NEAR",
    "name": "NEAR Protocol",
    "market_cap_rank": 21
   },
   {
+   "rank": 5,
+   "symbol": "PEARL",
+   "name": "Pearl",
+   "market_cap_rank": 98
+  },
+  {
+   "rank": 6,
+   "symbol": "CC",
+   "name": "Canton",
+   "market_cap_rank": 29
+  },
+  {
+   "rank": 7,
+   "symbol": "PENGU",
+   "name": "Pudgy Penguins",
+   "market_cap_rank": 113
+  },
+  {
+   "rank": 8,
+   "symbol": "STONK",
+   "name": "STONK",
+   "market_cap_rank": 290
+  },
+  {
    "rank": 9,
+   "symbol": "SOL",
+   "name": "Solana",
+   "market_cap_rank": 7
+  },
+  {
+   "rank": 10,
    "symbol": "LIT",
    "name": "Lighter",
    "market_cap_rank": 83
   },
   {
-   "rank": 10,
-   "symbol": "RUNE",
-   "name": "THORChain",
-   "market_cap_rank": 188
-  },
-  {
    "rank": 11,
-   "symbol": "PUMP",
-   "name": "Pump.fun",
-   "market_cap_rank": 50
+   "symbol": "PEPE",
+   "name": "Pepe",
+   "market_cap_rank": 47
   },
   {
    "rank": 12,
-   "symbol": "HYPE",
-   "name": "Hyperliquid",
-   "market_cap_rank": 11
+   "symbol": "ZEC",
+   "name": "Zcash",
+   "market_cap_rank": 10
   }
  ],
  "token_scores": {
-  "BTC": -10.7,
-  "SOL": 2.0,
+  "BTC": -5.6,
+  "SOL": 0.1,
   "NEAR": 2.0,
+  "PEPE": 2.0,
   "TRX": -0.9,
-  "ARB": -1.3,
-  "HYPE": 2.0,
-  "RUNE": 0.2,
-  "PUMP": 2.0
+  "RUNE": -0.9,
+  "ZEC": 2.0
  },
  "token_vetoes": {
   "CRYPTO": {
    "veto_long": true,
    "veto_short": false,
    "severity": "CRITICAL",
-   "reason": "HIGH RISK BEARISH CATALYST: Binance hack fallout, U.S. midterms and jobs report: Crypto Week Ahead (CoinDesk)"
+   "reason": "HIGH RISK BEARISH CATALYST: Binance says customers pulled net $4.7 billion after hack as crypto wo (Forbes/Bloomberg/Fortune)"
   },
   "BTC": {
    "veto_long": true,
@@ -104,24 +103,395 @@
    "severity": "CRITICAL",
    "reason": "HIGH RISK BEARISH CATALYST: Spot bitcoin ETFs see largest daily outflows in four months following  (The Block)"
   },
-  "RUNE": {
+  "SOL": {
    "veto_long": true,
    "veto_short": false,
    "severity": "CRITICAL",
-   "reason": "HIGH RISK BEARISH CATALYST: THORChain halts swaps after block reorg bug, slowing Binance hackers (Cointelegraph)"
+   "reason": "HIGH RISK BEARISH CATALYST: Binance hackers begin swapping stolen Solana tokens for Bitcoin: Chain (Cointelegraph)"
   }
  },
- "breaking_alerts": [],
- "new_count": 0,
- "total_headlines": 61,
+ "breaking_alerts": [
+  {
+   "source": "Decrypt",
+   "sentiment": "BEARISH",
+   "tokens": [
+    "CRYPTO"
+   ],
+   "tags": [
+    "hack/exploit",
+    "regulatory/delist",
+    "outflow/liquidation"
+   ],
+   "title": "Morning Minute: The Binance Hack Leads to Mass Outflows while FBI Opens Probe",
+   "time": "13:34:02 UTC"
+  }
+ ],
+ "new_count": 4,
+ "total_headlines": 67,
  "headlines": [
+  {
+   "source": "Decrypt",
+   "category": "news",
+   "title": "Morning Minute: The Binance Hack Leads to Mass Outflows while FBI Opens Probe",
+   "pubDate": "Mon, 02 Nov 2026 13:34:02 +0000",
+   "pub_ts": 1793626442,
+   "age_min": 2.4,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit",
+    "regulatory/delist",
+    "outflow/liquidation"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "13:34:02 UTC",
+   "is_new": true
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "AI agent disputes head to \u2018Internet Court\u2019 - and a jury of AI agents",
+   "pubDate": "Mon, 02 Nov 2026 13:30:00 +0000",
+   "pub_ts": 1793626200,
+   "age_min": 6.4,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "13:30:00 UTC",
+   "is_new": true
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "Here\u2019s what happened in crypto today",
+   "pubDate": "Mon, 02 Nov 2026 13:29:29 +0000",
+   "pub_ts": 1793626169,
+   "age_min": 6.9,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "13:29:29 UTC",
+   "is_new": true
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "Binance taps half its SAFU Bitcoin holdings, releases reserve proof",
+   "pubDate": "Mon, 02 Nov 2026 13:21:47 +0000",
+   "pub_ts": 1793625707,
+   "age_min": 14.6,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "13:21:47 UTC",
+   "is_new": true
+  },
+  {
+   "source": "Decrypt",
+   "category": "news",
+   "title": "Strategy Resumes Bitcoin Buys With $66M Purchase",
+   "pubDate": "Mon, 02 Nov 2026 13:19:36 +0000",
+   "pub_ts": 1793625576,
+   "age_min": 16.8,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "13:19:36 UTC",
+   "is_new": false
+  },
+  {
+   "source": "The Block",
+   "category": "magazine",
+   "title": "\u2018We found room for even more orange\u2019: Michael Saylor\u2019s Strategy scoops up another 811 bitcoin for $65.5 million",
+   "pubDate": "Mon, 02 Nov 2026 13:09:43 +0000",
+   "pub_ts": 1793624983,
+   "age_min": 26.7,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "13:09:43 UTC",
+   "is_new": false
+  },
+  {
+   "source": "X/Twitter Whale Flow",
+   "category": "twitter",
+   "title": "EU Crypto Theft: Over $106M Lost in Suspected Crypto Theft - The Cryptonomist",
+   "pubDate": "Mon, 02 Nov 2026 12:58:24 GMT",
+   "pub_ts": 1793624304,
+   "age_min": 38.0,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "12:58:24 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "FATF targets crypto hubs in review of money laundering controls",
+   "pubDate": "Mon, 02 Nov 2026 12:56:07 +0000",
+   "pub_ts": 1793624167,
+   "age_min": 40.3,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "12:56:07 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Binance (Latest Binance News)",
+   "category": "binance",
+   "title": "Security Incident | Recovery Update #5: October 31st PoR Snapshot Now Fully Verifiable by Users as ZK Proof Generated (2026-11-02)",
+   "pubDate": "2026-11-02 12:45:05 UTC",
+   "pub_ts": 1793623505,
+   "age_min": 51.3,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "12:45:05 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "Binance hackers begin swapping stolen Solana tokens for Bitcoin: Chainalysis",
+   "pubDate": "Mon, 02 Nov 2026 12:40:45 +0000",
+   "pub_ts": 1793623245,
+   "age_min": 55.6,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "BTC",
+    "SOL"
+   ],
+   "time": "12:40:45 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CryptoSlate",
+   "category": "magazine",
+   "title": "Bitcoin catches a break from falling oil prices, but OPEC+ raises new Fed concerns",
+   "pubDate": "Mon, 02 Nov 2026 12:40:41 +0000",
+   "pub_ts": 1793623241,
+   "age_min": 55.7,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "12:40:41 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "XRP Ledger set to fix flaw that could let stablecoin partners print new tokens",
+   "pubDate": "Mon, 02 Nov 2026 12:37:24 +0000",
+   "pub_ts": 1793623044,
+   "age_min": 59.0,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "XRP"
+   ],
+   "time": "12:37:24 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "Bitcoin's 'volatility curve' has a midterm bump",
+   "pubDate": "Mon, 02 Nov 2026 12:30:17 +0000",
+   "pub_ts": 1793622617,
+   "age_min": 66.1,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "12:30:17 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Decrypt",
+   "category": "news",
+   "title": "BTCPay Tells Merchants to Switch Off Servers Amid Hot Wallet Attack Reports",
+   "pubDate": "Mon, 02 Nov 2026 12:24:18 +0000",
+   "pub_ts": 1793622258,
+   "age_min": 72.1,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "12:24:18 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Bitcoin Faces 3 Big Tests During the First Week of November",
+   "pubDate": "Mon, 02 Nov 2026 12:00:55 +0000",
+   "pub_ts": 1793620855,
+   "age_min": 95.5,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "12:00:55 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Binance (Latest Activities)",
+   "category": "binance",
+   "title": "Binance VIP Level Protection Program",
+   "pubDate": "2026-11-02 12:00:01 UTC",
+   "pub_ts": 1793620801,
+   "age_min": 96.4,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "12:00:01 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "No proof of AI in North Korean hackers move of stolen Binance funds",
+   "pubDate": "Mon, 02 Nov 2026 11:57:45 +0000",
+   "pub_ts": 1793620665,
+   "age_min": 98.6,
+   "sentiment": "BEARISH",
+   "tags": [
+    "hack/exploit"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "11:57:45 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Binance (Latest Activities)",
+   "category": "binance",
+   "title": "Binance\u2019s Community Appreciation Campaign",
+   "pubDate": "2026-11-02 11:30:11 UTC",
+   "pub_ts": 1793619011,
+   "age_min": 126.2,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "11:30:11 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CoinDesk",
+   "category": "news",
+   "title": "Bitcoin eases to $77,900 as Binance customers pull $3.6 billion after withdrawals reopen",
+   "pubDate": "Mon, 02 Nov 2026 11:30:00 +0000",
+   "pub_ts": 1793619000,
+   "age_min": 126.4,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "11:30:00 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "Goldman Adds 17% to Its Brent Call: Is It Actually Bullish?",
+   "pubDate": "Mon, 02 Nov 2026 11:28:13 +0000",
+   "pub_ts": 1793618893,
+   "age_min": 128.2,
+   "sentiment": "BULLISH",
+   "tags": [
+    "bullish/breakout"
+   ],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "11:28:13 UTC",
+   "is_new": false
+  },
+  {
+   "source": "CryptoSlate",
+   "category": "magazine",
+   "title": "Solana validators told to act immediately as critical Linux vulnerability emerges",
+   "pubDate": "Mon, 02 Nov 2026 11:20:48 +0000",
+   "pub_ts": 1793618448,
+   "age_min": 135.6,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "SOL"
+   ],
+   "time": "11:20:48 UTC",
+   "is_new": false
+  },
+  {
+   "source": "Cointelegraph",
+   "category": "news",
+   "title": "From Uptober to Hacktober: Are Bitcoin\u2019s seasonal patterns becoming obsolete?",
+   "pubDate": "Mon, 02 Nov 2026 11:19:18 +0000",
+   "pub_ts": 1793618358,
+   "age_min": 137.1,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "BTC"
+   ],
+   "time": "11:19:18 UTC",
+   "is_new": false
+  },
+  {
+   "source": "BeInCrypto",
+   "category": "magazine",
+   "title": "AI Stocks Finally Help the Fed Fight Inflation, by Falling",
+   "pubDate": "Mon, 02 Nov 2026 11:00:00 +0000",
+   "pub_ts": 1793617200,
+   "age_min": 156.4,
+   "sentiment": "NEUTRAL",
+   "tags": [],
+   "tokens": [
+    "CRYPTO"
+   ],
+   "time": "11:00:00 UTC",
+   "is_new": false
+  },
   {
    "source": "Cointelegraph",
    "category": "news",
    "title": "Trezor lifts password ceiling after Coldcard\u2019s $100M wallet thefts",
    "pubDate": "Mon, 02 Nov 2026 10:46:59 +0000",
    "pub_ts": 1793616419,
-   "age_min": 20.0,
+   "age_min": 169.4,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -136,7 +506,7 @@
    "title": "FBI Blames North Korea for $6B Binance Hack as Exchange Reopens Withdrawals",
    "pubDate": "Mon, 02 Nov 2026 10:36:19 +0000",
    "pub_ts": 1793615779,
-   "age_min": 30.6,
+   "age_min": 180.1,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -153,7 +523,7 @@
    "title": "Hong Kong takes tokenized settlement to 24/7, plans stablecoin trials",
    "pubDate": "Mon, 02 Nov 2026 10:14:55 +0000",
    "pub_ts": 1793614495,
-   "age_min": 52.0,
+   "age_min": 201.5,
    "sentiment": "BULLISH",
    "tags": [
     "ETF/institutional inflow"
@@ -170,7 +540,7 @@
    "title": "Polygon brings US banking access to Solana\u2019s $15 billion stablecoin market",
    "pubDate": "Mon, 02 Nov 2026 10:00:53 +0000",
    "pub_ts": 1793613653,
-   "age_min": 66.1,
+   "age_min": 215.5,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -186,7 +556,7 @@
    "title": "Anthropic Adds 2 Sentences to Claude Code to Stop AI Video Game Clones",
    "pubDate": "Mon, 02 Nov 2026 09:51:48 +0000",
    "pub_ts": 1793613108,
-   "age_min": 75.1,
+   "age_min": 224.6,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -201,7 +571,7 @@
    "title": "BTC heads into US midterm showdown: Three things to know in Bitcoin this week",
    "pubDate": "Mon, 02 Nov 2026 09:41:36 +0000",
    "pub_ts": 1793612496,
-   "age_min": 85.3,
+   "age_min": 234.8,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -216,7 +586,7 @@
    "title": "A Cinema Chain Is Trying Something Strange to Bring Back the First-Viewing Feeling",
    "pubDate": "Mon, 02 Nov 2026 09:36:47 +0000",
    "pub_ts": 1793612207,
-   "age_min": 90.2,
+   "age_min": 239.6,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -231,7 +601,7 @@
    "title": "Metals.io issues tokens backed by 25 tonnes of physical copper stored in Germany",
    "pubDate": "Mon, 02 Nov 2026 09:33:20 +0000",
    "pub_ts": 1793612000,
-   "age_min": 93.6,
+   "age_min": 243.1,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -241,29 +611,12 @@
    "is_new": false
   },
   {
-   "source": "Banks & Fed Flow",
-   "category": "bank",
-   "title": "BTC USD Holds $78,000 As OneKey\u2019s Founder Warns North Korean Hackers May Already Have BlackRock\u2019s IBIT on Their List - Yahoo Finance",
-   "pubDate": "Mon, 02 Nov 2026 09:24:25 GMT",
-   "pub_ts": 1793611465,
-   "age_min": 102.5,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit"
-   ],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "09:24:25 UTC",
-   "is_new": false
-  },
-  {
    "source": "BeInCrypto",
    "category": "magazine",
    "title": "A $6.3 Billion Hack Tested Bitcoin\u2019s Bull Market. 3 Signs It Passed",
    "pubDate": "Mon, 02 Nov 2026 09:08:35 +0000",
    "pub_ts": 1793610515,
-   "age_min": 118.4,
+   "age_min": 267.8,
    "sentiment": "MIXED",
    "tags": [
     "bullish/breakout",
@@ -281,7 +634,7 @@
    "title": "Binance hack fallout, U.S. midterms and jobs report: Crypto Week Ahead",
    "pubDate": "Mon, 02 Nov 2026 09:04:49 +0000",
    "pub_ts": 1793610289,
-   "age_min": 122.1,
+   "age_min": 271.6,
    "sentiment": "BEARISH",
    "tags": [
     "hack/exploit"
@@ -298,7 +651,7 @@
    "title": "ECB will have to raise rates again, extent uncertain, Kazimir says - Reuters",
    "pubDate": "Mon, 02 Nov 2026 09:03:43 GMT",
    "pub_ts": 1793610223,
-   "age_min": 123.2,
+   "age_min": 272.7,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -310,16 +663,16 @@
   {
    "source": "Banks & Fed Flow",
    "category": "bank",
-   "title": "ECB will have to raise rates again, extent uncertain, Kazimir says - TradingView",
-   "pubDate": "Mon, 02 Nov 2026 09:00:01 GMT",
-   "pub_ts": 1793610001,
-   "age_min": 126.9,
+   "title": "ECB's Kazimir: Last Weeks Pause In Rates Was Not A Finish Line - Forex Factory",
+   "pubDate": "Mon, 02 Nov 2026 09:02:07 GMT",
+   "pub_ts": 1793610127,
+   "age_min": 274.3,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
     "CRYPTO"
    ],
-   "time": "09:00:01 UTC",
+   "time": "09:02:07 UTC",
    "is_new": false
   },
   {
@@ -328,7 +681,7 @@
    "title": "3 Token Unlocks to Watch in the First Week of November 2026",
    "pubDate": "Mon, 02 Nov 2026 09:00:00 +0000",
    "pub_ts": 1793610000,
-   "age_min": 126.9,
+   "age_min": 276.4,
    "sentiment": "BEARISH",
    "tags": [
     "unlock/dilution"
@@ -345,7 +698,7 @@
    "title": "OKX draws $445M in net inflows as Binance outflows exceed $7B",
    "pubDate": "Mon, 02 Nov 2026 08:56:03 +0000",
    "pub_ts": 1793609763,
-   "age_min": 130.9,
+   "age_min": 280.3,
    "sentiment": "MIXED",
    "tags": [
     "ETF/institutional inflow",
@@ -363,7 +716,7 @@
    "title": "Bitcoin Lightning\u2019s year-old security fixes still missing from 71% of flagged nodes",
    "pubDate": "Mon, 02 Nov 2026 08:55:32 +0000",
    "pub_ts": 1793609732,
-   "age_min": 131.4,
+   "age_min": 280.9,
    "sentiment": "NEUTRAL",
    "tags": [],
    "tokens": [
@@ -375,16 +728,16 @@
   {
    "source": "CoinDesk",
    "category": "news",
-   "title": "Live updates: Binance records $6 billion outflows after starting withdrawals, less then 4% of total holdings",
+   "title": "Live updates: Bitcoin posts small rise as Binance records $6 billion outflows after starting withdrawals",
    "pubDate": "Mon, 02 Nov 2026 08:49:30 +0000",
    "pub_ts": 1793609370,
-   "age_min": 137.4,
+   "age_min": 286.9,
    "sentiment": "BEARISH",
    "tags": [
     "outflow/liquidation"
    ],
    "tokens": [
-    "CRYPTO"
+    "BTC"
    ],
    "time": "08:49:30 UTC",
    "is_new": false
@@ -395,7 +748,7 @@
    "title": "China\u2019s Communist Party calls for a crackdown on corruption that uses crypto and blockchain",
    "pubDate": "Mon, 02 Nov 2026 08:41:28 +0000",
    "pub_ts": 1793608888,
-   "age_min": 145.5,
+   "age_min": 294.9,
    "sentiment": "BEARISH",
    "tags": [
     "regulatory/delist"
@@ -404,359 +757,6 @@
     "CRYPTO"
    ],
    "time": "08:41:28 UTC",
-   "is_new": false
-  },
-  {
-   "source": "BeInCrypto",
-   "category": "magazine",
-   "title": "Sam Altman Thinks Your PC\u2019s RAM Belongs in AI Data Centers. Crypto Leaders Disagree",
-   "pubDate": "Mon, 02 Nov 2026 08:37:40 +0000",
-   "pub_ts": 1793608660,
-   "age_min": 149.3,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:37:40 UTC",
-   "is_new": false
-  },
-  {
-   "source": "CoinDesk",
-   "category": "news",
-   "title": "Why stealing billions from a crypto exchange can be harder to stop than a bank theft",
-   "pubDate": "Mon, 02 Nov 2026 08:32:01 +0000",
-   "pub_ts": 1793608321,
-   "age_min": 154.9,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:32:01 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Forbes/Bloomberg/Fortune",
-   "category": "magazine",
-   "title": "Bitcoin\u2019s Resilience After Binance Hack Masks Market Jitters - Bloomberg",
-   "pubDate": "Mon, 02 Nov 2026 08:01:11 GMT",
-   "pub_ts": 1793606471,
-   "age_min": 185.8,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit"
-   ],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "08:01:11 UTC",
-   "is_new": false
-  },
-  {
-   "source": "BeInCrypto",
-   "category": "magazine",
-   "title": "Why Copper Prices Are Falling Despite China Paying a Record Premium",
-   "pubDate": "Mon, 02 Nov 2026 08:00:00 +0000",
-   "pub_ts": 1793606400,
-   "age_min": 186.9,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "08:00:00 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Cointelegraph",
-   "category": "news",
-   "title": "Bitcoin ETFs sink into October outflows with $643M exit after Binance hack",
-   "pubDate": "Mon, 02 Nov 2026 07:50:36 +0000",
-   "pub_ts": 1793605836,
-   "age_min": 196.3,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit",
-    "outflow/liquidation"
-   ],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "07:50:36 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Banks & Fed Flow",
-   "category": "bank",
-   "title": "SEC charges two entities over $130 million crypto fraud - grafa.com",
-   "pubDate": "Mon, 02 Nov 2026 07:28:02 GMT",
-   "pub_ts": 1793604482,
-   "age_min": 218.9,
-   "sentiment": "BEARISH",
-   "tags": [
-    "regulatory/delist"
-   ],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "07:28:02 UTC",
-   "is_new": false
-  },
-  {
-   "source": "CryptoSlate",
-   "category": "magazine",
-   "title": "Treasury dealers\u2019 financing burden can outlast their bond holdings, Fed study finds",
-   "pubDate": "Mon, 02 Nov 2026 07:00:53 +0000",
-   "pub_ts": 1793602853,
-   "age_min": 246.1,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "07:00:53 UTC",
-   "is_new": false
-  },
-  {
-   "source": "BeInCrypto",
-   "category": "magazine",
-   "title": "Is Your BTCPay Server Safe? What the Hot Wallet Drain Investigation Shows",
-   "pubDate": "Mon, 02 Nov 2026 07:00:00 +0000",
-   "pub_ts": 1793602800,
-   "age_min": 246.9,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit"
-   ],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "07:00:00 UTC",
-   "is_new": false
-  },
-  {
-   "source": "CoinDesk",
-   "category": "news",
-   "title": "Bitcoin ETFs lost $643 million in outflows Friday, and 2026 is barely green now",
-   "pubDate": "Mon, 02 Nov 2026 06:46:41 +0000",
-   "pub_ts": 1793602001,
-   "age_min": 260.3,
-   "sentiment": "BEARISH",
-   "tags": [
-    "outflow/liquidation"
-   ],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "06:46:41 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Banks & Fed Flow",
-   "category": "bank",
-   "title": "Bitcoin price at $78,443: October's spot ETF flows - CryptoTicker.io",
-   "pubDate": "Mon, 02 Nov 2026 06:26:43 GMT",
-   "pub_ts": 1793600803,
-   "age_min": 280.2,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "06:26:43 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Forbes/Bloomberg/Fortune",
-   "category": "magazine",
-   "title": "North Korea\u2019s Hackers Supercharge Crypto Heists With AI Skills - Bloomberg",
-   "pubDate": "Mon, 02 Nov 2026 06:22:00 GMT",
-   "pub_ts": 1793600520,
-   "age_min": 284.9,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit"
-   ],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "06:22:00 UTC",
-   "is_new": false
-  },
-  {
-   "source": "BeInCrypto",
-   "category": "magazine",
-   "title": "3 Crypto Earnings Reports to Watch For First Week of November",
-   "pubDate": "Mon, 02 Nov 2026 06:00:00 +0000",
-   "pub_ts": 1793599200,
-   "age_min": 306.9,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "06:00:00 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Cointelegraph",
-   "category": "news",
-   "title": "BTCPay Server warns of hot wallet thefts running on outdated software",
-   "pubDate": "Mon, 02 Nov 2026 05:34:02 +0000",
-   "pub_ts": 1793597642,
-   "age_min": 332.9,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "05:34:02 UTC",
-   "is_new": false
-  },
-  {
-   "source": "CoinDesk",
-   "category": "news",
-   "title": "Strangers are begging the Binance hacker for bitcoin, one \u2018help me bro\u2019 at a time",
-   "pubDate": "Mon, 02 Nov 2026 05:18:12 +0000",
-   "pub_ts": 1793596692,
-   "age_min": 348.7,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "05:18:12 UTC",
-   "is_new": false
-  },
-  {
-   "source": "BeInCrypto",
-   "category": "magazine",
-   "title": "HashKey On-Chain and RD Technologies Form Deep Partnership to Support On-Chain Testing for RDUSD",
-   "pubDate": "Mon, 02 Nov 2026 05:02:43 +0000",
-   "pub_ts": 1793595763,
-   "age_min": 364.2,
-   "sentiment": "BULLISH",
-   "tags": [
-    "upgrade/partnership"
-   ],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "05:02:43 UTC",
-   "is_new": false
-  },
-  {
-   "source": "BeInCrypto",
-   "category": "magazine",
-   "title": "Bitcoin 39% Below Peak, Meme Coins Down Up to 99%, but S&P 500 Near Record",
-   "pubDate": "Mon, 02 Nov 2026 05:00:00 +0000",
-   "pub_ts": 1793595600,
-   "age_min": 366.9,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BTC",
-    "NEAR"
-   ],
-   "time": "05:00:00 UTC",
-   "is_new": false
-  },
-  {
-   "source": "CoinDesk",
-   "category": "news",
-   "title": "Bitcoin claws back toward $79,000 as markets shake off crypto's biggest hack",
-   "pubDate": "Mon, 02 Nov 2026 04:42:22 +0000",
-   "pub_ts": 1793594542,
-   "age_min": 384.6,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit"
-   ],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "04:42:22 UTC",
-   "is_new": false
-  },
-  {
-   "source": "CoinDesk",
-   "category": "news",
-   "title": "BTCPay, a bitcoin payment tool, tells users to switch off their servers after reports of drained wallets",
-   "pubDate": "Mon, 02 Nov 2026 04:41:16 +0000",
-   "pub_ts": 1793594476,
-   "age_min": 385.7,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit"
-   ],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "04:41:16 UTC",
-   "is_new": false
-  },
-  {
-   "source": "The Block",
-   "category": "magazine",
-   "title": "Spot bitcoin ETFs see largest daily outflows in four months following record Binance hack",
-   "pubDate": "Mon, 02 Nov 2026 04:11:05 +0000",
-   "pub_ts": 1793592665,
-   "age_min": 415.9,
-   "sentiment": "BEARISH",
-   "tags": [
-    "hack/exploit",
-    "outflow/liquidation"
-   ],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "04:11:05 UTC",
-   "is_new": false
-  },
-  {
-   "source": "Cointelegraph",
-   "category": "news",
-   "title": "Bank of Korea probes financial firms\u2019 exposure to crypto risks",
-   "pubDate": "Mon, 02 Nov 2026 03:55:50 +0000",
-   "pub_ts": 1793591750,
-   "age_min": 431.1,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "CRYPTO"
-   ],
-   "time": "03:55:50 UTC",
-   "is_new": false
-  },
-  {
-   "source": "CryptoSlate",
-   "category": "magazine",
-   "title": "RLUSD supply fell 29% on XRPL. One XRP trading pool barely changed",
-   "pubDate": "Mon, 02 Nov 2026 03:40:42 +0000",
-   "pub_ts": 1793590842,
-   "age_min": 446.2,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "XRP"
-   ],
-   "time": "03:40:42 UTC",
-   "is_new": false
-  },
-  {
-   "source": "X/Twitter Whale Flow",
-   "category": "twitter",
-   "title": "Strive CEO Teases Bitcoin Buy With 'New Engine Activated' Post - CoinMarketCap",
-   "pubDate": "Mon, 02 Nov 2026 01:54:11 GMT",
-   "pub_ts": 1793584451,
-   "age_min": 552.8,
-   "sentiment": "NEUTRAL",
-   "tags": [],
-   "tokens": [
-    "BTC"
-   ],
-   "time": "01:54:11 UTC",
    "is_new": false
   }
  ]
