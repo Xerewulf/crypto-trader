@@ -1,0 +1,127 @@
+name: Institutional Binance Crypto Trader (24/7 Automated Cloud Engine)
+
+on:
+  schedule:
+    # Runs automatically every 15 minutes, 24/7/365 on GitHub cloud runners
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Execution mode'
+        required: true
+        default: 'once'
+        type: choice
+        options:
+          - once
+          - continuous
+          - predict
+          - status
+      duration:
+        description: 'Duration in minutes if mode is continuous (e.g. 15, 30)'
+        required: false
+        default: '15'
+      symbols:
+        description: 'Space-separated token symbols for directional forecast'
+        required: false
+        default: 'BTC ETH SOL BNB DOGE XRP'
+      deploy_pages:
+        description: 'Deploy live web dashboard to GitHub Pages'
+        required: false
+        default: true
+        type: boolean
+  push:
+    branches:
+      - main
+    paths:
+      - 'trader/**'
+      - 'trader-analyst/**'
+      - '.github/workflows/**'
+
+concurrency:
+  group: crypto-trader-live
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  trade-and-deploy:
+    name: Execute Strategy, Sync State & Publish Dashboard
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: ''
+
+      - name: Verify Institutional Risk & Margin Doctrines
+        run: |
+          python -m unittest tests/test_margin.py tests/test_analyst.py
+
+      - name: Run Crypto Trading Engine & Analysis
+        env:
+          GITHUB_STEP_SUMMARY: ${{ env.GITHUB_STEP_SUMMARY }}
+        run: |
+          MODE="${{ github.event.inputs.mode || 'once' }}"
+          DURATION="${{ github.event.inputs.duration || '15' }}"
+          SYMBOLS="${{ github.event.inputs.symbols || 'BTC ETH SOL BNB DOGE XRP' }}"
+          echo "Executing Cloud Runner in mode: $MODE (duration: ${DURATION}m)..."
+          python trader/live/cloud_runner.py --mode "$MODE" --duration "$DURATION" --symbols $SYMBOLS --build-site _site --summary
+
+      - name: Commit & Push Updated Trading State to Repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add trader/live/state.json trader/live/trades.jsonl trader/live/dashboard.html trader/live/news_feed.json trader/forecast.json || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(trader): update live trading state & dashboard [skip ci]"
+            git push origin HEAD:${{ github.ref }} || git push origin main || echo "Push skipped or branch protected"
+          else
+            echo "No state changes detected to commit."
+          fi
+
+      - name: Upload Live Dashboard & State Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-dashboard-and-state
+          path: _site/
+          retention-days: 7
+
+      - name: Deploy to gh-pages Branch
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.deploy_pages != 'false' }}
+        continue-on-error: true
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          keep_files: false
+          force_orphan: true
+
+      - name: Setup GitHub Pages (Actions Native)
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.deploy_pages != 'false' }}
+        continue-on-error: true
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.deploy_pages != 'false' }}
+        continue-on-error: true
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.deploy_pages != 'false' }}
+        continue-on-error: true
+        id: deployment
+        uses: actions/deploy-pages@v4
