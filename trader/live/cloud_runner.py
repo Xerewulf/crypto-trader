@@ -32,9 +32,12 @@ import paper_trader  # noqa: E402
 STATE_FILE = os.path.join(ROOT, "trader", "live", "state.json")
 DASHBOARD_FILE = os.path.join(ROOT, "trader", "live", "dashboard.html")
 APP_HTML_FILE = os.path.join(ROOT, "app", "index.html")
+BNB_HTML_FILE = os.path.join(ROOT, "app", "bnb.html")
 TRADES_FILE = os.path.join(ROOT, "trader", "live", "trades.jsonl")
 NEWS_FILE = os.path.join(ROOT, "trader", "live", "news_feed.json")
 FORECAST_FILE = os.path.join(ROOT, "trader", "forecast.json")
+BNB_STATE_FILE = os.path.join(ROOT, "trader", "live", "bnb_state.json")
+BNB_MODEL_FILE = os.path.join(ROOT, "trader", "live", "bnb_model_10y.json")
 
 
 def now_iso():
@@ -116,14 +119,28 @@ def build_static_site(dest_dir="_site"):
     if os.path.isfile(DASHBOARD_FILE):
         shutil.copyfile(DASHBOARD_FILE, os.path.join(dest_dir, "dashboard.html"))
 
+    # 2b. BNB Specialist Terminal -> bnb.html
+    if os.path.isfile(BNB_HTML_FILE):
+        shutil.copyfile(BNB_HTML_FILE, os.path.join(dest_dir, "bnb.html"))
+
     # 3. JSON data feeds for dynamic client queries
-    for src in (STATE_FILE, TRADES_FILE, NEWS_FILE, FORECAST_FILE):
+    for src in (STATE_FILE, TRADES_FILE, NEWS_FILE, FORECAST_FILE, BNB_STATE_FILE, BNB_MODEL_FILE):
         if os.path.isfile(src):
             shutil.copyfile(src, os.path.join(dest_dir, os.path.basename(src)))
 
     # 4. Create .nojekyll so GitHub Pages doesn't ignore files
     with open(os.path.join(dest_dir, ".nojekyll"), "w", encoding="utf-8") as fh:
         fh.write("")
+
+    # 5. Mirror to docs/ for root GitHub Pages serving
+    docs_dir = os.path.join(ROOT, "docs")
+    if os.path.abspath(dest_dir) != os.path.abspath(docs_dir):
+        os.makedirs(docs_dir, exist_ok=True)
+        for item in os.listdir(dest_dir):
+            s_item = os.path.join(dest_dir, item)
+            d_item = os.path.join(docs_dir, item)
+            if os.path.isfile(s_item):
+                shutil.copyfile(s_item, d_item)
 
     print("[%s] GitHub Pages static assets assembled successfully." % now_iso(), flush=True)
 

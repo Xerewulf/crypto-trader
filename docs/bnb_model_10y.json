@@ -1,0 +1,1732 @@
+{
+  "symbol": "BNBUSDT",
+  "trained_at": "2026-11-02T07:16:30Z",
+  "trained_epoch": 1793603790.2937293,
+  "dataset_span": "2017-07 (BNB Launch) to 2026-11-02 (10 Calendar Years)",
+  "total_1d_bars": 3284,
+  "total_4h_bars": 19684,
+  "first_usdt_date": "2017-11-06",
+  "last_usdt_date": "2026-11-02",
+  "all_time_low_usd": 0.096,
+  "all_time_high_usd": 1375.11,
+  "latest_price_usd": 708.67,
+  "overall_backtest": {
+    "total_trades": 350,
+    "winning_trades": 163,
+    "losing_trades": 187,
+    "win_rate_pct": 46.6,
+    "cumulative_r": 38.32,
+    "expectancy_per_trade_r": 0.109,
+    "profit_factor": 1.21,
+    "max_drawdown_pct": 14.84,
+    "start_equity_usd": 10000.0,
+    "final_compounded_equity_usd": 15465.09
+  },
+  "playbooks": [
+    {
+      "key": "L1_WYCKOFF_SPRING",
+      "name": "Playbook L1: Wyckoff Spring + Spot CVD Absorption (LONG)",
+      "side": "LONG",
+      "trades": 87,
+      "wins": 43,
+      "win_rate_pct": 49.4,
+      "total_r": 9.18,
+      "expectancy_r": 0.106,
+      "profit_factor": 1.22,
+      "payoff_ratio": 1.25,
+      "quarter_kelly_risk_pct": 2.21
+    },
+    {
+      "key": "L2_VWAP_PULLBACK",
+      "name": "Playbook L2: Bullish Trend VWAP/EMA20 Absorption Pullback (LONG)",
+      "side": "LONG",
+      "trades": 118,
+      "wins": 50,
+      "win_rate_pct": 42.4,
+      "total_r": 4.15,
+      "expectancy_r": 0.035,
+      "profit_factor": 1.06,
+      "payoff_ratio": 1.44,
+      "quarter_kelly_risk_pct": 0.8
+    },
+    {
+      "key": "S1_WYCKOFF_UPTHRUST",
+      "name": "Playbook S1: Wyckoff Upthrust SFP + CVD Exhaustion (SHORT)",
+      "side": "SHORT",
+      "trades": 76,
+      "wins": 36,
+      "win_rate_pct": 47.4,
+      "total_r": 15.17,
+      "expectancy_r": 0.2,
+      "profit_factor": 1.39,
+      "payoff_ratio": 1.54,
+      "quarter_kelly_risk_pct": 2.5
+    },
+    {
+      "key": "S2_BEAR_REJECTION",
+      "name": "Playbook S2: Bearish Regime VWAP/EMA20 Breakdown & Rejection (SHORT)",
+      "side": "SHORT",
+      "trades": 69,
+      "wins": 34,
+      "win_rate_pct": 49.3,
+      "total_r": 9.81,
+      "expectancy_r": 0.142,
+      "profit_factor": 1.31,
+      "payoff_ratio": 1.35,
+      "quarter_kelly_risk_pct": 2.5
+    }
+  ],
+  "yearly_breakdown": [
+    {
+      "year": "2017",
+      "open": 0.1,
+      "high": 11.3,
+      "low": 0.096,
+      "close": 8.53,
+      "return_pct": 8430.0,
+      "max_dd_pct": 72.2,
+      "avg_daily_vol_usd": 3847113.0,
+      "avg_taker_buy_pct": 48.13,
+      "regime_label": "ICO Launch ($0.10) & Exchange Fee-Discount Adoption",
+      "days": 170,
+      "sim_trades": 0,
+      "sim_win_rate_pct": 0.0,
+      "sim_longs": 0,
+      "sim_shorts": 0,
+      "sim_net_r": 0.0
+    },
+    {
+      "year": "2018",
+      "open": 8.5478,
+      "high": 25.18,
+      "low": 4.12,
+      "close": 6.11,
+      "return_pct": -28.5,
+      "max_dd_pct": 83.6,
+      "avg_daily_vol_usd": 23245342.0,
+      "avg_taker_buy_pct": 52.06,
+      "regime_label": "Crypto Winter Bear Market & Quarterly Token Burn Floor",
+      "days": 365,
+      "sim_trades": 37,
+      "sim_win_rate_pct": 35.1,
+      "sim_longs": 29,
+      "sim_shorts": 8,
+      "sim_net_r": -7.92
+    },
+    {
+      "year": "2019",
+      "open": 6.1139,
+      "high": 39.59,
+      "low": 5.3733,
+      "close": 13.72,
+      "return_pct": 124.3,
+      "max_dd_pct": 69.4,
+      "avg_daily_vol_usd": 47893053.0,
+      "avg_taker_buy_pct": 53.32,
+      "regime_label": "Binance Launchpad IEO Boom & Mainnet (BNB Chain) Migration",
+      "days": 365,
+      "sim_trades": 48,
+      "sim_win_rate_pct": 54.2,
+      "sim_longs": 36,
+      "sim_shorts": 12,
+      "sim_net_r": 12.67
+    },
+    {
+      "year": "2020",
+      "open": 13.72,
+      "high": 40.0,
+      "low": 6.38,
+      "close": 37.36,
+      "return_pct": 172.4,
+      "max_dd_pct": 76.5,
+      "avg_daily_vol_usd": 61697874.0,
+      "avg_taker_buy_pct": 49.51,
+      "regime_label": "COVID Liquidity Shock ($6.38 Low) & DeFi/BSC Genesis",
+      "days": 366,
+      "sim_trades": 43,
+      "sim_win_rate_pct": 39.5,
+      "sim_longs": 23,
+      "sim_shorts": 20,
+      "sim_net_r": -1.82
+    },
+    {
+      "year": "2021",
+      "open": 37.36,
+      "high": 691.77,
+      "low": 35.04,
+      "close": 511.4,
+      "return_pct": 1268.9,
+      "max_dd_pct": 69.4,
+      "avg_daily_vol_usd": 911800786.0,
+      "avg_taker_buy_pct": 50.5,
+      "regime_label": "BNB Smart Chain (BSC) Parabolic 17x Bull Run ($37 -> $691)",
+      "days": 365,
+      "sim_trades": 8,
+      "sim_win_rate_pct": 62.5,
+      "sim_longs": 6,
+      "sim_shorts": 2,
+      "sim_net_r": 4.27
+    },
+    {
+      "year": "2022",
+      "open": 511.5,
+      "high": 533.9,
+      "low": 183.4,
+      "close": 246.3,
+      "return_pct": -51.8,
+      "max_dd_pct": 65.6,
+      "avg_daily_vol_usd": 213112590.0,
+      "avg_taker_buy_pct": 50.01,
+      "regime_label": "Fed Tightening & FTX Contagion Short-Hedging Cycle",
+      "days": 365,
+      "sim_trades": 21,
+      "sim_win_rate_pct": 47.6,
+      "sim_longs": 7,
+      "sim_shorts": 14,
+      "sim_net_r": 8.46
+    },
+    {
+      "year": "2023",
+      "open": 246.3,
+      "high": 350.0,
+      "low": 202.0,
+      "close": 311.8,
+      "return_pct": 26.6,
+      "max_dd_pct": 42.3,
+      "avg_daily_vol_usd": 134847525.0,
+      "avg_taker_buy_pct": 50.18,
+      "regime_label": "SEC/DOJ Settlement Accumulation Trough ($202 Floor)",
+      "days": 365,
+      "sim_trades": 37,
+      "sim_win_rate_pct": 56.8,
+      "sim_longs": 20,
+      "sim_shorts": 17,
+      "sim_net_r": 10.29
+    },
+    {
+      "year": "2024",
+      "open": 311.9,
+      "high": 793.86,
+      "low": 287.5,
+      "close": 702.3,
+      "return_pct": 125.2,
+      "max_dd_pct": 44.6,
+      "avg_daily_vol_usd": 281519906.0,
+      "avg_taker_buy_pct": 49.67,
+      "regime_label": "Institutional Breakout, Launchpool Frenzy & $720 New ATH",
+      "days": 366,
+      "sim_trades": 46,
+      "sim_win_rate_pct": 37.0,
+      "sim_longs": 24,
+      "sim_shorts": 22,
+      "sim_net_r": -5.85
+    },
+    {
+      "year": "2025",
+      "open": 702.31,
+      "high": 1375.11,
+      "low": 500.0,
+      "close": 864.3,
+      "return_pct": 23.1,
+      "max_dd_pct": 42.5,
+      "avg_daily_vol_usd": 252547723.0,
+      "avg_taker_buy_pct": 50.4,
+      "regime_label": "Macro Expansion, Auto-Burn Deflation & High-Range Rotation",
+      "days": 365,
+      "sim_trades": 50,
+      "sim_win_rate_pct": 50.0,
+      "sim_longs": 33,
+      "sim_shorts": 17,
+      "sim_net_r": 10.16
+    },
+    {
+      "year": "2026",
+      "open": 864.31,
+      "high": 959.52,
+      "low": 537.25,
+      "close": 708.67,
+      "return_pct": -18.0,
+      "max_dd_pct": 44.0,
+      "avg_daily_vol_usd": 96202099.0,
+      "avg_taker_buy_pct": 49.03,
+      "regime_label": "Institutional Maturity, Post-Hack Vol Shock & Active Two-Way Market",
+      "days": 306,
+      "sim_trades": 60,
+      "sim_win_rate_pct": 48.3,
+      "sim_longs": 27,
+      "sim_shorts": 33,
+      "sim_net_r": 8.08
+    }
+  ],
+  "previous_history_audit": {
+    "found": true,
+    "file": "trader/timemachine_bnb_long.json",
+    "recorded_at": "2026-10-23T14:25:18Z",
+    "previous_strategy": "Long-Only 15-Minute Opening Range Breakout (ORB)",
+    "last_plan_date": "2026-10-23",
+    "last_plan_entry": 743.31,
+    "last_plan_stop": 735.88,
+    "last_plan_target": 758.17,
+    "mc_10000_win_prob_pct": 10.4,
+    "mc_10000_stop_prob_pct": 54.48,
+    "mc_10000_avg_r": -0.171,
+    "past_26_days_triggered": 26,
+    "past_26_days_wins": 12,
+    "past_26_days_losses": 14,
+    "past_26_days_win_rate_pct": 46.2,
+    "past_26_days_avg_r": 0.385,
+    "avg_orb_stop_distance_pct": 0.155,
+    "bear_phase_win_rate_pct": 28.6,
+    "bull_phase_win_rate_pct": 66.7,
+    "trades": [
+      {
+        "date": "2026-09-26",
+        "time": "7:35 AM",
+        "entry": 775.39,
+        "stop": 774.63,
+        "target": 776.91,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-09-27",
+        "time": "1:35 AM",
+        "entry": 773.23,
+        "stop": 772.11,
+        "target": 775.47,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-09-28",
+        "time": "12:20 AM",
+        "entry": 772.83,
+        "stop": 769.76,
+        "target": 778.97,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-09-29",
+        "time": "12:20 AM",
+        "entry": 759.8,
+        "stop": 758.23,
+        "target": 762.94,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-09-30",
+        "time": "12:20 AM",
+        "entry": 763.1,
+        "stop": 761.71,
+        "target": 765.88,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-01",
+        "time": "12:50 AM",
+        "entry": 770.14,
+        "stop": 769.46,
+        "target": 771.5,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-02",
+        "time": "12:20 AM",
+        "entry": 776.52,
+        "stop": 775.57,
+        "target": 778.42,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-03",
+        "time": "6:20 AM",
+        "entry": 768.71,
+        "stop": 768.33,
+        "target": 769.47,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-04",
+        "time": "1:05 AM",
+        "entry": 785.53,
+        "stop": 784.44,
+        "target": 787.71,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-05",
+        "time": "2:05 AM",
+        "entry": 793.74,
+        "stop": 791.89,
+        "target": 797.44,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-06",
+        "time": "1:10 AM",
+        "entry": 782.51,
+        "stop": 781.5,
+        "target": 784.53,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-07",
+        "time": "1:20 AM",
+        "entry": 767.98,
+        "stop": 767.41,
+        "target": 769.12,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-08",
+        "time": "1:25 AM",
+        "entry": 771.12,
+        "stop": 769.1,
+        "target": 775.16,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-09",
+        "time": "12:20 AM",
+        "entry": 742.81,
+        "stop": 741.74,
+        "target": 744.95,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-10",
+        "time": "12:55 AM",
+        "entry": 747.47,
+        "stop": 746.17,
+        "target": 750.07,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-11",
+        "time": "12:20 AM",
+        "entry": 746.9,
+        "stop": 745.65,
+        "target": 749.4,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-12",
+        "time": "12:30 AM",
+        "entry": 752.14,
+        "stop": 751.12,
+        "target": 754.18,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-13",
+        "time": "12:25 AM",
+        "entry": 744.39,
+        "stop": 743.3,
+        "target": 746.57,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-14",
+        "time": "12:30 AM",
+        "entry": 745.43,
+        "stop": 744.72,
+        "target": 746.85,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-15",
+        "time": "12:20 AM",
+        "entry": 718.53,
+        "stop": 716.37,
+        "target": 722.85,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-16",
+        "time": "12:20 AM",
+        "entry": 729.36,
+        "stop": 728.52,
+        "target": 731.04,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-17",
+        "time": "1:05 AM",
+        "entry": 723.14,
+        "stop": 722.69,
+        "target": 724.04,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-18",
+        "time": "5:35 AM",
+        "entry": 723.43,
+        "stop": 721.98,
+        "target": 726.33,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-19",
+        "time": "12:35 AM",
+        "entry": 727.33,
+        "stop": 726.43,
+        "target": 729.13,
+        "outcome": "target",
+        "R": 2.0
+      },
+      {
+        "date": "2026-10-20",
+        "time": "12:35 AM",
+        "entry": 730.91,
+        "stop": 730.37,
+        "target": 731.99,
+        "outcome": "stop",
+        "R": -1.0
+      },
+      {
+        "date": "2026-10-21",
+        "time": "1:00 AM",
+        "entry": 742.22,
+        "stop": 741.03,
+        "target": 744.6,
+        "outcome": "target",
+        "R": 2.0
+      }
+    ],
+    "root_cause_diagnosis": [
+      "1. Ultra-Tight Noise Stops: Prior ORB trades used an average stop distance of only 0.15% (~$1.05 on a $750 coin), well inside BNB's 1h ATR ($3.00-$6.50), causing 14 stop-outs from routine market-maker liquidity sweeps.",
+      "2. Long-Only Blindspot in Downtrends: During the Sept 26 - Oct 9 distribution phase ($793 -> $742) and the Oct 23 - Nov 2 selloff ($743 -> $709), Long-Only ORB dropped to a 4/14 (28.6%) win rate and a -0.171R Monte Carlo expectancy.",
+      "3. Chasing Breakouts Instead of Fading/Absorbing Value: On Binance CLOB, buying 15m high breakouts without checking Spot Taker CVD and 7d Volume Profile (VAL/POC/VAH) buys directly into passive whale ask walls."
+    ],
+    "institutional_upgrades_applied": [
+      "Dual-Direction Long & Short Engine: Automatically flips to Short Setups (Wyckoff Upthrust SFP & EMA20/VWAP Bearish Rejections) when Multi-Timeframe structure & CVD turn negative.",
+      "ATR-Calibrated Structural Stops: Enforces 1.2x-1.6x ATR stops (min 0.65%-1.8%) outside liquidity sweep zones with a mandatory >=2.0x Liquidation Buffer.",
+      "Convex 3-Tier Scale-Out (TP1 1.6R + Breakeven Stop, TP2 3.0R, 25% VWAP Runner): Locks in early cash flow and eliminates give-backs."
+    ]
+  },
+  "recent_backtest_trades": [
+    {
+      "time": "2026-10-21 08:00 UTC",
+      "closed_time": "2026-10-23 04:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 746.77,
+      "stop": 755.74,
+      "tp1": 732.42,
+      "tp2": 719.86,
+      "exit": 744.53,
+      "outcome": "TP1+BE (+0.91R)",
+      "r": 0.89,
+      "taker_buy_pct": 43.7
+    },
+    {
+      "time": "2026-10-19 12:00 UTC",
+      "closed_time": "2026-10-20 12:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 724.77,
+      "stop": 734.72,
+      "tp1": 708.85,
+      "tp2": 694.92,
+      "exit": 734.72,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 30.4
+    },
+    {
+      "time": "2026-10-18 12:00 UTC",
+      "closed_time": "2026-10-19 00:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 713.03,
+      "stop": 726.79,
+      "tp1": 691.01,
+      "tp2": 671.74,
+      "exit": 726.79,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 41.4
+    },
+    {
+      "time": "2026-10-13 08:00 UTC",
+      "closed_time": "2026-10-16 08:00 UTC",
+      "side": "SHORT",
+      "playbook": "S2_BEAR_REJECTION",
+      "entry": 739.44,
+      "stop": 751.28,
+      "tp1": 720.49,
+      "tp2": 703.91,
+      "exit": 732.12,
+      "outcome": "TP1+TIME",
+      "r": 1.06,
+      "taker_buy_pct": 36.9
+    },
+    {
+      "time": "2026-10-11 16:00 UTC",
+      "closed_time": "2026-10-13 00:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 753.19,
+      "stop": 761.97,
+      "tp1": 739.15,
+      "tp2": 726.86,
+      "exit": 739.15,
+      "outcome": "TP2+TRAIL",
+      "r": 1.98,
+      "taker_buy_pct": 46.0
+    },
+    {
+      "time": "2026-10-11 00:00 UTC",
+      "closed_time": "2026-10-11 12:00 UTC",
+      "side": "SHORT",
+      "playbook": "S2_BEAR_REJECTION",
+      "entry": 745.28,
+      "stop": 755.16,
+      "tp1": 729.47,
+      "tp2": 715.64,
+      "exit": 755.16,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 33.4
+    },
+    {
+      "time": "2026-10-03 08:00 UTC",
+      "closed_time": "2026-10-05 04:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 770.25,
+      "stop": 757.81,
+      "tp1": 790.16,
+      "tp2": 807.58,
+      "exit": 790.16,
+      "outcome": "TP2+TRAIL",
+      "r": 1.98,
+      "taker_buy_pct": 57.2
+    },
+    {
+      "time": "2026-09-28 08:00 UTC",
+      "closed_time": "2026-09-29 16:00 UTC",
+      "side": "LONG",
+      "playbook": "L1_WYCKOFF_SPRING",
+      "entry": 763.85,
+      "stop": 752.33,
+      "tp1": 782.28,
+      "tp2": 798.41,
+      "exit": 752.33,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 56.2
+    },
+    {
+      "time": "2026-09-24 16:00 UTC",
+      "closed_time": "2026-09-27 16:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 779.72,
+      "stop": 795.79,
+      "tp1": 754.01,
+      "tp2": 731.52,
+      "exit": 778.52,
+      "outcome": "TIME-CLOSE",
+      "r": 0.02,
+      "taker_buy_pct": 43.6
+    },
+    {
+      "time": "2026-09-13 12:00 UTC",
+      "closed_time": "2026-09-15 16:00 UTC",
+      "side": "LONG",
+      "playbook": "L1_WYCKOFF_SPRING",
+      "entry": 718.88,
+      "stop": 707.41,
+      "tp1": 737.23,
+      "tp2": 753.29,
+      "exit": 707.41,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 57.0
+    },
+    {
+      "time": "2026-09-07 16:00 UTC",
+      "closed_time": "2026-09-09 20:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 741.9,
+      "stop": 725.42,
+      "tp1": 768.26,
+      "tp2": 791.33,
+      "exit": 725.42,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 57.7
+    },
+    {
+      "time": "2026-09-03 00:00 UTC",
+      "closed_time": "2026-09-03 12:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 692.6,
+      "stop": 681.95,
+      "tp1": 709.64,
+      "tp2": 724.55,
+      "exit": 709.64,
+      "outcome": "TP2+TRAIL",
+      "r": 1.98,
+      "taker_buy_pct": 57.4
+    },
+    {
+      "time": "2026-09-01 00:00 UTC",
+      "closed_time": "2026-09-01 16:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 693.46,
+      "stop": 682.62,
+      "tp1": 710.81,
+      "tp2": 725.99,
+      "exit": 682.62,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 61.6
+    },
+    {
+      "time": "2026-08-26 04:00 UTC",
+      "closed_time": "2026-08-29 04:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 698.67,
+      "stop": 680.48,
+      "tp1": 727.77,
+      "tp2": 753.24,
+      "exit": 688.16,
+      "outcome": "TIME-CLOSE",
+      "r": -0.63,
+      "taker_buy_pct": 62.5
+    },
+    {
+      "time": "2026-08-14 12:00 UTC",
+      "closed_time": "2026-08-17 12:00 UTC",
+      "side": "LONG",
+      "playbook": "L1_WYCKOFF_SPRING",
+      "entry": 606.69,
+      "stop": 600.25,
+      "tp1": 616.99,
+      "tp2": 626.01,
+      "exit": 607.16,
+      "outcome": "TIME-CLOSE",
+      "r": 0.02,
+      "taker_buy_pct": 58.0
+    },
+    {
+      "time": "2026-08-11 04:00 UTC",
+      "closed_time": "2026-08-14 04:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 602.5,
+      "stop": 595.07,
+      "tp1": 614.39,
+      "tp2": 624.8,
+      "exit": 607.47,
+      "outcome": "TP1+TIME",
+      "r": 1.09,
+      "taker_buy_pct": 59.2
+    },
+    {
+      "time": "2026-08-08 08:00 UTC",
+      "closed_time": "2026-08-08 12:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 596.51,
+      "stop": 589.7,
+      "tp1": 607.4,
+      "tp2": 616.93,
+      "exit": 598.21,
+      "outcome": "TP1+BE (+0.91R)",
+      "r": 0.89,
+      "taker_buy_pct": 58.0
+    },
+    {
+      "time": "2026-08-03 16:00 UTC",
+      "closed_time": "2026-08-05 00:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 591.45,
+      "stop": 598.81,
+      "tp1": 579.67,
+      "tp2": 569.37,
+      "exit": 598.81,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 43.7
+    },
+    {
+      "time": "2026-07-30 00:00 UTC",
+      "closed_time": "2026-07-30 08:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 573.42,
+      "stop": 564.91,
+      "tp1": 587.04,
+      "tp2": 598.96,
+      "exit": 575.55,
+      "outcome": "TP1+BE (+0.91R)",
+      "r": 0.89,
+      "taker_buy_pct": 55.6
+    },
+    {
+      "time": "2026-07-23 00:00 UTC",
+      "closed_time": "2026-07-25 12:00 UTC",
+      "side": "SHORT",
+      "playbook": "S2_BEAR_REJECTION",
+      "entry": 570.38,
+      "stop": 576.71,
+      "tp1": 560.24,
+      "tp2": 551.38,
+      "exit": 568.8,
+      "outcome": "TP1+BE (+0.91R)",
+      "r": 0.88,
+      "taker_buy_pct": 40.8
+    },
+    {
+      "time": "2026-07-22 04:00 UTC",
+      "closed_time": "2026-07-22 12:00 UTC",
+      "side": "SHORT",
+      "playbook": "S2_BEAR_REJECTION",
+      "entry": 568.27,
+      "stop": 574.71,
+      "tp1": 557.96,
+      "tp2": 548.94,
+      "exit": 574.71,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 43.7
+    },
+    {
+      "time": "2026-07-16 04:00 UTC",
+      "closed_time": "2026-07-17 16:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 579.86,
+      "stop": 587.75,
+      "tp1": 567.24,
+      "tp2": 556.2,
+      "exit": 567.24,
+      "outcome": "TP2+TRAIL",
+      "r": 1.98,
+      "taker_buy_pct": 46.2
+    },
+    {
+      "time": "2026-07-10 04:00 UTC",
+      "closed_time": "2026-07-11 12:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 574.0,
+      "stop": 582.77,
+      "tp1": 559.97,
+      "tp2": 547.7,
+      "exit": 582.77,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 45.7
+    },
+    {
+      "time": "2026-07-04 16:00 UTC",
+      "closed_time": "2026-07-05 12:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 575.52,
+      "stop": 584.49,
+      "tp1": 561.17,
+      "tp2": 548.61,
+      "exit": 584.49,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 43.9
+    },
+    {
+      "time": "2026-07-01 16:00 UTC",
+      "closed_time": "2026-07-02 12:00 UTC",
+      "side": "SHORT",
+      "playbook": "S2_BEAR_REJECTION",
+      "entry": 551.25,
+      "stop": 562.48,
+      "tp1": 533.28,
+      "tp2": 517.56,
+      "exit": 562.48,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 43.7
+    },
+    {
+      "time": "2026-06-27 08:00 UTC",
+      "closed_time": "2026-06-30 08:00 UTC",
+      "side": "SHORT",
+      "playbook": "S2_BEAR_REJECTION",
+      "entry": 563.16,
+      "stop": 575.53,
+      "tp1": 543.37,
+      "tp2": 526.06,
+      "exit": 547.7,
+      "outcome": "TIME-CLOSE",
+      "r": 1.2,
+      "taker_buy_pct": 41.7
+    },
+    {
+      "time": "2026-06-22 12:00 UTC",
+      "closed_time": "2026-06-25 12:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 596.25,
+      "stop": 604.83,
+      "tp1": 582.52,
+      "tp2": 570.51,
+      "exit": 554.04,
+      "outcome": "TP2+RUNNER",
+      "r": 2.64,
+      "taker_buy_pct": 44.4
+    },
+    {
+      "time": "2026-06-14 20:00 UTC",
+      "closed_time": "2026-06-17 16:00 UTC",
+      "side": "LONG",
+      "playbook": "L1_WYCKOFF_SPRING",
+      "entry": 616.79,
+      "stop": 600.32,
+      "tp1": 643.14,
+      "tp2": 666.19,
+      "exit": 600.32,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 68.6
+    },
+    {
+      "time": "2026-06-09 12:00 UTC",
+      "closed_time": "2026-06-11 16:00 UTC",
+      "side": "SHORT",
+      "playbook": "S2_BEAR_REJECTION",
+      "entry": 586.91,
+      "stop": 605.13,
+      "tp1": 557.77,
+      "tp2": 532.26,
+      "exit": 605.13,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 40.0
+    },
+    {
+      "time": "2026-06-01 16:00 UTC",
+      "closed_time": "2026-06-02 12:00 UTC",
+      "side": "LONG",
+      "playbook": "L1_WYCKOFF_SPRING",
+      "entry": 696.15,
+      "stop": 667.89,
+      "tp1": 741.36,
+      "tp2": 780.92,
+      "exit": 667.89,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 56.5
+    },
+    {
+      "time": "2026-05-26 08:00 UTC",
+      "closed_time": "2026-05-27 04:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 662.48,
+      "stop": 651.93,
+      "tp1": 679.36,
+      "tp2": 694.14,
+      "exit": 651.93,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 55.4
+    },
+    {
+      "time": "2026-05-09 04:00 UTC",
+      "closed_time": "2026-05-10 16:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 649.77,
+      "stop": 659.39,
+      "tp1": 634.37,
+      "tp2": 620.9,
+      "exit": 659.39,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 40.9
+    },
+    {
+      "time": "2026-04-29 04:00 UTC",
+      "closed_time": "2026-05-02 04:00 UTC",
+      "side": "SHORT",
+      "playbook": "S1_WYCKOFF_UPTHRUST",
+      "entry": 625.13,
+      "stop": 631.38,
+      "tp1": 615.13,
+      "tp2": 606.38,
+      "exit": 615.91,
+      "outcome": "TP1+TIME",
+      "r": 1.49,
+      "taker_buy_pct": 46.2
+    },
+    {
+      "time": "2026-04-26 16:00 UTC",
+      "closed_time": "2026-04-27 04:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 635.89,
+      "stop": 628.0,
+      "tp1": 648.52,
+      "tp2": 659.57,
+      "exit": 628.0,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 59.0
+    },
+    {
+      "time": "2026-04-23 20:00 UTC",
+      "closed_time": "2026-04-25 16:00 UTC",
+      "side": "LONG",
+      "playbook": "L2_VWAP_PULLBACK",
+      "entry": 638.54,
+      "stop": 627.68,
+      "tp1": 655.91,
+      "tp2": 671.11,
+      "exit": 627.68,
+      "outcome": "STOP-LOSS",
+      "r": -1.04,
+      "taker_buy_pct": 57.4
+    }
+  ],
+  "equity_curve_10y": [
+    [
+      1520006400000,
+      9870.0,
+      10.27
+    ],
+    [
+      1523246400000,
+      9615.05,
+      12.43
+    ],
+    [
+      1525305600000,
+      9756.16,
+      14.45
+    ],
+    [
+      1528142400000,
+      9907.42,
+      14.26
+    ],
+    [
+      1529438400000,
+      9651.5,
+      16.76
+    ],
+    [
+      1531137600000,
+      10135.69,
+      13.85
+    ],
+    [
+      1533110400000,
+      10127.19,
+      13.64
+    ],
+    [
+      1534953600000,
+      9610.76,
+      9.49
+    ],
+    [
+      1536840000000,
+      9240.79,
+      9.58
+    ],
+    [
+      1538193600000,
+      9120.18,
+      9.9
+    ],
+    [
+      1539720000000,
+      9152.03,
+      10.28
+    ],
+    [
+      1540987200000,
+      9143.43,
+      9.52
+    ],
+    [
+      1543838400000,
+      8791.45,
+      5.03
+    ],
+    [
+      1545422400000,
+      9022.23,
+      5.48
+    ],
+    [
+      1546632000000,
+      9165.91,
+      5.97
+    ],
+    [
+      1548000000000,
+      9175.79,
+      6.43
+    ],
+    [
+      1549224000000,
+      9633.97,
+      6.79
+    ],
+    [
+      1550433600000,
+      9744.07,
+      9.22
+    ],
+    [
+      1551715200000,
+      9855.42,
+      11.24
+    ],
+    [
+      1553371200000,
+      9969.43,
+      15.14
+    ],
+    [
+      1554609600000,
+      10031.27,
+      19.2
+    ],
+    [
+      1556409600000,
+      10189.08,
+      22.92
+    ],
+    [
+      1558353600000,
+      10167.87,
+      28.56
+    ],
+    [
+      1560124800000,
+      10018.42,
+      30.44
+    ],
+    [
+      1561377600000,
+      9997.57,
+      37.63
+    ],
+    [
+      1563984000000,
+      9969.19,
+      28.71
+    ],
+    [
+      1565524800000,
+      9711.68,
+      29.87
+    ],
+    [
+      1567915200000,
+      10103.72,
+      22.52
+    ],
+    [
+      1570017600000,
+      10271.31,
+      15.65
+    ],
+    [
+      1571284800000,
+      10579.79,
+      18.1
+    ],
+    [
+      1573070400000,
+      10049.85,
+      20.7
+    ],
+    [
+      1575907200000,
+      10568.38,
+      15.37
+    ],
+    [
+      1577246400000,
+      10637.36,
+      13.23
+    ],
+    [
+      1578931200000,
+      10619.06,
+      15.04
+    ],
+    [
+      1580400000000,
+      10565.28,
+      18.31
+    ],
+    [
+      1581638400000,
+      10292.37,
+      25.83
+    ],
+    [
+      1583035200000,
+      10158.57,
+      19.23
+    ],
+    [
+      1585526400000,
+      10395.47,
+      11.61
+    ],
+    [
+      1587571200000,
+      10260.33,
+      15.61
+    ],
+    [
+      1588982400000,
+      10242.68,
+      17.42
+    ],
+    [
+      1590192000000,
+      9720.35,
+      16.8
+    ],
+    [
+      1591833600000,
+      9404.93,
+      17.44
+    ],
+    [
+      1593244800000,
+      9977.4,
+      15.71
+    ],
+    [
+      1595433600000,
+      9866.74,
+      17.65
+    ],
+    [
+      1596686400000,
+      9966.15,
+      22.96
+    ],
+    [
+      1597982400000,
+      9969.55,
+      22.96
+    ],
+    [
+      1601236800000,
+      10230.23,
+      26.25
+    ],
+    [
+      1602979200000,
+      10154.87,
+      30.53
+    ],
+    [
+      1604808000000,
+      10115.78,
+      27.8
+    ],
+    [
+      1606809600000,
+      9963.49,
+      31.28
+    ],
+    [
+      1608105600000,
+      10073.71,
+      29.37
+    ],
+    [
+      1611115200000,
+      10076.07,
+      42.26
+    ],
+    [
+      1620360000000,
+      10303.71,
+      620.98
+    ],
+    [
+      1623945600000,
+      10460.38,
+      348.68
+    ],
+    [
+      1625990400000,
+      10324.4,
+      321.16
+    ],
+    [
+      1627660800000,
+      10517.28,
+      314.4
+    ],
+    [
+      1632441600000,
+      10896.81,
+      374.9
+    ],
+    [
+      1635134400000,
+      10755.16,
+      483.3
+    ],
+    [
+      1641225600000,
+      11021.35,
+      514.1
+    ],
+    [
+      1643457600000,
+      11019.07,
+      383.5
+    ],
+    [
+      1647849600000,
+      11088.83,
+      394.3
+    ],
+    [
+      1650225600000,
+      11054.78,
+      406.6
+    ],
+    [
+      1653062400000,
+      11277.37,
+      302.2
+    ],
+    [
+      1658577600000,
+      11130.77,
+      256.8
+    ],
+    [
+      1660708800000,
+      11787.11,
+      315.9
+    ],
+    [
+      1664640000000,
+      12413.22,
+      281.8
+    ],
+    [
+      1666281600000,
+      12251.85,
+      269.1
+    ],
+    [
+      1668528000000,
+      12115.33,
+      275.9
+    ],
+    [
+      1670140800000,
+      11802.38,
+      289.5
+    ],
+    [
+      1671422400000,
+      11921.05,
+      246.0
+    ],
+    [
+      1673769600000,
+      11967.29,
+      297.9
+    ],
+    [
+      1675123200000,
+      12323.06,
+      311.9
+    ],
+    [
+      1677686400000,
+      12463.89,
+      300.9
+    ],
+    [
+      1678924800000,
+      12772.37,
+      309.8
+    ],
+    [
+      1680364800000,
+      12239.08,
+      314.4
+    ],
+    [
+      1683216000000,
+      11922.93,
+      324.1
+    ],
+    [
+      1684483200000,
+      12093.9,
+      309.0
+    ],
+    [
+      1686715200000,
+      12068.72,
+      246.8
+    ],
+    [
+      1689393600000,
+      11938.71,
+      250.1
+    ],
+    [
+      1690718400000,
+      11783.5,
+      243.0
+    ],
+    [
+      1691956800000,
+      12252.43,
+      240.2
+    ],
+    [
+      1693209600000,
+      12866.43,
+      216.7
+    ],
+    [
+      1694563200000,
+      12880.34,
+      209.8
+    ],
+    [
+      1696075200000,
+      13022.83,
+      215.8
+    ],
+    [
+      1697889600000,
+      13546.6,
+      214.3
+    ],
+    [
+      1699372800000,
+      13344.61,
+      247.9
+    ],
+    [
+      1700956800000,
+      13492.23,
+      232.8
+    ],
+    [
+      1705737600000,
+      13316.84,
+      315.0
+    ],
+    [
+      1707264000000,
+      12972.85,
+      300.9
+    ],
+    [
+      1711267200000,
+      13491.24,
+      556.5
+    ],
+    [
+      1712520000000,
+      13315.85,
+      583.9
+    ],
+    [
+      1714262400000,
+      13142.75,
+      599.7
+    ],
+    [
+      1715529600000,
+      12441.87,
+      598.1
+    ],
+    [
+      1716768000000,
+      12252.48,
+      605.1
+    ],
+    [
+      1718020800000,
+      12231.4,
+      651.0
+    ],
+    [
+      1719878400000,
+      12508.04,
+      578.9
+    ],
+    [
+      1721116800000,
+      12829.75,
+      570.9
+    ],
+    [
+      1723089600000,
+      12498.34,
+      485.2
+    ],
+    [
+      1725393600000,
+      12637.08,
+      518.7
+    ],
+    [
+      1726617600000,
+      12716.88,
+      547.4
+    ],
+    [
+      1728072000000,
+      12525.44,
+      555.3
+    ],
+    [
+      1730217600000,
+      12810.63,
+      603.7
+    ],
+    [
+      1731729600000,
+      12644.09,
+      623.26
+    ],
+    [
+      1733068800000,
+      12713.43,
+      658.33
+    ],
+    [
+      1734321600000,
+      12553.75,
+      715.45
+    ],
+    [
+      1735646400000,
+      12480.13,
+      710.56
+    ],
+    [
+      1736942400000,
+      12605.31,
+      704.1
+    ],
+    [
+      1738339200000,
+      12836.17,
+      679.11
+    ],
+    [
+      1739952000000,
+      12504.6,
+      659.32
+    ],
+    [
+      1742083200000,
+      12181.59,
+      609.39
+    ],
+    [
+      1743552000000,
+      11998.21,
+      601.39
+    ],
+    [
+      1745438400000,
+      11688.28,
+      605.71
+    ],
+    [
+      1747108800000,
+      11862.93,
+      649.48
+    ],
+    [
+      1748779200000,
+      12635.69,
+      654.72
+    ],
+    [
+      1750507200000,
+      12645.8,
+      636.85
+    ],
+    [
+      1751745600000,
+      13059.42,
+      656.16
+    ],
+    [
+      1753948800000,
+      14437.7,
+      800.59
+    ],
+    [
+      1755216000000,
+      14608.94,
+      848.59
+    ],
+    [
+      1756670400000,
+      14288.35,
+      857.65
+    ],
+    [
+      1758744000000,
+      14102.6,
+      1018.49
+    ],
+    [
+      1760630400000,
+      13919.27,
+      1145.3
+    ],
+    [
+      1762502400000,
+      13976.62,
+      942.57
+    ],
+    [
+      1763870400000,
+      14058.44,
+      841.18
+    ],
+    [
+      1765195200000,
+      13695.3,
+      896.56
+    ],
+    [
+      1766462400000,
+      13929.93,
+      848.61
+    ],
+    [
+      1767988800000,
+      14169.97,
+      896.86
+    ],
+    [
+      1769428800000,
+      14490.45,
+      871.93
+    ],
+    [
+      1770940800000,
+      14384.61,
+      608.85
+    ],
+    [
+      1772164800000,
+      14845.69,
+      627.06
+    ],
+    [
+      1773792000000,
+      14308.74,
+      673.49
+    ],
+    [
+      1775016000000,
+      15225.35,
+      616.32
+    ],
+    [
+      1776240000000,
+      15448.04,
+      619.7
+    ],
+    [
+      1778299200000,
+      15476.32,
+      649.77
+    ],
+    [
+      1779782400000,
+      15275.13,
+      662.48
+    ],
+    [
+      1781006400000,
+      14880.56,
+      586.91
+    ],
+    [
+      1782547200000,
+      15399.75,
+      563.16
+    ],
+    [
+      1784174400000,
+      15173.4,
+      579.86
+    ],
+    [
+      1785772800000,
+      15110.3,
+      591.45
+    ],
+    [
+      1787716800000,
+      15368.38,
+      698.67
+    ],
+    [
+      1789300800000,
+      15142.5,
+      718.88
+    ],
+    [
+      1790582400000,
+      14950.26,
+      763.85
+    ],
+    [
+      1791878400000,
+      15701.46,
+      739.44
+    ]
+  ]
+}
