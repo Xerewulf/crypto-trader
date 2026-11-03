@@ -20,7 +20,7 @@ if HERE not in sys.path:
 
 import predict
 
-DEFAULT_COINS = ["BNB", "SOL", "ETH", "BTC", "DOGE", "SUI"]
+DEFAULT_COINS = ["BNB", "SOL", "ETH", "BTC", "DOGE", "XRP"]
 
 def plan_coin_profits(symbols=None, write_path=None):
     if not symbols:

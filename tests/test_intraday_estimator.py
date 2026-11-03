@@ -11,7 +11,7 @@ intraday_estimator = load("trader-analyst", "intraday_estimator")
 class TestIntradayEstimator(unittest.TestCase):
     def test_target_coins(self):
         self.assertEqual(intraday_estimator.TARGET_COINS, [
-            "BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT"
+            "BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT", "XRPUSDT"
         ])
 
     def test_microstructure_score_bounds(self):
@@ -93,9 +93,9 @@ class TestIntradayEstimator(unittest.TestCase):
             }
         }
         results = intraday_estimator.estimate_all_5_coins()
-        self.assertEqual(len(results), 5)
+        self.assertEqual(len(results), 6)
         symbols = [r["symbol"] for r in results]
-        self.assertEqual(symbols, ["BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT"])
+        self.assertEqual(symbols, ["BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT", "XRPUSDT"])
 
         table = intraday_estimator.render_intraday_ascii_table(results)
         self.assertIn("BNBUSDT", table)

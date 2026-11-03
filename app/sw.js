@@ -1,9 +1,9 @@
 /**
- * 5 Coins Future Service Worker.
- * Always serves fresh network responses first so only 5 Coins Future is shown.
+ * 6 Coins Future Service Worker.
+ * Always serves fresh network responses first so only 6 Coins Future is shown.
  */
 
-const CACHE_NAME = '5-coins-future-v2';
+const CACHE_NAME = '6-coins-future-v1';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
