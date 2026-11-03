@@ -1239,7 +1239,7 @@ class AppHandler(BaseHTTPRequestHandler):
             global INTRADAY_5COINS_CACHE, INTRADAY_5COINS_CACHE_TS
             now = time.time()
             force = (qs.get("refresh") or ["0"])[0] == "1"
-            if force or (now - INTRADAY_5COINS_CACHE_TS > 5.0) or not INTRADAY_5COINS_CACHE:
+            if force or (now - INTRADAY_5COINS_CACHE_TS > 3.0) or not INTRADAY_5COINS_CACHE:
                 try:
                     data = intraday_estimator.estimate_all_5_coins()
                     INTRADAY_5COINS_CACHE = data
