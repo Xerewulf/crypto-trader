@@ -1099,33 +1099,45 @@ class AppHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         return  # keep console clean
 
+    def handle(self):
+        try:
+            super().handle()
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, TimeoutError):
+            pass
+
     def _send_json(self, doc, status=200):
-        body = json.dumps(doc).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("X-Frame-Options", "SAMEORIGIN")
-        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            body = json.dumps(doc).encode("utf-8")
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("X-Frame-Options", "SAMEORIGIN")
+            self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, TimeoutError):
+            pass
 
     def _send_file(self, path, content_type, extra_headers=None):
-        with open(path, "rb") as fh:
-            body = fh.read()
-        self.send_response(200)
-        self.send_header("Content-Type", content_type)
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("X-Frame-Options", "SAMEORIGIN")
-        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
-        self.send_header("Content-Length", str(len(body)))
-        if extra_headers:
-            for k, v in extra_headers.items():
-                self.send_header(k, v)
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            with open(path, "rb") as fh:
+                body = fh.read()
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("X-Frame-Options", "SAMEORIGIN")
+            self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
+            self.send_header("Content-Length", str(len(body)))
+            if extra_headers:
+                for k, v in extra_headers.items():
+                    self.send_header(k, v)
+            self.end_headers()
+            self.wfile.write(body)
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, TimeoutError):
+            pass
 
     def check_auth(self):
         auth_user = os.getenv("DASHBOARD_USERNAME") or os.getenv("TERMINAL_AUTH_USER")
@@ -1578,8 +1590,13 @@ class AppHandler(BaseHTTPRequestHandler):
                 cash = float(payload.get("starting_cash") or 10000.0)
                 res = reset_sim_wallet(cash)
                 return self._send_json({"ok": True, "result": res, "state": check_triggers_and_enrich()})
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, TimeoutError):
+            return
         except Exception as e:
-            return self._send_json({"ok": False, "error": str(e)}, status=400)
+            try:
+                return self._send_json({"ok": False, "error": str(e)}, status=400)
+            except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, TimeoutError):
+                return
 
         return self._send_json({"ok": False, "error": "Unknown endpoint"}, status=404)
 
