@@ -97,6 +97,7 @@ BLOCK_DETECTOR = heatmap.BlockTradeDetector(max_history=200) if heatmap else Non
 
 WALLET_PATH = os.path.join(ROOT_DIR, "trader", "sim_wallet.json")
 FORECAST_PATH = os.path.join(ROOT_DIR, "trader", "forecast.json")
+INTRADAY_5COINS_PATH = os.path.join(ROOT_DIR, "trader", "intraday_5coins.json")
 WALLET_LOCK = threading.Lock()
 PRICE_CACHE = {}
 PRICE_CACHE_TS = 0.0
@@ -1167,10 +1168,8 @@ class AppHandler(BaseHTTPRequestHandler):
         if p == "/health":
             return self._send_json({"status": "healthy", "service": "crypto-trader-terminal", "time": now_iso()})
 
-        if p in ("/", "/index.html"):
+        if p in ("/", "/index.html", "/bnb", "/bnb.html", "/5coins", "/future"):
             return self._send_file(os.path.join(APP_DIR, "index.html"), "text/html; charset=utf-8")
-        if p in ("/bnb", "/bnb.html"):
-            return self._send_file(os.path.join(APP_DIR, "bnb.html"), "text/html; charset=utf-8")
         if p == "/api/bnb/state":
             return self._send_json(bnb_sim_engine.sync_and_evaluate_bnb(auto_execute_if_flat=True))
         if p == "/manifest.json":
@@ -1239,15 +1238,34 @@ class AppHandler(BaseHTTPRequestHandler):
             global INTRADAY_5COINS_CACHE, INTRADAY_5COINS_CACHE_TS
             now = time.time()
             force = (qs.get("refresh") or ["0"])[0] == "1"
-            if force or (now - INTRADAY_5COINS_CACHE_TS > 3.0) or not INTRADAY_5COINS_CACHE:
+            if not INTRADAY_5COINS_CACHE and os.path.exists(INTRADAY_5COINS_PATH):
                 try:
-                    data = intraday_estimator.estimate_all_5_coins()
-                    INTRADAY_5COINS_CACHE = data
-                    INTRADAY_5COINS_CACHE_TS = now
-                    return self._send_json({"coins": data, "updated_at": now_iso()})
+                    with open(INTRADAY_5COINS_PATH, "r", encoding="utf-8") as fh:
+                        loaded = json.load(fh)
+                    if isinstance(loaded, list) and loaded:
+                        INTRADAY_5COINS_CACHE = loaded
+                        INTRADAY_5COINS_CACHE_TS = now
+                except Exception:
+                    pass
+            if force or not INTRADAY_5COINS_CACHE or (now - INTRADAY_5COINS_CACHE_TS > 15.0):
+                try:
+                    data = intraday_estimator.estimate_all_5_coins(write_path=INTRADAY_5COINS_PATH)
+                    if data:
+                        INTRADAY_5COINS_CACHE = data
+                        INTRADAY_5COINS_CACHE_TS = now
                 except Exception as e:
-                    return self._send_json({"error": str(e)}, status=500)
-            return self._send_json({"coins": INTRADAY_5COINS_CACHE, "updated_at": now_iso()})
+                    if not INTRADAY_5COINS_CACHE:
+                        return self._send_json({"error": str(e)}, status=500)
+            # Overlay live 0ms prices onto cached 5 Coins Future cards
+            live_tk = fetch_live_tickers(intraday_estimator.TARGET_COINS)
+            for item in INTRADAY_5COINS_CACHE:
+                sym = item.get("symbol")
+                tk = live_tk.get(sym)
+                if tk and tk.get("price", 0) > 0:
+                    item["price"] = tk["price"]
+                    item["change_24h_pct"] = tk.get("change_24h_pct", item.get("change_24h_pct", 0.0))
+                item["feature_name"] = "5 Coins Future"
+            return self._send_json({"feature_name": "5 Coins Future", "coins": INTRADAY_5COINS_CACHE, "updated_at": now_iso()})
 
         if p == "/api/profit_plan":
             plan_path = os.path.join(ROOT_DIR, "trader", "profit_plan.json")
@@ -1743,7 +1761,7 @@ def main():
     lan_ip = get_lan_ip()
     srv = ThreadingHTTPServer((args.host, args.port), AppHandler)
     print("=" * 72, flush=True)
-    print(" GOD-LEVEL CRYPTO MARGIN TRADER SIMULATOR (BINANCE VALUES) IS LIVE!", flush=True)
+    print(" 5 COINS FUTURE -- BINANCE LONG & SHORT PREDICTION ENGINE IS LIVE!", flush=True)
     print("=" * 72, flush=True)
     print(" * On this PC         : http://localhost:%d" % args.port, flush=True)
     print(" * On your iPhone 13  : http://%s:%d  (same Wi-Fi)" % (lan_ip, args.port), flush=True)

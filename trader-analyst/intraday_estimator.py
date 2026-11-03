@@ -35,6 +35,7 @@ if HERE not in sys.path:
 
 import predict
 
+FEATURE_NAME = "5 Coins Future"
 TARGET_COINS = ["BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT"]
 _DEEP_CONTEXT_CACHE = {}
 
@@ -421,6 +422,7 @@ def estimate_coin_intraday(symbol):
         tok_10y = (ty_obj.get("tokenomics") or {}) if ty_obj else {}
 
         return {
+            "feature_name": FEATURE_NAME,
             "symbol": bsym,
             "price": price,
             "change_24h_pct": chg_24h,
@@ -558,7 +560,7 @@ def estimate_all_5_coins(symbols=None, write_path=None):
 def render_intraday_ascii_table(data_list):
     lines = []
     lines.append("=" * 108)
-    lines.append("5-COIN BINANCE 10-YEAR + 25-OUTLET NEWS & INTRADAY PROBABILITY ESTIMATOR (10m, 30m, 60m + 24h/7d/30d)")
+    lines.append("5 COINS FUTURE -- BINANCE LONG & SHORT PREDICTION ENGINE (10Y DATA + 25-OUTLET NEWS)")
     lines.append("=" * 108)
 
     for coin in data_list:

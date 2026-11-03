@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5-Coin Live Intraday Direction & Probability Predictor</title>
+  <title>5 Coins Future</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
   <style>
     :root {
@@ -474,10 +474,10 @@
   <!-- Top Bar -->
   <header class="topbar">
     <div class="brand-group">
-      <div class="logo-badge">⚡ 5-COIN PREDICTOR</div>
+      <div class="logo-badge">⚡ 5 COINS FUTURE</div>
       <div>
-        <div class="site-title">Live 10-Year + 25-Outlet News & Order-Flow Predictor</div>
-        <div class="site-sub">Exclusively serving BNB · SOL · BTC · ETH · DOGE on Binance (10Y Cycle + Live CLOB + Perps + News)</div>
+        <div class="site-title">5 Coins Future</div>
+        <div class="site-sub">Binance Long &amp; Short Prediction Engine -- BNB · SOL · BTC · ETH · DOGE (10Y Cycle + 25-Outlet News + Live Order Flow)</div>
       </div>
     </div>
 
@@ -505,7 +505,7 @@
     <!-- Executive Matrix Table -->
     <section class="summary-bar">
       <div class="summary-title">
-        <span>5-Coin Directional Consensus Matrix</span>
+        <span>5 Coins Future -- Long &amp; Short Consensus Matrix</span>
         <span style="font-size:11px;color:var(--subtle);text-transform:none;" id="lastUpdatedTs">Syncing with Binance Spot & Perps...</span>
       </div>
       <table class="matrix-table">
@@ -524,14 +524,14 @@
           </tr>
         </thead>
         <tbody id="summaryTableBody">
-          <tr><td colspan="10" style="padding:24px;text-align:center;color:var(--muted);">Loading live 5-coin estimations...</td></tr>
+          <tr><td colspan="10" style="padding:24px;text-align:center;color:var(--muted);">Loading 5 Coins Future Long &amp; Short predictions...</td></tr>
         </tbody>
       </table>
     </section>
 
     <!-- 5-Coin Live Cards Grid -->
     <section class="coins-grid" id="coinsCardsGrid">
-      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);">Loading live 5-coin predictions...</div>
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);">Loading 5 Coins Future cards...</div>
     </section>
 
   </main>
@@ -879,6 +879,12 @@
     }
 
     window.addEventListener("DOMContentLoaded", () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
+      }
+      if ("caches" in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+      }
       startAutoRefresh();
     });
   </script>
