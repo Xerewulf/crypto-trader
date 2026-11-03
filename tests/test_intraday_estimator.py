@@ -136,5 +136,54 @@ class TestIntradayEstimator(unittest.TestCase):
         self.assertLessEqual(ty["score"], 15.0)
 
 
+
+    def test_all_7_accuracy_upgrades(self):
+        mock_1m = [
+            [i * 60000, "100.0", "100.6", "99.6", str(100.0 + i * 0.12), "15.0", (i + 1) * 60000, "1500.0", 60, "9.5", "950.0", "0"]
+            for i in range(50)
+        ]
+        d1 = {"bids": [["105.8", "25.0"], ["105.7", "15.0"]], "asks": [["106.0", "8.0"], ["106.1", "10.0"]]}
+        d2 = {"bids": [["105.85", "40.0"], ["105.75", "20.0"]], "asks": [["106.0", "6.0"], ["106.1", "10.0"]]}
+
+        # Step 3: Stoikov Micro-Price & Delta-OFI
+        intraday_estimator.compute_microprice_and_ofi(d1, "SOLUSDT")
+        ob_res = intraday_estimator.compute_microprice_and_ofi(d2, "SOLUSDT")
+        self.assertTrue(ob_res["available"])
+        self.assertGreater(ob_res["microprice"], 0.0)
+        self.assertGreater(ob_res["delta_ofi_norm"], 0.0)
+
+        # Step 4: BTC Lead-Lag Impulse Propagation
+        btc_res = intraday_estimator.compute_btc_lead_lag_spillover("SOLUSDT", mock_1m, btc_k1m=mock_1m)
+        self.assertIn("btc_impulse_score", btc_res)
+        self.assertIn("spillover_score", btc_res)
+
+        # Step 6: Walk-Forward Calibration & Brier Score
+        cal = intraday_estimator.calibrate_intraday_model(mock_1m)
+        self.assertGreater(cal["samples"], 10)
+        self.assertGreaterEqual(cal["empirical_hit_rate_pct"], 0.0)
+        self.assertLessEqual(cal["brier_score"], 1.0)
+
+        # Steps 1, 2, 5, 7: First-Passage, 3-Bar Block Bootstrap & EWMA Vol, Wall Reflection, Net-of-Fee Edge
+        walls = {"support_wall_price": 105.5, "resistance_wall_price": 108.0}
+        hz = intraday_estimator.simulate_intraday_horizons(
+            mock_1m,
+            105.9,
+            30.0,
+            orderbook_walls=walls,
+            spread_bps=ob_res["spread_bps"],
+            cal_alpha_mult=cal["cal_alpha_mult"],
+        )
+        h30 = hz["30m"]
+        self.assertEqual(h30["block_size_min"], 3)
+        self.assertIn("ewma_vol_ratio", h30)
+        l_out = h30["long_outcome"]
+        self.assertIn("tp_hit_first_pct", l_out)
+        self.assertIn("sl_hit_first_pct", l_out)
+        self.assertIn("first_passage_win_pct", l_out)
+        self.assertIn("round_trip_cost_pct", l_out)
+        self.assertIn("net_reward_risk_ratio", l_out)
+        self.assertLess(l_out["net_expected_gain_pct"], l_out["expected_gain_pct"])
+
+
 if __name__ == "__main__":
     unittest.main()
