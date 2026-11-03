@@ -833,6 +833,11 @@ TOKENOMICS_PROFILE = {
         "burn_or_lock_pct": 0.0,
         "structural_bias": 0.5,
     },
+    "XRP": {
+        "supply_model": "Hard-Capped Deterministic Escrow Ledger (100,000,000,000 XRP Max Supply; Ripple monthly escrow lock/release + base transaction fee burn)",
+        "annual_net_issuance_pct": 1.8,
+        "structural_drivers": "Cross-border ODL institutional liquidity rails, RLUSD stablecoin settlement, spot XRP ETF filings, and post-SEC regulatory clarity",
+    },
     "ADA": {
         "supply_model": "Hard-Capped Ouroboros Proof-of-Stake (45,000,000,000 ADA Max Supply; ~60% liquid staked with treasury fee reserve)",
         "structural_drivers": "Voltaire / Chang decentralized on-chain governance, Hydra/Partner-chain scaling, liquid non-custodial staking, and long-horizon retail holder base",

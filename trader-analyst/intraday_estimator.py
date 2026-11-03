@@ -35,8 +35,8 @@ if HERE not in sys.path:
 
 import predict
 
-FEATURE_NAME = "5 Coins Future"
-TARGET_COINS = ["BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT"]
+FEATURE_NAME = "6 Coins Future"
+TARGET_COINS = ["BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT", "XRPUSDT"]
 _DEEP_CONTEXT_CACHE = {}
 
 
@@ -560,7 +560,7 @@ def estimate_all_5_coins(symbols=None, write_path=None):
 def render_intraday_ascii_table(data_list):
     lines = []
     lines.append("=" * 108)
-    lines.append("5 COINS FUTURE -- BINANCE LONG & SHORT PREDICTION ENGINE (10Y DATA + 25-OUTLET NEWS)")
+    lines.append("6 COINS FUTURE -- BINANCE LONG & SHORT PREDICTION ENGINE (10Y DATA + 25-OUTLET NEWS)")
     lines.append("=" * 108)
 
     for coin in data_list:
