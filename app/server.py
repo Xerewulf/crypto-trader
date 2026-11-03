@@ -584,6 +584,17 @@ class AppHandler(BaseHTTPRequestHandler):
             picks = sorted(cached.values(), key=lambda x: -float(x.get("composite_score") or 0.0))
             return self._send_json({"picks": picks})
 
+        if p == "/api/profit_plan":
+            plan_path = os.path.join(ROOT_DIR, "trader", "profit_plan.json")
+            if os.path.exists(plan_path):
+                try:
+                    with open(plan_path, "r", encoding="utf-8") as fh:
+                        data = json.load(fh)
+                    return self._send_json({"plans": data})
+                except Exception as e:
+                    return self._send_json({"error": str(e)}, status=500)
+            return self._send_json({"plans": []})
+
         return self._send_json({"error": "Not found"}, status=404)
 
     def do_POST(self):
