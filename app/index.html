@@ -653,12 +653,10 @@
     <div class="brand-group">
       <span class="site-title">GodTrader Binance Margin Terminal</span>
       <div class="sim-controls">
-        <span class="badge-sim live" id="simStatusBadge">● SIMULATION RUNNING</span>
-        <button class="btn-sim start" id="btnStartSim" onclick="setSimState(true)">▶ START</button>
-        <button class="btn-sim stop" id="btnStopSim" onclick="setSimState(false)">⏹ STOP</button>
+        <span class="badge-sim live" id="simStatusBadge">● SIMULATION ACTIVE</span>
       </div>
       <span class="badge-sim live" id="wsClobBadge" style="background:rgba(16,185,129,0.15);border:1px solid var(--green);color:#34d399;">⚡ WS CLOB: <span id="wsTickRate">0.0</span> ticks/s</span>
-      <a href="/bnb" style="text-decoration:none;background:linear-gradient(135deg,#f3ba2f,#d97706);color:#090d16;font-weight:900;font-size:12px;padding:6px 12px;border-radius:7px;margin-left:8px;box-shadow:0 0 12px rgba(243,186,47,0.35);">🟡 BNB Long &amp; Short AI Desk (10Y Trained) →</a>
+      <a href="bnb.html" style="text-decoration:none;background:linear-gradient(135deg,#f3ba2f,#d97706);color:#090d16;font-weight:900;font-size:12px;padding:6px 12px;border-radius:7px;margin-left:8px;box-shadow:0 0 12px rgba(243,186,47,0.35);">🟡 BNB Long &amp; Short AI Desk (10Y Trained) →</a>
     </div>
 
     <!-- Dual Currency & Live BNB Ticker -->
@@ -683,8 +681,7 @@
       <button type="button" id="tabSORBtn" class="nav-pill" onclick="switchDesk('sor')">🌐 SOR & Multi-Venue Risk (Phase 4)</button>
       <button type="button" id="tabHeatmapBtn" class="nav-pill" onclick="switchDesk('heatmap')">🌊 Liquidity Heatmap & PWA (Phase 5)</button>
       <button type="button" id="tabAiQuantBtn" class="nav-pill" onclick="switchDesk('ai-quant')">🧠 AI Quant & Debate (Phase 6)</button>
-      <button type="button" id="btnPwaInstall" class="nav-pill" style="display:none; background:#065f46; color:#a7f3d0; border-color:#059669;" onclick="triggerPwaInstall()">📲 Install App</button>
-      <button type="button" id="btnNotificationToggle" class="nav-pill" style="background:#1e293b; color:#cbd5e1;" onclick="togglePushNotifications()">🔔 Push Alerts</button>
+
       <a href="dashboard.html" class="nav-pill">🤖 24/7 Cloud Bot Dashboard</a>
       <a href="https://github.com/Xerewulf/crypto-trader" target="_blank" class="nav-pill gh">🐙 GitHub Source</a>
     </div>
@@ -723,6 +720,7 @@
         <button class="btn-top" onclick="resetWalletTo(1000)">$1K</button>
         <button class="btn-top" onclick="resetWalletTo(10000)">$10K</button>
         <button class="btn-top" style="border-color:var(--gold);color:#fde68a;" onclick="promptCustomBalance()">Set $</button>
+        <button class="btn-top" style="border-color:#10b981;background:rgba(16,185,129,0.15);color:#6ee7b7;font-weight:800;" onclick="openProfitPlannerModal()">⚡ 5-Coin Profit Planner</button>
       </div>
     </div>
   </header>
@@ -1767,10 +1765,7 @@
             Install GodTrader as a native desktop or mobile application on Windows, macOS, iOS, or Android with offline caching and instant launch:
           </p>
           <div style="display:flex; gap:10px; align-items:center;">
-            <button type="button" class="btn-action" style="background:#059669; color:#fff; font-weight:800; padding:8px 14px;" onclick="triggerPwaInstall()">
-              📲 Install Native App
-            </button>
-            <span style="font-size:11px; color:#94a3b8;" id="pwaStatusDesc">Click to install or Add to Home Screen in Safari.</span>
+            <span style="font-size:11px; color:#94a3b8;" id="pwaStatusDesc">In Chrome/Edge: click Install in address bar. In iOS Safari: tap Share ➔ Add to Home Screen.</span>
           </div>
           <div style="font-size:11px; color:#64748b; background:rgba(15,23,42,0.4); padding:6px 10px; border-radius:4px;">
             Service Worker Cache: <b style="color:#2dd4bf;">godtrader-pwa-v5</b> (Shell, HTML, Manifest, Offline Fallback).
@@ -1789,15 +1784,7 @@
             Receive instant operating system desktop & mobile notifications for large whale trades and margin liquidation risk:
           </p>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <button type="button" class="btn-action" style="background:#2563eb; color:#fff; font-weight:800; padding:8px 14px;" onclick="requestPushPermission()">
-              🔔 Enable Native Alerts
-            </button>
-            <button type="button" class="btn-action" style="background:#334155; color:#e2e8f0; padding:8px 14px;" onclick="testPushNotification()">
-              ⚡ Send Test Notification
-            </button>
-            <button type="button" class="btn-action" style="background:#334155; color:#e2e8f0; padding:8px 14px;" onclick="playChimeSound()">
-              🎵 Test Sound Chime
-            </button>
+            <span style="font-size:12px; color:#94a3b8;">Real-time order flow and block trades monitor automatically dispatches desktop and audio alerts when active.</span>
           </div>
           <div style="font-size:11px; color:#64748b; background:rgba(15,23,42,0.4); padding:6px 10px; border-radius:4px;">
             Notification Status: <b id="pushPermissionBadge" style="color:#38bdf8;">Default (Click to Enable)</b>
@@ -4918,6 +4905,48 @@
 
     setInterval(fetchState, 2500);
     setInterval(fetchKlines, 8000);
+  
+    async function openProfitPlannerModal() {
+      const modal = document.getElementById("profitPlannerModal");
+      modal.style.display = "flex";
+      const tbody = document.getElementById("plannerTableBody");
+      try {
+        const res = await fetch("/api/profit_plan");
+        const data = await res.json();
+        const plans = data.plans || [];
+        if (!plans.length) {
+          tbody.innerHTML = '<tr><td colspan="10" style="padding:20px;text-align:center;color:#f87171;">No profit plans found. Run python trader-analyst/profit_planner.py --write to generate.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = plans.map((p, idx) => {
+          const isShort = p.action === "SHORT";
+          const actColor = isShort ? "var(--red)" : "var(--green)";
+          const actBg = isShort ? "rgba(239,68,68,0.15)" : "rgba(16,185,129,0.15)";
+          const rankPill = idx === 0 ? '<span style="background:#eab308;color:#000;padding:2px 6px;border-radius:4px;font-weight:800;">#1 BEST</span>' : `#${idx+1}`;
+          return `
+            <tr style="border-bottom:1px solid #1e293b;">
+              <td style="padding:10px 8px;font-weight:700;">${rankPill}</td>
+              <td style="padding:10px 8px;font-weight:800;color:#f8fafc;">${p.symbol}</td>
+              <td style="padding:10px 8px;"><span style="color:${actColor};background:${actBg};padding:3px 7px;border-radius:5px;font-weight:800;font-size:11px;">${p.action}</span></td>
+              <td style="padding:10px 8px;color:#f8fafc;font-weight:700;">${p.action_probability_pct.toFixed(1)}%</td>
+              <td style="padding:10px 8px;color:${p['24h_expected_profit_pct'] >= 0 ? "var(--green)" : "var(--red)"};font-weight:700;">${p['24h_expected_profit_pct'] >= 0 ? "+" : ""}${p['24h_expected_profit_pct'].toFixed(2)}%</td>
+              <td style="padding:10px 8px;color:${p['7d_expected_profit_pct'] >= 0 ? "var(--green)" : "var(--red)"};font-weight:700;">${p['7d_expected_profit_pct'] >= 0 ? "+" : ""}${p['7d_expected_profit_pct'].toFixed(2)}%</td>
+              <td style="padding:10px 8px;color:#38bdf8;font-weight:700;">+${p.tp1_gain_pct.toFixed(2)}%</td>
+              <td style="padding:10px 8px;color:#fde68a;font-weight:700;">+${p.math_edge_R.toFixed(2)}R</td>
+              <td style="padding:10px 8px;font-weight:800;color:#6ee7b7;">${p.profitability_score.toFixed(1)}</td>
+              <td style="padding:10px 8px;"><button class="btn-action" onclick="selectSymbol('${p.symbol}'); closeProfitPlannerModal();">Trade</button></td>
+            </tr>
+          `;
+        }).join("");
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="10" style="padding:20px;text-align:center;color:#f87171;">Error loading: ${e.message}</td></tr>`;
+      }
+    }
+
+    function closeProfitPlannerModal() {
+      document.getElementById("profitPlannerModal").style.display = "none";
+    }
+
     setInterval(fetchLiveNews, 10000);
   
     // =========================================================================
@@ -5128,5 +5157,53 @@
     }
 
   </script>
+
+  <!-- Multi-Coin Profit & Direction Planner Modal -->
+  <div id="profitPlannerModal" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.85);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#0b1329;border:1px solid #1e293b;border-radius:14px;max-width:960px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,0.7);padding:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid #1e293b;padding-bottom:12px;">
+        <div>
+          <h2 style="font-size:18px;font-weight:800;color:#f8fafc;margin:0 0 4px 0;display:flex;align-items:center;gap:8px;">
+            <span>⚡ Multi-Coin Profit & Direction Planner</span>
+            <span style="font-size:11px;background:#064e3b;color:#6ee7b7;padding:2px 8px;border-radius:6px;font-weight:700;">BNB + TOP 5 COINS</span>
+          </h2>
+          <div style="font-size:12px;color:#94a3b8;">Evaluates BNB alongside 5 algorithmically selected high-liquidity coins for optimal profit potential, directional edge, and win probability.</div>
+        </div>
+        <button onclick="closeProfitPlannerModal()" style="background:#1e293b;border:none;color:#94a3b8;font-size:18px;font-weight:700;width:32px;height:32px;border-radius:8px;cursor:pointer;">✕</button>
+      </div>
+
+      <div id="plannerTableWrap" style="overflow-x:auto;">
+        <table class="trade-table" style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid #1e293b;color:#94a3b8;font-size:11px;text-align:left;">
+              <th style="padding:10px 8px;">RANK</th>
+              <th style="padding:10px 8px;">COIN</th>
+              <th style="padding:10px 8px;">ACTION</th>
+              <th style="padding:10px 8px;">WIN PROB</th>
+              <th style="padding:10px 8px;">24h EXP</th>
+              <th style="padding:10px 8px;">7d EXP</th>
+              <th style="padding:10px 8px;">TP1 GAIN</th>
+              <th style="padding:10px 8px;">EDGE (R)</th>
+              <th style="padding:10px 8px;">SCORE</th>
+              <th style="padding:10px 8px;">SELECT</th>
+            </tr>
+          </thead>
+          <tbody id="plannerTableBody" style="font-size:12px;">
+            <tr><td colspan="10" style="padding:20px;text-align:center;color:#94a3b8;">Loading profit plans...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:16px;background:#051b14;border:1px solid #064e3b;border-radius:10px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
+        <span style="font-size:20px;">💡</span>
+        <div style="font-size:12px;color:#cbd5e1;line-height:1.5;">
+          <strong style="color:#6ee7b7;">Trading Doctrine & Recommendation:</strong>
+          Based on DefiLlama stablecoin contraction and negative Cumulative Volume Delta (CVD), <strong>SHORT</strong> is currently the higher-probability, higher-edge action across the board. 
+          <strong>SOLUSDT</strong> offers the highest percentage profit return (+3.57% 7d expected downside drift), while <strong>BNBUSDT</strong> presents the strongest fundamental composite short score (-45.0) with +4.39% TP1 reach.
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

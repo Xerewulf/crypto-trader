@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GodTrader Terminal Portal</title>
+  <script>
+    (function() {
+      var p = window.location.pathname;
+      if (p.endsWith('/bnb') || p.endsWith('/bnb/')) {
+        window.location.replace('bnb.html');
+      } else if (p.endsWith('/dashboard') || p.endsWith('/dashboard/')) {
+        window.location.replace('dashboard.html');
+      }
+    })();
+  </script>
+</head>
+<body style="background:#090d16;color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;">
+  <div style="background:#0f172a;border:1px solid #1e293b;padding:32px 40px;border-radius:12px;max-width:540px;box-shadow:0 12px 36px rgba(0,0,0,0.5);">
+    <h1 style="color:#f3ba2f;margin-top:0;font-size:22px;">Institutional Crypto Trader Terminal</h1>
+    <p style="color:#94a3b8;font-size:14px;line-height:1.5;">The requested page could not be found directly. Please choose your desired desk:</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px;">
+      <a href="index.html" style="background:#1e293b;border:1px solid #334155;color:#38bdf8;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">🎮 Multi-Coin Margin Terminal (Phase 1–6)</a>
+      <a href="bnb.html" style="background:linear-gradient(135deg,#f3ba2f,#d97706);color:#090d16;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:800;font-size:14px;">🟡 BNB Long & Short AI Specialist (10Y Trained)</a>
+      <a href="dashboard.html" style="background:#1e293b;border:1px solid #334155;color:#22c55e;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">⚡ 24/7 Cloud Bot Live Execution Dashboard</a>
+    </div>
+  </div>
+</body>
+</html>

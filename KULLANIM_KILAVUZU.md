@@ -42,30 +42,24 @@ Açılan modern karanlık tema panelde:
 
 ---
 
-## 🎮 2. Web Paneli Kontrolleri
+## 🎮 2. Web Paneli ve Canlı İzleme
 
-Panelin üst kısmında yer alan etkileşimli kontrol çubuğu ile:
+Modern web paneli üzerinden gerçek zamanlı kurumsal akış ve portföy durumu anlık olarak izlenir:
 
-1. **MOD DEĞİŞTİR:**
-   * `🛡️ SİMÜLASYON (SANAL)`: Gerçek paranız riske edilmez. Binance canlı fiyatlarıyla birebir simülasyon yapılır.
-   * `⚡ CANLI (GERÇEK)`: Binance API anahtarınız girildiğinde gerçek Binance Vadeli İşlemler hesabınızda pozisyon açılır.
-2. **BOT DURUMU:**
-   * `▶ AKTİF` / `⏸ DURAKLATILDI`: Tek tıkla yeni işlem almayı dondurabilir veya yeniden başlatabilirsiniz.
-3. **STRATEJİ SEÇİCİ:**
-   * `⚡ 5m Scalper`: Hızlı, küçük karlar (+0.8% / +1.5%) alıp çok sayıda işlem açar.
-   * `🚀 Agresif Trend`: Büyük kırılımları ve likidite süpürmelerini (Wyckoff Spring) yakalar.
-   * `🏆 Hybrid (God-Level - Önerilen)`: Hem scalping ile günlük getiri toplar hem trend koşucularını taşır.
-   * `📈 Arbitraj`: Sıfır yön riskiyle fonlama getirisi (Funding yield) avlar.
-4. **🔑 Binance API Bağla Butonu:**
-   * API Key ve Secret bilginizi girmenizi, bağlantıyı test edip kullanılabilir USDT bakiyenizi anında görmenizi sağlar.
-5. **🚨 ACİL DURUM TÜMÜNÜ KAPAT (EMERGENCY FLATTEN):**
-   * Tek tıkla açık olan tüm pozisyonları piyasa fiyatından kapatır ve tüm emirleri iptal eder.
+1. **CANLI PORTFÖY & PERFORMANS METRİKLERİ:**
+   * Bakiye, gerçekleşmiş/gerçekleşmemiş net kâr-zarar, sermaye eğrisi (Equity Curve SVG), win rate ve maksimum drawdown metrikleri anlık Binance WebSocket akışıyla milisaniyelik güncellenir.
+2. **AÇIK POZİSYONLAR & CONVEX EXIT TABLOSU:**
+   * Çok kademeli kâr alma seviyeleri (TP1 1.8R, TP2 3.5R, 1h VWAP Trailing Runner) ve başabaş (Breakeven) stop takibi gerçek zamanlı listelenir.
+3. **MİKROYAPI & HACİM PROFİLİ MATRİSİ:**
+   * En likit 40 Binance kripto parası için Spot Taker Alım Hacmi (CVD), 7 Günlük Hacim Profili (VAL/POC/VAH) ve ±1% Emir Defteri Dengesizlikleri canlı izlenir.
+4. **25+ KAYNAKLI KÜRESEL HABER VE MAKRO AKIŞI:**
+   * Binance CMS, Fed/FOMC, Wall Street bankaları ve X balina akışları 10 saniyelik dinamik sorguyla panelde listelenir.
 
 ---
 
 ## 🔑 3. Gerçek Binance Hesabını Bağlama (Canlı Geçiş)
 
-Simülasyonda botun işlemlerini ve kar getirdiğini gördükten sonra:
+Canlı Binance USDⓈ-M Vadeli İşlemler hesabınızda işlem yapmak için API anahtarlarınızı güvenli ortam değişkenleri veya konfigürasyon üzerinden bağlayabilirsiniz:
 
 1. Binance hesabınıza girip **API Management** (API Yönetimi) sayfasına gidin.
 2. Yeni bir API anahtarı oluşturun.
@@ -73,9 +67,15 @@ Simülasyonda botun işlemlerini ve kar getirdiğini gördükten sonra:
    * ✅ **Enable Reading** (Okuma) -> Açık
    * ✅ **Enable Futures** (Vadeli İşlemler) -> Açık
    * ❌ **Enable Withdrawals (Para Çekme) -> KESİNLİKLE KAPALI OLMALIDIR.**
-4. Web panelinizde `[🔑 Binance API Bağla]` butonuna tıklayın.
-5. API Key ve Secret'ı yapıştırıp `[🔍 Test Et & Bakiye Getir]` butonuna basın.
-6. Bakiyeniz yeşil renkte onaylandığında `[⚡ Kaydet ve Canlı İşlemi Aç]` butonuna basarak gerçek işlemleri başlatın!
+4. Anahtarlarınızı `.env` veya ortam değişkeni olarak tanımlayın:
+   ```bash
+   export BINANCE_API_KEY="api_keyiniz"
+   export BINANCE_API_SECRET="api_secretiniz"
+   ```
+5. Canlı emir iletimini başlatmak için:
+   ```bash
+   python trader/live/paper_trader.py run --live
+   ```
 
 ---
 

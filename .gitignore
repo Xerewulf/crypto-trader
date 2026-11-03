@@ -10,15 +10,18 @@ _site/
 # Logs and runtime events
 *.log
 *.tmp
-trader/live/events.log
-trader/live/bnb_trades.jsonl
-trader/live/bnb_klines_10y_cache.json
 
 # Private credentials & local configs
 .env
 *.env
+.env.*
+!.env.example
+credentials.json
 *credentials*.json
-trader/live/credentials.json
+trader/credentials.json
+docker-compose.override.yml
+data/
+trader-data/
 
 # OS generated files
 .DS_Store
@@ -27,14 +30,3 @@ Thumbs.db
 # Cache files
 .cache/
 trader/.cache/
-
-# Credentials and Environment files
-.env
-*.env
-.env.*
-!.env.example
-credentials.json
-trader/credentials.json
-docker-compose.override.yml
-data/
-trader-data/
