@@ -106,6 +106,9 @@ FUTURES_PREMIUM_CACHE_TS = 0.0
 FORECAST_CACHE = {}
 INTRADAY_5COINS_CACHE = []
 INTRADAY_5COINS_CACHE_TS = 0.0
+INTRADAY_5COINS_LOCK = threading.Lock()
+ESTIMATOR_WAKE_EVENT = threading.Event()
+_BG_WORKERS_STARTED = False
 NEWS_CACHE = {}
 NEWS_POLL_SECONDS = 10.0
 WS_STATS = {
@@ -280,6 +283,131 @@ def fetch_live_tickers(symbols=None):
             except Exception:
                 continue
     return out
+
+
+def fetch_fast_6coin_tickers():
+    """Fetch 24h ticker stats ONLY for the 6 target coins (~1.8 KB payload, <50ms)."""
+    global PRICE_CACHE, PRICE_CACHE_TS
+    syms_json = json.dumps(intraday_estimator.TARGET_COINS, separators=(",", ":"))
+    path = "/api/v3/ticker/24hr?symbols=" + urllib.parse.quote(syms_json)
+    out = {}
+    try:
+        raw = predict.spot_get(path, timeout=2.5)
+        if isinstance(raw, list):
+            now = time.time()
+            for r in raw:
+                s = r.get("symbol")
+                p = float(r.get("lastPrice") or 0.0)
+                if s and p > 0:
+                    info = {
+                        "symbol": s,
+                        "price": p,
+                        "change_24h_pct": float(r.get("priceChangePercent") or 0.0),
+                        "high_24h": float(r.get("highPrice") or 0.0),
+                        "low_24h": float(r.get("lowPrice") or 0.0),
+                        "volume_24h_usd": float(r.get("quoteVolume") or 0.0),
+                        "bid": float(r.get("bidPrice") or p),
+                        "ask": float(r.get("askPrice") or p),
+                    }
+                    PRICE_CACHE[s] = info
+                    out[s] = info
+            PRICE_CACHE_TS = now
+    except Exception:
+        for s in intraday_estimator.TARGET_COINS:
+            if s in PRICE_CACHE:
+                out[s] = PRICE_CACHE[s]
+    return out
+
+
+def _apply_live_ticks_to_6coins_cache(live_tk=None):
+    """Overlay live spot prices onto INTRADAY_5COINS_CACHE and dynamically scale horizon target/stop prices."""
+    if not INTRADAY_5COINS_CACHE:
+        return
+    if live_tk is None:
+        live_tk = {s: PRICE_CACHE[s] for s in intraday_estimator.TARGET_COINS if s in PRICE_CACHE}
+    with INTRADAY_5COINS_LOCK:
+        for item in INTRADAY_5COINS_CACHE:
+            sym = item.get("symbol")
+            tk = live_tk.get(sym) or PRICE_CACHE.get(sym)
+            if tk and tk.get("price", 0) > 0:
+                new_p = float(tk["price"])
+                item["price"] = new_p
+                item["change_24h_pct"] = round(float(tk.get("change_24h_pct", item.get("change_24h_pct", 0.0))), 2)
+                if tk.get("volume_24h_usd", 0) > 0:
+                    item["volume_24h_usd"] = round(float(tk["volume_24h_usd"]), 2)
+                dec = 6 if new_p < 0.01 else (4 if new_p < 1.0 else 2)
+                horizons = item.get("horizons") or {}
+                for tf, hz in horizons.items():
+                    exp_move_pct = float(hz.get("expected_move_pct", 0.0))
+                    hz["expected_price"] = round(new_p * (1.0 + exp_move_pct / 100.0), dec)
+                    l_out = hz.get("long_outcome") or {}
+                    s_out = hz.get("short_outcome") or {}
+                    if l_out:
+                        l_gain = float(l_out.get("expected_gain_pct", 0.15))
+                        l_stop = float(l_out.get("stop_risk_pct", 0.15))
+                        l_out["target_price"] = round(new_p * (1.0 + l_gain / 100.0), dec)
+                        l_out["stop_price"] = round(new_p * (1.0 - l_stop / 100.0), dec)
+                    if s_out:
+                        s_gain = float(s_out.get("expected_gain_pct", 0.15))
+                        s_stop = float(s_out.get("stop_risk_pct", 0.15))
+                        s_out["target_price"] = round(new_p * (1.0 - s_gain / 100.0), dec)
+                        s_out["stop_price"] = round(new_p * (1.0 + s_stop / 100.0), dec)
+            item["feature_name"] = "6 Coins Future"
+
+
+def ensure_6coins_cache_loaded():
+    global INTRADAY_5COINS_CACHE, INTRADAY_5COINS_CACHE_TS
+    if not INTRADAY_5COINS_CACHE and os.path.exists(INTRADAY_5COINS_PATH):
+        try:
+            with open(INTRADAY_5COINS_PATH, "r", encoding="utf-8") as fh:
+                loaded = json.load(fh)
+            if isinstance(loaded, list) and loaded:
+                with INTRADAY_5COINS_LOCK:
+                    INTRADAY_5COINS_CACHE = loaded
+                    INTRADAY_5COINS_CACHE_TS = time.time()
+        except Exception:
+            pass
+
+
+def background_fast_6coin_ticker_worker():
+    """Continuously poll live 6-coin spot prices every 1.0 second so 2s UI refreshes never block."""
+    while True:
+        t0 = time.time()
+        try:
+            tk = fetch_fast_6coin_tickers()
+            if tk:
+                _apply_live_ticks_to_6coins_cache(tk)
+        except Exception:
+            pass
+        elapsed = time.time() - t0
+        time.sleep(max(0.25, 1.0 - elapsed))
+
+
+def background_6coins_estimator_worker():
+    """Continuously recompute 6-coin microstructure + 10Y + news estimations in the background every 4 seconds."""
+    global INTRADAY_5COINS_CACHE, INTRADAY_5COINS_CACHE_TS
+    while True:
+        try:
+            data = intraday_estimator.estimate_all_5_coins(write_path=INTRADAY_5COINS_PATH)
+            if data:
+                with INTRADAY_5COINS_LOCK:
+                    INTRADAY_5COINS_CACHE = data
+                    INTRADAY_5COINS_CACHE_TS = time.time()
+                _apply_live_ticks_to_6coins_cache()
+        except Exception:
+            pass
+        ESTIMATOR_WAKE_EVENT.wait(timeout=4.0)
+        ESTIMATOR_WAKE_EVENT.clear()
+
+
+def ensure_bg_workers_started():
+    global _BG_WORKERS_STARTED
+    if _BG_WORKERS_STARTED:
+        return
+    _BG_WORKERS_STARTED = True
+    ensure_6coins_cache_loaded()
+    threading.Thread(target=background_fast_6coin_ticker_worker, daemon=True).start()
+    threading.Thread(target=background_6coins_estimator_worker, daemon=True).start()
 
 
 def _open_margin_position_locked(w, bsym, side, exec_price, notional_usdt=None, margin_usdt=None, leverage=3.0, stop_loss=None, take_profit=None, reason="Market Order"):
@@ -1236,36 +1364,29 @@ class AppHandler(BaseHTTPRequestHandler):
 
         if p == "/api/intraday_5coins":
             global INTRADAY_5COINS_CACHE, INTRADAY_5COINS_CACHE_TS
-            now = time.time()
+            ensure_bg_workers_started()
             force = (qs.get("refresh") or ["0"])[0] == "1"
-            if not INTRADAY_5COINS_CACHE and os.path.exists(INTRADAY_5COINS_PATH):
-                try:
-                    with open(INTRADAY_5COINS_PATH, "r", encoding="utf-8") as fh:
-                        loaded = json.load(fh)
-                    if isinstance(loaded, list) and loaded:
-                        INTRADAY_5COINS_CACHE = loaded
-                        INTRADAY_5COINS_CACHE_TS = now
-                except Exception:
-                    pass
-            if force or not INTRADAY_5COINS_CACHE or (now - INTRADAY_5COINS_CACHE_TS > 15.0):
+            if not INTRADAY_5COINS_CACHE:
+                ensure_6coins_cache_loaded()
+            if not INTRADAY_5COINS_CACHE:
                 try:
                     data = intraday_estimator.estimate_all_5_coins(write_path=INTRADAY_5COINS_PATH)
                     if data:
-                        INTRADAY_5COINS_CACHE = data
-                        INTRADAY_5COINS_CACHE_TS = now
+                        with INTRADAY_5COINS_LOCK:
+                            INTRADAY_5COINS_CACHE = data
+                            INTRADAY_5COINS_CACHE_TS = time.time()
                 except Exception as e:
-                    if not INTRADAY_5COINS_CACHE:
-                        return self._send_json({"error": str(e)}, status=500)
-            # Overlay live 0ms prices onto cached 5 Coins Future cards
-            live_tk = fetch_live_tickers(intraday_estimator.TARGET_COINS)
-            for item in INTRADAY_5COINS_CACHE:
-                sym = item.get("symbol")
-                tk = live_tk.get(sym)
-                if tk and tk.get("price", 0) > 0:
-                    item["price"] = tk["price"]
-                    item["change_24h_pct"] = tk.get("change_24h_pct", item.get("change_24h_pct", 0.0))
-                item["feature_name"] = "6 Coins Future"
-            return self._send_json({"feature_name": "6 Coins Future", "coins": INTRADAY_5COINS_CACHE, "updated_at": now_iso()})
+                    return self._send_json({"error": str(e)}, status=500)
+            if force or (time.time() - PRICE_CACHE_TS > 0.9):
+                tk = fetch_fast_6coin_tickers()
+                _apply_live_ticks_to_6coins_cache(tk)
+                if force:
+                    ESTIMATOR_WAKE_EVENT.set()
+            else:
+                _apply_live_ticks_to_6coins_cache()
+            with INTRADAY_5COINS_LOCK:
+                snapshot = list(INTRADAY_5COINS_CACHE)
+            return self._send_json({"feature_name": "6 Coins Future", "coins": snapshot, "updated_at": now_iso()})
 
         if p == "/api/profit_plan":
             plan_path = os.path.join(ROOT_DIR, "trader", "profit_plan.json")
@@ -1748,6 +1869,7 @@ def main():
     args = ap.parse_args()
 
     get_cached_forecasts()
+    ensure_bg_workers_started()
 
     t = threading.Thread(target=background_trigger_worker, daemon=True)
     t.start()
