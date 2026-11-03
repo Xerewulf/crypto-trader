@@ -51,7 +51,7 @@ try:
 except ImportError:
     margin = None
 
-LIVE_DIR = os.path.join(ROOT, "trader", "live")
+LIVE_DIR = HERE
 os.makedirs(LIVE_DIR, exist_ok=True)
 STATE_FILE = os.path.join(LIVE_DIR, "state.json")
 TRADES_FILE = os.path.join(LIVE_DIR, "trades.jsonl")

@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  crypto-trader:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crypto-trader-24-7
+    restart: always
+    ports:
+      - "${PORT:-8765}:8765"
+    environment:
+      - BINANCE_API_KEY=${BINANCE_API_KEY}
+      - BINANCE_API_SECRET=${BINANCE_API_SECRET}
+      - BINANCE_TESTNET=${BINANCE_TESTNET:-true}
+      - BINANCE_MODE=${BINANCE_MODE:-testnet}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - DASHBOARD_USERNAME=${DASHBOARD_USERNAME:-admin}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD}
+      - HOST=0.0.0.0
+      - PORT=8765
+    volumes:
+      # Persist trading state, history and logs across container upgrades
+      - trader-data:/app/trader/live
+
+volumes:
+  trader-data:

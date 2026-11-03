@@ -164,7 +164,7 @@ def session(d):
     return OPEN, (EARLY if d.isoformat() in NYSE_EARLY_CLOSE else CLOSE)
 
 
-def market_status(now_utc, is_binance=True):
+def market_status(now_utc, is_binance=False):
     local = to_eastern(now_utc)
     d = local.date()
     if is_binance:
@@ -198,6 +198,19 @@ def market_status(now_utc, is_binance=True):
 
 
 # ---------------------------------------------------------------- quotes
+
+KNOWN_CRYPTO = {
+    "BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI",
+    "DOT", "NEAR", "APT", "TRX", "LTC", "BCH", "UNI", "MATIC", "POL", "PEPE",
+    "SHIB", "FET", "RENDER", "TAO", "WIF", "ICP", "ETC", "XLM", "FIL", "AAVE",
+    "AR", "TIA", "ATOM", "RUNE", "INJ", "KAS", "IMX", "GRT", "HBAR", "FTM",
+    "SEI", "STX", "THETA", "OP", "ARB", "ALGO", "LDO", "BLUR", "PENDLE", "JUP"
+}
+
+
+def is_crypto_sym(sym):
+    s = str(sym or "").upper().strip()
+    return any(s.endswith(quote) for quote in ("USDT", "FDUSD", "USDC", "BUSD")) or s in KNOWN_CRYPTO
 
 def to_binance(sym):
     s = re.sub(r"[\s/\-_]+", "", str(sym or "").upper())
@@ -359,37 +372,51 @@ def fetch_binance(sym, timeout=20):
 
 def _offline_text(folder, source, sym):
     ext = "csv" if source == "stooq" else "json"
-    base = os.path.join(folder, "%s-%s.%s" % (source, sym, ext))
-    if os.path.exists(base):
-        with open(base, encoding="utf-8") as fh:
-            return fh.read()
-    if os.path.exists(base + ".gz"):
-        with gzip.open(base + ".gz", "rt", encoding="utf-8") as fh:
-            return fh.read()
-    raise AlertError("no offline quote file %s" % base)
+    candidates = [
+        os.path.join(folder, "%s-%s.%s" % (source, sym, ext)),
+        os.path.join(folder, "%s-%s.%s" % ("yahoo" if source == "binance" else "binance", sym, ext)),
+    ]
+    for base in candidates:
+        if os.path.exists(base):
+            with open(base, encoding="utf-8") as fh:
+                return fh.read()
+        if os.path.exists(base + ".gz"):
+            with gzip.open(base + ".gz", "rt", encoding="utf-8") as fh:
+                return fh.read()
+    raise AlertError("no offline quote file %s" % candidates[0])
 
 
-def get_quotes(symbols, source="binance", offline=None, pause=PAUSE):
+def get_quotes(symbols, source=None, offline=None, pause=PAUSE):
     """{SYM: quote} and [errors]. One request per ticker, with a pause between."""
     quotes, errors = {}, []
+    has_crypto = any(is_crypto_sym(s) for s in symbols)
+    default_source = "binance" if has_crypto else "yahoo"
+    src = source or default_source
     for i, sym in enumerate(symbols):
-        sym = sym.upper() if offline else (to_binance(sym) if source == "binance" else sym.upper())
+        is_c = is_crypto_sym(sym)
+        actual_src = "binance" if (src == "binance" or is_c) and src not in ("stooq", "yahoo") else src
+        target_sym = to_binance(sym) if actual_src == "binance" else sym.upper()
         try:
             if offline:
-                text = _offline_text(offline, source, sym)
-                quotes[sym] = parse_stooq(text, sym) if source == "stooq" else parse_yahoo(text, sym)
+                text = _offline_text(offline, actual_src, sym.upper())
+                q = parse_stooq(text, sym.upper()) if actual_src == "stooq" else parse_yahoo(text, sym.upper())
+                quotes[sym.upper()] = q
             else:
-                if i and pause and source != "binance":
+                if i and pause and actual_src != "binance":
                     _sleep(pause)
-                if source == "binance":
-                    text = fetch_binance(sym)
-                    quotes[sym] = parse_binance(text, sym)
-                elif source == "stooq":
-                    text = fetch(stooq_url(sym))
-                    quotes[sym] = parse_stooq(text, sym)
+                if actual_src == "binance":
+                    text = fetch_binance(target_sym)
+                    q = parse_binance(text, target_sym)
+                    quotes[sym.upper()] = q
+                    quotes[target_sym] = q
+                elif actual_src == "stooq":
+                    text = fetch(stooq_url(target_sym))
+                    q = parse_stooq(text, target_sym)
+                    quotes[sym.upper()] = q
                 else:
-                    text = fetch_yahoo(sym)
-                    quotes[sym] = parse_yahoo(text, sym)
+                    text = fetch_yahoo(target_sym)
+                    q = parse_yahoo(text, target_sym)
+                    quotes[sym.upper()] = q
         except AlertError as e:
             errors.append(str(e))
     return quotes, errors
@@ -614,12 +641,14 @@ def _dedupe(items):
 
 
 def cmd_clock(a):
-    st = market_status(parse_now(a.now), is_binance=True)
+    is_binance = getattr(a, "binance", False) or getattr(a, "crypto", False)
+    st = market_status(parse_now(a.now), is_binance=is_binance)
     if a.json:
         print(json.dumps(st, indent=2))
     else:
-        print("New York %s (%s): Binance Spot %s, %s." % (st["now_new_york"], st["weekday"],
-                                                          "OPEN" if st["open"] else "closed", st["reason"]))
+        market_label = "Binance Spot" if is_binance else "the NYSE is"
+        print("New York %s (%s): %s %s, %s." % (st["now_new_york"], st["weekday"],
+                                                market_label, "OPEN" if st["open"] else "closed", st["reason"]))
         if st.get("opens"):
             print("Today's session: %s to %s%s." % (st["opens"], st["closes"],
                                                     (" (early close: %s)" % st["early_close"]) if st.get("early_close") else ""))
@@ -632,13 +661,15 @@ def cmd_clock(a):
 
 def cmd_quote(a):
     raw_syms = [s.upper() for s in a.symbols] + (holdings(a) if a.holdings else [])
-    syms = _dedupe([to_binance(s) if (a.source == "binance" and not a.offline) else s for s in raw_syms])
+    has_crypto = any(is_crypto_sym(s) for s in raw_syms)
+    src = a.source or ("binance" if has_crypto else "yahoo")
+    syms = _dedupe([to_binance(s) if (src == "binance" and not a.offline) else s for s in raw_syms])
     if not syms:
         raise AlertError("which tickers? alerts.py quote BTC ETH, or --holdings")
     now = parse_now(a.now)
-    quotes, errors = get_quotes(syms, a.source, a.offline)
+    quotes, errors = get_quotes(syms, src, a.offline)
     if a.write and quotes:
-        write_prices(a.write, quotes, now, a.source)
+        write_prices(a.write, quotes, now, src)
     if a.json:
         print(json.dumps({"quotes": quotes, "errors": errors}, indent=2))
     else:
@@ -647,13 +678,15 @@ def cmd_quote(a):
             if q:
                 chg = ""
                 if q.get("prev_close"):
-                    chg = " (%+.2f%% vs 24h open $%s)" % (100.0 * (q["price"] / q["prev_close"] - 1), _n(q["prev_close"]))
-                print("%-10s $%s%s  %s  [%s]" % (s, _n(q["price"]), chg, q.get("time", ""), q["source"]))
+                    close_label = "24h open" if has_crypto else "yesterday's close"
+                    chg = " (%+.2f%% vs %s $%s)" % (100.0 * (q["price"] / q["prev_close"] - 1), close_label, _n(q["prev_close"]))
+                fmt_str = "%-10s $%s%s  %s  [%s]" if has_crypto else "%-6s $%s%s  %s  [%s]"
+                print(fmt_str % (s, _n(q["price"]), chg, q.get("time", ""), q["source"]))
         for e in errors:
             print("error: " + e)
         if a.write and quotes:
             print("Wrote %d price(s) to %s." % (len(quotes), a.write))
-        print("Quotes from %s: for alerts and sizing checks. Your broker's price is the one that fills." % a.source)
+        print("Quotes from Binance Spot: for alerts and sizing checks. Your broker's price is the one that fills." if has_crypto else "Quotes are free, delayed and unofficial: for alerts only. Your broker's price is the one that fills.")
     return 0 if quotes else 1
 
 
@@ -663,7 +696,8 @@ def cmd_check(a):
         raise AlertError("no rules in %s: add some with alerts.py add --from-plan" % a.rules)
     rules = doc["rules"]
     now = parse_now(a.now)
-    status = market_status(now, is_binance=not bool(a.offline))
+    has_crypto = any(is_crypto_sym(r.get("symbol")) for r in rules if r.get("symbol"))
+    status = market_status(now, is_binance=has_crypto)
     watched = [r for r in rules if active(r, status["date"])]
     syms = _dedupe([str(r.get("symbol", "")).upper() for r in watched if r.get("type") not in NO_QUOTE])
     quotes, errors = (get_quotes(syms, a.source, a.offline) if syms else ({}, []))
@@ -724,13 +758,13 @@ def cmd_add(a):
         rule = {"id": a.id or ("time-%s" % a.at.replace(":", "")), "type": "time", "at": a.at,
                 "label": a.label or "time alert"}
         if a.symbol:
-            rule["symbol"] = to_binance(a.symbol)
+            rule["symbol"] = to_binance(a.symbol) if is_crypto_sym(a.symbol) else a.symbol.upper()
         if a.before_close:
             rule["before_close"] = True
     else:
         if not a.symbol:
             raise AlertError("--symbol is required (or --from-plan, --at, --opening-bell)")
-        sym = to_binance(a.symbol)
+        sym = to_binance(a.symbol) if is_crypto_sym(a.symbol) else a.symbol.upper()
         if a.above is not None:
             rule = {"type": "above", "price": a.above}
         elif a.below is not None:
@@ -792,7 +826,7 @@ def main(argv=None):
     sub = ap.add_subparsers(dest="cmd")
 
     def net(p):
-        p.add_argument("--source", default="binance", choices=["binance", "yahoo", "stooq"])
+        p.add_argument("--source", default=None, choices=["binance", "yahoo", "stooq"])
         p.add_argument("--offline", metavar="DIR", help="read <source>-<TICKER>.json|csv files, no network")
         p.add_argument("--now", help="pretend it is this time (no offset = New York time)")
         p.add_argument("--json", action="store_true")

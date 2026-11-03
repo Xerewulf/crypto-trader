@@ -2,12 +2,39 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+
+# Static site build artifacts
+_site/
 
 # Logs and runtime events
 *.log
 *.tmp
 trader/live/events.log
+trader/live/bnb_trades.jsonl
+trader/live/bnb_klines_10y_cache.json
+
+# Private credentials & local configs
+.env
+*.env
+*credentials*.json
+trader/live/credentials.json
 
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Cache files
+.cache/
+trader/.cache/
+
+# Credentials and Environment files
+.env
+*.env
+.env.*
+!.env.example
+credentials.json
+trader/credentials.json
+docker-compose.override.yml
+data/
+trader-data/

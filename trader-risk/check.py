@@ -211,7 +211,7 @@ def _shift(t, hours):
     return dt.time()
 
 
-def window_check(now_et, c):
+def window_check(now_et, c, is_crypto=False):
     """Reasons an entry cannot be placed now (New York time). Empty when the window is off."""
     before = hhmm(c.get("no_entries_before"), "no_entries_before")
     after = hhmm(c.get("no_entries_after"), "no_entries_after")
@@ -219,7 +219,7 @@ def window_check(now_et, c):
         return [], []
     warns = []
     d, t = now_et.date(), now_et.time().replace(second=0, microsecond=0)
-    is_binance = str(c.get("market") or "").lower() == "binance"
+    is_binance = is_crypto or (str(c.get("market") or "").lower() == "binance" and is_crypto)
     if not is_binance:
         if d.year not in CALENDAR_YEARS:
             warns.append("the holiday list covers %s only: check nyse.com for %s"
@@ -410,7 +410,8 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
         else:
             loss_today += ml
     placed_keys = {(str(r.get("symbol", "")).upper(), r.get("side")) for r in done_today}
-    win_reasons, win_warns = window_check(now_et, c)
+    has_crypto = any(str(o.get("symbol", "")).upper().endswith(("USDT", "BUSD", "FDUSD", "USDC")) for o in orders)
+    win_reasons, win_warns = window_check(now_et, c, is_crypto=has_crypto)
     pdt_n, pdt_list = day_trades(state, today) if c.get("pdt_guard") else (0, [])
     seen = set()
     results = []
@@ -473,10 +474,11 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
             reasons.append("format: extended hours needs a limit order with time_in_force day or gtc")
         if o.get("stop_loss_limit_price") is not None and o.get("stop_loss_stop_price") is None:
             reasons.append("format: stop_loss_limit_price needs a stop_loss_stop_price")
-        allow_frac = bool(c.get("fractional", False)) or str(c.get("market") or "").lower() == "binance"
+        allow_frac = sym.endswith(("USDT", "BUSD", "FDUSD", "USDC")) and bool(c.get("fractional", True))
+        is_crypto_sym = sym.endswith(("USDT", "BUSD", "FDUSD", "USDC"))
         if bracket:
             if notional is not None:
-                reasons.append("format: a bracket order needs a qty, not a notional amount")
+                reasons.append("format: a bracket order needs a whole-share qty, not a notional amount" if not is_crypto_sym else "format: a bracket order needs a qty, not a notional amount")
             elif not allow_frac and _f(qty) is not None and abs(_f(qty) - round(_f(qty))) > 1e-9:
                 reasons.append("format: a bracket order takes whole shares only, got qty %r" % qty)
             if tif not in ("day", "gtc"):
@@ -496,7 +498,10 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
             else:
                 warns.append("option order: options can lose 100%% of what you pay")
         elif sym and ("/" in sym or not TICKER.match(sym)):
-            reasons.append("asset: %s does not look like a valid ticker symbol" % sym)
+            if "/" in sym or "BTC" in sym or "ETH" in sym:
+                reasons.append("asset: %s looks like crypto: stocks and ETFs only (\"allow_crypto\": true)" % sym)
+            else:
+                reasons.append("asset: %s does not look like a valid ticker symbol" % sym)
 
         # the reference price: what one share costs to get in
         plan_entry = _f(plan.get("entry"))
@@ -612,8 +617,10 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
                     max_loss = round(shares * risk_ps, 2)
                     cap = _f(c.get("max_loss_per_trade_usd"))
                     if cap and max_loss > cap + CENT:
-                        later.append("loss: %s units x %s risk a unit = %s at the stop, over your %s max loss "
-                                     "per trade" % (_num(shares), _p(risk_ps), money(max_loss), money(cap)))
+                        unit_w = "units" if is_crypto_sym else "shares"
+                        unit_s = "unit" if is_crypto_sym else "share"
+                        later.append("loss: %s %s x %s risk a %s = %s at the stop, over your %s max loss "
+                                     "per trade" % (_num(shares), unit_w, _p(risk_ps), unit_s, money(max_loss), money(cap)))
                     min_rr = _f(c.get("min_reward_risk"))
                     if target:
                         if (long and target <= ref + tol) or (not long and target >= ref - tol):
