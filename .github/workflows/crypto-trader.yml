@@ -1,9 +1,6 @@
-name: Institutional Binance Crypto Trader (24/7 Automated Cloud Engine)
+name: Institutional Binance Crypto Trader CI & Manual Dispatch
 
 on:
-  schedule:
-    # Runs automatically every 15 minutes, 24/7/365 on GitHub cloud runners
-    - cron: '*/15 * * * *'
   workflow_dispatch:
     inputs:
       mode:
