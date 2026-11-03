@@ -33,7 +33,7 @@
    "entry_fee": 2.459940577055091,
    "partial_realized": 26.741631080650567,
    "partial_costs": 2.202368919349582,
-   "checked_ms": 1793694900000
+   "checked_ms": 1793695260000
   }
  },
  "closed": [
@@ -943,7 +943,7 @@
    "side": "long",
    "check": "No Setup | Taker Buy 61.6% | Imb +0.0% | Funding +0.0100% | Trend bullish | News: -0.8",
    "signal": "No Setup",
-   "evaluated": "2026-11-03 08:36:35 UTC"
+   "evaluated": "2026-11-03 08:41:46 UTC"
   },
   "BTCUSDT": {
    "symbol": "BTCUSDT",
@@ -2352,22 +2352,22 @@
   }
  },
  "marks": {
-  "BNBUSDT": 692.47,
-  "XRPUSDT": 1.2513,
-  "DOGEUSDT": 0.07361,
+  "BNBUSDT": 692.5,
+  "XRPUSDT": 1.2528,
+  "DOGEUSDT": 0.07362,
   "AVAXUSDT": 8.767,
-  "BTCUSDT": 76561.1,
-  "ETHUSDT": 2251.6,
-  "SOLUSDT": 91.61,
-  "NEARUSDT": 3.744,
+  "BTCUSDT": 76517.24,
+  "ETHUSDT": 2251.02,
+  "SOLUSDT": 91.66,
+  "NEARUSDT": 3.749,
   "SUIUSDT": 0.8887,
   "PEPEUSDT": 4.67e-06,
-  "LINKUSDT": 11.062,
+  "LINKUSDT": 11.066,
   "ADAUSDT": 0.2019,
   "WLDUSDT": 0.3977,
-  "ENAUSDT": 0.1672,
-  "UNIUSDT": 7.001,
-  "ZECUSDT": 1126.24,
+  "ENAUSDT": 0.1677,
+  "UNIUSDT": 7.009,
+  "ZECUSDT": 1125.6,
   "BMTUSDT": 0.02814,
   "TRXUSDT": 0.3216,
   "SNDKBUSDT": 1258.15,
@@ -2519,7 +2519,7 @@
   "AMPUSDT": 0.000722,
   "CRVUSDT": 0.3356,
   "WOOUSDT": 0.01001,
-  "AAVEUSDT": 126.63,
+  "AAVEUSDT": 126.81,
   "GRTUSDT": 0.02173,
   "EULUSDT": 1.242,
   "USDCUSD": 0.99963,
@@ -2648,7 +2648,7 @@
   "RENDERBTC": 2.104e-05,
   "MARSCOINTRY": 3.23,
   "HYPEUSDC": 77.37,
-  "HYPEUSDT": 83.07,
+  "HYPEUSDT": 83.03,
   "SECZBUSDT": 7.62,
   "POLUSDT": 0.08988,
   "CATIUSDT": 0.04343,
@@ -4354,11 +4354,11 @@
    4919.55
   ]
  ],
- "heartbeat": "2026-11-03 08:37:00 UTC",
+ "heartbeat": "2026-11-03 08:41:54 UTC",
  "errors": 1,
- "cycles": 6157,
+ "cycles": 6158,
  "_n_closed": 10,
- "heartbeat_ms": 1793695020373,
+ "heartbeat_ms": 1793695314125,
  "universe": [
   "BTCUSDT",
   "ETHUSDT",
@@ -4403,12 +4403,12 @@
  ],
  "last_universe_ms": 1793694946503,
  "news": {
-  "updated": "2026-11-03 08:35:42 UTC",
-  "updated_ms": 1793694942651,
+  "updated": "2026-11-03 08:41:43 UTC",
+  "updated_ms": 1793695303869,
   "poll_interval_sec": 10,
   "cache_stats": {
    "cache_hits": 0,
-   "live_fetches": 12
+   "live_fetches": 13
   },
   "macro_score": -2.7,
   "trending_coins": [
@@ -4486,8 +4486,8 @@
    }
   ],
   "token_scores": {
-   "BTC": -5.4,
-   "ETH": 2.0,
+   "BTC": -4.2,
+   "ETH": 0.7,
    "XRP": 1.9,
    "SUI": 2.0,
    "NEAR": 2.0,
@@ -4515,17 +4515,47 @@
     "reason": "HIGH RISK BEARISH CATALYST: Mystery $106 Million Crypto Theft Hits EU Entity Days After Binance Ha (Decrypt)"
    }
   },
-  "breaking_alerts": [],
-  "new_count": 1,
+  "breaking_alerts": [
+   {
+    "source": "X/Twitter Whale Flow",
+    "sentiment": "BEARISH",
+    "tokens": [
+     "CRYPTO"
+    ],
+    "tags": [
+     "hack/exploit"
+    ],
+    "title": "EU-Based Financial Institution Hit by $133 Million Crypto Hack, Analyst Claims - bloomingbit",
+    "time": "08:33:37 UTC"
+   }
+  ],
+  "new_count": 2,
   "total_headlines": 94,
   "headlines": [
+   {
+    "source": "X/Twitter Whale Flow",
+    "category": "twitter",
+    "title": "EU-Based Financial Institution Hit by $133 Million Crypto Hack, Analyst Claims - bloomingbit",
+    "pubDate": "Tue, 03 Nov 2026 08:33:37 GMT",
+    "pub_ts": 1793694817,
+    "age_min": 8.1,
+    "sentiment": "BEARISH",
+    "tags": [
+     "hack/exploit"
+    ],
+    "tokens": [
+     "CRYPTO"
+    ],
+    "time": "08:33:37 UTC",
+    "is_new": true
+   },
    {
     "source": "X/Twitter Whale Flow",
     "category": "twitter",
     "title": "BTC Price Prediction: Hayes Sees Weakness Ahead - Bitcoin Foundation",
     "pubDate": "Tue, 03 Nov 2026 08:27:38 GMT",
     "pub_ts": 1793694458,
-    "age_min": 8.1,
+    "age_min": 14.1,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4540,7 +4570,7 @@
     "title": "Suspected EU crypto theft estimate rises to $133M: ZachXBT",
     "pubDate": "Tue, 03 Nov 2026 08:18:22 +0000",
     "pub_ts": 1793693902,
-    "age_min": 17.3,
+    "age_min": 23.4,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4555,7 +4585,7 @@
     "title": "Dollar stablecoin use stayed elevated after capital controls ended, new research suggests",
     "pubDate": "Tue, 03 Nov 2026 08:00:58 +0000",
     "pub_ts": 1793692858,
-    "age_min": 34.7,
+    "age_min": 40.8,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4570,7 +4600,7 @@
     "title": "Anthropic\u2019s Amended IPO Filing in 5 Numbers Before Its Nasdaq Debut",
     "pubDate": "Tue, 03 Nov 2026 08:00:00 +0000",
     "pub_ts": 1793692800,
-    "age_min": 35.7,
+    "age_min": 41.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4585,7 +4615,7 @@
     "title": "BlackRock\u2019s IBIT sees biggest Bitcoin ETF outflows since June - TradingView",
     "pubDate": "Tue, 03 Nov 2026 07:49:51 GMT",
     "pub_ts": 1793692191,
-    "age_min": 45.9,
+    "age_min": 51.9,
     "sentiment": "BEARISH",
     "tags": [
      "outflow/liquidation"
@@ -4602,7 +4632,7 @@
     "title": "BlackRock\u2019s IBIT sees biggest Bitcoin ETF outflows since June",
     "pubDate": "Tue, 03 Nov 2026 07:49:51 +0000",
     "pub_ts": 1793692191,
-    "age_min": 45.9,
+    "age_min": 51.9,
     "sentiment": "BEARISH",
     "tags": [
      "outflow/liquidation"
@@ -4619,7 +4649,7 @@
     "title": "WIREX APPOINTS LORD RANGER OF NORTHWOOD AS BOARD ADVISER, AHEAD OF NEW UK DIGITAL ASSET RULES",
     "pubDate": "Tue, 03 Nov 2026 07:34:45 +0000",
     "pub_ts": 1793691285,
-    "age_min": 61.0,
+    "age_min": 67.0,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4634,7 +4664,7 @@
     "title": "Mercado Bitcoin hacker moves $8M in ETH: Is Tornado Cash next? - Crypto News",
     "pubDate": "Tue, 03 Nov 2026 07:14:00 GMT",
     "pub_ts": 1793690040,
-    "age_min": 81.7,
+    "age_min": 87.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4650,7 +4680,7 @@
     "title": "Is an XRP Relief Rally Coming? Wallet and Sentiment Data Explained",
     "pubDate": "Tue, 03 Nov 2026 07:00:00 +0000",
     "pub_ts": 1793689200,
-    "age_min": 95.7,
+    "age_min": 101.7,
     "sentiment": "BULLISH",
     "tags": [
      "bullish/breakout"
@@ -4667,7 +4697,7 @@
     "title": "Solana study finds wider spreads outside aggregators at five of six sampled pools",
     "pubDate": "Tue, 03 Nov 2026 06:50:46 +0000",
     "pub_ts": 1793688646,
-    "age_min": 104.9,
+    "age_min": 111.0,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4682,7 +4712,7 @@
     "title": "Is the US-Iran War Restarting? US Reportedly Strikes Qeshm Island on Midterm Eve",
     "pubDate": "Tue, 03 Nov 2026 06:37:56 +0000",
     "pub_ts": 1793687876,
-    "age_min": 117.8,
+    "age_min": 123.8,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4694,17 +4724,18 @@
    {
     "source": "X/Twitter Whale Flow",
     "category": "twitter",
-    "title": "Mercado Bitcoin Hacker Moves $8 Million of Ethereum to New Wallet - bloomingbit",
-    "pubDate": "Tue, 03 Nov 2026 06:31:40 GMT",
-    "pub_ts": 1793687500,
-    "age_min": 124.0,
-    "sentiment": "NEUTRAL",
-    "tags": [],
-    "tokens": [
-     "BTC",
-     "ETH"
+    "title": "Options Whale Alert: $238K Bullish Short Put Opened on $CXW - Moomoo",
+    "pubDate": "Tue, 03 Nov 2026 06:32:59 GMT",
+    "pub_ts": 1793687579,
+    "age_min": 128.7,
+    "sentiment": "BULLISH",
+    "tags": [
+     "bullish/breakout"
     ],
-    "time": "06:31:40 UTC",
+    "tokens": [
+     "CRYPTO"
+    ],
+    "time": "06:32:59 UTC",
     "is_new": false
    },
    {
@@ -4713,7 +4744,7 @@
     "title": "Stocks Rose a Year After Every Midterm Since 1982. Will 2026 Keep the Streak?",
     "pubDate": "Tue, 03 Nov 2026 06:00:00 +0000",
     "pub_ts": 1793685600,
-    "age_min": 155.7,
+    "age_min": 161.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4728,7 +4759,7 @@
     "title": "Here\u2019s what happened in crypto today",
     "pubDate": "Tue, 03 Nov 2026 06:00:00 +0000",
     "pub_ts": 1793685600,
-    "age_min": 155.7,
+    "age_min": 161.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4738,29 +4769,12 @@
     "is_new": false
    },
    {
-    "source": "X/Twitter Whale Flow",
-    "category": "twitter",
-    "title": "Options Whale Alert: $801K Bearish Long Put Opened on $ALAB - Moomoo",
-    "pubDate": "Tue, 03 Nov 2026 05:59:11 GMT",
-    "pub_ts": 1793685551,
-    "age_min": 156.5,
-    "sentiment": "BEARISH",
-    "tags": [
-     "outflow/liquidation"
-    ],
-    "tokens": [
-     "CRYPTO"
-    ],
-    "time": "05:59:11 UTC",
-    "is_new": false
-   },
-   {
     "source": "CryptoSlate",
     "category": "magazine",
     "title": "Aave Horizon taps perpetual futures to price stock collateral on weekends, Chainlink says",
     "pubDate": "Tue, 03 Nov 2026 05:40:37 +0000",
     "pub_ts": 1793684437,
-    "age_min": 175.1,
+    "age_min": 181.1,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4776,7 +4790,7 @@
     "title": "Binance has spent half its SAFU bitcoin, about $580 million worth, data shows",
     "pubDate": "Tue, 03 Nov 2026 05:36:56 +0000",
     "pub_ts": 1793684216,
-    "age_min": 178.8,
+    "age_min": 184.8,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4791,7 +4805,7 @@
     "title": "Weekly market commentary - BlackRock",
     "pubDate": "Tue, 03 Nov 2026 05:34:04 GMT",
     "pub_ts": 1793684044,
-    "age_min": 181.6,
+    "age_min": 187.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4806,7 +4820,7 @@
     "title": "Bitcoin miner Cipher posts $31 million profit as AI pivot begins",
     "pubDate": "Tue, 03 Nov 2026 05:29:48 +0000",
     "pub_ts": 1793683788,
-    "age_min": 185.9,
+    "age_min": 191.9,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4821,7 +4835,7 @@
     "title": "Arbitrum\u2019s council moved $30 million of Binance hack funds without the hacker\u2019s key",
     "pubDate": "Tue, 03 Nov 2026 05:25:12 +0000",
     "pub_ts": 1793683512,
-    "age_min": 190.5,
+    "age_min": 196.5,
     "sentiment": "BEARISH",
     "tags": [
      "hack/exploit"
@@ -4838,7 +4852,7 @@
     "title": "Ben Cowen Says \u201cEveryone Expects It\u201d Was a Bad Reason to Bet Against the Q4 Market Selloff",
     "pubDate": "Tue, 03 Nov 2026 05:12:00 +0000",
     "pub_ts": 1793682720,
-    "age_min": 203.7,
+    "age_min": 209.7,
     "sentiment": "BEARISH",
     "tags": [
      "unlock/dilution"
@@ -4855,7 +4869,7 @@
     "title": "Crypto.com to withdraw Hong Kong consumer app citing regulatory changes",
     "pubDate": "Tue, 03 Nov 2026 05:10:19 +0000",
     "pub_ts": 1793682619,
-    "age_min": 205.4,
+    "age_min": 211.4,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4870,7 +4884,7 @@
     "title": "Bitcoin drops below $77,000 as chip rout deepens ahead of U.S. midterm vote",
     "pubDate": "Tue, 03 Nov 2026 04:48:17 +0000",
     "pub_ts": 1793681297,
-    "age_min": 227.4,
+    "age_min": 233.4,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4885,7 +4899,7 @@
     "title": "SEC Staff Adds 3 Crypto FAQs on Governance and Network Control - CryptoRank",
     "pubDate": "Tue, 03 Nov 2026 04:35:22 GMT",
     "pub_ts": 1793680522,
-    "age_min": 240.3,
+    "age_min": 246.4,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4900,7 +4914,7 @@
     "title": "Ethena\u2019s trading team can approve borrowers of assets backing USDe under new rules",
     "pubDate": "Tue, 03 Nov 2026 04:30:59 +0000",
     "pub_ts": 1793680259,
-    "age_min": 244.7,
+    "age_min": 250.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4916,7 +4930,7 @@
     "title": "Australia lifts rates to 18-year high as AI boom, energy costs fuel inflation",
     "pubDate": "Tue, 03 Nov 2026 04:14:32 +0000",
     "pub_ts": 1793679272,
-    "age_min": 261.2,
+    "age_min": 267.2,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4931,7 +4945,7 @@
     "title": "Jim Cramer Calls Ralph Lauren Stock Top Apparel Pick Before Thursday Earnings",
     "pubDate": "Tue, 03 Nov 2026 04:12:00 +0000",
     "pub_ts": 1793679120,
-    "age_min": 263.7,
+    "age_min": 269.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4946,7 +4960,7 @@
     "title": "UK warns AI ransomware attack on infrastructure \u2018highly likely\u2019 by 2028",
     "pubDate": "Tue, 03 Nov 2026 03:58:45 +0000",
     "pub_ts": 1793678325,
-    "age_min": 277.0,
+    "age_min": 283.0,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4961,7 +4975,7 @@
     "title": "Yardeni Says Analysts Still See S&P 500 Earnings Near $500 Per Share by 2028",
     "pubDate": "Tue, 03 Nov 2026 03:40:00 +0000",
     "pub_ts": 1793677200,
-    "age_min": 295.7,
+    "age_min": 301.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -4976,7 +4990,7 @@
     "title": "Options Whale Alert: $260K Bullish Long Call Opened on $RDDT - \u5bcc\u9014\u725b\u725b",
     "pubDate": "Tue, 03 Nov 2026 03:38:17 GMT",
     "pub_ts": 1793677097,
-    "age_min": 297.4,
+    "age_min": 303.4,
     "sentiment": "BULLISH",
     "tags": [
      "bullish/breakout"
@@ -4993,7 +5007,7 @@
     "title": "Kinetic\u2019s $24 million XRP-linked lending market showed a 0.04% base rate before rewards",
     "pubDate": "Tue, 03 Nov 2026 03:20:37 +0000",
     "pub_ts": 1793676037,
-    "age_min": 315.1,
+    "age_min": 321.1,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -5008,7 +5022,7 @@
     "title": "Binance begins second withdrawal phase, exchange outflows slow",
     "pubDate": "Tue, 03 Nov 2026 03:03:44 +0000",
     "pub_ts": 1793675024,
-    "age_min": 332.0,
+    "age_min": 338.0,
     "sentiment": "BEARISH",
     "tags": [
      "outflow/liquidation"
@@ -5025,7 +5039,7 @@
     "title": "Arthur Hayes Says Bitcoin Faces Weakness Until Fed or Banks Expand Balance Sheets - Yahoo Finance",
     "pubDate": "Tue, 03 Nov 2026 03:02:00 GMT",
     "pub_ts": 1793674920,
-    "age_min": 333.7,
+    "age_min": 339.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -5040,7 +5054,7 @@
     "title": "Arthur Hayes Says Bitcoin Faces Weakness Until Fed or Banks Expand Balance Sheets",
     "pubDate": "Tue, 03 Nov 2026 03:02:00 +0000",
     "pub_ts": 1793674920,
-    "age_min": 333.7,
+    "age_min": 339.7,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -5055,7 +5069,7 @@
     "title": "Ark Invest buys $3.4 million in Coinbase, adds Circle and Robinhood as stocks trade lower",
     "pubDate": "Tue, 03 Nov 2026 02:57:33 +0000",
     "pub_ts": 1793674653,
-    "age_min": 338.2,
+    "age_min": 344.2,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -5070,7 +5084,7 @@
     "title": "Security Incident | Recovery Update #6: Withdrawals Reopen for More Assets (2026-11-03)",
     "pubDate": "2026-11-03 02:40:27 UTC",
     "pub_ts": 1793673627,
-    "age_min": 355.2,
+    "age_min": 361.3,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -5085,7 +5099,7 @@
     "title": "Robinhood Pushes for Bigger Retail Share of Anthropic IPO as Allocations Grow",
     "pubDate": "Tue, 03 Nov 2026 02:13:52 +0000",
     "pub_ts": 1793672032,
-    "age_min": 381.8,
+    "age_min": 387.9,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -5100,7 +5114,7 @@
     "title": "Binance can cut a winning Bitcoin hedge even when customer assets are backed",
     "pubDate": "Tue, 03 Nov 2026 02:10:33 +0000",
     "pub_ts": 1793671833,
-    "age_min": 385.2,
+    "age_min": 391.2,
     "sentiment": "NEUTRAL",
     "tags": [],
     "tokens": [
@@ -5115,7 +5129,7 @@
     "title": "Morgan Stanley Turns Bearish on Coinbase, Cutting Price Target by More Than Half - Yahoo Finance",
     "pubDate": "Tue, 03 Nov 2026 01:35:00 GMT",
     "pub_ts": 1793669700,
-    "age_min": 420.7,
+    "age_min": 426.7,
     "sentiment": "BEARISH",
     "tags": [
      "outflow/liquidation"
@@ -5132,7 +5146,7 @@
     "title": "South Korea urges exchanges to boost cold storage after Binance hack",
     "pubDate": "Tue, 03 Nov 2026 01:32:39 +0000",
     "pub_ts": 1793669559,
-    "age_min": 423.1,
+    "age_min": 429.1,
     "sentiment": "BEARISH",
     "tags": [
      "hack/exploit"
@@ -5145,7 +5159,7 @@
    }
   ]
  },
- "last_news_ms": 1793694943297,
+ "last_news_ms": 1793695304733,
  "funding_arb": [
   {
    "symbol": "UNITREEUSDT",
@@ -5214,8 +5228,8 @@
  ],
  "btc_lead": {
   "bias": "NEUTRAL",
-  "btc_tb": 42.3,
-  "btc_ret_1h": -0.31
+  "btc_tb": 56.3,
+  "btc_ret_1h": -0.41
  },
  "last_funding_arb_ms": 1793694943500,
  "mode": "SIMULATION",
