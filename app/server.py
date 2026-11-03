@@ -1741,9 +1741,16 @@ def main():
     print(" * On your iPhone 13  : http://%s:%d  (same Wi-Fi)" % (lan_ip, args.port), flush=True)
     print("=" * 72, flush=True)
     try:
-        srv.serve_forever()
+        while True:
+            try:
+                srv.serve_forever()
+            except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, TimeoutError, OSError):
+                time.sleep(0.2)
+                continue
     except KeyboardInterrupt:
         pass
+    except Exception as e:
+        print("Server error:", e, flush=True)
     return 0
 
 
