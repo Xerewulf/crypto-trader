@@ -104,6 +104,37 @@ class TestIntradayEstimator(unittest.TestCase):
         self.assertIn("30m", table)
         self.assertIn("60m", table)
 
+    @patch("predict._fetch_ten_year_daily_bars")
+    def test_ten_year_cycle_and_knn_analogs(self, mock_bars):
+        # Generate 1,500 synthetic daily bars (~4.1 years) to test 200W SMA, Mayer, Power-Law, and k-NN Analogs
+        bars = []
+        base_ms = 1514764800000  # 2018-01-01
+        for i in range(1500):
+            c = 100.0 * (1.0 + 0.0005 * i + 0.08 * ((i % 60) / 60.0))
+            bars.append({
+                "t": base_ms + i * 86400000,
+                "o": c * 0.99,
+                "h": c * 1.02,
+                "l": c * 0.98,
+                "c": c,
+                "vol_usd": 50000000.0,
+                "tb_usd": 26500000.0,
+                "src": "binance",
+            })
+        mock_bars.return_value = bars
+        ty = intraday_estimator.predict.analyze_ten_year_cycle("BNBUSDT", bars[-1]["c"])
+        self.assertTrue(ty["available"])
+        self.assertEqual(ty["total_days"], 1500)
+        self.assertGreater(ty["sma_200w"], 0.0)
+        self.assertGreater(ty["mayer_multiple"], 0.0)
+        self.assertIn("knn_analogs", ty)
+        self.assertGreater(ty["knn_analogs"]["analogs_count"], 0)
+        self.assertIn("7d", ty["knn_analogs"])
+        self.assertIn("30d", ty["knn_analogs"])
+        self.assertIn("90d", ty["knn_analogs"])
+        self.assertGreaterEqual(ty["score"], -15.0)
+        self.assertLessEqual(ty["score"], 15.0)
+
 
 if __name__ == "__main__":
     unittest.main()
