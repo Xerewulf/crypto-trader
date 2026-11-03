@@ -485,7 +485,7 @@
       <div class="live-badge">
         <div class="live-dot"></div>
         <span>LIVE</span>
-        <span class="countdown-text">(refresh in <b id="timerCount">5</b>s)</span>
+        <span class="countdown-text">(refresh in <b id="timerCount">2</b>s)</span>
       </div>
 
       <!-- Horizon Selector Pills -->
@@ -538,15 +538,18 @@
 
   <!-- Footer -->
   <footer class="footer">
-    Powered by 10-Year Binance Historical Daily/Weekly Data (2016-2026 k-NN Regime Analogs, 200W SMA, Mayer Multiple & Power-Law Corridor), 25+ Global News Outlets (Fed, Wall St. Banks, Binance CMS, X/Twitter Whales, Magazines), Cross-Exchange Perpetuals & Live 1m/5m CLOB Order Flow. Auto-refreshes every 5 seconds.
+    Powered by 10-Year Binance Historical Daily/Weekly Data (2016-2026 k-NN Regime Analogs, 200W SMA, Mayer Multiple & Power-Law Corridor), 25+ Global News Outlets (Fed, Wall St. Banks, Binance CMS, X/Twitter Whales, Magazines), Cross-Exchange Perpetuals & Live 1m/5m CLOB Order Flow. Auto-refreshes every 2 seconds.
   </footer>
 
   <script>
+    const REFRESH_INTERVAL_SEC = 2;
     let activeHorizon = "30m";
     let coinsData = [];
     let previousPrices = {};
-    let countdownSec = 5;
+    let countdownSec = REFRESH_INTERVAL_SEC;
     let timerInterval = null;
+    let isFetching = false;
+    let refreshCount = 0;
 
     const COIN_METAS = {
       "BNBUSDT": { name: "BNB", symbol: "BNB", color: "#f0b90b", bg: "rgba(240, 185, 11, 0.2)" },
@@ -580,19 +583,41 @@
     }
 
     async function fetchLivePredictions(force=false) {
+      if (isFetching && !force) return;
+      isFetching = true;
+      const t0 = performance.now();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
       try {
-        const res = await fetch("/api/intraday_5coins" + (force ? "?refresh=1" : ""));
+        const qs = (force ? "?refresh=1&_t=" : "?_t=") + Date.now();
+        const res = await fetch("/api/intraday_5coins" + qs, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" },
+          signal: controller.signal
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
         const data = await res.json();
         if (data && data.coins && Array.isArray(data.coins)) {
           coinsData = data.coins;
+          refreshCount++;
           renderSummaryTable();
           renderCards();
-          document.getElementById("lastUpdatedTs").textContent = "Updated: " + (data.updated_at || new Date().toLocaleTimeString());
+          const latencyMs = Math.round(performance.now() - t0);
+          const nowStr = new Date().toLocaleTimeString();
+          const tsEl = document.getElementById("lastUpdatedTs");
+          if (tsEl) {
+            tsEl.innerHTML = `<span style="color:#34d399;font-weight:700;">● Live 2s Sync</span> · Updated: <b style="color:#f8fafc;">${nowStr}</b> <span style="color:#64748b;">(#${refreshCount} · ${latencyMs}ms)</span>`;
+          }
         }
       } catch (err) {
-        console.error("Failed to fetch 5-coin live predictions:", err);
+        console.warn("Live refresh retry queued:", err.message || err);
+      } finally {
+        clearTimeout(timeoutId);
+        isFetching = false;
+        countdownSec = REFRESH_INTERVAL_SEC;
+        const timerEl = document.getElementById("timerCount");
+        if (timerEl) timerEl.textContent = countdownSec;
       }
-      countdownSec = 5;
     }
 
     function renderSummaryTable() {
@@ -864,17 +889,19 @@
       }).join("");
     }
 
-    // 5-Second Interval Countdown & Polling
+    // Guaranteed 2-Second Non-Overlapping Refresh Loop
     function startAutoRefresh() {
+      if (timerInterval) clearInterval(timerInterval);
       fetchLivePredictions();
 
       timerInterval = setInterval(() => {
-        countdownSec--;
+        if (isFetching) return;
+        countdownSec = Math.max(0, countdownSec - 1);
         const timerEl = document.getElementById("timerCount");
         if (timerEl) timerEl.textContent = countdownSec;
 
         if (countdownSec <= 0) {
-          fetchLivePredictions();
+          fetchLivePredictions(false);
         }
       }, 1000);
     }
