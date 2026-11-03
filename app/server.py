@@ -50,6 +50,7 @@ if LIVE_DIR not in sys.path:
 import math  # noqa: E402
 import statistics  # noqa: E402
 import predict  # noqa: E402
+import intraday_estimator  # noqa: E402
 try:
     import bnb_sim_engine
 except ImportError:
@@ -102,6 +103,8 @@ PRICE_CACHE_TS = 0.0
 FUTURES_PREMIUM_CACHE = []
 FUTURES_PREMIUM_CACHE_TS = 0.0
 FORECAST_CACHE = {}
+INTRADAY_5COINS_CACHE = []
+INTRADAY_5COINS_CACHE_TS = 0.0
 NEWS_CACHE = {}
 NEWS_POLL_SECONDS = 10.0
 WS_STATS = {
@@ -126,9 +129,7 @@ def update_wallet_cache(w):
     ACTIVE_SYMBOLS_CACHE_TS = time.time()
 
 DEFAULT_WATCHLIST = [
-    "BNBUSDT", "BTCUSDT", "ETHUSDT", "SOLUSDT",
-    "PHAUSDT", "PEPEUSDT", "ENAUSDT", "ERAUSDT",
-    "DOGEUSDT", "SUIUSDT", "XRPUSDT", "ADAUSDT",
+    "BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT"
 ]
 
 FEE_RATE = 0.0004  # 0.04% standard Binance Futures/Margin taker fee with BNB discount
@@ -1233,6 +1234,20 @@ class AppHandler(BaseHTTPRequestHandler):
             cached = get_cached_forecasts()
             picks = sorted(cached.values(), key=lambda x: -float(x.get("composite_score") or 0.0))
             return self._send_json({"picks": picks})
+
+        if p == "/api/intraday_5coins":
+            global INTRADAY_5COINS_CACHE, INTRADAY_5COINS_CACHE_TS
+            now = time.time()
+            force = (qs.get("refresh") or ["0"])[0] == "1"
+            if force or (now - INTRADAY_5COINS_CACHE_TS > 5.0) or not INTRADAY_5COINS_CACHE:
+                try:
+                    data = intraday_estimator.estimate_all_5_coins()
+                    INTRADAY_5COINS_CACHE = data
+                    INTRADAY_5COINS_CACHE_TS = now
+                    return self._send_json({"coins": data, "updated_at": now_iso()})
+                except Exception as e:
+                    return self._send_json({"error": str(e)}, status=500)
+            return self._send_json({"coins": INTRADAY_5COINS_CACHE, "updated_at": now_iso()})
 
         if p == "/api/profit_plan":
             plan_path = os.path.join(ROOT_DIR, "trader", "profit_plan.json")

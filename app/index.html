@@ -738,6 +738,32 @@
 
     <!-- CENTER COLUMN: HERO STAND CARD, CHART, CLOB DEPTH & TAPE, POSITIONS, ORDERS, HISTORY -->
     <section class="col-center">
+      <!-- 5-COIN INTRADAY DIRECTION & PROBABILITY HUB (10m · 30m · 60m) -->
+      <div class="panel" style="margin-bottom:12px;background:#080e1e;border:1px solid #1e293b;border-radius:12px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid #1e293b;padding-bottom:10px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:16px;font-weight:900;color:#f8fafc;">⚡ 5-Coin Live Directional Probability Suite</span>
+              <span style="background:rgba(16,185,129,0.15);color:#10b981;font-size:10px;font-weight:800;padding:2px 7px;border-radius:4px;border:1px solid #10b981;">10m · 30m · 60m LIVE</span>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Real-time Binance order flow, 1m/5m CVD, depth walls & Monte Carlo estimation for BNB, SOL, BTC, ETH, DOGE.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;color:#94a3b8;font-weight:700;">Horizon:</span>
+            <div class="toggle-row" style="background:#030712;border:1px solid #1e293b;border-radius:6px;padding:2px;display:flex;">
+              <button class="toggle-btn" id="hzBtn10m" onclick="setIntradayActiveHorizon('10m')" style="padding:4px 9px;font-size:11px;">10m</button>
+              <button class="toggle-btn active" id="hzBtn30m" onclick="setIntradayActiveHorizon('30m')" style="padding:4px 9px;font-size:11px;">30m</button>
+              <button class="toggle-btn" id="hzBtn60m" onclick="setIntradayActiveHorizon('60m')" style="padding:4px 9px;font-size:11px;">60m</button>
+            </div>
+            <button class="btn-action" onclick="fetchIntraday5Coins(true)" style="padding:5px 9px;background:#1e293b;color:#cbd5e1;">↻ Refresh</button>
+          </div>
+        </div>
+
+        <div id="intraday5CoinsGrid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:12px;">
+          <div style="grid-column:1/-1;text-align:center;padding:20px;color:#94a3b8;">Loading 5-coin live intraday estimations...</div>
+        </div>
+      </div>
+
       <!-- INSTITUTIONAL TRADE STAND CARD -->
       <div class="trade-stand-card" id="tradeHeroCard">
         <div class="stand-header">
@@ -5155,6 +5181,124 @@
         console.error("Failed to load stat-arb pairs:", err);
       }
     }
+
+  
+    let activeIntradayHorizon = "30m";
+    let intradayCoinsData = [];
+
+    function setIntradayActiveHorizon(hz) {
+      activeIntradayHorizon = hz;
+      ["10m", "30m", "60m"].forEach(h => {
+        const btn = document.getElementById("hzBtn" + h);
+        if (btn) {
+          if (h === hz) btn.classList.add("active");
+          else btn.classList.remove("active");
+        }
+      });
+      renderIntraday5Coins();
+    }
+
+    async function fetchIntraday5Coins(force=false) {
+      try {
+        const res = await fetch("/api/intraday_5coins" + (force ? "?refresh=1" : ""));
+        const d = await res.json();
+        if (d && d.coins && Array.isArray(d.coins)) {
+          intradayCoinsData = d.coins;
+          renderIntraday5Coins();
+        }
+      } catch (e) {
+        console.error("Failed to fetch intraday 5 coins:", e);
+      }
+    }
+
+    function renderIntraday5Coins() {
+      const grid = document.getElementById("intraday5CoinsGrid");
+      if (!grid || !intradayCoinsData.length) return;
+
+      grid.innerHTML = intradayCoinsData.map(c => {
+        const hz = (c.horizons && c.horizons[activeIntradayHorizon]) || {};
+        const l = hz.long_outcome || {};
+        const s = hz.short_outcome || {};
+        const isUp = c.change_24h_pct >= 0;
+        const pUp = hz.prob_up_pct || 50;
+        const pDown = hz.prob_down_pct || 50;
+        const isSelected = c.symbol === currentSymbol;
+
+        const action = hz.preferred_action || (pUp >= pDown ? "LONG" : "SHORT");
+        const actionAdv = hz.advantage_pct || Math.abs(pUp - pDown);
+        const actionBg = action === "LONG" ? "rgba(16,185,129,0.18)" : "rgba(239,68,68,0.18)";
+        const actionColor = action === "LONG" ? "#34d399" : "#f87171";
+        const actionBorder = action === "LONG" ? "#059669" : "#dc2626";
+
+        return `
+          <div style="background:#0b1329;border:1px solid ${isSelected ? 'var(--accent)' : '#1e293b'};border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px;transition:all 0.2s;box-shadow:0 4px 6px -1px rgba(0,0,0,0.3);">
+            <!-- Coin Header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:15px;font-weight:900;color:#f8fafc;">${c.symbol.replace(/USDT$/, "")}</span>
+                <span style="font-size:10px;color:var(--muted);font-weight:600;">/USDT</span>
+                <span style="font-size:9.5px;padding:1px 5px;border-radius:4px;background:#1e293b;color:#94a3b8;font-weight:700;">Score: ${c.intraday_composite_score > 0 ? "+" : ""}${c.intraday_composite_score}</span>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13px;font-weight:800;color:#f8fafc;">${fmtP(c.price)}</div>
+                <div style="font-size:10px;font-weight:700;color:${isUp ? 'var(--green)' : 'var(--red)'};">${isUp ? '+' : ''}${c.change_24h_pct.toFixed(2)}%</div>
+              </div>
+            </div>
+
+            <!-- Directional Estimation (10m/30m/60m) -->
+            <div style="background:#060b18;border:1px solid #152238;border-radius:8px;padding:8px;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-bottom:4px;">
+                <span style="color:var(--green);">🟢 UP: ${pUp.toFixed(1)}%</span>
+                <span style="color:#94a3b8;font-size:10px;">Exp Move: <b style="color:${hz.expected_move_pct >= 0 ? 'var(--green)' : 'var(--red)'};">${hz.expected_move_pct >= 0 ? '+' : ''}${hz.expected_move_pct}%</b></span>
+                <span style="color:var(--red);">🔴 DOWN: ${pDown.toFixed(1)}%</span>
+              </div>
+              <div style="height:6px;background:#ef4444;border-radius:3px;overflow:hidden;display:flex;">
+                <div style="width:${pUp}%;background:#10b981;height:100%;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:9.5px;color:#64748b;margin-top:4px;">
+                <span>80% Range:</span>
+                <span>$${hz.conf_80_low} — $${hz.conf_80_high}</span>
+              </div>
+            </div>
+
+            <!-- Side-by-Side Trade Chance Breakdown -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10.5px;">
+              <!-- IF LONG -->
+              <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.25);border-radius:6px;padding:6px;">
+                <div style="font-weight:800;color:#34d399;margin-bottom:4px;border-bottom:1px solid rgba(16,185,129,0.2);padding-bottom:2px;">🟢 IF LONG</div>
+                <div style="display:flex;justify-content:space-between;color:#cbd5e1;"><span>Win Chance:</span><b style="color:#f8fafc;">${l.win_probability_pct}%</b></div>
+                <div style="display:flex;justify-content:space-between;color:#cbd5e1;"><span>Target Gain:</span><b style="color:#34d399;">+${l.expected_gain_pct}%</b></div>
+                <div style="display:flex;justify-content:space-between;color:#cbd5e1;"><span>Stop Risk:</span><b style="color:#f87171;">-${l.stop_risk_pct}%</b></div>
+                <div style="display:flex;justify-content:space-between;color:#cbd5e1;"><span>Math Edge:</span><b style="color:#fde68a;">${l.math_edge_R > 0 ? '+' : ''}${l.math_edge_R}R</b></div>
+              </div>
+
+              <!-- IF SHORT -->
+              <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:6px;">
+                <div style="font-weight:800;color:#f87171;margin-bottom:4px;border-bottom:1px solid rgba(239,68,68,0.2);padding-bottom:2px;">🔴 IF SHORT</div>
+                <div style="display:flex;justify-content:space-between;color:#cbd5e1;"><span>Win Chance:</span><b style="color:#f8fafc;">${s.win_probability_pct}%</b></div>
+                <div style="display:flex;justify-content:space-between;color:#cbd5e1;"><span>Target Gain:</span><b style="color:#f87171;">+${s.expected_gain_pct}%</b></div>
+                <div style="display:flex;justify-content:space-between;color:#cbd5e1;"><span>Stop Risk:</span><b style="color:#f87171;">-${s.stop_risk_pct}%</b></div>
+                <div style="display:flex;justify-content:space-between;color:#cbd5e1;"><span>Math Edge:</span><b style="color:#fde68a;">${s.math_edge_R > 0 ? '+' : ''}${s.math_edge_R}R</b></div>
+              </div>
+            </div>
+
+            <!-- Recommendation Call & Trade Button -->
+            <div style="display:flex;gap:6px;align-items:center;margin-top:2px;">
+              <div style="flex:1;background:${actionBg};border:1px solid ${actionBorder};color:${actionColor};font-size:11px;font-weight:800;padding:5px 8px;border-radius:6px;text-align:center;">
+                ⚡ ${action} (${actionAdv}% Adv)
+              </div>
+              <button class="btn-action" onclick="selectSymbol('${c.symbol}');" style="padding:6px 10px;font-weight:800;background:#1d4ed8;border-color:#3b82f6;color:#fff;">
+                Select & Trade
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Call fetchIntraday5Coins immediately and every 8 seconds
+    fetchIntraday5Coins();
+    setInterval(fetchIntraday5Coins, 8000);
 
   </script>
 
