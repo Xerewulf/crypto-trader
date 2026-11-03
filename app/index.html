@@ -696,6 +696,7 @@
         const nw = c.news_summary || {};
         const ft = c.futures_summary || {};
         const vp = c.volume_profile || {};
+        const cal = c.calibration || {};
 
         const pUp = hz.prob_up_pct || 50;
         const pDown = hz.prob_down_pct || 50;
@@ -734,7 +735,7 @@
                   </div>
                   <div class="momentum-pill">
                     Holistic Score: <b>${c.intraday_composite_score > 0 ? '+' : ''}${c.intraday_composite_score}/100</b>
-                    ${ty.years_covered ? ` · 10Y Data: <b>${ty.years_covered}y (${ty.total_days}d)</b>` : ''}
+                    ${cal.empirical_hit_rate_pct ? ` · Calibrated Hit: <b>${cal.empirical_hit_rate_pct}%</b> (Brier ${cal.brier_score})` : ''}
                   </div>
                 </div>
               </div>
@@ -788,7 +789,11 @@
                   <b style="color:#f87171;">-${l.stop_risk_pct}%</b>
                 </div>
                 <div class="metric-row">
-                  <span>Math Edge:</span>
+                  <span>TP First / SL Hit:</span>
+                  <b><span style="color:#34d399;">${l.tp_hit_first_pct !== undefined ? l.tp_hit_first_pct : '-'}%</span> / <span style="color:#f87171;">${l.sl_hit_first_pct !== undefined ? l.sl_hit_first_pct : '-'}%</span></b>
+                </div>
+                <div class="metric-row">
+                  <span>Net Math Edge:</span>
                   <b style="color:#fde68a;">${l.math_edge_R > 0 ? '+' : ''}${l.math_edge_R} R</b>
                 </div>
               </div>
@@ -816,7 +821,11 @@
                   <b style="color:#f87171;">-${s.stop_risk_pct}%</b>
                 </div>
                 <div class="metric-row">
-                  <span>Math Edge:</span>
+                  <span>TP First / SL Hit:</span>
+                  <b><span style="color:#34d399;">${s.tp_hit_first_pct !== undefined ? s.tp_hit_first_pct : '-'}%</span> / <span style="color:#f87171;">${s.sl_hit_first_pct !== undefined ? s.sl_hit_first_pct : '-'}%</span></b>
+                </div>
+                <div class="metric-row">
+                  <span>Net Math Edge:</span>
                   <b style="color:#fde68a;">${s.math_edge_R > 0 ? '+' : ''}${s.math_edge_R} R</b>
                 </div>
               </div>
@@ -861,6 +870,10 @@
               <div class="pred-details">
                 <span>7d Profile: VAL <b>${fmtP(vp.val)}</b> · POC <b>${fmtP(vp.poc)}</b> · VAH <b>${fmtP(vp.vah)}</b></span>
                 <span>24h VWAP: <b>${fmtP(vp.vwap_24h)}</b></span>
+              </div>
+              <div class="pred-details">
+                <span>Micro-Price: <b>${fmtP(ft.microprice)}</b> (ΔOFI <b>${ft.delta_ofi_pct >= 0 ? '+' : ''}${ft.delta_ofi_pct || 0}%</b>)</span>
+                <span>BTC Spillover: <b>${ft.btc_spillover_score >= 0 ? '+' : ''}${ft.btc_spillover_score || 0}</b> (β=${ft.btc_beta_60m || 1})</span>
               </div>
             </div>` : ''}
 
