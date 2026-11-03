@@ -20,6 +20,7 @@ Calculates real-time 10-minute, 30-minute, and 60-minute directional estimations
 
 import os
 import sys
+import time
 import json
 import math
 import random
@@ -35,6 +36,7 @@ if HERE not in sys.path:
 import predict
 
 TARGET_COINS = ["BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT"]
+_DEEP_CONTEXT_CACHE = {}
 
 
 def ema_series(values, period):
@@ -207,26 +209,25 @@ def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42):
         finals.sort()
         p_up = round((up_count / 5000.0) * 100.0, 1)
         p_down = round(100.0 - p_up, 1)
-        
-        exp_price = round(statistics.mean(finals), 4)
+        prec = 6 if current_price < 1.0 else 4
+
+        exp_price = round(statistics.mean(finals), prec)
         exp_move_pct = round(((exp_price - current_price) / current_price) * 100.0, 2)
-        
-        conf_80_low = round(finals[int(5000 * 0.10)], 4)
-        conf_80_high = round(finals[int(5000 * 0.90)], 4)
+
+        conf_80_low = round(finals[int(5000 * 0.10)], prec)
+        conf_80_high = round(finals[int(5000 * 0.90)], prec)
 
         # Volatility over horizon H: sigma_H = sigma_1m * sqrt(minutes)
         vol_h_pct = (sigma_1m * math.sqrt(minutes)) * 100.0
-        
+
         # -------------------------------------------------------------
         # LONG Outcome Analysis
         # -------------------------------------------------------------
-        # Expected gain if price moves upward: based on positive simulation drift
         long_win_pct = p_up
-        long_exp_gain_pct = round(max(0.12, abs(exp_move_pct) if exp_move_pct > 0 else (vol_h_pct * 0.85)), 2)
-        long_stop_risk_pct = round(max(0.15, vol_h_pct * 1.50), 2)
-        long_target_price = round(current_price * (1.0 + (long_exp_gain_pct / 100.0)), 4)
-        long_stop_price = round(current_price * (1.0 - (long_stop_risk_pct / 100.0)), 4)
-        # Expected Value in R: E[R] = (Win% * (Gain/Risk)) - (Loss% * 1.0)
+        long_exp_gain_pct = round(max(0.15, (vol_h_pct * 1.15) + max(0.0, exp_move_pct)), 2)
+        long_stop_risk_pct = round(max(0.12, vol_h_pct * 0.85), 2)
+        long_target_price = round(current_price * (1.0 + (long_exp_gain_pct / 100.0)), prec)
+        long_stop_price = round(current_price * (1.0 - (long_stop_risk_pct / 100.0)), prec)
         long_rr = round(long_exp_gain_pct / max(0.01, long_stop_risk_pct), 2)
         long_edge_r = round(((long_win_pct / 100.0) * long_rr) - ((1.0 - (long_win_pct / 100.0)) * 1.0), 2)
 
@@ -234,26 +235,20 @@ def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42):
         # SHORT Outcome Analysis
         # -------------------------------------------------------------
         short_win_pct = p_down
-        short_exp_gain_pct = round(max(0.12, abs(exp_move_pct) if exp_move_pct < 0 else (vol_h_pct * 0.85)), 2)
-        short_stop_risk_pct = round(max(0.15, vol_h_pct * 1.50), 2)
-        short_target_price = round(current_price * (1.0 - (short_exp_gain_pct / 100.0)), 4)
-        short_stop_price = round(current_price * (1.0 + (short_exp_gain_pct / 100.0)), 4)
+        short_exp_gain_pct = round(max(0.15, (vol_h_pct * 1.15) + max(0.0, -exp_move_pct)), 2)
+        short_stop_risk_pct = round(max(0.12, vol_h_pct * 0.85), 2)
+        short_target_price = round(current_price * (1.0 - (short_exp_gain_pct / 100.0)), prec)
+        short_stop_price = round(current_price * (1.0 + (short_stop_risk_pct / 100.0)), prec)
         short_rr = round(short_exp_gain_pct / max(0.01, short_stop_risk_pct), 2)
         short_edge_r = round(((short_win_pct / 100.0) * short_rr) - ((1.0 - (short_win_pct / 100.0)) * 1.0), 2)
 
-        # Determine which action is more profitable
-        if p_up > p_down and long_edge_r >= short_edge_r:
+        # Determine which action is more profitable (strictly aligned with directional probability)
+        if p_up >= p_down:
             preferred_action = "LONG"
             advantage_pct = round(p_up - p_down, 1)
-            action_win_prob = p_up
-            action_expected_gain = long_exp_gain_pct
-            action_edge = long_edge_r
         else:
             preferred_action = "SHORT"
             advantage_pct = round(p_down - p_up, 1)
-            action_win_prob = p_down
-            action_expected_gain = short_exp_gain_pct
-            action_edge = short_edge_r
 
         horizons_res[name] = {
             "horizon": name,
@@ -293,39 +288,124 @@ def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42):
     return horizons_res
 
 
+def _fetch_deep_coin_context(bsym, price):
+    """Fetch and cache 10-Year Historical Binance Cycle, 25-Source News Outlets,
+    Multi-Timeframe Technicals (15m/1h/4h/1d), Volume Profile (POC/VAH/VAL), VWAP,
+    Cross-Exchange Futures (Binance/Bybit/OKX), and On-Chain Macro Intelligence."""
+    now_s = time.time()
+    cached = _DEEP_CONTEXT_CACHE.get(bsym)
+    if cached and (now_s - cached.get("ts", 0)) < 45.0:
+        return cached["data"]
+
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        f_k15 = ex.submit(predict.spot_get, f"/api/v3/klines?symbol={bsym}&interval=15m&limit=100")
+        f_k1h = ex.submit(predict.spot_get, f"/api/v3/klines?symbol={bsym}&interval=1h&limit=240")
+        f_k4h = ex.submit(predict.spot_get, f"/api/v3/klines?symbol={bsym}&interval=4h&limit=210")
+        f_k1d = ex.submit(predict.spot_get, f"/api/v3/klines?symbol={bsym}&interval=1d&limit=210")
+        f_news = ex.submit(predict.analyze_news, bsym)
+        f_macro = ex.submit(predict.fetch_global_macro_and_onchain, bsym)
+
+        k15 = f_k15.result()
+        k1h = f_k1h.result()
+        k4h = f_k4h.result()
+        k1d = f_k1d.result()
+        news = f_news.result()
+        macro = f_macro.result()
+
+    tf_15m = predict.analyze_timeframe(k15, "15m")
+    tf_1h = predict.analyze_timeframe(k1h, "1h")
+    tf_4h = predict.analyze_timeframe(k4h, "4h")
+    tf_1d = predict.analyze_timeframe(k1d, "1d")
+    mtf_score = round(0.15 * tf_15m["score"] + 0.30 * tf_1h["score"] + 0.30 * tf_4h["score"] + 0.25 * tf_1d["score"], 1)
+
+    vp = predict.compute_volume_profile(k1h, price, n_bars=168, bins=40)
+    inst = predict.detect_institutional_signals(k1h, k4h, price)
+    fut = predict.analyze_futures(bsym, price, k1h)
+    ten_year = predict.analyze_ten_year_cycle(bsym, price, k1d_recent=k1d)
+
+    data = {
+        "k1h": k1h,
+        "mtf_score": mtf_score,
+        "timeframes": {"15m": tf_15m, "1h": tf_1h, "4h": tf_4h, "1d": tf_1d},
+        "volume_profile": vp,
+        "institutional": inst,
+        "futures": fut,
+        "ten_year_cycle": ten_year,
+        "news": news,
+        "macro_onchain": macro,
+    }
+    _DEEP_CONTEXT_CACHE[bsym] = {"ts": now_s, "data": data}
+    return data
+
+
 def estimate_coin_intraday(symbol):
     bsym = predict.to_binance(symbol)
     try:
-        # 1. Fetch live spot ticker
-        tk = predict.spot_get(f"/api/v3/ticker/24hr?symbol={bsym}")
+        # 1. Fetch live spot ticker, 1m/5m klines, L2 depth, and deep 10Y + 25-source context
+        with ThreadPoolExecutor(max_workers=4) as ex:
+            f_tk = ex.submit(predict.spot_get, f"/api/v3/ticker/24hr?symbol={bsym}")
+            f_k1m = ex.submit(predict.spot_get, f"/api/v3/klines?symbol={bsym}&interval=1m&limit=60")
+            f_k5m = ex.submit(predict.spot_get, f"/api/v3/klines?symbol={bsym}&interval=5m&limit=60")
+            f_dep = ex.submit(predict.spot_get, f"/api/v3/depth?symbol={bsym}&limit=500")
+            tk = f_tk.result()
+            k1m = f_k1m.result()
+            k5m = f_k5m.result()
+            depth = f_dep.result()
+
         price = float(tk.get("lastPrice", 0.0))
         chg_24h = float(tk.get("priceChangePercent", 0.0))
         vol_usd_24h = float(tk.get("quoteVolume", 0.0))
 
-        # 2. Fetch 1m and 5m klines
-        k1m = predict.spot_get(f"/api/v3/klines?symbol={bsym}&interval=1m&limit=60")
-        k5m = predict.spot_get(f"/api/v3/klines?symbol={bsym}&interval=5m&limit=60")
-
-        # 3. Fetch L2 Depth
-        depth = predict.spot_get(f"/api/v3/depth?symbol={bsym}&limit=100")
-
-        # 4. Fetch Perpetual Futures ratios
-        fut_data = {}
+        # 2. Fetch Deep Context: 10-Year Binance Cycle, 25-Source News, MTF, Volume Profile, Futures, Macro
+        ctx = {}
         try:
-            r1 = predict.fut_get(f"/fapi/v1/takerlongshortRatio?symbol={bsym}&period=1h&limit=1")
-            if r1 and isinstance(r1, list):
-                fut_data["taker_buy_sell_ratio"] = float(r1[-1].get("buySellRatio", 1.0))
-            r2 = predict.fut_get(f"/fapi/v1/topLongShortPositionRatio?symbol={bsym}&period=1h&limit=1")
-            if r2 and isinstance(r2, list):
-                fut_data["top_whale_ls_ratio"] = float(r2[-1].get("longShortRatio", 1.0))
+            ctx = _fetch_deep_coin_context(bsym, price)
         except Exception:
-            pass
+            ctx = {}
 
-        # Compute Microstructure Composite Score
-        comp_score = compute_intraday_microstructure_score(k1m, k5m, depth, fut_data)
+        fut_full = ctx.get("futures") or {}
+        fut_data = {
+            "taker_buy_sell_ratio": float(fut_full.get("taker_buy_sell_1h") or fut_full.get("taker_buy_sell_4h") or 1.0),
+            "top_whale_ls_ratio": float(fut_full.get("whale_ls_ratio") or 1.0),
+        }
+        if not fut_full:
+            try:
+                r1 = predict.fut_get(f"/futures/data/takerlongshortRatio?symbol={bsym}&period=1h&limit=1")
+                if r1 and isinstance(r1, list):
+                    fut_data["taker_buy_sell_ratio"] = float(r1[-1].get("buySellRatio", 1.0))
+                r2 = predict.fut_get(f"/futures/data/topLongShortPositionRatio?symbol={bsym}&period=1h&limit=1")
+                if r2 and isinstance(r2, list):
+                    fut_data["top_whale_ls_ratio"] = float(r2[-1].get("longShortRatio", 1.0))
+            except Exception:
+                pass
 
-        # Run 10m, 30m, 60m Monte Carlo
+        # 3. Compute Fast Intraday Microstructure Score (-100 to +100)
+        micro_score = compute_intraday_microstructure_score(k1m, k5m, depth, fut_data)
+
+        # 4. Blend with 10-Year Historical Cycle, 25-Source News Outlets, MTF Trend, Futures & Wyckoff
+        mtf_score = float(ctx.get("mtf_score", 0.0))                     # -25 to +25
+        fut_score = float(fut_full.get("score", 0.0))                    # -25 to +25
+        news_obj = ctx.get("news") or {}
+        news_score = float(news_obj.get("score", 0.0))                   # -15 to +15
+        ty_obj = ctx.get("ten_year_cycle") or {}
+        ty_score = float(ty_obj.get("score", 0.0))                       # -15 to +15
+        inst_obj = ctx.get("institutional") or {}
+        macro_obj = ctx.get("macro_onchain") or {}
+        inst_macro_score = float(inst_obj.get("bonus_score", 0.0)) + float(macro_obj.get("macro_bonus", 0.0))
+
+        # Holistic all-aspect score (-100 to +100) combining fast CLOB order-flow with 10Y + News + Perps + MTF
+        if ctx:
+            deep_structural_score = max(-100.0, min(100.0, (mtf_score + fut_score + news_score + ty_score + inst_macro_score) * 1.15))
+            comp_score = round(max(-100.0, min(100.0, 0.55 * micro_score + 0.45 * deep_structural_score)), 1)
+        else:
+            deep_structural_score = micro_score
+            comp_score = micro_score
+
+        # 5. Run 10m, 30m, 60m Monte Carlo + Macro Horizons (4h, 24h, 7d, 30d, 90d)
         horizons = simulate_intraday_horizons(k1m, price, comp_score)
+        macro_horizons = {}
+        if ctx.get("k1h"):
+            macro_horizons = predict.simulate_horizons(ctx["k1h"], price, deep_structural_score, ten_year=ty_obj)
 
         # Primary 30m decision as default baseline
         h30 = horizons["30m"]
@@ -333,16 +413,115 @@ def estimate_coin_intraday(symbol):
         primary_win_prob = h30["long_outcome"]["win_probability_pct"] if primary_action == "LONG" else h30["short_outcome"]["win_probability_pct"]
         primary_edge = h30["long_outcome"]["math_edge_R"] if primary_action == "LONG" else h30["short_outcome"]["math_edge_R"]
 
+        ob_summary = predict.analyze_orderbook(depth, price)
+        knn = (ty_obj.get("knn_analogs") or {}) if ty_obj else {}
+        bf_10y = (ty_obj.get("binance_flow_10y") or {}) if ty_obj else {}
+        sz_10y = (ty_obj.get("seasonality") or {}) if ty_obj else {}
+        hc_10y = (ty_obj.get("halving_cycle") or {}) if ty_obj else {}
+        tok_10y = (ty_obj.get("tokenomics") or {}) if ty_obj else {}
+
         return {
             "symbol": bsym,
             "price": price,
             "change_24h_pct": chg_24h,
             "volume_24h_usd": vol_usd_24h,
             "intraday_composite_score": comp_score,
+            "microstructure_fast_score": micro_score,
+            "deep_structural_score": round(deep_structural_score, 1),
             "primary_action_30m": primary_action,
             "primary_win_prob_30m": primary_win_prob,
             "primary_edge_30m": primary_edge,
-            "horizons": horizons
+            "horizons": horizons,
+            "macro_horizons": macro_horizons,
+            "pillar_breakdown": {
+                "clob_intraday_flow": round(micro_score, 1),
+                "mtf_trend_score": mtf_score,
+                "futures_whale_score": fut_score,
+                "news_catalysts_score": news_score,
+                "ten_year_cycle_score": ty_score,
+                "wyckoff_macro_bonus": round(inst_macro_score, 1),
+            },
+            "ten_year_summary": {
+                "years_covered": ty_obj.get("years_covered", 0.0),
+                "total_days": ty_obj.get("total_days", 0),
+                "binance_days": ty_obj.get("binance_days", 0),
+                "first_date": ty_obj.get("first_date", "-"),
+                "all_time_high": ty_obj.get("all_time_high", price),
+                "ath_date": ty_obj.get("ath_date", "-"),
+                "drawdown_from_ath_pct": ty_obj.get("drawdown_from_ath_pct", 0.0),
+                "cagr_1y_pct": ty_obj.get("cagr_1y_pct", 0.0),
+                "cagr_3y_pct": ty_obj.get("cagr_3y_pct", 0.0),
+                "cagr_5y_pct": ty_obj.get("cagr_5y_pct", 0.0),
+                "cagr_10y_pct": ty_obj.get("cagr_10y_pct", 0.0),
+                "sharpe_ratio_10y": ty_obj.get("sharpe_ratio_10y", 0.0),
+                "sma_200w": ty_obj.get("sma_200w", price),
+                "price_vs_sma200w_pct": ty_obj.get("price_vs_sma200w_pct", 0.0),
+                "sma200w_regime": ty_obj.get("sma200w_regime", "-"),
+                "sma_200d": ty_obj.get("sma_200d", price),
+                "mayer_multiple": ty_obj.get("mayer_multiple", 1.0),
+                "mayer_percentile_10y": ty_obj.get("mayer_percentile_10y", 50.0),
+                "log_reg_fair_price": ty_obj.get("log_reg_fair_price", price),
+                "log_reg_zscore": ty_obj.get("log_reg_zscore", 0.0),
+                "valuation_zone": ty_obj.get("valuation_zone", "-"),
+                "taker_buy_pct_alltime": bf_10y.get("taker_buy_pct_alltime", 50.0),
+                "taker_buy_pct_30d": bf_10y.get("taker_buy_pct_30d", 50.0),
+                "cvd_1y_usd": bf_10y.get("cvd_1y_usd", 0.0),
+                "seasonality_month": sz_10y.get("month_name", "-"),
+                "seasonality_win_rate_pct": sz_10y.get("win_rate_pct", 50.0),
+                "seasonality_avg_ret_pct": sz_10y.get("avg_return_pct", 0.0),
+                "halving_phase": hc_10y.get("phase", "-"),
+                "knn_7d_prob_up_pct": (knn.get("7d") or {}).get("prob_up_pct", 50.0),
+                "knn_7d_median_ret_pct": (knn.get("7d") or {}).get("median_return_pct", 0.0),
+                "knn_30d_prob_up_pct": (knn.get("30d") or {}).get("prob_up_pct", 50.0),
+                "knn_30d_median_ret_pct": (knn.get("30d") or {}).get("median_return_pct", 0.0),
+                "knn_90d_prob_up_pct": (knn.get("90d") or {}).get("prob_up_pct", 50.0),
+                "knn_90d_median_ret_pct": (knn.get("90d") or {}).get("median_return_pct", 0.0),
+                "top_analog_matches": (knn.get("top_matches") or [])[:3],
+                "supply_model": tok_10y.get("supply_model", "-"),
+                "structural_drivers": tok_10y.get("structural_drivers", "-"),
+                "notes": ty_obj.get("notes", []),
+            },
+            "news_summary": {
+                "score": news_score,
+                "headlines_checked": news_obj.get("headlines_checked", 0),
+                "bullish_catalysts": [
+                    {"source": s, "tag": t, "title": h}
+                    for s, t, h in (news_obj.get("bullish_catalysts") or [])[:4]
+                ],
+                "bearish_catalysts": [
+                    {"source": s, "tag": t, "title": h}
+                    for s, t, h in (news_obj.get("bearish_catalysts") or [])[:4]
+                ],
+                "top_outlets": (
+                    (news_obj.get("binance_official") or [])[:2]
+                    + (news_obj.get("bank_and_institutional") or [])[:2]
+                    + (news_obj.get("twitter_x_flow") or [])[:2]
+                    + (news_obj.get("magazines_and_press") or [])[:2]
+                )[:5],
+                "is_trending": bool((news_obj.get("trending_social") or {}).get("is_trending")),
+                "trending_rank": (news_obj.get("trending_social") or {}).get("trending_rank"),
+            },
+            "futures_summary": {
+                "consensus_funding_pct": fut_full.get("consensus_funding_pct", 0.0),
+                "global_oi_usd": fut_full.get("global_oi_usd", 0.0),
+                "oi_regime": fut_full.get("oi_regime", "-"),
+                "whale_long_pct": fut_full.get("whale_long_pct", 50.0),
+                "whale_ls_ratio": fut_full.get("whale_ls_ratio", 1.0),
+                "retail_long_pct": fut_full.get("retail_long_pct", 50.0),
+                "taker_buy_sell_4h": fut_full.get("taker_buy_sell_4h", 1.0),
+                "imbalance_1pct": ob_summary.get("imbalance_1pct", 0.0) if ob_summary else 0.0,
+                "support_wall_price": ob_summary.get("support_wall_price") if ob_summary else None,
+                "resistance_wall_price": ob_summary.get("resistance_wall_price") if ob_summary else None,
+            },
+            "volume_profile": ctx.get("volume_profile") or {},
+            "macro_onchain": {
+                "fear_greed_value": macro_obj.get("fear_greed_value", 50),
+                "fear_greed_label": macro_obj.get("fear_greed_label", "Neutral"),
+                "btc_dominance_pct": macro_obj.get("btc_dominance_pct", 0.0),
+                "stablecoin_7d_flow_usd": macro_obj.get("stablecoin_7d_flow_usd", 0.0),
+                "chain_name": macro_obj.get("chain_name"),
+                "chain_tvl_usd": macro_obj.get("chain_tvl_usd"),
+            },
         }
     except Exception as e:
         sys.stderr.write(f"Error estimating {bsym}: {e}\n")
@@ -352,17 +531,21 @@ def estimate_coin_intraday(symbol):
 def estimate_all_5_coins(symbols=None, write_path=None):
     if not symbols:
         symbols = TARGET_COINS
-    
+
+    norm_syms = [predict.to_binance(s) for s in symbols]
     results = {}
-    with ThreadPoolExecutor(max_workers=5) as pool:
-        futures = {pool.submit(estimate_coin_intraday, s): s for s in symbols}
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        futures = {pool.submit(estimate_coin_intraday, s): s for s in norm_syms}
         for f in futures:
             res = f.result()
             if res:
                 results[res["symbol"]] = res
 
-    # Sort results strictly in TARGET_COINS order
+    # Preserve TARGET_COINS order first, then any additional requested coins
     ordered = [results[s] for s in TARGET_COINS if s in results]
+    for s in norm_syms:
+        if s in results and s not in TARGET_COINS:
+            ordered.append(results[s])
 
     if write_path:
         os.makedirs(os.path.dirname(os.path.abspath(write_path)), exist_ok=True)
@@ -374,9 +557,9 @@ def estimate_all_5_coins(symbols=None, write_path=None):
 
 def render_intraday_ascii_table(data_list):
     lines = []
-    lines.append("=" * 96)
-    lines.append("5-COIN INTRADAY DIRECTION & PROBABILITY ESTIMATOR (10m, 30m, 60m)")
-    lines.append("=" * 96)
+    lines.append("=" * 108)
+    lines.append("5-COIN BINANCE 10-YEAR + 25-OUTLET NEWS & INTRADAY PROBABILITY ESTIMATOR (10m, 30m, 60m + 24h/7d/30d)")
+    lines.append("=" * 108)
 
     for coin in data_list:
         sym = coin["symbol"]
@@ -384,10 +567,26 @@ def render_intraday_ascii_table(data_list):
         chg = coin["change_24h_pct"]
         score = coin["intraday_composite_score"]
         h = coin["horizons"]
+        ty = coin.get("ten_year_summary") or {}
+        nw = coin.get("news_summary") or {}
+        ft = coin.get("futures_summary") or {}
 
-        lines.append(f"COIN: {sym:<10} Spot: ${price:,.2f} ({chg:+.2f}% 24h) | Microstructure Score: {score:+.1f} / 100")
-        lines.append(f"{'HORIZON':<10}{'CALL':<8}{'UP PROB':<10}{'DOWN PROB':<12}{'EXPECTED MOVE':<15}{'IF LONG (Win/Gain)':<22}{'IF SHORT (Win/Gain)':<22}")
-        lines.append("-" * 96)
+        p_str = f"${price:,.6f}".rstrip("0").rstrip(".") if price < 1.0 else f"${price:,.2f}"
+        lines.append(f"COIN: {sym:<10} Spot: {p_str} ({chg:+.2f}% 24h) | Holistic All-Aspect Score: {score:+.1f} / 100")
+        if ty.get("total_days"):
+            lines.append(
+                f"  [10Y Cycle] {ty.get('years_covered')}y ({ty.get('total_days')}d) | 200W SMA: ${ty.get('sma_200w', 0):,.4f} ({ty.get('price_vs_sma200w_pct', 0):+.1f}%) | "
+                f"Mayer: {ty.get('mayer_multiple', 1):.2f} ({ty.get('mayer_percentile_10y', 50):.0f}% pctile) | "
+                f"10Y k-NN Win: 7d {ty.get('knn_7d_prob_up_pct', 50):.0f}% / 30d {ty.get('knn_30d_prob_up_pct', 50):.0f}%"
+            )
+        if ft.get("oi_regime") or nw.get("headlines_checked"):
+            lines.append(
+                f"  [Perps & News] Whale L/S: {ft.get('whale_long_pct', 50):.1f}% Long ({ft.get('whale_ls_ratio', 1):.2f}) | "
+                f"Funding: {ft.get('consensus_funding_pct', 0):+.4f}% | "
+                f"News Scanned: {nw.get('headlines_checked', 0)} outlets (Score {nw.get('score', 0):+.1f}/15)"
+            )
+        lines.append(f"{'HORIZON':<10}{'CALL':<8}{'UP PROB':<10}{'DOWN PROB':<12}{'EXPECTED MOVE':<15}{'IF LONG (Win/Gain)':<24}{'IF SHORT (Win/Gain)':<24}")
+        lines.append("-" * 108)
 
         for tf in ["10m", "30m", "60m"]:
             hz = h[tf]
@@ -395,17 +594,27 @@ def render_intraday_ascii_table(data_list):
             up_str = f"{hz['prob_up_pct']:.1f}%"
             down_str = f"{hz['prob_down_pct']:.1f}%"
             exp_str = f"{hz['expected_move_pct']:+.2f}%"
-            
+
             l = hz["long_outcome"]
             s = hz["short_outcome"]
             long_info = f"{l['win_probability_pct']:.1f}% win (+{l['expected_gain_pct']:.2f}%)"
             short_info = f"{s['win_probability_pct']:.1f}% win (+{s['expected_gain_pct']:.2f}%)"
-            
-            lines.append(f"{tf:<10}{call_str:<8}{up_str:<10}{down_str:<12}{exp_str:<15}{long_info:<22}{short_info:<22}")
 
-        lines.append("-" * 96)
+            lines.append(f"{tf:<10}{call_str:<8}{up_str:<10}{down_str:<12}{exp_str:<15}{long_info:<24}{short_info:<24}")
 
-    lines.append("=" * 96)
+        mh = coin.get("macro_horizons") or {}
+        if mh:
+            m_parts = []
+            for mtf in ("24h", "7d", "30d", "90d"):
+                if mtf in mh:
+                    m_obj = mh[mtf]
+                    m_parts.append(f"{mtf}: {m_obj['direction']} ({m_obj['prob_up_pct']:.1f}% UP, {m_obj['expected_move_pct']:+.2f}%)")
+            if m_parts:
+                lines.append("  [Macro & 10Y Analog Outlook] " + " | ".join(m_parts))
+
+        lines.append("-" * 108)
+
+    lines.append("=" * 108)
     return "\n".join(lines)
 
 

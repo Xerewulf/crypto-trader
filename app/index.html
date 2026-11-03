@@ -476,8 +476,8 @@
     <div class="brand-group">
       <div class="logo-badge">⚡ 5-COIN PREDICTOR</div>
       <div>
-        <div class="site-title">Live Direction & Probability Engine</div>
-        <div class="site-sub">Exclusively serving BNB · SOL · BTC · ETH · DOGE</div>
+        <div class="site-title">Live 10-Year + 25-Outlet News & Order-Flow Predictor</div>
+        <div class="site-sub">Exclusively serving BNB · SOL · BTC · ETH · DOGE on Binance (10Y Cycle + Live CLOB + Perps + News)</div>
       </div>
     </div>
 
@@ -517,12 +517,14 @@
             <th>10m Estimation</th>
             <th>30m Estimation</th>
             <th>60m Estimation</th>
+            <th>10Y k-NN (7d / 30d)</th>
+            <th>25-Outlet News</th>
             <th>Preferred Action</th>
             <th>Advantage</th>
           </tr>
         </thead>
         <tbody id="summaryTableBody">
-          <tr><td colspan="8" style="padding:24px;text-align:center;color:var(--muted);">Loading live 5-coin estimations...</td></tr>
+          <tr><td colspan="10" style="padding:24px;text-align:center;color:var(--muted);">Loading live 5-coin estimations...</td></tr>
         </tbody>
       </table>
     </section>
@@ -536,7 +538,7 @@
 
   <!-- Footer -->
   <footer class="footer">
-    Real-time Binance Spot Order-Flow (1m/5m CVD), Order-Book Depth Imbalance (±1%) & 5,000-Path Monte Carlo Simulations. Auto-refreshes every 5 seconds.
+    Powered by 10-Year Binance Historical Daily/Weekly Data (2016-2026 k-NN Regime Analogs, 200W SMA, Mayer Multiple & Power-Law Corridor), 25+ Global News Outlets (Fed, Wall St. Banks, Binance CMS, X/Twitter Whales, Magazines), Cross-Exchange Perpetuals & Live 1m/5m CLOB Order Flow. Auto-refreshes every 5 seconds.
   </footer>
 
   <script>
@@ -551,7 +553,8 @@
       "SOLUSDT": { name: "Solana", symbol: "SOL", color: "#14f195", bg: "rgba(20, 241, 149, 0.2)" },
       "BTCUSDT": { name: "Bitcoin", symbol: "BTC", color: "#f7931a", bg: "rgba(247, 147, 26, 0.2)" },
       "ETHUSDT": { name: "Ethereum", symbol: "ETH", color: "#627eea", bg: "rgba(98, 126, 234, 0.2)" },
-      "DOGEUSDT": { name: "Dogecoin", symbol: "DOGE", color: "#c2a633", bg: "rgba(194, 166, 51, 0.2)" }
+      "DOGEUSDT": { name: "Dogecoin", symbol: "DOGE", color: "#c2a633", bg: "rgba(194, 166, 51, 0.2)" },
+      "ADAUSDT": { name: "Cardano", symbol: "ADA", color: "#3b82f6", bg: "rgba(59, 130, 246, 0.2)" }
     };
 
     function fmtP(x) {
@@ -600,10 +603,15 @@
         const h10 = (c.horizons && c.horizons["10m"]) || {};
         const h30 = (c.horizons && c.horizons["30m"]) || {};
         const h60 = (c.horizons && c.horizons["60m"]) || {};
+        const ty = c.ten_year_summary || {};
+        const nw = c.news_summary || {};
 
         const act = h30.preferred_action || "NEUTRAL";
         const isLong = act === "LONG";
         const adv = h30.advantage_pct || 0;
+        const knn7 = ty.knn_7d_prob_up_pct !== undefined ? ty.knn_7d_prob_up_pct : 50;
+        const knn30 = ty.knn_30d_prob_up_pct !== undefined ? ty.knn_30d_prob_up_pct : 50;
+        const nwScore = nw.score !== undefined ? nw.score : 0;
 
         return `
           <tr>
@@ -630,6 +638,14 @@
                 ${h60.prob_up_pct >= 50 ? '▲ UP ' + h60.prob_up_pct + '%' : '▼ DOWN ' + h60.prob_down_pct + '%'}
               </span>
             </td>
+            <td style="font-size:11.5px;">
+              <span style="color:${knn7 >= 50 ? '#34d399' : '#f87171'};">7d: ${knn7.toFixed(0)}%▲</span>
+              <span style="color:var(--subtle);">|</span>
+              <span style="color:${knn30 >= 50 ? '#34d399' : '#f87171'};">30d: ${knn30.toFixed(0)}%▲</span>
+            </td>
+            <td style="font-size:11.5px;color:${nwScore >= 0 ? '#38bdf8' : '#f87171'};">
+              ${nwScore >= 0 ? '+' : ''}${nwScore.toFixed(1)}/15 <span style="color:var(--subtle);">(${nw.headlines_checked || 0})</span>
+            </td>
             <td>
               <span style="background:${isLong ? 'var(--green-bg)' : 'var(--red-bg)'};border:1px solid ${isLong ? 'var(--green-border)' : 'var(--red-border)'};color:${isLong ? 'var(--green)' : 'var(--red)'};padding:3px 7px;border-radius:5px;font-size:11px;font-weight:800;">
                 ${act}
@@ -650,6 +666,10 @@
         const hz = (c.horizons && c.horizons[activeHorizon]) || {};
         const l = hz.long_outcome || {};
         const s = hz.short_outcome || {};
+        const ty = c.ten_year_summary || {};
+        const nw = c.news_summary || {};
+        const ft = c.futures_summary || {};
+        const vp = c.volume_profile || {};
 
         const pUp = hz.prob_up_pct || 50;
         const pDown = hz.prob_down_pct || 50;
@@ -668,6 +688,11 @@
         }
         previousPrices[c.symbol] = c.price;
 
+        const bullCats = (nw.bullish_catalysts || []).slice(0, 2);
+        const bearCats = (nw.bearish_catalysts || []).slice(0, 2);
+        const topOutlets = (nw.top_outlets || []).slice(0, 2);
+        const topAnalogs = (ty.top_analog_matches || []).slice(0, 2);
+
         return `
           <div class="coin-card">
             <!-- Card Header -->
@@ -679,10 +704,11 @@
                 <div>
                   <div class="coin-symbol">
                     ${c.symbol.replace(/USDT$/, "")}
-                    <span>/USDT</span>
+                    <span>/USDT (Binance)</span>
                   </div>
                   <div class="momentum-pill">
-                    Microstructure Momentum: <b>${c.intraday_composite_score > 0 ? '+' : ''}${c.intraday_composite_score}</b>
+                    Holistic Score: <b>${c.intraday_composite_score > 0 ? '+' : ''}${c.intraday_composite_score}/100</b>
+                    ${ty.years_covered ? ` · 10Y Data: <b>${ty.years_covered}y (${ty.total_days}d)</b>` : ''}
                   </div>
                 </div>
               </div>
@@ -769,6 +795,60 @@
                 </div>
               </div>
             </div>
+
+            <!-- 10-Year Binance Historical Cycle & k-NN Analogs -->
+            ${ty.total_days ? `
+            <div class="prediction-box" style="gap:6px;font-size:11px;">
+              <div style="display:flex;justify-content:space-between;color:#38bdf8;font-weight:800;font-size:11.5px;">
+                <span>📊 10-YEAR BINANCE CYCLE & k-NN ANALOGS (${ty.first_date} to Present)</span>
+                <span style="color:#fde68a;">Sharpe: ${ty.sharpe_ratio_10y}</span>
+              </div>
+              <div class="pred-details">
+                <span>200W Cycle Floor: <b>${fmtP(ty.sma_200w)}</b> (${ty.price_vs_sma200w_pct >= 0 ? '+' : ''}${ty.price_vs_sma200w_pct}%)</span>
+                <span>Mayer: <b>${ty.mayer_multiple}</b> (${ty.mayer_percentile_10y}% 10Y pctile)</span>
+              </div>
+              <div class="pred-details">
+                <span>10Y Power-Law Fair Value: <b>${fmtP(ty.log_reg_fair_price)}</b> (Z=${ty.log_reg_zscore >= 0 ? '+' : ''}${ty.log_reg_zscore}σ)</span>
+                <span>ATH: <b>${fmtP(ty.all_time_high)}</b> (${ty.drawdown_from_ath_pct}%)</span>
+              </div>
+              <div class="pred-details">
+                <span>10Y k-NN Twins Win Rate: <b style="color:${ty.knn_7d_prob_up_pct >= 50 ? '#34d399' : '#f87171'};">7d ${ty.knn_7d_prob_up_pct}%▲ (${ty.knn_7d_median_ret_pct >= 0 ? '+' : ''}${ty.knn_7d_median_ret_pct}%)</b> | <b style="color:${ty.knn_30d_prob_up_pct >= 50 ? '#34d399' : '#f87171'};">30d ${ty.knn_30d_prob_up_pct}%▲ (${ty.knn_30d_median_ret_pct >= 0 ? '+' : ''}${ty.knn_30d_median_ret_pct}%)</b></span>
+                <span>${ty.seasonality_month} Win: <b>${ty.seasonality_win_rate_pct}%</b></span>
+              </div>
+              ${topAnalogs.length ? `
+              <div style="color:var(--subtle);font-size:10.5px;">
+                Closest 10Y Analogs: ${topAnalogs.map(a => `<b style="color:#cbd5e1;">${a.date}</b> (${a.similarity_pct}% sim -> 7d ${a.forward_7d_pct >= 0 ? '+' : ''}${a.forward_7d_pct}%, 30d ${a.forward_30d_pct >= 0 ? '+' : ''}${a.forward_30d_pct}%)`).join(" · ")}
+              </div>` : ''}
+            </div>` : ''}
+
+            <!-- Perpetual Futures, Whale Positioning & Volume Profile -->
+            ${ft.whale_long_pct ? `
+            <div class="prediction-box" style="gap:5px;font-size:11px;">
+              <div style="display:flex;justify-content:space-between;color:#a78bfa;font-weight:800;font-size:11.5px;">
+                <span>🐋 BINANCE PERPS, WHALE L/S & VOLUME PROFILE</span>
+                <span>Funding: <b>${ft.consensus_funding_pct >= 0 ? '+' : ''}${ft.consensus_funding_pct}%</b></span>
+              </div>
+              <div class="pred-details">
+                <span>Top Whales: <b style="color:#34d399;">${ft.whale_long_pct}% Long</b> (L/S ${ft.whale_ls_ratio}) vs Retail <b>${ft.retail_long_pct}%</b></span>
+                <span>OB ±1% Imb: <b style="color:${ft.imbalance_1pct >= 0 ? '#34d399' : '#f87171'};">${ft.imbalance_1pct >= 0 ? '+' : ''}${ft.imbalance_1pct}%</b></span>
+              </div>
+              <div class="pred-details">
+                <span>7d Profile: VAL <b>${fmtP(vp.val)}</b> · POC <b>${fmtP(vp.poc)}</b> · VAH <b>${fmtP(vp.vah)}</b></span>
+                <span>24h VWAP: <b>${fmtP(vp.vwap_24h)}</b></span>
+              </div>
+            </div>` : ''}
+
+            <!-- 25-Outlet News & Catalyst Intelligence -->
+            ${nw.headlines_checked ? `
+            <div class="prediction-box" style="gap:5px;font-size:11px;">
+              <div style="display:flex;justify-content:space-between;color:#fbbf24;font-weight:800;font-size:11.5px;">
+                <span>📰 25-OUTLET NEWS & MACRO CATALYSTS (${nw.headlines_checked} scanned)</span>
+                <span>Score: <b style="color:${nw.score >= 0 ? '#34d399' : '#f87171'};">${nw.score >= 0 ? '+' : ''}${nw.score}/15</b></span>
+              </div>
+              ${bullCats.map(b => `<div style="color:#6ee7b7;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[+] (${b.source}) ${b.title}</div>`).join("")}
+              ${bearCats.map(b => `<div style="color:#fca5a5;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[-] (${b.source}) ${b.title}</div>`).join("")}
+              ${(!bullCats.length && !bearCats.length && topOutlets.length) ? topOutlets.map(o => `<div style="color:#cbd5e1;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">• [${o.source}] ${o.title}</div>`).join("") : ''}
+            </div>` : ''}
 
             <!-- Recommended Action Call Banner -->
             <div class="verdict-banner ${isCallLong ? 'call-long' : 'call-short'}">
