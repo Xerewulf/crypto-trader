@@ -369,26 +369,314 @@ def detect_institutional_signals(klines_1h, klines_4h, price):
     }
 
 
-def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
-    """Build an institutional execution plan with Quarter-Kelly (0.25x) position sizing."""
+def compute_adx(klines, period=14):
+    """Wilder's 14-period Average Directional Index (ADX) with +DI and -DI."""
+    if len(klines) < period * 2:
+        return 20.0, 20.0, 20.0
+    trs, pdms, mdms = [], [], []
+    for i in range(1, len(klines)):
+        h = float(klines[i][2])
+        l = float(klines[i][3])
+        ph = float(klines[i - 1][2])
+        pl = float(klines[i - 1][3])
+        pc = float(klines[i - 1][4])
+        tr = max(h - l, abs(h - pc), abs(l - pc))
+        up = h - ph
+        down = pl - l
+        pdm = up if (up > down and up > 0) else 0.0
+        mdm = down if (down > up and down > 0) else 0.0
+        trs.append(tr)
+        pdms.append(pdm)
+        mdms.append(mdm)
+
+    alpha = 1.0 / period
+    s_tr = sum(trs[:period]) / period
+    s_pdm = sum(pdms[:period]) / period
+    s_mdm = sum(mdms[:period]) / period
+
+    dx_list = []
+    for i in range(period, len(trs)):
+        s_tr = s_tr * (1.0 - alpha) + trs[i] * alpha
+        s_pdm = s_pdm * (1.0 - alpha) + pdms[i] * alpha
+        s_mdm = s_mdm * (1.0 - alpha) + mdms[i] * alpha
+        pdi = (s_pdm / s_tr * 100.0) if s_tr > 0 else 0.0
+        mdi = (s_mdm / s_tr * 100.0) if s_tr > 0 else 0.0
+        denom = pdi + mdi
+        dx = (abs(pdi - mdi) / denom * 100.0) if denom > 0 else 0.0
+        dx_list.append((dx, pdi, mdi))
+
+    if not dx_list:
+        return 20.0, 20.0, 20.0
+    adx = statistics.mean(x[0] for x in dx_list[-period:]) if len(dx_list) >= period else dx_list[-1][0]
+    pdi = dx_list[-1][1]
+    mdi = dx_list[-1][2]
+    return round(adx, 1), round(pdi, 1), round(mdi, 1)
+
+
+def compute_market_regime(klines_1h, klines_4h, price):
+    """Institutional Market Regime Filter (Marcos Lopez de Prado & John Carter).
+    Classifies market into Trending Momentum vs Rotational Range-Bound vs Volatility Squeeze.
+    Returns dynamic factor multipliers for Technicals, Order Flow, and Volume Profile."""
+    adx_1h, pdi_1h, mdi_1h = compute_adx(klines_1h, period=14)
+    adx_4h, pdi_4h, mdi_4h = compute_adx(klines_4h, period=14)
+
+    # 1h EMA20 & EMA50 alignment
+    closes_1h = [float(k[4]) for k in klines_1h]
+    ema20_1h = ema_series(closes_1h, 20)[-1] if len(closes_1h) >= 20 else price
+    ema50_1h = ema_series(closes_1h, 50)[-1] if len(closes_1h) >= 50 else price
+
+    # 4h Bollinger vs Keltner (TTM Squeeze)
+    squeeze_on = False
+    bbw_4h = 0.0
+    if len(klines_4h) >= 20:
+        c4 = [float(k[4]) for k in klines_4h[-20:]]
+        m20 = statistics.mean(c4)
+        sd20 = statistics.pstdev(c4)
+        atr4 = atr_14(klines_4h, 20)
+        u_bb, l_bb = m20 + 2.0 * sd20, m20 - 2.0 * sd20
+        u_kc, l_kc = m20 + 1.5 * atr4, m20 - 1.5 * atr4
+        bbw_4h = round((u_bb - l_bb) / m20 * 100.0, 2) if m20 > 0 else 0.0
+        squeeze_on = (u_bb <= u_kc and l_bb >= l_kc)
+
+    # Regime Determination
+    score_delta = 0.0
+    if adx_1h >= 24.0 and pdi_1h > mdi_1h and price > ema20_1h:
+        regime = "BULLISH_TREND_EXPANSION"
+        desc = "Strong Bullish Momentum Trend (+DI %.1f > -DI %.1f, ADX %.1f). Trend-following factors prioritized." % (pdi_1h, mdi_1h, adx_1h)
+        tech_mult = 1.30
+        flow_mult = 1.20
+        vp_mult = 0.75
+        score_delta = round(min(6.0, (adx_1h - 20.0) * 0.4), 1)
+    elif adx_1h >= 24.0 and mdi_1h > pdi_1h and price < ema20_1h:
+        regime = "BEARISH_TREND_EXPANSION"
+        desc = "Aggressive Bearish Trend (-DI %.1f > +DI %.1f, ADX %.1f). Trend-following short factors prioritized." % (mdi_1h, pdi_1h, adx_1h)
+        tech_mult = 1.30
+        flow_mult = 1.20
+        vp_mult = 0.75
+        score_delta = -round(min(6.0, (adx_1h - 20.0) * 0.4), 1)
+    elif squeeze_on or bbw_4h < 3.5:
+        regime = "VOLATILITY_COMPRESSION_SQUEEZE"
+        desc = "TTM Squeeze Active (BBW %.2f%%). Volatility severely compressed; explosive breakout coiling. Fading moves is dangerous." % bbw_4h
+        tech_mult = 0.85
+        flow_mult = 1.25
+        vp_mult = 1.25
+        score_delta = 0.0
+    elif adx_1h < 20.0 and adx_4h < 22.0:
+        regime = "ROTATIONAL_RANGE_BOUND"
+        desc = "Rotational Mean-Reversion Regime (ADX %.1f). Trend signals are noisy; Volume Profile POC/VAL/VAH and Order Book walls dominate." % adx_1h
+        tech_mult = 0.70
+        flow_mult = 1.10
+        vp_mult = 1.40
+        score_delta = 0.0
+    else:
+        regime = "TRANSITIONAL_CHOP"
+        desc = "Transitional Regime (ADX %.1f). Mixed momentum; balanced factor weighting." % adx_1h
+        tech_mult = 1.0
+        flow_mult = 1.0
+        vp_mult = 1.0
+        score_delta = 0.0
+
+    return {
+        "regime": regime,
+        "description": desc,
+        "adx_1h": adx_1h,
+        "pdi_1h": pdi_1h,
+        "mdi_1h": mdi_1h,
+        "adx_4h": adx_4h,
+        "squeeze_on": squeeze_on,
+        "bbw_4h_pct": bbw_4h,
+        "multipliers": {
+            "technicals": tech_mult,
+            "orderflow": flow_mult,
+            "volume_profile": vp_mult,
+        },
+        "score_delta": score_delta,
+    }
+
+
+def estimate_liquidation_clusters(klines_1h, current_price, fut_data):
+    """Institutional Liquidation Heatmap & Magnetic Cascade Modeling (Larry Harris & Arthur Hayes).
+    Calculates discrete liquidation pools across 5x, 10x, 20x, 25x, 50x, 100x leverage tiers
+    based on historical 1h volume profile nodes, Open Interest, and Long/Short ratios."""
+    if not fut_data or not fut_data.get("available"):
+        return {"available": False, "note": "No perpetual futures open interest available to compute liquidation heatmap."}
+
+    oi_usd = fut_data.get("open_interest_usd") or 0.0
+    if oi_usd <= 0:
+        return {"available": False, "note": "Zero or missing futures open interest."}
+
+    whale_long_pct = fut_data.get("whale_long_pct", 50.0) / 100.0
+    retail_long_pct = fut_data.get("retail_long_pct", 50.0) / 100.0
+    long_capital_ratio = max(0.20, min(0.80, 0.60 * whale_long_pct + 0.40 * retail_long_pct))
+    short_capital_ratio = 1.0 - long_capital_ratio
+
+    total_long_oi_usd = oi_usd * long_capital_ratio
+    total_short_oi_usd = oi_usd * short_capital_ratio
+
+    tiers = [
+        (100, 0.05),
+        (50, 0.15),
+        (25, 0.25),
+        (20, 0.20),
+        (10, 0.25),
+        (5, 0.10),
+    ]
+
+    sample_klines = klines_1h[-72:] if len(klines_1h) >= 72 else klines_1h
+    total_vol = sum(float(k[5]) for k in sample_klines) or 1.0
+
+    bin_size_pct = 0.5  # 0.5% resolution bins
+    long_clusters = {}   # price_bin -> estimated usd
+    short_clusters = {}  # price_bin -> estimated usd
+
+    for k in sample_klines:
+        h = float(k[2])
+        l = float(k[3])
+        c = float(k[4])
+        v = float(k[5])
+        typ_p = (h + l + c) / 3.0
+        w = v / total_vol
+
+        for lev, lev_w in tiers:
+            mmr = 0.005  # 0.5% maintenance margin rate
+            p_long_liq = typ_p * (1.0 - (1.0 / lev) + mmr)
+            if current_price * 0.85 <= p_long_liq < current_price:
+                step = current_price * (bin_size_pct / 100.0)
+                bin_p = round(round(p_long_liq / step) * step, 2)
+                long_clusters[bin_p] = long_clusters.get(bin_p, 0.0) + (total_long_oi_usd * w * lev_w)
+
+            p_short_liq = typ_p * (1.0 + (1.0 / lev) - mmr)
+            if current_price < p_short_liq <= current_price * 1.15:
+                step = current_price * (bin_size_pct / 100.0)
+                bin_p = round(round(p_short_liq / step) * step, 2)
+                short_clusters[bin_p] = short_clusters.get(bin_p, 0.0) + (total_short_oi_usd * w * lev_w)
+
+    top_long_items = sorted(long_clusters.items(), key=lambda x: x[1], reverse=True)[:3]
+    top_short_items = sorted(short_clusters.items(), key=lambda x: x[1], reverse=True)[:3]
+
+    top_longs = [
+        {
+            "price": p,
+            "dist_pct": round((p / current_price - 1.0) * 100.0, 2),
+            "est_usd": round(v, 2),
+            "est_usd_m": round(v / 1e6, 2),
+        }
+        for p, v in top_long_items
+    ]
+    top_shorts = [
+        {
+            "price": p,
+            "dist_pct": round((p / current_price - 1.0) * 100.0, 2),
+            "est_usd": round(v, 2),
+            "est_usd_m": round(v / 1e6, 2),
+        }
+        for p, v in top_short_items
+    ]
+
+    near_long_usd = sum(v for p, v in long_clusters.items() if p >= current_price * 0.965)
+    near_short_usd = sum(v for p, v in short_clusters.items() if p <= current_price * 1.035)
+    mag_ratio = round(near_short_usd / max(near_long_usd, 1.0), 2)
+
+    score = 0.0
+    if mag_ratio >= 1.45:
+        magnetic_pull = "STRONG UPWARD PULL (Short Squeeze Fuel)"
+        pull_note = "Short liquidations within +3.5%% ($%.1fM) outweigh long liquidations ($%.1fM) by %.2fx. Strong statistical probability of price sweeping upward into short stop/liquidation liquidity." % (
+            near_short_usd / 1e6, near_long_usd / 1e6, mag_ratio
+        )
+        score = round(min(8.0, (mag_ratio - 1.0) * 3.5), 1)
+    elif mag_ratio <= 0.65:
+        magnetic_pull = "STRONG DOWNWARD PULL (Long Flush Target)"
+        pull_note = "Long liquidations within -3.5%% ($%.1fM) outweigh short liquidations ($%.1fM) by %.2fx. Whales/market makers incentivized to hunt lower liquidity." % (
+            near_long_usd / 1e6, near_short_usd / 1e6, 1.0 / max(mag_ratio, 0.01)
+        )
+        score = -round(min(8.0, ((1.0 / max(mag_ratio, 0.01)) - 1.0) * 3.5), 1)
+    else:
+        magnetic_pull = "BALANCED TWO-WAY LIQUIDITY"
+        pull_note = "Near-term long ($%.1fM) and short ($%.1fM) liquidation pools are balanced (Ratio: %.2f). No clear directional liquidation squeeze bias." % (
+            near_long_usd / 1e6, near_short_usd / 1e6, mag_ratio
+        )
+        score = 0.0
+
+    cascade_warning = None
+    if top_shorts and abs(top_shorts[0]["dist_pct"]) <= 1.0 and top_shorts[0]["est_usd_m"] >= 15.0:
+        cascade_warning = "IMMINENT SHORT SQUEEZE CASCADE: $%.1fM shorts at %s (only %+.2f%% away)" % (
+            top_shorts[0]["est_usd_m"], fmt_p(top_shorts[0]["price"]), top_shorts[0]["dist_pct"]
+        )
+    elif top_longs and abs(top_longs[0]["dist_pct"]) <= 1.0 and top_longs[0]["est_usd_m"] >= 15.0:
+        cascade_warning = "IMMINENT LONG FLUSH CASCADE: $%.1fM longs at %s (only %+.2f%% away)" % (
+            top_longs[0]["est_usd_m"], fmt_p(top_longs[0]["price"]), top_longs[0]["dist_pct"]
+        )
+
+    return {
+        "available": True,
+        "top_longs": top_longs,
+        "top_shorts": top_shorts,
+        "primary_long_liq": top_longs[0]["price"] if top_longs else None,
+        "primary_short_liq": top_shorts[0]["price"] if top_shorts else None,
+        "near_long_pool_3pct_m": round(near_long_usd / 1e6, 1),
+        "near_short_pool_3pct_m": round(near_short_usd / 1e6, 1),
+        "magnetic_ratio": mag_ratio,
+        "magnetic_pull": magnetic_pull,
+        "pull_note": pull_note,
+        "cascade_warning": cascade_warning,
+        "score": score,
+    }
+
+
+def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite, liq=None, regime=None):
+    """Build an institutional execution plan with Quarter-Kelly (0.25x) position sizing and liquidation guards."""
     atr = tf_1h["atr14"] or (price * 0.01)
     h24 = horizons["24h"]
     bias = "LONG" if composite >= 10 else ("SHORT / HEDGE" if composite <= -10 else "WAIT / RANGE SCALP")
+
     if bias == "LONG":
-        # Ideal pullback entry near 24h VWAP, POC, or Bid Support Wall
         pullback = max(vp["val"], min(price, max(vp["vwap_24h"], ob["support_wall_price"] if ob else price - 0.5 * atr)))
         stop = min(price - 1.5 * atr, (ob["support_wall_price"] * 0.996) if ob and ob["support_wall_price"] < price else price - 1.5 * atr)
+
+        if liq and liq.get("available") and liq.get("primary_long_liq"):
+            p_long = liq["primary_long_liq"]
+            if p_long < price and abs(p_long / price - 1.0) <= 0.06:
+                stop = min(stop, p_long * 0.994)
+
         risk = max(price - stop, atr * 0.5)
         tp1 = max(price + 1.5 * risk, vp["vah"])
-        tp2 = price + 2.5 * risk
+
+        if liq and liq.get("available") and liq.get("primary_short_liq"):
+            p_short = liq["primary_short_liq"]
+            if p_short > price:
+                tp1 = min(tp1, p_short * 0.998)
+                tp2 = max(price + 2.5 * risk, p_short)
+            else:
+                tp2 = price + 2.5 * risk
+        else:
+            tp2 = price + 2.5 * risk
+
         win_prob = h24["prob_up_pct"] / 100.0
+
     elif bias == "SHORT / HEDGE":
         pullback = min(vp["vah"], max(price, min(vp["vwap_24h"], ob["resistance_wall_price"] if ob else price + 0.5 * atr)))
         stop = max(price + 1.5 * atr, (ob["resistance_wall_price"] * 1.004) if ob and ob["resistance_wall_price"] > price else price + 1.5 * atr)
+
+        if liq and liq.get("available") and liq.get("primary_short_liq"):
+            p_short = liq["primary_short_liq"]
+            if p_short > price and abs(p_short / price - 1.0) <= 0.06:
+                stop = max(stop, p_short * 1.006)
+
         risk = max(stop - price, atr * 0.5)
         tp1 = min(price - 1.5 * risk, vp["val"])
-        tp2 = price - 2.5 * risk
+
+        if liq and liq.get("available") and liq.get("primary_long_liq"):
+            p_long = liq["primary_long_liq"]
+            if p_long < price:
+                tp1 = max(tp1, p_long * 1.002)
+                tp2 = min(price - 2.5 * risk, p_long)
+            else:
+                tp2 = price - 2.5 * risk
+        else:
+            tp2 = price - 2.5 * risk
+
         win_prob = h24["prob_down_pct"] / 100.0
+
     else:
         pullback = vp["val"]
         stop = vp["val"] - 1.2 * atr
@@ -416,7 +704,6 @@ def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
 
     reward = abs(tp1 - price)
     rr = round(reward / risk, 2) if risk > 0 else 1.5
-    # Kelly formula: f* = p - (1 - p) / b
     full_kelly = max(0.0, win_prob - (1.0 - win_prob) / max(rr, 0.5))
     quarter_kelly_pct = round(min(5.0, full_kelly * 0.25 * 100.0), 2)
     ev_r = round(win_prob * rr - (1.0 - win_prob) * 1.0, 2)
@@ -432,6 +719,7 @@ def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
         "expected_value_R": ev_r,
         "quarter_kelly_risk_pct": quarter_kelly_pct,
     }
+
 
 
 def analyze_timeframe(klines, label):
@@ -1304,9 +1592,20 @@ def forecast_symbol(sym):
     vp = compute_volume_profile(k1h, price, n_bars=168, bins=40)
     inst = detect_institutional_signals(k1h, k4h, price)
 
+    # 4.6. Market Regime Filter & Dynamic Multipliers (ADX + TTM Squeeze)
+    regime = compute_market_regime(k1h, k4h, price)
+    reg_mult = regime["multipliers"]
+    tech_score_dyn = round(tech_score * reg_mult["technicals"], 1)
+    flow_score_dyn = round(flow_score * reg_mult["orderflow"], 1)
+
+    # 4.7. Liquidation Heatmap & Magnetic Cascade Modeling
+    liq_clusters = estimate_liquidation_clusters(k1h, price, fut)
+
     # 5. Composite Score (-100 to +100)
-    inst_and_macro_bonus = round(max(-10.0, min(10.0, inst["bonus_score"] + macro_onchain["macro_bonus"])), 1)
-    raw_total = tech_score + flow_score + fut_score + rel_score + news["score"] + inst_and_macro_bonus
+    inst_and_macro_bonus = round(max(-10.0, min(10.0,
+        inst["bonus_score"] + macro_onchain["macro_bonus"] + liq_clusters.get("score", 0.0) + regime.get("score_delta", 0.0)
+    )), 1)
+    raw_total = tech_score_dyn + flow_score_dyn + fut_score + rel_score + news["score"] + inst_and_macro_bonus
     composite = round(max(-100.0, min(100.0, raw_total)), 1)
 
     if composite >= 35:
@@ -1321,7 +1620,7 @@ def forecast_symbol(sym):
         verdict = "NEUTRAL / RANGE-BOUND (Mixed Signals - Wait for Breakout)"
 
     horizons = simulate_horizons(k1h, price, composite)
-    kelly_plan = compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite)
+    kelly_plan = compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite, liq=liq_clusters, regime=regime)
 
     # Institutional Margin Execution Plan (Leverage tiering, safe liquidation buffer, financing carry, event risk)
     margin_exec = None
@@ -1388,6 +1687,8 @@ def forecast_symbol(sym):
         "horizons": horizons,
         "volume_profile": vp,
         "institutional": inst,
+        "market_regime": regime,
+        "liquidation_heatmap": liq_clusters,
         "macro_onchain": macro_onchain,
         "kelly_trade_plan": kelly_plan,
         "timeframes": {"15m": tf_15m, "1h": tf_1h, "4h": tf_4h, "1d": tf_1d},
@@ -1470,6 +1771,27 @@ def render_report(d):
         lines.append("   %s" % fut.get("note", "No futures data"))
     lines.append("")
 
+    # 3.5. Liquidation Heatmap & Magnetic Cascade Targets
+    liq = d.get("liquidation_heatmap") or {}
+    lines.append("3.5. LIQUIDATION HEATMAP & CASCADE TARGETS (Estimated Open Interest Clusters)")
+    if liq.get("available"):
+        lines.append("   Magnetic Pull    : %s (Ratio: %.2fx)" % (liq["magnetic_pull"], liq["magnetic_ratio"]))
+        lines.append("   Near Pools (+-3.5%%): Shorts $%.1fM vs Longs $%.1fM -> %s" % (
+            liq["near_short_pool_3pct_m"], liq["near_long_pool_3pct_m"], liq["pull_note"]))
+        if liq.get("cascade_warning"):
+            lines.append("   ! CASCADE ALERT  : %s" % liq["cascade_warning"])
+        lines.append("   Upper Short Liq Targets (Squeeze Magnets):")
+        for sc in liq.get("top_shorts", []):
+            lines.append("     * %s (%+.2f%%) : ~$%.1fM short liquidation volume" % (
+                fmt_p(sc["price"]), sc["dist_pct"], sc["est_usd_m"]))
+        lines.append("   Lower Long Liq Targets (Flush Vulnerability):")
+        for lc in liq.get("top_longs", []):
+            lines.append("     * %s (%+.2f%%) : ~$%.1fM long liquidation volume" % (
+                fmt_p(lc["price"]), lc["dist_pct"], lc["est_usd_m"]))
+    else:
+        lines.append("   %s" % liq.get("note", "Liquidation data not available."))
+    lines.append("")
+
     # 4. Spot Order-Flow & Order Book Walls
     sf = d["spot_flow"]
     ob = sf.get("orderbook")
@@ -1507,10 +1829,19 @@ def render_report(d):
     lines.append("   Key Resistances: %s" % (", ".join(fmt_p(x) for x in d["levels"]["resistances"]) or "-"))
     lines.append("")
 
-    # 6. Institutional Volume Profile, VWAP & Wyckoff/CVD Signals
+    # 6. Institutional Market Profile, VWAP & Market Regime Filter
     vp = d.get("volume_profile") or {}
     inst = d.get("institutional") or {}
-    lines.append("6. INSTITUTIONAL MARKET PROFILE (POC/VAH/VAL), VWAP & WYCKOFF SIGNALS")
+    reg = d.get("market_regime") or {}
+    lines.append("6. INSTITUTIONAL MARKET PROFILE, VWAP & REGIME FILTER")
+    if reg:
+        lines.append("   Market Regime     : %s" % reg.get("regime", "-"))
+        lines.append("   Regime Diagnosis  : %s" % reg.get("description", "-"))
+        lines.append("   Directional Index : 1h ADX %.1f (+DI %.1f, -DI %.1f) | 4h ADX %.1f" % (
+            reg.get("adx_1h", 0.0), reg.get("pdi_1h", 0.0), reg.get("mdi_1h", 0.0), reg.get("adx_4h", 0.0)))
+        mults = reg.get("multipliers", {})
+        lines.append("   Dynamic Weights   : Tech %.2fx | Order Flow %.2fx | Volume Profile %.2fx" % (
+            mults.get("technicals", 1.0), mults.get("orderflow", 1.0), mults.get("volume_profile", 1.0)))
     lines.append("   7d Volume Profile : VAL %s  |  POC (Fair Value Magnet) %s  |  VAH %s" % (
         fmt_p(vp.get("val")), fmt_p(vp.get("poc")), fmt_p(vp.get("vah"))))
     lines.append("   Auction State     : %s" % vp.get("state", "-"))
