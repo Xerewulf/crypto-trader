@@ -35,6 +35,11 @@ if HERE not in sys.path:
 
 import predict
 
+try:
+    import price_forecaster
+except Exception:  # pragma: no cover
+    price_forecaster = None
+
 FEATURE_NAME = "6 Coins Future"
 TARGET_COINS = ["BNBUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT", "DOGEUSDT", "XRPUSDT"]
 _DEEP_CONTEXT_CACHE = {}
@@ -734,6 +739,26 @@ def _fetch_deep_coin_context(bsym, price):
     return data
 
 
+def _fetch_1m_history(bsym):
+    """~50h of 1m klines (3 paged requests) used to fit and validate the price forecaster.
+    The forecaster caches the fitted model for 60s, so this runs at most once a minute per coin."""
+    try:
+        limit = price_forecaster.HISTORY_LIMIT
+        pages = getattr(price_forecaster, "HISTORY_PAGES", 1)
+        out = predict.spot_get(f"/api/v3/klines?symbol={bsym}&interval=1m&limit={limit}") or []
+        for _ in range(pages - 1):
+            if not out:
+                break
+            end_ms = int(out[0][0]) - 1
+            older = predict.spot_get(f"/api/v3/klines?symbol={bsym}&interval=1m&limit={limit}&endTime={end_ms}") or []
+            if not older:
+                break
+            out = older + out
+        return out
+    except Exception:
+        return []
+
+
 def estimate_coin_intraday(symbol):
     bsym = predict.to_binance(symbol)
     try:
@@ -813,6 +838,18 @@ def estimate_coin_intraday(symbol):
             spread_bps=ob_live.get("spread_bps", 2.0),
             cal_alpha_mult=calibration.get("cal_alpha_mult", 1.0),
         )
+        # 5b. Calibrated 10m / 30m / 60m price targets (walk-forward validated, live-scored)
+        price_targets = {}
+        if price_forecaster:
+            try:
+                price_targets = price_forecaster.forecast_prices(bsym, k1m, price, _fetch_1m_history, mc_horizons=horizons)
+            except Exception as pf_err:
+                sys.stderr.write(f"price forecaster error {bsym}: {pf_err}\n")
+                price_targets = {}
+        for hz_name, pt in price_targets.items():
+            if hz_name in horizons:
+                horizons[hz_name]["price_target"] = pt
+
         macro_horizons = {}
         if ctx.get("k1h"):
             macro_horizons = predict.simulate_horizons(ctx["k1h"], price, deep_structural_score, ten_year=ty_obj)
@@ -1001,22 +1038,29 @@ def render_intraday_ascii_table(data_list):
                 f"Funding: {ft.get('consensus_funding_pct', 0):+.4f}% | "
                 f"News Scanned: {nw.get('headlines_checked', 0)} outlets (Score {nw.get('score', 0):+.1f}/15)"
             )
-        lines.append(f"{'HORIZON':<10}{'CALL':<8}{'UP PROB':<10}{'DOWN PROB':<12}{'EXPECTED MOVE':<15}{'IF LONG (Win/Gain)':<24}{'IF SHORT (Win/Gain)':<24}")
-        lines.append("-" * 108)
+        lines.append(f"{'HORIZON':<8}{'CALL':<7}{'PREDICTED PRICE':<18}{'EXP MOVE':<11}{'PROB(UP/DN)':<16}{'IF LONG (Target/Stop)':<25}{'IF SHORT (Target/Stop)':<25}")
+        lines.append("-" * 110)
 
         for tf in ["10m", "30m", "60m"]:
             hz = h[tf]
+            pt = hz.get("price_target") or {}
+            pred_p = pt.get("predicted_price", hz.get("expected_price", price))
+            p_prec = 6 if pred_p < 1.0 else (4 if pred_p < 100.0 else 2)
+            pred_p_str = f"${pred_p:,.{p_prec}f}"
             call_str = f"{hz['preferred_action']}"
-            up_str = f"{hz['prob_up_pct']:.1f}%"
-            down_str = f"{hz['prob_down_pct']:.1f}%"
+            probs_str = f"{hz['prob_up_pct']:.0f}% / {hz['prob_down_pct']:.0f}%"
             exp_str = f"{hz['expected_move_pct']:+.2f}%"
 
             l = hz["long_outcome"]
             s = hz["short_outcome"]
-            long_info = f"{l['win_probability_pct']:.1f}% win (+{l['expected_gain_pct']:.2f}%)"
-            short_info = f"{s['win_probability_pct']:.1f}% win (+{s['expected_gain_pct']:.2f}%)"
+            l_t = l.get("target_price", 0)
+            l_s = l.get("stop_price", 0)
+            s_t = s.get("target_price", 0)
+            s_s = s.get("stop_price", 0)
+            long_info = f"${l_t:,.{p_prec}f} (${l_s:,.{p_prec}f})"
+            short_info = f"${s_t:,.{p_prec}f} (${s_s:,.{p_prec}f})"
 
-            lines.append(f"{tf:<10}{call_str:<8}{up_str:<10}{down_str:<12}{exp_str:<15}{long_info:<24}{short_info:<24}")
+            lines.append(f"{tf:<8}{call_str:<7}{pred_p_str:<18}{exp_str:<11}{probs_str:<16}{long_info:<25}{short_info:<25}")
 
         mh = coin.get("macro_horizons") or {}
         if mh:

@@ -352,6 +352,10 @@ def _apply_live_ticks_to_6coins_cache(live_tk=None):
                         s_stop = float(s_out.get("stop_risk_pct", 0.15))
                         s_out["target_price"] = round(new_p * (1.0 - s_gain / 100.0), dec)
                         s_out["stop_price"] = round(new_p * (1.0 + s_stop / 100.0), dec)
+                    pt = hz.get("price_target") or {}
+                    if pt:
+                        pred_move = float(pt.get("predicted_move_pct", 0.0))
+                        pt["predicted_price"] = round(new_p * (1.0 + pred_move / 100.0), dec)
             item["feature_name"] = "6 Coins Future"
 
 
