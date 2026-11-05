@@ -128,8 +128,9 @@ def _ridge_fit(xs, ys, lam=RIDGE_LAMBDA):
             row = xtx[i]
             for j in range(d):
                 row[j] += xi * x[j]
-    for i in range(1, d):  # do not penalise the intercept
+    for i in range(d):
         xtx[i][i] += lam * len(xs) / 100.0
+    xtx[0][0] += lam * len(xs) / 50.0  # Regularise intercept to prevent past 50h drift leakage
     return _solve(xtx, xty)
 
 

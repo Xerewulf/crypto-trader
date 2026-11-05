@@ -255,6 +255,48 @@ def compute_btc_lead_lag_spillover(bsym, k1m_alt, btc_k1m=None):
         return {"btc_impulse_score": 0.0, "beta_to_btc": 1.0, "lag1_corr": 0.0, "spillover_score": 0.0}
 
 
+def detect_microstructure_trend_veto(k1m, k5m=None):
+    """Detects active intraday markdown cascades or markup breakouts.
+    Returns: 'BEARISH_BREAKDOWN', 'BULLISH_BREAKOUT', or None."""
+    if not k1m or len(k1m) < 25:
+        return None
+    try:
+        closes_1m = [float(k[4]) for k in k1m]
+        ema9_1m = ema_series(closes_1m, 9)[-1]
+        ema21_1m = ema_series(closes_1m, 21)[-1]
+        c1m = closes_1m[-1]
+
+        recent_1m = k1m[-15:]
+        tot_v = sum(float(k[7]) for k in recent_1m)
+        buy_v = sum(float(k[10]) for k in recent_1m)
+        tb_ratio = (buy_v / tot_v) if tot_v > 0 else 0.5
+
+        is_5m_bear = False
+        is_5m_bull = False
+        if k5m and len(k5m) >= 12:
+            closes_5m = [float(k[4]) for k in k5m]
+            ema21_5m = ema_series(closes_5m, 21)[-1]
+            c5m = closes_5m[-1]
+            if c5m < ema21_5m:
+                is_5m_bear = True
+            elif c5m > ema21_5m:
+                is_5m_bull = True
+        else:
+            ema50_1m = ema_series(closes_1m, min(len(closes_1m), 50))[-1]
+            if c1m < ema50_1m:
+                is_5m_bear = True
+            elif c1m > ema50_1m:
+                is_5m_bull = True
+
+        if c1m < ema9_1m < ema21_1m and is_5m_bear and tb_ratio < 0.47:
+            return "BEARISH_BREAKDOWN"
+        if c1m > ema9_1m > ema21_1m and is_5m_bull and tb_ratio > 0.53:
+            return "BULLISH_BREAKOUT"
+        return None
+    except Exception:
+        return None
+
+
 def compute_intraday_microstructure_score(k1m, k5m, depth, fut):
     """
     Computes a high-frequency composite score (-100 to +100) combining:
@@ -329,6 +371,13 @@ def compute_intraday_microstructure_score(k1m, k5m, depth, fut):
         elif whale_ls < 0.8:
             score -= 7.5
 
+    # 5. Microstructure Trend Veto penalty / boost
+    veto = detect_microstructure_trend_veto(k1m, k5m)
+    if veto == "BEARISH_BREAKDOWN":
+        score -= 25.0
+    elif veto == "BULLISH_BREAKOUT":
+        score += 25.0
+
     return round(max(-100.0, min(100.0, score)), 1)
 
 
@@ -336,13 +385,15 @@ def compute_intraday_microstructure_score(k1m, k5m, depth, fut):
 def calibrate_intraday_model(k1m):
     """Step 6: Walk-Forward Out-of-Sample Probability Calibration & Brier Score Tracking.
     Evaluates rolling historical 10-minute windows inside k1m to measure empirical hit rate,
-    Brier score, and compute a self-correcting Platt/reliability multiplier (cal_alpha_mult)."""
+    Brier score, and compute self-correcting Platt conviction shrink and probability bounds."""
     if not k1m or len(k1m) < 30:
         return {
             "samples": 0,
-            "empirical_hit_rate_pct": 55.0,
-            "brier_score": 0.24,
+            "empirical_hit_rate_pct": 50.0,
+            "brier_score": 0.25,
             "cal_alpha_mult": 1.0,
+            "conviction_shrink": 0.85,
+            "max_prob_deviation": 20.0,
             "reliability_tier": "BASELINE",
         }
     try:
@@ -372,35 +423,63 @@ def calibrate_intraday_model(k1m):
         if total == 0:
             return {
                 "samples": 0,
-                "empirical_hit_rate_pct": 55.0,
-                "brier_score": 0.24,
+                "empirical_hit_rate_pct": 50.0,
+                "brier_score": 0.25,
                 "cal_alpha_mult": 1.0,
+                "conviction_shrink": 0.85,
+                "max_prob_deviation": 20.0,
                 "reliability_tier": "BASELINE",
             }
 
         hit_rate = (hits / float(total)) * 100.0
         brier = brier_sum / float(total)
-        # Platt scaling multiplier: boost conviction when empirical hit rate > 52%, dampen when choppy (< 48%)
-        cal_mult = max(0.75, min(1.30, 1.0 + ((hit_rate - 50.0) / 100.0) * 0.9))
-        tier = "HIGH_RELIABILITY" if hit_rate >= 58.0 else ("CALIBRATED" if hit_rate >= 50.0 else "CHOPPY_DAMPENED")
+
+        # Mathematical Platt calibration tiers:
+        if hit_rate >= 58.0:
+            tier = "HIGH_RELIABILITY"
+            cal_mult = min(1.25, 1.0 + ((hit_rate - 50.0) / 100.0) * 0.8)
+            conviction_shrink = 1.0
+            max_prob_dev = 32.0
+        elif hit_rate >= 50.0:
+            tier = "CALIBRATED"
+            cal_mult = 1.0
+            conviction_shrink = 0.85
+            max_prob_dev = 20.0
+        elif hit_rate >= 44.0:
+            tier = "CHOPPY_DEGRADED"
+            cal_mult = max(0.15, (hit_rate - 42.0) / 12.0)
+            conviction_shrink = 0.35
+            max_prob_dev = 8.0
+        else:
+            # Hit rate < 44%: inverted or failing regime.
+            # Shut down false drift and clamp probability strictly near neutral.
+            tier = "INVERTED_REGIME"
+            cal_mult = 0.0
+            conviction_shrink = 0.15
+            max_prob_dev = 4.0
+
         return {
             "samples": total,
             "empirical_hit_rate_pct": round(hit_rate, 1),
             "brier_score": round(brier, 4),
             "cal_alpha_mult": round(cal_mult, 3),
+            "conviction_shrink": round(conviction_shrink, 3),
+            "max_prob_deviation": round(max_prob_dev, 1),
             "reliability_tier": tier,
         }
     except Exception:
         return {
             "samples": 0,
-            "empirical_hit_rate_pct": 55.0,
-            "brier_score": 0.24,
+            "empirical_hit_rate_pct": 50.0,
+            "brier_score": 0.25,
             "cal_alpha_mult": 1.0,
+            "conviction_shrink": 0.85,
+            "max_prob_deviation": 20.0,
             "reliability_tier": "BASELINE",
         }
 
 
-def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42, orderbook_walls=None, spread_bps=2.0, cal_alpha_mult=1.0):
+def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42, orderbook_walls=None, spread_bps=2.0, cal_alpha_mult=1.0, calibration=None, trend_veto=None):
     """
     Runs 5,000-path Monte Carlo simulations across 10m, 30m, and 60m horizons.
     Calculates:
@@ -447,7 +526,8 @@ def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42, ord
     n_bars = len(bar_tuples)
     block_len = 3 if n_bars >= 6 else 1
     
-    norm_score = max(-1.0, min(1.0, composite_score / 100.0))
+    ref_score = float(composite_score.get("30m", 0.0)) if isinstance(composite_score, dict) else float(composite_score)
+    norm_score = max(-1.0, min(1.0, ref_score / 100.0))
 
     # Step 5: Compute 60m Swing High/Low Liquidation Magnet Clusters & CLOB Wall Reflection Coordinates
     highs_1m = [float(k[2]) for k in k1m] if k1m else [current_price]
@@ -458,10 +538,10 @@ def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42, ord
     dist_to_low_pct = ((current_price - swing_low_60m) / current_price * 100.0) if current_price > 0 else 1.0
 
     liq_magnet_bias = 0.0
-    if 0.0 < dist_to_high_pct <= 0.40 and composite_score > 8.0:
+    if 0.0 < dist_to_high_pct <= 0.40 and ref_score > 8.0:
         # Short-squeeze liquidation cluster magnet above 60m swing high
         liq_magnet_bias = 0.08 * sigma_1m * (1.0 - dist_to_high_pct / 0.40)
-    elif 0.0 < dist_to_low_pct <= 0.40 and composite_score < -8.0:
+    elif 0.0 < dist_to_low_pct <= 0.40 and ref_score < -8.0:
         # Long-liquidation cascade magnet below 60m swing low
         liq_magnet_bias = -0.08 * sigma_1m * (1.0 - dist_to_low_pct / 0.40)
 
@@ -486,14 +566,22 @@ def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42, ord
     rng = random.Random(seed)
     horizons_res = {}
 
+    conviction_shrink = float((calibration or {}).get("conviction_shrink", 1.0))
+    max_prob_dev = float((calibration or {}).get("max_prob_deviation", 35.0))
+    cal_mult = float(cal_alpha_mult if cal_alpha_mult is not None else (calibration or {}).get("cal_alpha_mult", 1.0))
+
     for name, minutes, alpha in horizons_cfg:
-        # Microstructure-driven drift + Step 5 Liquidation Magnet + Step 6 Calibration multiplier
-        eff_alpha = alpha * max(0.65, min(1.35, float(cal_alpha_mult or 1.0)))
-        adj_drift = (0.25 * hist_drift_1m) + (eff_alpha * norm_score * sigma_1m) + liq_magnet_bias
-        
-        # Volatility over horizon H: sigma_H = sigma_1m * sqrt(minutes)
+        hz_score = composite_score.get(name, composite_score) if isinstance(composite_score, dict) else composite_score
+        norm_score = max(-1.0, min(1.0, float(hz_score) / 100.0))
+
+        # Microstructure-driven drift scaled per horizon (Step 6 Platt calibrated)
+        eff_alpha = alpha * max(0.0, min(1.35, cal_mult))
         vol_h_pct = (sigma_1m * math.sqrt(minutes)) * 100.0
-        prelim_exp_move_pct = (math.exp(adj_drift * minutes) - 1.0) * 100.0
+
+        # Total expected alpha return over horizon H in log-space
+        tot_alpha_drift = eff_alpha * norm_score * (sigma_1m * math.sqrt(minutes))
+        step_drift = (tot_alpha_drift / float(minutes)) + (liq_magnet_bias / float(minutes))
+        prelim_exp_move_pct = (math.exp(tot_alpha_drift) - 1.0) * 100.0
 
         # Pre-calculate barrier levels (log-space) for First-Passage simulation
         long_exp_gain_pct = round(max(0.15, (vol_h_pct * 1.15) + max(0.0, prelim_exp_move_pct)), 2)
@@ -530,7 +618,7 @@ def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42, ord
                     if m_idx >= minutes:
                         break
                     lr, uw, dw = bar_tuples[b_start + b_off]
-                    step_r = ((lr - hist_drift_1m) * vol_scale) + adj_drift
+                    step_r = (lr * vol_scale) + step_drift
                     # Step 5: Passive CLOB Limit Wall Reflection when path touches major Bid/Ask wall
                     if sup_wall_log is not None and abs(log_r - sup_wall_log) <= 0.0015:
                         step_r += 0.12 * sigma_1m
@@ -587,12 +675,32 @@ def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42, ord
 
         # Blend Terminal Probability (55%) with Path-Dependent First-Passage Survival Probability (45%)
         fp_net_up = 50.0 + 0.5 * (long_fp_win_pct - short_fp_win_pct)
-        p_up = round(max(5.0, min(95.0, 0.55 * terminal_p_up + 0.45 * fp_net_up)), 1)
+        raw_p_up = 0.55 * terminal_p_up + 0.45 * fp_net_up
+
+        dev_from_50 = (raw_p_up - 50.0) * conviction_shrink
+        dev_from_50 = max(-max_prob_dev, min(max_prob_dev, dev_from_50))
+        p_up = 50.0 + dev_from_50
+
+        # Microstructure Trend Veto
+        if trend_veto == "BEARISH_BREAKDOWN" and name in ("10m", "30m"):
+            p_up = min(46.0, p_up)
+        elif trend_veto == "BULLISH_BREAKOUT" and name in ("10m", "30m"):
+            p_up = max(54.0, p_up)
+
+        p_up = round(max(5.0, min(95.0, p_up)), 1)
         p_down = round(100.0 - p_up, 1)
         prec = 6 if current_price < 1.0 else 4
 
         exp_price = round(statistics.mean(finals), prec)
         exp_move_pct = round(((exp_price - current_price) / current_price) * 100.0, 2)
+
+        # Directional harmony check: ensure expected price move agrees with calibrated probability
+        if p_up >= 52.0 and exp_move_pct < 0:
+            exp_move_pct = abs(exp_move_pct)
+            exp_price = round(current_price * (1.0 + exp_move_pct / 100.0), prec)
+        elif p_up <= 48.0 and exp_move_pct > 0:
+            exp_move_pct = -abs(exp_move_pct)
+            exp_price = round(current_price * (1.0 + exp_move_pct / 100.0), prec)
 
         conf_80_low = round(finals[int(5000 * 0.10)], prec)
         conf_80_high = round(finals[int(5000 * 0.90)], prec)
@@ -630,12 +738,15 @@ def simulate_intraday_horizons(k1m, current_price, composite_score, seed=42, ord
         short_edge_r = round(((short_win_pct / 100.0) * short_net_rr) - ((1.0 - (short_win_pct / 100.0)) * 1.0), 2)
 
         # Determine which action is more profitable (strictly aligned with directional probability)
-        if p_up >= p_down:
+        if p_up > 51.5:
             preferred_action = "LONG"
             advantage_pct = round(p_up - p_down, 1)
-        else:
+        elif p_up < 48.5:
             preferred_action = "SHORT"
             advantage_pct = round(p_down - p_up, 1)
+        else:
+            preferred_action = "NEUTRAL"
+            advantage_pct = 0.0
 
         horizons_res[name] = {
             "horizon": name,
@@ -826,17 +937,28 @@ def estimate_coin_intraday(symbol):
             deep_structural_score = micro_score
             comp_score = round(max(-100.0, min(100.0, micro_score + btc_spillover)), 1)
 
+        # Microstructure Trend Veto
+        trend_veto = detect_microstructure_trend_veto(k1m, k5m)
+
+        # Horizon-adaptive score blending
+        score_10m = max(-100.0, min(100.0, 0.85 * micro_score + 0.15 * mtf_score + btc_spillover))
+        score_30m = max(-100.0, min(100.0, 0.65 * micro_score + 0.35 * deep_structural_score + 0.7 * btc_spillover))
+        score_60m = max(-100.0, min(100.0, 0.45 * micro_score + 0.55 * deep_structural_score + 0.4 * btc_spillover))
+        hz_scores = {"10m": round(score_10m, 1), "30m": round(score_30m, 1), "60m": round(score_60m, 1)}
+
         ob_summary = predict.analyze_orderbook(depth, price)
         calibration = calibrate_intraday_model(k1m)
 
-        # 5. Run 10m, 30m, 60m Monte Carlo + Macro Horizons (4h, 24h, 7d, 30d, 90d)
+        # 5. Run 10m, 30m, 60m Monte Carlo with horizon-adaptive scores and calibration bounds
         horizons = simulate_intraday_horizons(
             k1m,
             price,
-            comp_score,
+            hz_scores,
             orderbook_walls=ob_summary,
             spread_bps=ob_live.get("spread_bps", 2.0),
             cal_alpha_mult=calibration.get("cal_alpha_mult", 1.0),
+            calibration=calibration,
+            trend_veto=trend_veto,
         )
         # 5b. Calibrated 10m / 30m / 60m price targets (walk-forward validated, live-scored)
         price_targets = {}
@@ -849,6 +971,32 @@ def estimate_coin_intraday(symbol):
         for hz_name, pt in price_targets.items():
             if hz_name in horizons:
                 horizons[hz_name]["price_target"] = pt
+                # Harmonization: If forecaster has no out-of-sample edge, force MC probability to neutral
+                if pt.get("method") == "no-change (model had no out-of-sample edge)":
+                    horizons[hz_name]["prob_up_pct"] = 50.0
+                    horizons[hz_name]["prob_down_pct"] = 50.0
+                    horizons[hz_name]["advantage_pct"] = 0.0
+                    horizons[hz_name]["preferred_action"] = "NEUTRAL"
+                    horizons[hz_name]["expected_move_pct"] = 0.0
+                    horizons[hz_name]["expected_price"] = price
+                    horizons[hz_name]["long_outcome"]["win_probability_pct"] = 50.0
+                    horizons[hz_name]["long_outcome"]["math_edge_R"] = 0.0
+                    horizons[hz_name]["long_outcome"]["profitable"] = False
+                    horizons[hz_name]["short_outcome"]["win_probability_pct"] = 50.0
+                    horizons[hz_name]["short_outcome"]["math_edge_R"] = 0.0
+                    horizons[hz_name]["short_outcome"]["profitable"] = False
+                elif pt.get("method") == "walk-forward ridge (validated)":
+                    pt_move = float(pt.get("predicted_move_pct", 0.0))
+                    if pt_move < -0.02 and horizons[hz_name]["prob_up_pct"] > 50.0:
+                        p_rev = 100.0 - horizons[hz_name]["prob_up_pct"]
+                        horizons[hz_name]["prob_up_pct"] = min(48.0, p_rev)
+                        horizons[hz_name]["prob_down_pct"] = 100.0 - horizons[hz_name]["prob_up_pct"]
+                        horizons[hz_name]["preferred_action"] = "SHORT"
+                    elif pt_move > 0.02 and horizons[hz_name]["prob_down_pct"] > 50.0:
+                        p_rev = 100.0 - horizons[hz_name]["prob_down_pct"]
+                        horizons[hz_name]["prob_down_pct"] = min(48.0, p_rev)
+                        horizons[hz_name]["prob_up_pct"] = 100.0 - horizons[hz_name]["prob_down_pct"]
+                        horizons[hz_name]["preferred_action"] = "LONG" 
 
         macro_horizons = {}
         if ctx.get("k1h"):

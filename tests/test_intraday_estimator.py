@@ -49,7 +49,7 @@ class TestIntradayEstimator(unittest.TestCase):
         for name in ["10m", "30m", "60m"]:
             h = horizons[name]
             self.assertAlmostEqual(h["prob_up_pct"] + h["prob_down_pct"], 100.0, places=1)
-            self.assertIn(h["preferred_action"], ["LONG", "SHORT"])
+            self.assertIn(h["preferred_action"], ["LONG", "SHORT", "NEUTRAL"])
             self.assertGreater(h["expected_price"], 0)
             
             # LONG outcome checks
@@ -183,6 +183,42 @@ class TestIntradayEstimator(unittest.TestCase):
         self.assertIn("round_trip_cost_pct", l_out)
         self.assertIn("net_reward_risk_ratio", l_out)
         self.assertLess(l_out["net_expected_gain_pct"], l_out["expected_gain_pct"])
+
+    def test_calibration_guardrails_and_trend_veto(self):
+        # 1. Test Inverted Regime Calibration Guardrail:
+        # When hit rate is 41.5% (like in user screenshot), probability must not hallucinate > 54%
+        mock_low_cal = {
+            "samples": 30,
+            "empirical_hit_rate_pct": 41.5,
+            "brier_score": 0.2518,
+            "cal_alpha_mult": 0.0,
+            "conviction_shrink": 0.15,
+            "max_prob_deviation": 4.0,
+            "reliability_tier": "INVERTED_REGIME",
+        }
+        mock_1m = [
+            [i * 60000, "100.0", "100.6", "99.6", str(100.0 - i * 0.1), "15.0", (i + 1) * 60000, "1500.0", 60, "5.0", "500.0", "0"]
+            for i in range(50)
+        ]
+        hz = intraday_estimator.simulate_intraday_horizons(
+            mock_1m,
+            95.0,
+            26.9,  # positive score should NOT blow up probability when calibration is inverted
+            calibration=mock_low_cal,
+            trend_veto="BEARISH_BREAKDOWN",
+        )
+        # Verify 10m UP probability is strictly guarded and cannot be bullish
+        self.assertLessEqual(hz["10m"]["prob_up_pct"], 46.0)
+        self.assertGreaterEqual(hz["10m"]["prob_down_pct"], 54.0)
+
+        # 2. Test Trend Veto Detection:
+        # Synthetic dumping 1m klines where price is below EMA9/EMA21 and taker buy < 45%
+        dump_1m = [
+            [i * 60000, str(100.0 - i * 0.2), str(100.0 - i * 0.2 + 0.05), str(100.0 - i * 0.2 - 0.2), str(100.0 - (i + 1) * 0.2), "20.0", (i + 1) * 60000, "2000.0", 70, "7.0", "700.0", "0"]
+            for i in range(40)
+        ]
+        veto = intraday_estimator.detect_microstructure_trend_veto(dump_1m)
+        self.assertEqual(veto, "BEARISH_BREAKDOWN")
 
 
 if __name__ == "__main__":
