@@ -203,6 +203,19 @@ def _get(url, timeout=20):
         return r.read().decode("utf-8", "replace")
 
 
+KNOWN_CRYPTO = {
+    "BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI",
+    "DOT", "NEAR", "APT", "TRX", "LTC", "BCH", "UNI", "MATIC", "POL", "PEPE",
+    "SHIB", "FET", "RENDER", "TAO", "WIF", "ICP", "ETC", "XLM", "FIL", "AAVE",
+    "AR", "TIA", "ATOM", "RUNE", "INJ", "KAS", "IMX", "GRT", "HBAR", "FTM",
+    "SEI", "STX", "THETA", "OP", "ARB", "ALGO", "LDO", "BLUR", "PENDLE", "JUP"
+}
+
+
+def is_crypto_sym(sym):
+    s = str(sym or "").upper().strip()
+    return any(s.endswith(quote) for quote in ("USDT", "FDUSD", "USDC", "BUSD")) or s in KNOWN_CRYPTO
+
 def to_binance(sym):
     s = re.sub(r"[\s/\-_]+", "", str(sym or "").upper())
     if s.endswith(".USD"):
@@ -307,9 +320,45 @@ def fetch_binance_chart(sym):
     return json.dumps(doc)
 
 
+def fetch_yahoo_chart(sym):
+    """One request for 60 days of 5-min bars. query2 first, one retry after a 429,
+    then query1 on 429 or 5xx."""
+    last = None
+    for n, host in enumerate(HOSTS):
+        if n:
+            _sleep(PAUSE)
+        for attempt in (0, 1):
+            url = chart_url(sym, host)
+            try:
+                return _get(url)
+            except urllib.error.HTTPError as e:
+                last = e.code
+                try:
+                    e.close()
+                except Exception:
+                    pass
+                if e.code == 429 and attempt == 0:
+                    _sleep(BACKOFF)
+                    continue
+                if e.code == 429 or e.code >= 500:
+                    break
+                if e.code == 404:
+                    raise TMError("Yahoo has no chart for %s (HTTP 404): check the ticker" % sym.upper())
+                raise TMError("Yahoo answered HTTP %d for %s" % (e.code, sym.upper()))
+            except urllib.error.URLError as e:
+                raise TMError("could not reach Yahoo: %s" % e.reason)
+            except OSError as e:
+                raise TMError("could not reach Yahoo: %s" % e)
+    if last == 429:
+        raise TMError("Yahoo is rate limiting (HTTP 429). Wait a minute and run it again.")
+    raise TMError("Yahoo answered HTTP %s for %s on both hosts. Try again later." % (last, sym.upper()))
+
+
 def fetch_chart(sym):
-    """Fetch 5-min bars from Binance Spot API."""
-    return fetch_binance_chart(sym)
+    """Fetch 5-min bars from Binance Spot API for crypto or Yahoo for equities."""
+    if is_crypto_sym(sym):
+        return fetch_binance_chart(sym)
+    return fetch_yahoo_chart(sym)
 
 
 def read_offline(path, sym):
@@ -616,12 +665,15 @@ def load_plan(a, now_utc):
         if not isinstance(raw, dict):
             raise TMError("%s is not a plan" % a.plan)
         src = a.plan
-    return normalize_plan(raw, src, is_binance=not bool(a.offline))
+    sym_hint = raw.get("symbol") or getattr(a, "symbol", "")
+    return normalize_plan(raw, src, is_binance=is_crypto_sym(sym_hint))
 
 
-def normalize_plan(raw, src="flags", is_binance=False):
+def normalize_plan(raw, src="flags", is_binance=None):
     """A plan dict (trader/plan.json shape) -> the checked plan the time machine runs."""
     sym = str(raw.get("symbol") or "").strip().upper()
+    if is_binance is None:
+        is_binance = is_crypto_sym(sym)
     if is_binance and sym:
         sym = to_binance(sym)
     if not re.match(r"^[A-Z0-9][A-Z0-9.\-]{0,19}$", sym):
@@ -631,7 +683,7 @@ def normalize_plan(raw, src="flags", is_binance=False):
         raise TMError("side must be buy or sell, got %r" % raw.get("side"))
     interval = str(raw.get("interval") or "5m")
     if interval != "5m":
-        raise TMError("5-minute bars only (the plan says %s): 1-min bars have too few sessions for a fair replay pool" % interval)
+        raise TMError("5-minute bars only (the plan says %s): Yahoo keeps 60 days of 5-min bars but only about 7 days of 1-min bars, too few sessions for a fair replay pool" % interval)
     try:
         date = datetime.date.fromisoformat(str(raw.get("date") or "")).isoformat()
     except ValueError:
@@ -667,7 +719,10 @@ def normalize_plan(raw, src="flags", is_binance=False):
     if k is None:
         raise TMError("the plan needs entry_time (the entry bar's close, e.g. 10:15 AM) or entry_bar")
     if not 0 <= k <= n_slots - 2:
-        raise TMError("the entry must leave bars to replay (got %s)" % clock12(open_min + 5 * (k + 1)))
+        if is_binance:
+            raise TMError("the entry must leave bars to replay (got %s)" % clock12(open_min + 5 * (k + 1)))
+        raise TMError("the entry must close between 9:35 AM and 3:55 PM to leave bars to replay (got %s)"
+                      % clock12(open_min + 5 * (k + 1)))
     orng = raw.get("opening_range") or {}
     or_min = orng.get("minutes", 15) if isinstance(orng, dict) else 15
     try:
@@ -980,7 +1035,7 @@ def compute(a):
     if a.offline:
         text, source = read_offline(a.offline, plan["symbol"]), "offline"
     else:
-        text, source = fetch_chart(plan["symbol"]), "binance"
+        text, source = fetch_chart(plan["symbol"]), ("binance" if is_crypto_sym(plan["symbol"]) else "yahoo")
     return time_machine(text, plan, now, a.replays, a.seed, a.window, a.until, source)
 
 

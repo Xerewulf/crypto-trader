@@ -127,6 +127,114 @@ class MarginDoctrineTests(unittest.TestCase):
         self.assertLessEqual(plan["leverage"], 5.0)
         self.assertGreater(plan["liq_to_stop_ratio"], 2.0)
         self.assertIn("liquidation_price", plan)
+        self.assertIn("bankruptcy_price", plan)
+        self.assertIn("maintenance_margin_usd", plan)
+        self.assertIn("liquidation_clearance_fee_usd", plan)
+        self.assertIn("carry_adjusted_liq_price", plan)
+        self.assertIn("margin_call_price", plan)
+        self.assertIn("adl_risk_quantile", plan)
+
+    def test_tiered_brackets_and_maintenance_margin(self):
+        # Tier 1 BTC (< 50,000 USDT): MMR = 0.004, CUM = 0
+        brk1 = margin.get_tier_bracket("BTC", 25000.0)
+        self.assertEqual(brk1["mmr"], 0.004)
+        self.assertEqual(brk1["cum"], 0.0)
+        mm1 = margin.maintenance_margin(25000.0, "BTC")
+        self.assertEqual(mm1, 100.0)
+
+        # Tier 2 BTC (50,000 to 250,000 USDT): MMR = 0.005, CUM = 50.0
+        brk2 = margin.get_tier_bracket("BTC", 100000.0)
+        self.assertEqual(brk2["mmr"], 0.005)
+        self.assertEqual(brk2["cum"], 50.0)
+        mm2 = margin.maintenance_margin(100000.0, "BTC")
+        self.assertEqual(mm2, 450.0)
+
+        # Tier 1 Altcoin (< 5,000 USDT): MMR = 0.020, CUM = 0
+        brk_alt = margin.get_tier_bracket("DOGE", 3000.0)
+        self.assertEqual(brk_alt["mmr"], 0.020)
+        self.assertEqual(brk_alt["cum"], 0.0)
+        mm_alt = margin.maintenance_margin(3000.0, "DOGE")
+        self.assertEqual(mm_alt, 60.0)
+
+    def test_bankruptcy_price(self):
+        # Long entry $80,000, 5x leverage -> bankrupt at 80000 * (1 - 1/5) = $64,000
+        bp_long = margin.bankruptcy_price(80000.0, "long", 5.0)
+        self.assertEqual(bp_long, 64000.0)
+
+        # Short entry $80,000, 5x leverage -> bankrupt at 80000 * (1 + 1/5) = $96,000
+        bp_short = margin.bankruptcy_price(80000.0, "short", 5.0)
+        self.assertEqual(bp_short, 96000.0)
+
+        # Liquidation triggers strictly before bankruptcy price
+        liq_long = margin.liquidation_price(80000.0, "long", 5.0, venue="perp", base="BTC")
+        self.assertGreater(liq_long, bp_long)
+
+        liq_short = margin.liquidation_price(80000.0, "short", 5.0, venue="perp", base="BTC")
+        self.assertLess(liq_short, bp_short)
+
+    def test_liquidation_clearance_fee(self):
+        # BTC $50,000 notional: 1.0% fee
+        fee_btc = margin.liquidation_clearance_fee(50000.0, "BTC")
+        self.assertEqual(fee_btc, 500.0)
+
+        # Altcoin $10,000 notional: 2.0% fee
+        fee_alt = margin.liquidation_clearance_fee(10000.0, "DOGE")
+        self.assertEqual(fee_alt, 200.0)
+
+    def test_mark_last_basis(self):
+        # Normal basis: 0.1% divergence
+        b_norm = margin.mark_last_basis(80080.0, 80000.0)
+        self.assertEqual(b_norm["risk_level"], "NORMAL")
+        self.assertTrue(b_norm["safe"])
+
+        # Extreme dislocation: 1.0% divergence (wick risk / illiquidity)
+        b_ext = margin.mark_last_basis(80800.0, 80000.0)
+        self.assertEqual(b_ext["risk_level"], "EXTREME_DISLOCATION")
+        self.assertFalse(b_ext["safe"])
+
+    def test_carry_adjusted_liquidation_price(self):
+        # BTC Long at $80,000, 5x leverage, 72h hold with positive funding rate (0.0005 per 8h)
+        base_liq = margin.liquidation_price(80000.0, "long", 5.0, venue="perp", base="BTC")
+        adj_liq = margin.carry_adjusted_liquidation_price(
+            80000.0, "long", 5.0, hold_hours=72.0, funding_8h=0.0005, venue="perp", base="BTC"
+        )
+        self.assertGreater(adj_liq, base_liq)
+
+    def test_position_health_states(self):
+        # Long at $80,000, 5x leverage, liq is $64,320
+        # 1. Healthy state at $81,000
+        h_good = margin.position_health(80000.0, 81000.0, "long", 5.0, venue="margin", base="BTC")
+        self.assertEqual(h_good["status"], "HEALTHY")
+
+        # 2. Margin call state around $70,000 (buffer remaining between 20% and 50%)
+        h_call = margin.position_health(80000.0, 70000.0, "long", 5.0, venue="perp", base="BTC")
+        self.assertEqual(h_call["status"], "MARGIN_CALL")
+
+        # 3. Liquidated state at or below $64,000
+        h_liq = margin.position_health(80000.0, 64000.0, "long", 5.0, venue="margin", base="BTC")
+        self.assertEqual(h_liq["status"], "LIQUIDATED")
+
+    def test_adl_priority_quantile(self):
+        # Low leverage (2x) and low profit -> Quantile 1 (safest)
+        adl_safe = margin.adl_priority_quantile(2.0, 0.05)
+        self.assertEqual(adl_safe["quantile"], 1)
+
+        # High leverage (20x) and massive profit -> Quantile 4 or 5
+        adl_risky = margin.adl_priority_quantile(20.0, 0.50)
+        self.assertGreaterEqual(adl_risky["quantile"], 4)
+
+    def test_validate_margin_mode(self):
+        iso = margin.validate_margin_mode("perp", "isolated")
+        self.assertTrue(iso["institutional_approved"])
+
+        cross = margin.validate_margin_mode("perp", "cross")
+        self.assertFalse(cross["institutional_approved"])
+
+    def test_macro_calendar_cpi_nfp(self):
+        # 2026-06-10 8:30 AM NY is a CPI release
+        cpi_ms = margin.cpi_decision_ms("2026-06-10")
+        ev_block = margin.event_risk(cpi_ms - int(0.5 * margin.HOUR_MS))
+        self.assertEqual(ev_block["level"], "BLOCK")
 
 
 if __name__ == "__main__":

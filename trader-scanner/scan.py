@@ -96,7 +96,7 @@ BAR_MIN = 5
 MAX_CONFIRM = 200   # stage-2 v8 charts per orb scan, most traded first
 MIN_DAILY_BARS = 30
 DEFAULT_UNIVERSE = "trader/universe.txt"
-NOTE = "A scan is a list of charts that match a rule, not a list of coins to buy."
+NOTE = "A scan is a list of charts that match a rule, not a list of stocks to buy."
 
 NYSE_HOLIDAYS = {
     "2026-01-01": "New Year's Day",
@@ -1007,11 +1007,21 @@ def fetch_spark(symbols, rng, interval, pause, a=None):
     return data, failed
 
 
+KNOWN_CRYPTO = {
+    "BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "SUI",
+    "DOT", "NEAR", "APT", "TRX", "LTC", "BCH", "UNI", "MATIC", "POL", "PEPE",
+    "SHIB", "FET", "RENDER", "TAO", "WIF", "ICP", "ETC", "XLM", "FIL", "AAVE",
+    "AR", "TIA", "ATOM", "RUNE", "INJ", "KAS", "IMX", "GRT", "HBAR", "FTM",
+    "SEI", "STX", "THETA", "OP", "ARB", "ALGO", "LDO", "BLUR", "PENDLE", "JUP"
+}
+
+
 def read_symbols(a, offline_syms=None):
     if a.symbols:
         syms = [s for s in re.split(r"[,\s]+", a.symbols.upper()) if s]
         if not a.offline:
-            syms = [to_binance(s) for s in syms]
+            if any(s.endswith(("USDT", "FDUSD", "USDC", "BUSD")) or s in KNOWN_CRYPTO for s in syms):
+                syms = [to_binance(s) for s in syms]
     elif a.watchlist:
         syms = symbols_from_file(a.watchlist)
     elif offline_syms is not None and not a.universe:
@@ -1134,13 +1144,20 @@ def cmd_daily(a):
         data, failed = load_offline(a.offline)
         offline_syms = sorted(set(data) | set(failed))
     symbols = read_symbols(a, offline_syms)
+    sample_syms = (symbols[:10] if symbols else [])
+    is_binance = any(str(s).endswith(("USDT", "BUSD", "FDUSD", "USDC")) for s in sample_syms)
     if not a.offline:
-        data, failed = fetch_binance_batch(symbols, "1d", limit=35, min_price=a.min_price,
-                                           min_volume=a.min_volume, a=a)
+        if is_binance:
+            data, failed = fetch_binance_batch(symbols, "1d", limit=35, min_price=a.min_price,
+                                               min_volume=a.min_volume, a=a)
+        else:
+            progress(a, "Fetching daily closes for %s symbols (%d spark requests)..."
+                     % ("{:,}".format(len(symbols)), (len(symbols) + SPARK_MAX - 1) // SPARK_MAX))
+            data, failed = fetch_spark(symbols, "3mo", "1d", a.pause, a)
     hits, counts, last_date = scan_daily(data, symbols, now, a.min_price, a.min_volume)
     nfailed = len(symbols) - counts["fetched"]
     as_of = ("%s close" % last_date.isoformat()) if last_date else None
-    src = "yahoo" if a.offline else "binance"
+    src = "binance" if is_binance else "yahoo"
     doc = {"created_by": "trader-scanner", "created_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "mode": "daily",
            "as_of": as_of, "universe": len(symbols), "scanned": counts["scanned"], "failed": nfailed,
            "source": src, "filters": {"min_price": a.min_price, "min_volume": a.min_volume},
@@ -1196,13 +1213,9 @@ def cmd_orb(a):
     now = parse_now(a.now)
     at = parse_hhmm(a.at) if a.at else None
     cfg = read_config(a.config)
-    until = parse_hhmm(a.until or cfg.get("no_entries_after") or ("15:30" if a.offline else "23:59"), "--until")
     data = failed = None
     explicit_day = None
     offline_syms = None
-    is_binance = not bool(a.offline)
-    open_t = parse_hhmm(a.session_open, "--session-open") if getattr(a, "session_open", None) else (
-        datetime.time(0, 0) if is_binance else OPEN)
     if a.offline:
         data, failed = load_offline(a.offline)
         offline_syms = sorted(set(data) | set(failed))
@@ -1212,15 +1225,38 @@ def cmd_orb(a):
                 explicit_day = max(days)
                 if at is None:
                     raise ScanError("offline replay: give --at HH:MM or --now \"YYYY-MM-DD HH:MM\"")
-    day, cutoff = orb_window(now, at, a.or_minutes, until, explicit_day, is_binance=is_binance, open_t=open_t)
     symbols = read_symbols(a, offline_syms)
+    sample_syms = (symbols[:10] if symbols else [])
+    is_binance = any(str(s).endswith(("USDT", "BUSD", "FDUSD", "USDC")) for s in sample_syms)
+    until = parse_hhmm(a.until or cfg.get("no_entries_after") or ("23:59" if is_binance else "15:30"), "--until")
+    open_t = parse_hhmm(a.session_open, "--session-open") if getattr(a, "session_open", None) else (
+        datetime.time(0, 0) if is_binance else OPEN)
+    day, cutoff = orb_window(now, at, a.or_minutes, until, explicit_day, is_binance=is_binance, open_t=open_t)
     confirm = None
     if not a.offline:
-        # Limit default Binance orb scan to top 150 by volume unless --limit or --symbols was given
-        if not a.symbols and not a.watchlist and not a.limit and len(symbols) > 150:
-            symbols = symbols[:150]
-        data, failed = fetch_binance_batch(symbols, "%dm" % BAR_MIN, limit=300,
-                                           min_price=a.min_price, min_volume=a.min_volume, a=a)
+        if is_binance:
+            # Limit default Binance orb scan to top 150 by volume unless --limit or --symbols was given
+            if not a.symbols and not a.watchlist and not a.limit and len(symbols) > 150:
+                symbols = symbols[:150]
+            data, failed = fetch_binance_batch(symbols, "%dm" % BAR_MIN, limit=300,
+                                               min_price=a.min_price, min_volume=a.min_volume, a=a)
+        else:
+            today = to_eastern(parse_now(None)).date()
+            if (today - day).days > 6:
+                raise ScanError("Yahoo's free 5-minute history is short: replay %s with --offline" % day.isoformat())
+            rng = "1d" if day == today else "5d"
+            progress(a, "Stage 1: 5-minute closes for %s symbols (%d spark requests)..."
+                     % ("{:,}".format(len(symbols)), (len(symbols) + SPARK_MAX - 1) // SPARK_MAX))
+            data, failed = fetch_spark(symbols, rng, "%dm" % BAR_MIN, a.pause, a)
+            done = []
+
+            def confirm(sym):
+                if a.pause:
+                    SLEEP(a.pause)
+                done.append(sym)
+                if len(done) % 50 == 0:
+                    progress(a, "  stage 2: %d v8 charts so far" % len(done))
+                return parse_chart(yahoo_get(chart_path(sym, rng, "%dm" % BAR_MIN)), sym)
     hits, counts, failed2 = scan_orb(data, symbols, day, cutoff, a.or_minutes, a.min_price, a.min_volume, confirm,
                                      a.max_confirm, open_t=open_t)
     failed = dict(failed or {})
@@ -1256,14 +1292,19 @@ def cmd_orb(a):
         print("%d of %s charts closed above their opening-range high by %s:"
               % (len(hits), ("the %s checked" % "{:,}".format(counts["confirmed"])) if counts["unconfirmed"]
                  else "{:,}".format(counts["scanned"]), clock_label(cutoff)))
+        has_crypto_hits = any(str(h.get("symbol", "")).endswith(("USDT", "BUSD", "FDUSD", "USDC")) or h.get("taker_buy_pct") is not None for h in hits)
         for h in hits[:a.show]:
             extra = ""
             if h.get("taker_buy_pct") is not None:
                 extra += "  TakerBuy %4.1f%%" % h["taker_buy_pct"]
             if h.get("funding_rate_pct") is not None:
                 extra += "  Fund %+.4f%%" % h["funding_rate_pct"]
-            print("  %8s  %-10s %12s  range %s to %s  %+.2f%% over%s" % (
-                h["at"], h["symbol"], money(h["price"]), _p(h["or_low"]), _p(h["or_high"]), h["pct_over"], extra))
+            if has_crypto_hits:
+                print("  %8s  %-10s %12s  range %s to %s  %+.2f%% over%s" % (
+                    h["at"], h["symbol"], money(h["price"]), _p(h["or_low"]), _p(h["or_high"]), h["pct_over"], extra))
+            else:
+                print("  %8s  %-6s %10s  range %s to %s  %+.2f%% over" % (
+                    h["at"], h["symbol"], money(h["price"]), _p(h["or_low"]), _p(h["or_high"]), h["pct_over"]))
         if len(hits) > a.show:
             print("  ... and %d more in the watchlist (--show N for more)." % (len(hits) - a.show))
     else:
