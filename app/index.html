@@ -514,9 +514,9 @@
             <th>Coin</th>
             <th>Live Spot</th>
             <th>24h Change</th>
-            <th>10m Estimation</th>
-            <th>30m Estimation</th>
-            <th>60m Estimation</th>
+            <th>10m Target & Dir</th>
+            <th>30m Target & Dir</th>
+            <th>60m Target & Dir</th>
             <th>10Y k-NN (7d / 30d)</th>
             <th>25-Outlet News</th>
             <th>Preferred Action</th>
@@ -650,18 +650,21 @@
               ${isUp ? '+' : ''}${c.change_24h_pct.toFixed(2)}%
             </td>
             <td>
-              <span style="color:${h10.prob_up_pct >= 50 ? 'var(--green)' : 'var(--red)'};font-weight:700;">
-                ${h10.prob_up_pct >= 50 ? '▲ UP ' + h10.prob_up_pct + '%' : '▼ DOWN ' + h10.prob_down_pct + '%'}
+              <div style="font-weight:800;color:#f8fafc;font-size:12.5px;">${fmtP((h10.price_target && h10.price_target.predicted_price) || h10.expected_price || c.price)}</div>
+              <span style="color:${h10.prob_up_pct >= 50 ? 'var(--green)' : 'var(--red)'};font-size:10.5px;font-weight:700;">
+                ${h10.prob_up_pct >= 50 ? '▲ ' + h10.prob_up_pct + '%' : '▼ ' + h10.prob_down_pct + '%'} (${(h10.expected_move_pct >= 0 ? '+' : '') + (h10.expected_move_pct || 0).toFixed(2)}%)
               </span>
             </td>
             <td>
-              <span style="color:${h30.prob_up_pct >= 50 ? 'var(--green)' : 'var(--red)'};font-weight:700;">
-                ${h30.prob_up_pct >= 50 ? '▲ UP ' + h30.prob_up_pct + '%' : '▼ DOWN ' + h30.prob_down_pct + '%'}
+              <div style="font-weight:800;color:#f8fafc;font-size:12.5px;">${fmtP((h30.price_target && h30.price_target.predicted_price) || h30.expected_price || c.price)}</div>
+              <span style="color:${h30.prob_up_pct >= 50 ? 'var(--green)' : 'var(--red)'};font-size:10.5px;font-weight:700;">
+                ${h30.prob_up_pct >= 50 ? '▲ ' + h30.prob_up_pct + '%' : '▼ ' + h30.prob_down_pct + '%'} (${(h30.expected_move_pct >= 0 ? '+' : '') + (h30.expected_move_pct || 0).toFixed(2)}%)
               </span>
             </td>
             <td>
-              <span style="color:${h60.prob_up_pct >= 50 ? 'var(--green)' : 'var(--red)'};font-weight:700;">
-                ${h60.prob_up_pct >= 50 ? '▲ UP ' + h60.prob_up_pct + '%' : '▼ DOWN ' + h60.prob_down_pct + '%'}
+              <div style="font-weight:800;color:#f8fafc;font-size:12.5px;">${fmtP((h60.price_target && h60.price_target.predicted_price) || h60.expected_price || c.price)}</div>
+              <span style="color:${h60.prob_up_pct >= 50 ? 'var(--green)' : 'var(--red)'};font-size:10.5px;font-weight:700;">
+                ${h60.prob_up_pct >= 50 ? '▲ ' + h60.prob_up_pct + '%' : '▼ ' + h60.prob_down_pct + '%'} (${(h60.expected_move_pct >= 0 ? '+' : '') + (h60.expected_move_pct || 0).toFixed(2)}%)
               </span>
             </td>
             <td style="font-size:11.5px;">
@@ -750,8 +753,25 @@
             <div class="prediction-box">
               <div class="pred-header">
                 <span style="color:var(--green);">🟢 UP PROBABILITY: ${pUp.toFixed(1)}%</span>
-                <span style="color:var(--muted);font-size:11px;">Expected: <b style="color:${hz.expected_move_pct >= 0 ? 'var(--green)' : 'var(--red)'};">${hz.expected_move_pct >= 0 ? '+' : ''}${hz.expected_move_pct}%</b></span>
+                <span style="color:var(--muted);font-size:11px;">Expected Move: <b style="color:${hz.expected_move_pct >= 0 ? 'var(--green)' : 'var(--red)'};">${hz.expected_move_pct >= 0 ? '+' : ''}${hz.expected_move_pct}%</b></span>
                 <span style="color:var(--red);">🔴 DOWN: ${pDown.toFixed(1)}%</span>
+              </div>
+
+              <!-- Dedicated Exact Target Price Display for ${activeHorizon} -->
+              <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.3);border-radius:8px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;margin:4px 0;">
+                <div>
+                  <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--subtle);">Predicted Price After ${activeHorizon}</div>
+                  <div style="font-size:18px;font-weight:900;color:#38bdf8;letter-spacing:-0.02em;">
+                    ${fmtP((hz.price_target && hz.price_target.predicted_price) || hz.expected_price || c.price)}
+                    <span style="font-size:12px;font-weight:700;color:${(hz.expected_move_pct >= 0 ? 'var(--green)' : 'var(--red)')};">
+                      (${(hz.expected_move_pct >= 0 ? '+' : '') + (hz.expected_move_pct || 0).toFixed(2)}%)
+                    </span>
+                  </div>
+                </div>
+                <div style="text-align:right;font-size:11px;color:var(--muted);">
+                  <div>Typical MAE: <b style="color:#fde68a;">±${((hz.price_target && hz.price_target.typical_error_pct) || 0.15).toFixed(2)}%</b></div>
+                  <div style="font-size:10px;color:var(--subtle);">${(hz.price_target && hz.price_target.method) || 'walk-forward ridge'}</div>
+                </div>
               </div>
 
               <div class="prob-bar-wrap">
@@ -759,8 +779,8 @@
               </div>
 
               <div class="pred-details">
-                <span>80% Confidence Range:</span>
-                <span><b>${fmtP(hz.conf_80_low)}</b> to <b>${fmtP(hz.conf_80_high)}</b></span>
+                <span>80% Empirical Band:</span>
+                <span><b>${fmtP((hz.price_target && hz.price_target.range_80_low) || hz.conf_80_low)}</b> to <b>${fmtP((hz.price_target && hz.price_target.range_80_high) || hz.conf_80_high)}</b></span>
               </div>
             </div>
 
