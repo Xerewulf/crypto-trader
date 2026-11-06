@@ -1,0 +1,213 @@
+{
+  "generated_at": "2026-11-06T10:46:06Z",
+  "tested_symbols": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "BNB"
+  ],
+  "eval_points_per_symbol": 80,
+  "aggregate_summary": {
+    "10m": {
+      "directional_hit_rate_pct": 50.0,
+      "band_80_coverage_pct": 83.8,
+      "band_50_coverage_pct": 56.5,
+      "avg_mape_pct": 0.164
+    },
+    "30m": {
+      "directional_hit_rate_pct": 49.2,
+      "band_80_coverage_pct": 86.9,
+      "band_50_coverage_pct": 62.8,
+      "avg_mape_pct": 0.268
+    },
+    "60m": {
+      "directional_hit_rate_pct": 51.9,
+      "band_80_coverage_pct": 81.9,
+      "band_50_coverage_pct": 58.7,
+      "avg_mape_pct": 0.48
+    },
+    "overall_directional_hit_rate_pct": 50.4
+  },
+  "asset_reports": {
+    "BTC": {
+      "symbol": "BTC",
+      "eval_points": 80,
+      "horizons": {
+        "10m": {
+          "eval_count": 80,
+          "calls_made": 52,
+          "hit_rate_pct": 48.1,
+          "high_conv_calls": 44,
+          "high_conv_hit_rate_pct": 50.0,
+          "band_80_coverage_pct": 83.8,
+          "band_50_coverage_pct": 58.8,
+          "mae_usd": 106.5658,
+          "mape_pct": 0.136,
+          "avg_trade_pnl_pct": 0.031,
+          "win_loss_ratio": 0.93
+        },
+        "30m": {
+          "eval_count": 80,
+          "calls_made": 60,
+          "hit_rate_pct": 56.7,
+          "high_conv_calls": 50,
+          "high_conv_hit_rate_pct": 58.0,
+          "band_80_coverage_pct": 88.8,
+          "band_50_coverage_pct": 62.5,
+          "mae_usd": 177.0836,
+          "mape_pct": 0.228,
+          "avg_trade_pnl_pct": 0.054,
+          "win_loss_ratio": 1.31
+        },
+        "60m": {
+          "eval_count": 80,
+          "calls_made": 61,
+          "hit_rate_pct": 57.4,
+          "high_conv_calls": 54,
+          "high_conv_hit_rate_pct": 57.4,
+          "band_80_coverage_pct": 83.8,
+          "band_50_coverage_pct": 57.5,
+          "mae_usd": 317.7938,
+          "mape_pct": 0.409,
+          "avg_trade_pnl_pct": 0.135,
+          "win_loss_ratio": 1.35
+        }
+      }
+    },
+    "ETH": {
+      "symbol": "ETH",
+      "eval_points": 80,
+      "horizons": {
+        "10m": {
+          "eval_count": 80,
+          "calls_made": 48,
+          "hit_rate_pct": 58.3,
+          "high_conv_calls": 38,
+          "high_conv_hit_rate_pct": 63.2,
+          "band_80_coverage_pct": 82.5,
+          "band_50_coverage_pct": 56.2,
+          "mae_usd": 3.9454,
+          "mape_pct": 0.17,
+          "avg_trade_pnl_pct": 0.059,
+          "win_loss_ratio": 1.4
+        },
+        "30m": {
+          "eval_count": 80,
+          "calls_made": 56,
+          "hit_rate_pct": 46.4,
+          "high_conv_calls": 50,
+          "high_conv_hit_rate_pct": 44.0,
+          "band_80_coverage_pct": 88.8,
+          "band_50_coverage_pct": 63.7,
+          "mae_usd": 6.1393,
+          "mape_pct": 0.266,
+          "avg_trade_pnl_pct": 0.076,
+          "win_loss_ratio": 0.87
+        },
+        "60m": {
+          "eval_count": 80,
+          "calls_made": 64,
+          "hit_rate_pct": 56.2,
+          "high_conv_calls": 54,
+          "high_conv_hit_rate_pct": 57.4,
+          "band_80_coverage_pct": 82.5,
+          "band_50_coverage_pct": 56.2,
+          "mae_usd": 12.3609,
+          "mape_pct": 0.534,
+          "avg_trade_pnl_pct": 0.238,
+          "win_loss_ratio": 1.28
+        }
+      }
+    },
+    "SOL": {
+      "symbol": "SOL",
+      "eval_points": 80,
+      "horizons": {
+        "10m": {
+          "eval_count": 80,
+          "calls_made": 46,
+          "hit_rate_pct": 47.8,
+          "high_conv_calls": 38,
+          "high_conv_hit_rate_pct": 52.6,
+          "band_80_coverage_pct": 86.2,
+          "band_50_coverage_pct": 51.2,
+          "mae_usd": 0.209,
+          "mape_pct": 0.224,
+          "avg_trade_pnl_pct": -0.003,
+          "win_loss_ratio": 0.92
+        },
+        "30m": {
+          "eval_count": 80,
+          "calls_made": 58,
+          "hit_rate_pct": 44.8,
+          "high_conv_calls": 44,
+          "high_conv_hit_rate_pct": 43.2,
+          "band_80_coverage_pct": 85.0,
+          "band_50_coverage_pct": 63.7,
+          "mae_usd": 0.3423,
+          "mape_pct": 0.369,
+          "avg_trade_pnl_pct": 0.021,
+          "win_loss_ratio": 0.81
+        },
+        "60m": {
+          "eval_count": 80,
+          "calls_made": 64,
+          "hit_rate_pct": 51.6,
+          "high_conv_calls": 53,
+          "high_conv_hit_rate_pct": 49.1,
+          "band_80_coverage_pct": 83.8,
+          "band_50_coverage_pct": 63.7,
+          "mae_usd": 0.5581,
+          "mape_pct": 0.6,
+          "avg_trade_pnl_pct": 0.147,
+          "win_loss_ratio": 1.07
+        }
+      }
+    },
+    "BNB": {
+      "symbol": "BNB",
+      "eval_points": 80,
+      "horizons": {
+        "10m": {
+          "eval_count": 80,
+          "calls_made": 50,
+          "hit_rate_pct": 46.0,
+          "high_conv_calls": 36,
+          "high_conv_hit_rate_pct": 47.2,
+          "band_80_coverage_pct": 82.5,
+          "band_50_coverage_pct": 60.0,
+          "mae_usd": 0.8893,
+          "mape_pct": 0.127,
+          "avg_trade_pnl_pct": 0.005,
+          "win_loss_ratio": 0.85
+        },
+        "30m": {
+          "eval_count": 80,
+          "calls_made": 57,
+          "hit_rate_pct": 49.1,
+          "high_conv_calls": 49,
+          "high_conv_hit_rate_pct": 46.9,
+          "band_80_coverage_pct": 85.0,
+          "band_50_coverage_pct": 61.3,
+          "mae_usd": 1.4683,
+          "mape_pct": 0.21,
+          "avg_trade_pnl_pct": 0.006,
+          "win_loss_ratio": 0.96
+        },
+        "60m": {
+          "eval_count": 80,
+          "calls_made": 64,
+          "hit_rate_pct": 42.2,
+          "high_conv_calls": 56,
+          "high_conv_hit_rate_pct": 41.1,
+          "band_80_coverage_pct": 77.5,
+          "band_50_coverage_pct": 57.5,
+          "mae_usd": 2.6495,
+          "mape_pct": 0.378,
+          "avg_trade_pnl_pct": 0.012,
+          "win_loss_ratio": 0.73
+        }
+      }
+    }
+  }
+}
