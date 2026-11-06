@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6 Coins Future</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <style>
+    :root {
+      --bg: #030712;
+      --card-bg: #0b1329;
+      --card-inner: #070d1d;
+      --border: #1e293b;
+      --border-highlight: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --subtle: #64748b;
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.12);
+      --green-border: rgba(16, 185, 129, 0.35);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.12);
+      --red-border: rgba(239, 68, 68, 0.35);
+      --gold: #f59e0b;
+      --blue: #3b82f6;
+      --accent: #06b6d4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Bar */
+    .topbar {
+      background: rgba(11, 19, 41, 0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, #059669, #0284c7);
+      color: #fff;
+      font-weight: 900;
+      font-size: 15px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+    }
+
+    .site-title {
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .site-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Pulse Live Badge */
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .countdown-text {
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Horizon Selector Buttons */
+    .horizon-pills {
+      display: flex;
+      background: #030712;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .hz-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 11.5px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .hz-btn.active {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-refresh {
+      background: #1e293b;
+      border: 1px solid var(--border-highlight);
+      color: #e2e8f0;
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-refresh:hover {
+      background: #334155;
+    }
+
+    /* Main Container */
+    .main-wrap {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+    }
+
+    /* Summary Overview Bar */
+    .summary-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      overflow-x: auto;
+    }
+
+    .summary-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    table.matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    table.matrix-table th {
+      padding: 8px 10px;
+      color: var(--subtle);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+
+    table.matrix-table td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+      font-weight: 600;
+    }
+
+    table.matrix-table tr:hover {
+      background: rgba(30, 41, 59, 0.3);
+    }
+
+    /* 5-Coin Grid */
+    .coins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 16px;
+    }
+
+    .coin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .coin-card:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-2px);
+    }
+
+    /* Coin Card Header */
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+      padding-bottom: 12px;
+    }
+
+    .coin-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .coin-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .coin-symbol {
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .coin-symbol span {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .momentum-pill {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: #0f1d38;
+      border: 1px solid #1e3a5f;
+      color: #38bdf8;
+      margin-top: 3px;
+    }
+
+    .price-block {
+      text-align: right;
+    }
+
+    .price-val {
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+      transition: color 0.3s;
+    }
+
+    .price-val.flash-up { color: #34d399; }
+    .price-val.flash-down { color: #f87171; }
+
+    .chg-val {
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    .chg-val.up { color: var(--green); }
+    .chg-val.down { color: var(--red); }
+
+    /* Prediction Horizon Box */
+    .prediction-box {
+      background: var(--card-inner);
+      border: 1px solid rgba(30, 41, 59, 0.9);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pred-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .prob-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .prob-bar-up {
+      background: #10b981;
+      height: 100%;
+      transition: width 0.4s ease;
+    }
+
+    .pred-details {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .pred-details b {
+      color: #e2e8f0;
+    }
+
+    /* Long vs Short 2-Column Split */
+    .chance-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .chance-box {
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 11.5px;
+    }
+
+    .chance-box.long-box {
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+    }
+
+    .chance-box.short-box {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+    }
+
+    .chance-title {
+      font-weight: 900;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 5px;
+    }
+
+    .chance-box.long-box .chance-title { color: #34d399; }
+    .chance-box.short-box .chance-title { color: #f87171; }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+    }
+
+    .metric-row b {
+      color: #f8fafc;
+      font-weight: 700;
+    }
+
+    /* Recommended Action Banner */
+    .verdict-banner {
+      border-radius: 9px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      font-weight: 900;
+      letter-spacing: -0.2px;
+    }
+
+    .verdict-banner.call-long {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.15));
+      border: 1px solid #10b981;
+      color: #6ee7b7;
+    }
+
+    .verdict-banner.call-short {
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.25), rgba(244, 63, 94, 0.15));
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+    }
+
+    .call-tag {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 14px 24px;
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--subtle);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="brand-group">
+      <div class="logo-badge">⚡ 6 COINS FUTURE</div>
+      <div>
+        <div class="site-title">6 Coins Future</div>
+        <div class="site-sub">Binance Long &amp; Short Prediction Engine -- BNB · SOL · BTC · ETH · DOGE · XRP (10Y Cycle + 25-Outlet News + Live Order Flow)</div>
+      </div>
+    </div>
+
+    <div class="controls-group">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span>LIVE</span>
+        <span class="countdown-text">(refresh in <b id="timerCount">2</b>s)</span>
+      </div>
+
+      <!-- Horizon Selector Pills -->
+      <div class="horizon-pills">
+        <button class="hz-btn" id="btn10m" onclick="setHorizon('10m')">10m</button>
+        <button class="hz-btn active" id="btn30m" onclick="setHorizon('30m')">30m</button>
+        <button class="hz-btn" id="btn60m" onclick="setHorizon('60m')">60m</button>
+      </div>
+
+      <button class="btn-refresh" onclick="fetchLivePredictions(true)">↻ Refresh Now</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-wrap">
+
+    <!-- Executive Matrix Table -->
+    <section class="summary-bar">
+      <div class="summary-title">
+        <span>6 Coins Future -- Long &amp; Short Consensus Matrix</span>
+        <span style="font-size:11px;color:var(--subtle);text-transform:none;" id="lastUpdatedTs">Syncing with Binance Spot & Perps...</span>
+      </div>
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Coin</th>
+            <th>Live Spot</th>
+            <th>24h Change</th>
+            <th>10m Target & Dir</th>
+            <th>30m Target & Dir</th>
+            <th>60m Target & Dir</th>
+            <th>10Y k-NN (7d / 30d)</th>
+            <th>25-Outlet News</th>
+            <th>Preferred Action</th>
+            <th>Advantage</th>
+          </tr>
+        </thead>
+        <tbody id="summaryTableBody">
+          <tr><td colspan="10" style="padding:24px;text-align:center;color:var(--muted);">Loading 6 Coins Future Long &amp; Short predictions...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 5-Coin Live Cards Grid -->
+    <section class="coins-grid" id="coinsCardsGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);">Loading 6 Coins Future cards...</div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Powered by 10-Year Binance Historical Daily/Weekly Data (2016-2026 k-NN Regime Analogs, 200W SMA, Mayer Multiple & Power-Law Corridor), 25+ Global News Outlets (Fed, Wall St. Banks, Binance CMS, X/Twitter Whales, Magazines), Cross-Exchange Perpetuals & Live 1m/5m CLOB Order Flow. Auto-refreshes every 2 seconds.
+  </footer>
+
+  <script>
+    const REFRESH_INTERVAL_SEC = 2;
+    let activeHorizon = "30m";
+    let coinsData = [];
+    let previousPrices = {};
+    let countdownSec = REFRESH_INTERVAL_SEC;
+    let timerInterval = null;
+    let isFetching = false;
+    let refreshCount = 0;
+
+    const COIN_METAS = {
+      "BNBUSDT": { name: "BNB", symbol: "BNB", color: "#f0b90b", bg: "rgba(240, 185, 11, 0.2)" },
+      "SOLUSDT": { name: "Solana", symbol: "SOL", color: "#14f195", bg: "rgba(20, 241, 149, 0.2)" },
+      "BTCUSDT": { name: "Bitcoin", symbol: "BTC", color: "#f7931a", bg: "rgba(247, 147, 26, 0.2)" },
+      "ETHUSDT": { name: "Ethereum", symbol: "ETH", color: "#627eea", bg: "rgba(98, 126, 234, 0.2)" },
+      "DOGEUSDT": { name: "Dogecoin", symbol: "DOGE", color: "#c2a633", bg: "rgba(194, 166, 51, 0.2)" },
+      "ADAUSDT": { name: "Cardano", symbol: "ADA", color: "#3b82f6", bg: "rgba(59, 130, 246, 0.2)" },
+      "XRPUSDT": { name: "XRP", symbol: "XRP", color: "#00aae4", bg: "rgba(0, 170, 228, 0.2)" }
+    };
+
+    function fmtP(x) {
+      if (x === null || x === undefined || isNaN(x)) return "-";
+      const f = Number(x);
+      if (f === 0) return "$0.00";
+      if (Math.abs(f) < 0.01) return "$" + f.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+      if (Math.abs(f) < 1.0) return "$" + f.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+      return "$" + f.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function setHorizon(hz) {
+      activeHorizon = hz;
+      ["10m", "30m", "60m"].forEach(h => {
+        const btn = document.getElementById("btn" + h);
+        if (btn) {
+          if (h === hz) btn.classList.add("active");
+          else btn.classList.remove("active");
+        }
+      });
+      renderCards();
+    }
+
+    async function fetchLivePredictions(force=false) {
+      if (isFetching && !force) return;
+      isFetching = true;
+      const t0 = performance.now();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      try {
+        const qs = (force ? "?refresh=1&_t=" : "?_t=") + Date.now();
+        const res = await fetch("/api/intraday_5coins" + qs, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" },
+          signal: controller.signal
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (data && data.coins && Array.isArray(data.coins)) {
+          coinsData = data.coins;
+          refreshCount++;
+          renderSummaryTable();
+          renderCards();
+          const latencyMs = Math.round(performance.now() - t0);
+          const nowStr = new Date().toLocaleTimeString();
+          const tsEl = document.getElementById("lastUpdatedTs");
+          if (tsEl) {
+            tsEl.innerHTML = `<span style="color:#34d399;font-weight:700;">● Live 2s Sync</span> · Updated: <b style="color:#f8fafc;">${nowStr}</b> <span style="color:#64748b;">(#${refreshCount} · ${latencyMs}ms)</span>`;
+          }
+        }
+      } catch (err) {
+        console.warn("Live refresh retry queued:", err.message || err);
+      } finally {
+        clearTimeout(timeoutId);
+        isFetching = false;
+        countdownSec = REFRESH_INTERVAL_SEC;
+        const timerEl = document.getElementById("timerCount");
+        if (timerEl) timerEl.textContent = countdownSec;
+      }
+    }
+
+    function renderSummaryTable() {
+      const tbody = document.getElementById("summaryTableBody");
+      if (!tbody || !coinsData.length) return;
+
+      tbody.innerHTML = coinsData.map(c => {
+        const isUp = c.change_24h_pct >= 0;
+        const h10 = (c.horizons && c.horizons["10m"]) || {};
+        const h30 = (c.horizons && c.horizons["30m"]) || {};
+        const h60 = (c.horizons && c.horizons["60m"]) || {};
+        const ty = c.ten_year_summary || {};
+        const nw = c.news_summary || {};
+
+        const act = h30.preferred_action || "NEUTRAL";
+        const isLong = act === "LONG";
+        const adv = h30.advantage_pct || 0;
+        const knn7 = ty.knn_7d_prob_up_pct !== undefined ? ty.knn_7d_prob_up_pct : 50;
+        const knn30 = ty.knn_30d_prob_up_pct !== undefined ? ty.knn_30d_prob_up_pct : 50;
+        const nwScore = nw.score !== undefined ? nw.score : 0;
+
+        return `
+          <tr>
+            <td>
+              <b style="color:#fff;font-size:13px;">${c.symbol.replace(/USDT$/, "")}</b>
+              <span style="color:var(--subtle);font-size:10px;">/USDT</span>
+            </td>
+            <td><b style="color:#fff;">${fmtP(c.price)}</b></td>
+            <td style="color:${isUp ? 'var(--green)' : 'var(--red)'};font-weight:700;">
+              ${isUp ? '+' : ''}${c.change_24h_pct.toFixed(2)}%
+            </td>
+            <td>
+              <div style="font-weight:800;color:#f8fafc;font-size:12.5px;">${fmtP((h10.price_target && h10.price_target.predicted_price) || h10.expected_price || c.price)}</div>
+              <span style="color:${h10.prob_up_pct >= 50 ? 'var(--green)' : 'var(--red)'};font-size:10.5px;font-weight:700;">
+                ${h10.prob_up_pct >= 50 ? '▲ ' + h10.prob_up_pct + '%' : '▼ ' + h10.prob_down_pct + '%'} (${(h10.expected_move_pct >= 0 ? '+' : '') + (h10.expected_move_pct || 0).toFixed(2)}%)
+              </span>
+            </td>
+            <td>
+              <div style="font-weight:800;color:#f8fafc;font-size:12.5px;">${fmtP((h30.price_target && h30.price_target.predicted_price) || h30.expected_price || c.price)}</div>
+              <span style="color:${h30.prob_up_pct >= 50 ? 'var(--green)' : 'var(--red)'};font-size:10.5px;font-weight:700;">
+                ${h30.prob_up_pct >= 50 ? '▲ ' + h30.prob_up_pct + '%' : '▼ ' + h30.prob_down_pct + '%'} (${(h30.expected_move_pct >= 0 ? '+' : '') + (h30.expected_move_pct || 0).toFixed(2)}%)
+              </span>
+            </td>
+            <td>
+              <div style="font-weight:800;color:#f8fafc;font-size:12.5px;">${fmtP((h60.price_target && h60.price_target.predicted_price) || h60.expected_price || c.price)}</div>
+              <span style="color:${h60.prob_up_pct >= 50 ? 'var(--green)' : 'var(--red)'};font-size:10.5px;font-weight:700;">
+                ${h60.prob_up_pct >= 50 ? '▲ ' + h60.prob_up_pct + '%' : '▼ ' + h60.prob_down_pct + '%'} (${(h60.expected_move_pct >= 0 ? '+' : '') + (h60.expected_move_pct || 0).toFixed(2)}%)
+              </span>
+            </td>
+            <td style="font-size:11.5px;">
+              <span style="color:${knn7 >= 50 ? '#34d399' : '#f87171'};">7d: ${knn7.toFixed(0)}%▲</span>
+              <span style="color:var(--subtle);">|</span>
+              <span style="color:${knn30 >= 50 ? '#34d399' : '#f87171'};">30d: ${knn30.toFixed(0)}%▲</span>
+            </td>
+            <td style="font-size:11.5px;color:${nwScore >= 0 ? '#38bdf8' : '#f87171'};">
+              ${nwScore >= 0 ? '+' : ''}${nwScore.toFixed(1)}/15 <span style="color:var(--subtle);">(${nw.headlines_checked || 0})</span>
+            </td>
+            <td>
+              <span style="background:${isLong ? 'var(--green-bg)' : 'var(--red-bg)'};border:1px solid ${isLong ? 'var(--green-border)' : 'var(--red-border)'};color:${isLong ? 'var(--green)' : 'var(--red)'};padding:3px 7px;border-radius:5px;font-size:11px;font-weight:800;">
+                ${act}
+              </span>
+            </td>
+            <td style="color:#fde68a;font-weight:700;">+${adv.toFixed(1)}%</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderCards() {
+      const grid = document.getElementById("coinsCardsGrid");
+      if (!grid || !coinsData.length) return;
+
+      grid.innerHTML = coinsData.map(c => {
+        const meta = COIN_METAS[c.symbol] || { name: c.symbol, symbol: c.symbol.slice(0, 3), color: "#38bdf8", bg: "rgba(56,189,248,0.2)" };
+        const hz = (c.horizons && c.horizons[activeHorizon]) || {};
+        const l = hz.long_outcome || {};
+        const s = hz.short_outcome || {};
+        const ty = c.ten_year_summary || {};
+        const nw = c.news_summary || {};
+        const ft = c.futures_summary || {};
+        const vp = c.volume_profile || {};
+        const cal = c.calibration || {};
+
+        const pUp = hz.prob_up_pct || 50;
+        const pDown = hz.prob_down_pct || 50;
+        const isUp = c.change_24h_pct >= 0;
+
+        const action = hz.preferred_action || (pUp >= pDown ? "LONG" : "SHORT");
+        const actionAdv = hz.advantage_pct || Math.abs(pUp - pDown);
+        const isCallLong = action === "LONG";
+
+        // Price flash detection
+        const prevPrice = previousPrices[c.symbol];
+        let flashClass = "";
+        if (prevPrice !== undefined) {
+          if (c.price > prevPrice) flashClass = "flash-up";
+          else if (c.price < prevPrice) flashClass = "flash-down";
+        }
+        previousPrices[c.symbol] = c.price;
+
+        const bullCats = (nw.bullish_catalysts || []).slice(0, 2);
+        const bearCats = (nw.bearish_catalysts || []).slice(0, 2);
+        const topOutlets = (nw.top_outlets || []).slice(0, 2);
+        const topAnalogs = (ty.top_analog_matches || []).slice(0, 2);
+
+        return `
+          <div class="coin-card">
+            <!-- Card Header -->
+            <div class="card-top">
+              <div class="coin-identity">
+                <div class="coin-icon" style="background:${meta.bg};border:1px solid ${meta.color};color:${meta.color};">
+                  ${meta.symbol[0]}
+                </div>
+                <div>
+                  <div class="coin-symbol">
+                    ${c.symbol.replace(/USDT$/, "")}
+                    <span>/USDT (Binance)</span>
+                  </div>
+                  <div class="momentum-pill">
+                    Holistic Score: <b>${c.intraday_composite_score > 0 ? '+' : ''}${c.intraday_composite_score}/100</b>
+                    ${cal.empirical_hit_rate_pct ? ` · Calibrated Hit: <b>${cal.empirical_hit_rate_pct}%</b> (Brier ${cal.brier_score})` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div class="price-block">
+                <div class="price-val ${flashClass}">${fmtP(c.price)}</div>
+                <div class="chg-val ${isUp ? 'up' : 'down'}">${isUp ? '+' : ''}${c.change_24h_pct.toFixed(2)}%</div>
+              </div>
+            </div>
+
+            <!-- Prediction Horizon Box (${activeHorizon}) -->
+            <div class="prediction-box">
+              <div class="pred-header">
+                <span style="color:var(--green);">🟢 UP PROBABILITY: ${pUp.toFixed(1)}%</span>
+                <span style="color:var(--muted);font-size:11px;">Expected Move: <b style="color:${hz.expected_move_pct >= 0 ? 'var(--green)' : 'var(--red)'};">${hz.expected_move_pct >= 0 ? '+' : ''}${hz.expected_move_pct}%</b></span>
+                <span style="color:var(--red);">🔴 DOWN: ${pDown.toFixed(1)}%</span>
+              </div>
+
+              <!-- Dedicated Exact Target Price Display for ${activeHorizon} -->
+              <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.3);border-radius:8px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;margin:4px 0;">
+                <div>
+                  <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--subtle);">Predicted Price After ${activeHorizon}</div>
+                  <div style="font-size:18px;font-weight:900;color:#38bdf8;letter-spacing:-0.02em;">
+                    ${fmtP((hz.price_target && hz.price_target.predicted_price) || hz.expected_price || c.price)}
+                    <span style="font-size:12px;font-weight:700;color:${(hz.expected_move_pct >= 0 ? 'var(--green)' : 'var(--red)')};">
+                      (${(hz.expected_move_pct >= 0 ? '+' : '') + (hz.expected_move_pct || 0).toFixed(2)}%)
+                    </span>
+                  </div>
+                </div>
+                <div style="text-align:right;font-size:11px;color:var(--muted);">
+                  <div>Typical MAE: <b style="color:#fde68a;">±${((hz.price_target && hz.price_target.typical_error_pct) || 0.15).toFixed(2)}%</b></div>
+                  <div style="font-size:10px;color:var(--subtle);">${(hz.price_target && hz.price_target.method) || 'walk-forward ridge'}</div>
+                </div>
+              </div>
+
+              <div class="prob-bar-wrap">
+                <div class="prob-bar-up" style="width:${pUp}%;"></div>
+              </div>
+
+              <div class="pred-details">
+                <span>80% Empirical Band:</span>
+                <span><b>${fmtP((hz.price_target && hz.price_target.range_80_low) || hz.conf_80_low)}</b> to <b>${fmtP((hz.price_target && hz.price_target.range_80_high) || hz.conf_80_high)}</b></span>
+              </div>
+            </div>
+
+            <!-- Chance If LONG vs Chance If SHORT -->
+            <div class="chance-split">
+              <!-- IF LONG -->
+              <div class="chance-box long-box">
+                <div class="chance-title">
+                  <span>🟢 IF YOU ENTER LONG</span>
+                  <span style="font-size:10px;color:#34d399;">${activeHorizon}</span>
+                </div>
+                <div class="metric-row">
+                  <span>Win Chance:</span>
+                  <b style="color:#34d399;font-size:13px;">${l.win_probability_pct}%</b>
+                </div>
+                <div class="metric-row">
+                  <span>Target Gain:</span>
+                  <b style="color:#34d399;">+${l.expected_gain_pct}%</b>
+                </div>
+                <div class="metric-row">
+                  <span>Target Price:</span>
+                  <b>${fmtP(l.target_price)}</b>
+                </div>
+                <div class="metric-row">
+                  <span>Stop Loss:</span>
+                  <b style="color:#f87171;">-${l.stop_risk_pct}%</b>
+                </div>
+                <div class="metric-row">
+                  <span>TP First / SL Hit:</span>
+                  <b><span style="color:#34d399;">${l.tp_hit_first_pct !== undefined ? l.tp_hit_first_pct : '-'}%</span> / <span style="color:#f87171;">${l.sl_hit_first_pct !== undefined ? l.sl_hit_first_pct : '-'}%</span></b>
+                </div>
+                <div class="metric-row">
+                  <span>Net Math Edge:</span>
+                  <b style="color:#fde68a;">${l.math_edge_R > 0 ? '+' : ''}${l.math_edge_R} R</b>
+                </div>
+              </div>
+
+              <!-- IF SHORT -->
+              <div class="chance-box short-box">
+                <div class="chance-title">
+                  <span>🔴 IF YOU ENTER SHORT</span>
+                  <span style="font-size:10px;color:#f87171;">${activeHorizon}</span>
+                </div>
+                <div class="metric-row">
+                  <span>Win Chance:</span>
+                  <b style="color:#f87171;font-size:13px;">${s.win_probability_pct}%</b>
+                </div>
+                <div class="metric-row">
+                  <span>Target Gain:</span>
+                  <b style="color:#f87171;">+${s.expected_gain_pct}%</b>
+                </div>
+                <div class="metric-row">
+                  <span>Target Price:</span>
+                  <b>${fmtP(s.target_price)}</b>
+                </div>
+                <div class="metric-row">
+                  <span>Stop Loss:</span>
+                  <b style="color:#f87171;">-${s.stop_risk_pct}%</b>
+                </div>
+                <div class="metric-row">
+                  <span>TP First / SL Hit:</span>
+                  <b><span style="color:#34d399;">${s.tp_hit_first_pct !== undefined ? s.tp_hit_first_pct : '-'}%</span> / <span style="color:#f87171;">${s.sl_hit_first_pct !== undefined ? s.sl_hit_first_pct : '-'}%</span></b>
+                </div>
+                <div class="metric-row">
+                  <span>Net Math Edge:</span>
+                  <b style="color:#fde68a;">${s.math_edge_R > 0 ? '+' : ''}${s.math_edge_R} R</b>
+                </div>
+              </div>
+            </div>
+
+            <!-- 10-Year Binance Historical Cycle & k-NN Analogs -->
+            ${ty.total_days ? `
+            <div class="prediction-box" style="gap:6px;font-size:11px;">
+              <div style="display:flex;justify-content:space-between;color:#38bdf8;font-weight:800;font-size:11.5px;">
+                <span>📊 10-YEAR BINANCE CYCLE & k-NN ANALOGS (${ty.first_date} to Present)</span>
+                <span style="color:#fde68a;">Sharpe: ${ty.sharpe_ratio_10y}</span>
+              </div>
+              <div class="pred-details">
+                <span>200W Cycle Floor: <b>${fmtP(ty.sma_200w)}</b> (${ty.price_vs_sma200w_pct >= 0 ? '+' : ''}${ty.price_vs_sma200w_pct}%)</span>
+                <span>Mayer: <b>${ty.mayer_multiple}</b> (${ty.mayer_percentile_10y}% 10Y pctile)</span>
+              </div>
+              <div class="pred-details">
+                <span>10Y Power-Law Fair Value: <b>${fmtP(ty.log_reg_fair_price)}</b> (Z=${ty.log_reg_zscore >= 0 ? '+' : ''}${ty.log_reg_zscore}σ)</span>
+                <span>ATH: <b>${fmtP(ty.all_time_high)}</b> (${ty.drawdown_from_ath_pct}%)</span>
+              </div>
+              <div class="pred-details">
+                <span>10Y k-NN Twins Win Rate: <b style="color:${ty.knn_7d_prob_up_pct >= 50 ? '#34d399' : '#f87171'};">7d ${ty.knn_7d_prob_up_pct}%▲ (${ty.knn_7d_median_ret_pct >= 0 ? '+' : ''}${ty.knn_7d_median_ret_pct}%)</b> | <b style="color:${ty.knn_30d_prob_up_pct >= 50 ? '#34d399' : '#f87171'};">30d ${ty.knn_30d_prob_up_pct}%▲ (${ty.knn_30d_median_ret_pct >= 0 ? '+' : ''}${ty.knn_30d_median_ret_pct}%)</b></span>
+                <span>${ty.seasonality_month} Win: <b>${ty.seasonality_win_rate_pct}%</b></span>
+              </div>
+              ${topAnalogs.length ? `
+              <div style="color:var(--subtle);font-size:10.5px;">
+                Closest 10Y Analogs: ${topAnalogs.map(a => `<b style="color:#cbd5e1;">${a.date}</b> (${a.similarity_pct}% sim -> 7d ${a.forward_7d_pct >= 0 ? '+' : ''}${a.forward_7d_pct}%, 30d ${a.forward_30d_pct >= 0 ? '+' : ''}${a.forward_30d_pct}%)`).join(" · ")}
+              </div>` : ''}
+            </div>` : ''}
+
+            <!-- Perpetual Futures, Whale Positioning & Volume Profile -->
+            ${ft.whale_long_pct ? `
+            <div class="prediction-box" style="gap:5px;font-size:11px;">
+              <div style="display:flex;justify-content:space-between;color:#a78bfa;font-weight:800;font-size:11.5px;">
+                <span>🐋 BINANCE PERPS, WHALE L/S & VOLUME PROFILE</span>
+                <span>Funding: <b>${ft.consensus_funding_pct >= 0 ? '+' : ''}${ft.consensus_funding_pct}%</b></span>
+              </div>
+              <div class="pred-details">
+                <span>Top Whales: <b style="color:#34d399;">${ft.whale_long_pct}% Long</b> (L/S ${ft.whale_ls_ratio}) vs Retail <b>${ft.retail_long_pct}%</b></span>
+                <span>OB ±1% Imb: <b style="color:${ft.imbalance_1pct >= 0 ? '#34d399' : '#f87171'};">${ft.imbalance_1pct >= 0 ? '+' : ''}${ft.imbalance_1pct}%</b></span>
+              </div>
+              <div class="pred-details">
+                <span>7d Profile: VAL <b>${fmtP(vp.val)}</b> · POC <b>${fmtP(vp.poc)}</b> · VAH <b>${fmtP(vp.vah)}</b></span>
+                <span>24h VWAP: <b>${fmtP(vp.vwap_24h)}</b></span>
+              </div>
+              <div class="pred-details">
+                <span>Micro-Price: <b>${fmtP(ft.microprice)}</b> (ΔOFI <b>${ft.delta_ofi_pct >= 0 ? '+' : ''}${ft.delta_ofi_pct || 0}%</b>)</span>
+                <span>BTC Spillover: <b>${ft.btc_spillover_score >= 0 ? '+' : ''}${ft.btc_spillover_score || 0}</b> (β=${ft.btc_beta_60m || 1})</span>
+              </div>
+            </div>` : ''}
+
+            <!-- 25-Outlet News & Catalyst Intelligence -->
+            ${nw.headlines_checked ? `
+            <div class="prediction-box" style="gap:5px;font-size:11px;">
+              <div style="display:flex;justify-content:space-between;color:#fbbf24;font-weight:800;font-size:11.5px;">
+                <span>📰 25-OUTLET NEWS & MACRO CATALYSTS (${nw.headlines_checked} scanned)</span>
+                <span>Score: <b style="color:${nw.score >= 0 ? '#34d399' : '#f87171'};">${nw.score >= 0 ? '+' : ''}${nw.score}/15</b></span>
+              </div>
+              ${bullCats.map(b => `<div style="color:#6ee7b7;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[+] (${b.source}) ${b.title}</div>`).join("")}
+              ${bearCats.map(b => `<div style="color:#fca5a5;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[-] (${b.source}) ${b.title}</div>`).join("")}
+              ${(!bullCats.length && !bearCats.length && topOutlets.length) ? topOutlets.map(o => `<div style="color:#cbd5e1;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">• [${o.source}] ${o.title}</div>`).join("") : ''}
+            </div>` : ''}
+
+            <!-- Recommended Action Call Banner -->
+            <div class="verdict-banner ${isCallLong ? 'call-long' : 'call-short'}">
+              <div>
+                <span>⚡ RECOMMENDED: ${action}</span>
+                <span style="font-size:11px;font-weight:700;opacity:0.85;margin-left:4px;">(+${actionAdv.toFixed(1)}% Edge)</span>
+              </div>
+              <div class="call-tag">${activeHorizon} Horizon</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Guaranteed 2-Second Non-Overlapping Refresh Loop
+    function startAutoRefresh() {
+      if (timerInterval) clearInterval(timerInterval);
+      fetchLivePredictions();
+
+      timerInterval = setInterval(() => {
+        if (isFetching) return;
+        countdownSec = Math.max(0, countdownSec - 1);
+        const timerEl = document.getElementById("timerCount");
+        if (timerEl) timerEl.textContent = countdownSec;
+
+        if (countdownSec <= 0) {
+          fetchLivePredictions(false);
+        }
+      }, 1000);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
+      }
+      if ("caches" in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+      }
+      startAutoRefresh();
+    });
+  </script>
+</body>
+</html>

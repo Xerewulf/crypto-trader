@@ -49,6 +49,18 @@ try:
     import margin
 except ImportError:
     margin = None
+try:
+    import microstructure
+except ImportError:
+    microstructure = None
+try:
+    import sor
+except ImportError:
+    sor = None
+try:
+    import heatmap
+except ImportError:
+    heatmap = None
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 SPOT_HOSTS = ("https://api.binance.com", "https://data-api.binance.vision")
@@ -369,26 +381,314 @@ def detect_institutional_signals(klines_1h, klines_4h, price):
     }
 
 
-def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
-    """Build an institutional execution plan with Quarter-Kelly (0.25x) position sizing."""
+def compute_adx(klines, period=14):
+    """Wilder's 14-period Average Directional Index (ADX) with +DI and -DI."""
+    if len(klines) < period * 2:
+        return 20.0, 20.0, 20.0
+    trs, pdms, mdms = [], [], []
+    for i in range(1, len(klines)):
+        h = float(klines[i][2])
+        l = float(klines[i][3])
+        ph = float(klines[i - 1][2])
+        pl = float(klines[i - 1][3])
+        pc = float(klines[i - 1][4])
+        tr = max(h - l, abs(h - pc), abs(l - pc))
+        up = h - ph
+        down = pl - l
+        pdm = up if (up > down and up > 0) else 0.0
+        mdm = down if (down > up and down > 0) else 0.0
+        trs.append(tr)
+        pdms.append(pdm)
+        mdms.append(mdm)
+
+    alpha = 1.0 / period
+    s_tr = sum(trs[:period]) / period
+    s_pdm = sum(pdms[:period]) / period
+    s_mdm = sum(mdms[:period]) / period
+
+    dx_list = []
+    for i in range(period, len(trs)):
+        s_tr = s_tr * (1.0 - alpha) + trs[i] * alpha
+        s_pdm = s_pdm * (1.0 - alpha) + pdms[i] * alpha
+        s_mdm = s_mdm * (1.0 - alpha) + mdms[i] * alpha
+        pdi = (s_pdm / s_tr * 100.0) if s_tr > 0 else 0.0
+        mdi = (s_mdm / s_tr * 100.0) if s_tr > 0 else 0.0
+        denom = pdi + mdi
+        dx = (abs(pdi - mdi) / denom * 100.0) if denom > 0 else 0.0
+        dx_list.append((dx, pdi, mdi))
+
+    if not dx_list:
+        return 20.0, 20.0, 20.0
+    adx = statistics.mean(x[0] for x in dx_list[-period:]) if len(dx_list) >= period else dx_list[-1][0]
+    pdi = dx_list[-1][1]
+    mdi = dx_list[-1][2]
+    return round(adx, 1), round(pdi, 1), round(mdi, 1)
+
+
+def compute_market_regime(klines_1h, klines_4h, price):
+    """Institutional Market Regime Filter (Marcos Lopez de Prado & John Carter).
+    Classifies market into Trending Momentum vs Rotational Range-Bound vs Volatility Squeeze.
+    Returns dynamic factor multipliers for Technicals, Order Flow, and Volume Profile."""
+    adx_1h, pdi_1h, mdi_1h = compute_adx(klines_1h, period=14)
+    adx_4h, pdi_4h, mdi_4h = compute_adx(klines_4h, period=14)
+
+    # 1h EMA20 & EMA50 alignment
+    closes_1h = [float(k[4]) for k in klines_1h]
+    ema20_1h = ema_series(closes_1h, 20)[-1] if len(closes_1h) >= 20 else price
+    ema50_1h = ema_series(closes_1h, 50)[-1] if len(closes_1h) >= 50 else price
+
+    # 4h Bollinger vs Keltner (TTM Squeeze)
+    squeeze_on = False
+    bbw_4h = 0.0
+    if len(klines_4h) >= 20:
+        c4 = [float(k[4]) for k in klines_4h[-20:]]
+        m20 = statistics.mean(c4)
+        sd20 = statistics.pstdev(c4)
+        atr4 = atr_14(klines_4h, 20)
+        u_bb, l_bb = m20 + 2.0 * sd20, m20 - 2.0 * sd20
+        u_kc, l_kc = m20 + 1.5 * atr4, m20 - 1.5 * atr4
+        bbw_4h = round((u_bb - l_bb) / m20 * 100.0, 2) if m20 > 0 else 0.0
+        squeeze_on = (u_bb <= u_kc and l_bb >= l_kc)
+
+    # Regime Determination
+    score_delta = 0.0
+    if adx_1h >= 24.0 and pdi_1h > mdi_1h and price > ema20_1h:
+        regime = "BULLISH_TREND_EXPANSION"
+        desc = "Strong Bullish Momentum Trend (+DI %.1f > -DI %.1f, ADX %.1f). Trend-following factors prioritized." % (pdi_1h, mdi_1h, adx_1h)
+        tech_mult = 1.30
+        flow_mult = 1.20
+        vp_mult = 0.75
+        score_delta = round(min(6.0, (adx_1h - 20.0) * 0.4), 1)
+    elif adx_1h >= 24.0 and mdi_1h > pdi_1h and price < ema20_1h:
+        regime = "BEARISH_TREND_EXPANSION"
+        desc = "Aggressive Bearish Trend (-DI %.1f > +DI %.1f, ADX %.1f). Trend-following short factors prioritized." % (mdi_1h, pdi_1h, adx_1h)
+        tech_mult = 1.30
+        flow_mult = 1.20
+        vp_mult = 0.75
+        score_delta = -round(min(6.0, (adx_1h - 20.0) * 0.4), 1)
+    elif squeeze_on or bbw_4h < 3.5:
+        regime = "VOLATILITY_COMPRESSION_SQUEEZE"
+        desc = "TTM Squeeze Active (BBW %.2f%%). Volatility severely compressed; explosive breakout coiling. Fading moves is dangerous." % bbw_4h
+        tech_mult = 0.85
+        flow_mult = 1.25
+        vp_mult = 1.25
+        score_delta = 0.0
+    elif adx_1h < 20.0 and adx_4h < 22.0:
+        regime = "ROTATIONAL_RANGE_BOUND"
+        desc = "Rotational Mean-Reversion Regime (ADX %.1f). Trend signals are noisy; Volume Profile POC/VAL/VAH and Order Book walls dominate." % adx_1h
+        tech_mult = 0.70
+        flow_mult = 1.10
+        vp_mult = 1.40
+        score_delta = 0.0
+    else:
+        regime = "TRANSITIONAL_CHOP"
+        desc = "Transitional Regime (ADX %.1f). Mixed momentum; balanced factor weighting." % adx_1h
+        tech_mult = 1.0
+        flow_mult = 1.0
+        vp_mult = 1.0
+        score_delta = 0.0
+
+    return {
+        "regime": regime,
+        "description": desc,
+        "adx_1h": adx_1h,
+        "pdi_1h": pdi_1h,
+        "mdi_1h": mdi_1h,
+        "adx_4h": adx_4h,
+        "squeeze_on": squeeze_on,
+        "bbw_4h_pct": bbw_4h,
+        "multipliers": {
+            "technicals": tech_mult,
+            "orderflow": flow_mult,
+            "volume_profile": vp_mult,
+        },
+        "score_delta": score_delta,
+    }
+
+
+def estimate_liquidation_clusters(klines_1h, current_price, fut_data):
+    """Institutional Liquidation Heatmap & Magnetic Cascade Modeling (Larry Harris & Arthur Hayes).
+    Calculates discrete liquidation pools across 5x, 10x, 20x, 25x, 50x, 100x leverage tiers
+    based on historical 1h volume profile nodes, Open Interest, and Long/Short ratios."""
+    if not fut_data or not fut_data.get("available"):
+        return {"available": False, "note": "No perpetual futures open interest available to compute liquidation heatmap."}
+
+    oi_usd = fut_data.get("open_interest_usd") or 0.0
+    if oi_usd <= 0:
+        return {"available": False, "note": "Zero or missing futures open interest."}
+
+    whale_long_pct = fut_data.get("whale_long_pct", 50.0) / 100.0
+    retail_long_pct = fut_data.get("retail_long_pct", 50.0) / 100.0
+    long_capital_ratio = max(0.20, min(0.80, 0.60 * whale_long_pct + 0.40 * retail_long_pct))
+    short_capital_ratio = 1.0 - long_capital_ratio
+
+    total_long_oi_usd = oi_usd * long_capital_ratio
+    total_short_oi_usd = oi_usd * short_capital_ratio
+
+    tiers = [
+        (100, 0.05),
+        (50, 0.15),
+        (25, 0.25),
+        (20, 0.20),
+        (10, 0.25),
+        (5, 0.10),
+    ]
+
+    sample_klines = klines_1h[-72:] if len(klines_1h) >= 72 else klines_1h
+    total_vol = sum(float(k[5]) for k in sample_klines) or 1.0
+
+    bin_size_pct = 0.5  # 0.5% resolution bins
+    long_clusters = {}   # price_bin -> estimated usd
+    short_clusters = {}  # price_bin -> estimated usd
+
+    for k in sample_klines:
+        h = float(k[2])
+        l = float(k[3])
+        c = float(k[4])
+        v = float(k[5])
+        typ_p = (h + l + c) / 3.0
+        w = v / total_vol
+
+        for lev, lev_w in tiers:
+            mmr = 0.005  # 0.5% maintenance margin rate
+            p_long_liq = typ_p * (1.0 - (1.0 / lev) + mmr)
+            if current_price * 0.85 <= p_long_liq < current_price:
+                step = current_price * (bin_size_pct / 100.0)
+                bin_p = round(round(p_long_liq / step) * step, 2)
+                long_clusters[bin_p] = long_clusters.get(bin_p, 0.0) + (total_long_oi_usd * w * lev_w)
+
+            p_short_liq = typ_p * (1.0 + (1.0 / lev) - mmr)
+            if current_price < p_short_liq <= current_price * 1.15:
+                step = current_price * (bin_size_pct / 100.0)
+                bin_p = round(round(p_short_liq / step) * step, 2)
+                short_clusters[bin_p] = short_clusters.get(bin_p, 0.0) + (total_short_oi_usd * w * lev_w)
+
+    top_long_items = sorted(long_clusters.items(), key=lambda x: x[1], reverse=True)[:3]
+    top_short_items = sorted(short_clusters.items(), key=lambda x: x[1], reverse=True)[:3]
+
+    top_longs = [
+        {
+            "price": p,
+            "dist_pct": round((p / current_price - 1.0) * 100.0, 2),
+            "est_usd": round(v, 2),
+            "est_usd_m": round(v / 1e6, 2),
+        }
+        for p, v in top_long_items
+    ]
+    top_shorts = [
+        {
+            "price": p,
+            "dist_pct": round((p / current_price - 1.0) * 100.0, 2),
+            "est_usd": round(v, 2),
+            "est_usd_m": round(v / 1e6, 2),
+        }
+        for p, v in top_short_items
+    ]
+
+    near_long_usd = sum(v for p, v in long_clusters.items() if p >= current_price * 0.965)
+    near_short_usd = sum(v for p, v in short_clusters.items() if p <= current_price * 1.035)
+    mag_ratio = round(near_short_usd / max(near_long_usd, 1.0), 2)
+
+    score = 0.0
+    if mag_ratio >= 1.45:
+        magnetic_pull = "STRONG UPWARD PULL (Short Squeeze Fuel)"
+        pull_note = "Short liquidations within +3.5%% ($%.1fM) outweigh long liquidations ($%.1fM) by %.2fx. Strong statistical probability of price sweeping upward into short stop/liquidation liquidity." % (
+            near_short_usd / 1e6, near_long_usd / 1e6, mag_ratio
+        )
+        score = round(min(8.0, (mag_ratio - 1.0) * 3.5), 1)
+    elif mag_ratio <= 0.65:
+        magnetic_pull = "STRONG DOWNWARD PULL (Long Flush Target)"
+        pull_note = "Long liquidations within -3.5%% ($%.1fM) outweigh short liquidations ($%.1fM) by %.2fx. Whales/market makers incentivized to hunt lower liquidity." % (
+            near_long_usd / 1e6, near_short_usd / 1e6, 1.0 / max(mag_ratio, 0.01)
+        )
+        score = -round(min(8.0, ((1.0 / max(mag_ratio, 0.01)) - 1.0) * 3.5), 1)
+    else:
+        magnetic_pull = "BALANCED TWO-WAY LIQUIDITY"
+        pull_note = "Near-term long ($%.1fM) and short ($%.1fM) liquidation pools are balanced (Ratio: %.2f). No clear directional liquidation squeeze bias." % (
+            near_long_usd / 1e6, near_short_usd / 1e6, mag_ratio
+        )
+        score = 0.0
+
+    cascade_warning = None
+    if top_shorts and abs(top_shorts[0]["dist_pct"]) <= 1.0 and top_shorts[0]["est_usd_m"] >= 15.0:
+        cascade_warning = "IMMINENT SHORT SQUEEZE CASCADE: $%.1fM shorts at %s (only %+.2f%% away)" % (
+            top_shorts[0]["est_usd_m"], fmt_p(top_shorts[0]["price"]), top_shorts[0]["dist_pct"]
+        )
+    elif top_longs and abs(top_longs[0]["dist_pct"]) <= 1.0 and top_longs[0]["est_usd_m"] >= 15.0:
+        cascade_warning = "IMMINENT LONG FLUSH CASCADE: $%.1fM longs at %s (only %+.2f%% away)" % (
+            top_longs[0]["est_usd_m"], fmt_p(top_longs[0]["price"]), top_longs[0]["dist_pct"]
+        )
+
+    return {
+        "available": True,
+        "top_longs": top_longs,
+        "top_shorts": top_shorts,
+        "primary_long_liq": top_longs[0]["price"] if top_longs else None,
+        "primary_short_liq": top_shorts[0]["price"] if top_shorts else None,
+        "near_long_pool_3pct_m": round(near_long_usd / 1e6, 1),
+        "near_short_pool_3pct_m": round(near_short_usd / 1e6, 1),
+        "magnetic_ratio": mag_ratio,
+        "magnetic_pull": magnetic_pull,
+        "pull_note": pull_note,
+        "cascade_warning": cascade_warning,
+        "score": score,
+    }
+
+
+def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite, tf_4h=None, vpin_info=None, is_squeeze=False, bb_width_pct=0.0, liq=None, regime=None):
+    """Build an institutional execution plan with Volatility-Adaptive Quarter-Kelly position sizing and liquidation guards."""
     atr = tf_1h["atr14"] or (price * 0.01)
     h24 = horizons["24h"]
     bias = "LONG" if composite >= 10 else ("SHORT / HEDGE" if composite <= -10 else "WAIT / RANGE SCALP")
+
     if bias == "LONG":
-        # Ideal pullback entry near 24h VWAP, POC, or Bid Support Wall
         pullback = max(vp["val"], min(price, max(vp["vwap_24h"], ob["support_wall_price"] if ob else price - 0.5 * atr)))
         stop = min(price - 1.5 * atr, (ob["support_wall_price"] * 0.996) if ob and ob["support_wall_price"] < price else price - 1.5 * atr)
+
+        if liq and liq.get("available") and liq.get("primary_long_liq"):
+            p_long = liq["primary_long_liq"]
+            if p_long < price and abs(p_long / price - 1.0) <= 0.06:
+                stop = min(stop, p_long * 0.994)
+
         risk = max(price - stop, atr * 0.5)
         tp1 = max(price + 1.5 * risk, vp["vah"])
-        tp2 = price + 2.5 * risk
+
+        if liq and liq.get("available") and liq.get("primary_short_liq"):
+            p_short = liq["primary_short_liq"]
+            if p_short > price:
+                tp1 = min(tp1, p_short * 0.998)
+                tp2 = max(price + 2.5 * risk, p_short)
+            else:
+                tp2 = price + 2.5 * risk
+        else:
+            tp2 = price + 2.5 * risk
+
         win_prob = h24["prob_up_pct"] / 100.0
+
     elif bias == "SHORT / HEDGE":
         pullback = min(vp["vah"], max(price, min(vp["vwap_24h"], ob["resistance_wall_price"] if ob else price + 0.5 * atr)))
         stop = max(price + 1.5 * atr, (ob["resistance_wall_price"] * 1.004) if ob and ob["resistance_wall_price"] > price else price + 1.5 * atr)
+
+        if liq and liq.get("available") and liq.get("primary_short_liq"):
+            p_short = liq["primary_short_liq"]
+            if p_short > price and abs(p_short / price - 1.0) <= 0.06:
+                stop = max(stop, p_short * 1.006)
+
         risk = max(stop - price, atr * 0.5)
         tp1 = min(price - 1.5 * risk, vp["val"])
-        tp2 = price - 2.5 * risk
+
+        if liq and liq.get("available") and liq.get("primary_long_liq"):
+            p_long = liq["primary_long_liq"]
+            if p_long < price:
+                tp1 = max(tp1, p_long * 1.002)
+                tp2 = min(price - 2.5 * risk, p_long)
+            else:
+                tp2 = price - 2.5 * risk
+        else:
+            tp2 = price - 2.5 * risk
+
         win_prob = h24["prob_down_pct"] / 100.0
+
     else:
         pullback = vp["val"]
         stop = vp["val"] - 1.2 * atr
@@ -401,6 +701,27 @@ def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
         full_kelly = max(0.0, win_prob - (1.0 - win_prob) / max(rr, 0.5))
         quarter_kelly_pct = round(min(2.5, full_kelly * 0.25 * 100.0), 2)
         ev_r = round(win_prob * rr - (1.0 - win_prob) * 1.0, 2)
+
+        adaptive = None
+        if microstructure:
+            try:
+                atr_base = tf_4h.get("atr14") if tf_4h else atr
+                adaptive = microstructure.compute_adaptive_kelly(
+                    win_prob=win_prob,
+                    reward_risk=rr,
+                    atr_1h=atr,
+                    atr_baseline=atr_base or atr,
+                    bb_width_pct=bb_width_pct,
+                    is_ttm_squeeze=is_squeeze,
+                    vpin=(vpin_info.get("vpin") if vpin_info else 0.35),
+                    bias=bias,
+                    capital_usdt=10000.0,
+                    max_loss_cap=150.0,
+                )
+                quarter_kelly_pct = min(2.5, adaptive["adaptive_kelly_pct"])
+            except Exception:
+                adaptive = None
+
         return {
             "bias": bias,
             "spot_entry": round(price, 8),
@@ -412,14 +733,35 @@ def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
             "win_prob_pct": round(win_prob * 100.0, 1),
             "expected_value_R": ev_r,
             "quarter_kelly_risk_pct": quarter_kelly_pct,
+            "adaptive_kelly": adaptive,
         }
 
     reward = abs(tp1 - price)
     rr = round(reward / risk, 2) if risk > 0 else 1.5
-    # Kelly formula: f* = p - (1 - p) / b
     full_kelly = max(0.0, win_prob - (1.0 - win_prob) / max(rr, 0.5))
     quarter_kelly_pct = round(min(5.0, full_kelly * 0.25 * 100.0), 2)
     ev_r = round(win_prob * rr - (1.0 - win_prob) * 1.0, 2)
+
+    adaptive = None
+    if microstructure:
+        try:
+            atr_base = tf_4h.get("atr14") if tf_4h else atr
+            adaptive = microstructure.compute_adaptive_kelly(
+                win_prob=win_prob,
+                reward_risk=rr,
+                atr_1h=atr,
+                atr_baseline=atr_base or atr,
+                bb_width_pct=bb_width_pct,
+                is_ttm_squeeze=is_squeeze,
+                vpin=(vpin_info.get("vpin") if vpin_info else 0.35),
+                bias=bias,
+                capital_usdt=10000.0,
+                max_loss_cap=150.0,
+            )
+            quarter_kelly_pct = min(5.0, adaptive["adaptive_kelly_pct"])
+        except Exception:
+            adaptive = None
+
     return {
         "bias": bias,
         "spot_entry": round(price, 8),
@@ -431,7 +773,9 @@ def compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite):
         "win_prob_pct": round(win_prob * 100.0, 1),
         "expected_value_R": ev_r,
         "quarter_kelly_risk_pct": quarter_kelly_pct,
+        "adaptive_kelly": adaptive,
     }
+
 
 
 def analyze_timeframe(klines, label):
@@ -741,8 +1085,532 @@ CHAIN_MAP = {
     "MATIC": "Polygon", "POL": "Polygon", "TON": "TON", "ADA": "Cardano", "INJ": "Injective",
     "SEI": "Sei", "DOT": "Polkadot", "ATOM": "CosmosHub", "HBAR": "Hedera", "FTM": "Fantom",
     "S": "Sonic", "ALGO": "Algorand", "ICP": "ICP", "FIL": "Filecoin", "XLM": "Stellar",
+    "DOGE": "Dogechain", "XRP": "XRPL",
 }
 _MACRO_CACHE = {}
+_TEN_YEAR_CACHE = {}
+
+TOKENOMICS_PROFILE = {
+    "BTC": {
+        "supply_model": "Hard-Capped Proof-of-Work (21,000,000 BTC Max Supply; 4th Halving Apr 2024 cut block reward to 3.125 BTC / ~0.83% annual inflation)",
+        "structural_drivers": "US Spot BTC ETF institutional custody absorption, sovereign/corporate treasury reserve adoption, global M2 liquidity correlation, and 4-year halving supply shock",
+        "burn_or_lock_pct": 0.0,
+        "structural_bias": 2.5,
+    },
+    "ETH": {
+        "supply_model": "Ultrasound Proof-of-Stake (EIP-1559 base-fee burn + ~28% of circulating ETH locked in beacon chain staking & restaking)",
+        "structural_drivers": "Spot ETH ETF flows, Layer-2 blob/rollup settlement demand, RWA institutional tokenization (BlackRock BUIDL / JPMorgan / Citi), and DeFi TVL dominance",
+        "burn_or_lock_pct": 28.0,
+        "structural_bias": 2.0,
+    },
+    "BNB": {
+        "supply_model": "Deflationary Auto-Burn + BEP-95 Real-Time Gas Burn (burning toward 100,000,000 BNB hard target from 200M initial)",
+        "structural_drivers": "Binance exchange volume & fee discount utility, Launchpool / Megadrop / HODLer Airdrop yield lockups, BNB Chain (BSC + opBNB) DEX/TVL activity",
+        "burn_or_lock_pct": 31.0,
+        "structural_bias": 2.5,
+    },
+    "SOL": {
+        "supply_model": "Disinflationary Proof-of-Stake + Proof-of-History (~65% of supply staked; 50% of priority/base transaction fees burned)",
+        "structural_drivers": "High-throughput CLOB/DEX retail & meme order-flow dominance, Firedancer validator client scaling, DePIN/PayFi ecosystem growth, and institutional ETP inflows",
+        "burn_or_lock_pct": 65.0,
+        "structural_bias": 2.0,
+    },
+    "DOGE": {
+        "supply_model": "Deterministic Linear Issuance (5,000,000,000 DOGE/year fixed block reward -> asymptotically declining inflation rate, now ~3.3%/yr)",
+        "structural_drivers": "Retail liquidity & social sentiment barometer on Binance, X (Twitter) payments & Elon Musk / D.O.G.E. narrative reflex, and high-beta meme rotation",
+        "burn_or_lock_pct": 0.0,
+        "structural_bias": 0.5,
+    },
+    "XRP": {
+        "supply_model": "Hard-Capped Deterministic Escrow Ledger (100,000,000,000 XRP Max Supply; Ripple monthly escrow lock/release + base transaction fee burn)",
+        "annual_net_issuance_pct": 1.8,
+        "structural_drivers": "Cross-border ODL institutional liquidity rails, RLUSD stablecoin settlement, spot XRP ETF filings, and post-SEC regulatory clarity",
+    },
+    "ADA": {
+        "supply_model": "Hard-Capped Ouroboros Proof-of-Stake (45,000,000,000 ADA Max Supply; ~60% liquid staked with treasury fee reserve)",
+        "structural_drivers": "Voltaire / Chang decentralized on-chain governance, Hydra/Partner-chain scaling, liquid non-custodial staking, and long-horizon retail holder base",
+        "burn_or_lock_pct": 60.0,
+        "structural_bias": 1.0,
+    },
+}
+
+
+def _fetch_ten_year_daily_bars(bsym, k1d_recent=None):
+    """Fetch up to 10 years (~3,653 days) of daily OHLCV + Binance Spot Taker Buy flow.
+    Combines multi-page Binance Spot 1d klines (2017-2026) with Yahoo Finance 10y 1d backfill
+    for pre-Binance launch dates (2016-2017) so every major coin has full 10-year / genesis coverage."""
+    now_s = time.time()
+    cached = _TEN_YEAR_CACHE.get(bsym)
+    if cached and (now_s - cached.get("ts", 0)) < 3600:
+        return cached["bars"]
+
+    state_dir = os.path.join(os.path.dirname(HERE), "trader", "state")
+    cache_file = os.path.join(state_dir, "ten_year_%s.json" % bsym.lower())
+    if os.path.isfile(cache_file):
+        try:
+            with open(cache_file, "r", encoding="utf-8") as fh:
+                disk_doc = json.load(fh)
+            if (now_s - float(disk_doc.get("ts", 0))) < 21600 and len(disk_doc.get("bars", [])) >= 200:
+                bars = disk_doc["bars"]
+                if k1d_recent:
+                    by_day = {int(b["t"]) // 86400000: b for b in bars}
+                    for k in k1d_recent[-10:]:
+                        t_ms = int(k[0])
+                        qv = float(k[7])
+                        tb = float(k[10])
+                        by_day[t_ms // 86400000] = {
+                            "t": t_ms, "o": float(k[1]), "h": float(k[2]), "l": float(k[3]),
+                            "c": float(k[4]), "vol_usd": qv, "tb_usd": tb, "src": "binance"
+                        }
+                    bars = [by_day[d] for d in sorted(by_day)]
+                _TEN_YEAR_CACHE[bsym] = {"ts": now_s, "bars": bars}
+                return bars
+        except Exception:
+            pass
+
+    base = base_asset(bsym)
+    binance_raw = []
+    end_ms = None
+    for _ in range(4):
+        path = "/api/v3/klines?symbol=%s&interval=1d&limit=1000" % bsym
+        if end_ms is not None:
+            path += "&endTime=%d" % end_ms
+        try:
+            chunk = spot_get(path)
+        except Exception:
+            break
+        if not isinstance(chunk, list) or not chunk:
+            break
+        binance_raw = chunk + binance_raw
+        end_ms = int(chunk[0][0]) - 1
+        if len(chunk) < 1000:
+            break
+
+    by_day = {}
+    y_url = "https://query1.finance.yahoo.com/v8/finance/chart/%s-USD?range=10y&interval=1d" % urllib.parse.quote(base)
+    y_doc = _json_or_none(y_url, timeout=8)
+    try:
+        res0 = ((y_doc or {}).get("chart") or {}).get("result", [])[0]
+        ts_list = res0.get("timestamp") or []
+        q0 = ((res0.get("indicators") or {}).get("quote") or [])[0]
+        opens = q0.get("open") or []
+        highs = q0.get("high") or []
+        lows = q0.get("low") or []
+        closes = q0.get("close") or []
+        vols = q0.get("volume") or []
+        for idx, ts_sec in enumerate(ts_list):
+            c_val = closes[idx] if idx < len(closes) else None
+            if c_val is None or float(c_val) <= 0:
+                continue
+            c_f = float(c_val)
+            o_f = float(opens[idx]) if (idx < len(opens) and opens[idx] is not None) else c_f
+            h_f = float(highs[idx]) if (idx < len(highs) and highs[idx] is not None) else c_f
+            l_f = float(lows[idx]) if (idx < len(lows) and lows[idx] is not None) else c_f
+            v_f = float(vols[idx]) if (idx < len(vols) and vols[idx] is not None) else 0.0
+            day_key = int(ts_sec) // 86400
+            by_day[day_key] = {
+                "t": day_key * 86400000,
+                "o": o_f,
+                "h": max(h_f, o_f, c_f),
+                "l": min(l_f, o_f, c_f),
+                "c": c_f,
+                "vol_usd": v_f,
+                "tb_usd": v_f * 0.50,
+                "src": "yahoo_10y",
+            }
+    except Exception:
+        pass
+
+    for k in binance_raw:
+        t_ms = int(k[0])
+        day_key = t_ms // 86400000
+        qv = float(k[7])
+        tb = float(k[10])
+        by_day[day_key] = {
+            "t": t_ms,
+            "o": float(k[1]),
+            "h": float(k[2]),
+            "l": float(k[3]),
+            "c": float(k[4]),
+            "vol_usd": qv,
+            "tb_usd": tb,
+            "src": "binance",
+        }
+
+    sorted_days = sorted(by_day.keys())[-3655:]
+    bars = [by_day[d] for d in sorted_days]
+    if bars:
+        _TEN_YEAR_CACHE[bsym] = {"ts": now_s, "bars": bars}
+        try:
+            os.makedirs(state_dir, exist_ok=True)
+            with open(cache_file, "w", encoding="utf-8") as fh:
+                json.dump({"ts": now_s, "symbol": bsym, "bars": bars}, fh)
+        except Exception:
+            pass
+    return bars
+
+
+def analyze_ten_year_cycle(bsym, price, k1d_recent=None):
+    """Comprehensive 10-Year Historical Quantitative & Macro Cycle Analyzer on Binance."""
+    base = base_asset(bsym)
+    bars = _fetch_ten_year_daily_bars(bsym, k1d_recent=k1d_recent)
+    if not bars and k1d_recent:
+        bars = [
+            {
+                "t": int(k[0]), "o": float(k[1]), "h": float(k[2]), "l": float(k[3]),
+                "c": float(k[4]), "vol_usd": float(k[7]), "tb_usd": float(k[10]), "src": "binance"
+            }
+            for k in k1d_recent
+        ]
+    if not bars:
+        return {"available": False, "score": 0.0, "notes": []}
+
+    bars = list(bars)
+    bars[-1] = dict(bars[-1])
+    bars[-1]["c"] = float(price)
+    bars[-1]["h"] = max(float(bars[-1]["h"]), float(price))
+    bars[-1]["l"] = min(float(bars[-1]["l"]), float(price))
+
+    n_days = len(bars)
+    binance_bars = [b for b in bars if b.get("src") == "binance"]
+    first_dt = datetime.datetime.fromtimestamp(bars[0]["t"] / 1000.0, datetime.timezone.utc).strftime("%Y-%m-%d")
+    last_dt = datetime.datetime.fromtimestamp(bars[-1]["t"] / 1000.0, datetime.timezone.utc).strftime("%Y-%m-%d")
+    years_cov = round(n_days / 365.25, 2)
+
+    closes = [float(b["c"]) for b in bars]
+    highs = [float(b["h"]) for b in bars]
+    lows = [float(b["l"]) for b in bars]
+
+    ath_idx = max(range(n_days), key=lambda i: highs[i])
+    ath_price = highs[ath_idx]
+    ath_date = datetime.datetime.fromtimestamp(bars[ath_idx]["t"] / 1000.0, datetime.timezone.utc).strftime("%Y-%m-%d")
+    ath_dd_pct = round((price / ath_price - 1.0) * 100.0, 2) if ath_price > 0 else 0.0
+
+    w52_high = max(highs[-365:])
+    w52_low = min(lows[-365:])
+    w52_pct = round((price - w52_low) / (w52_high - w52_low) * 100.0, 1) if w52_high > w52_low else 50.0
+
+    def _cagr(days_back):
+        if n_days <= days_back:
+            p0 = closes[0]
+            yrs = max(0.25, n_days / 365.25)
+        else:
+            p0 = closes[-days_back - 1]
+            yrs = days_back / 365.25
+        if p0 <= 0 or price <= 0:
+            return 0.0
+        return round(((price / p0) ** (1.0 / yrs) - 1.0) * 100.0, 2)
+
+    cagr_1y = _cagr(365)
+    cagr_3y = _cagr(365 * 3)
+    cagr_5y = _cagr(365 * 5)
+    cagr_10y = _cagr(365 * 10)
+
+    daily_log_rets = [math.log(closes[i] / closes[i - 1]) for i in range(1, n_days) if closes[i - 1] > 0 and closes[i] > 0]
+    ann_vol_pct = round((statistics.pstdev(daily_log_rets) * math.sqrt(365.0)) * 100.0, 2) if len(daily_log_rets) > 10 else 65.0
+    mean_ann_ret = (statistics.mean(daily_log_rets) * 365.0) if daily_log_rets else 0.0
+    sharpe_10y = round((mean_ann_ret - 0.03) / max(0.05, ann_vol_pct / 100.0), 2)
+
+    sma_200w = statistics.mean(closes[-1400:]) if n_days >= 1400 else statistics.mean(closes)
+    vs_sma200w_pct = round((price / sma_200w - 1.0) * 100.0, 2) if sma_200w > 0 else 0.0
+    if price < sma_200w:
+        sma200w_regime = "BELOW 200W SMA (Generational Deep-Value Accumulation Floor)"
+    elif vs_sma200w_pct <= 35.0:
+        sma200w_regime = "NEAR 200W SMA (+%.1f%% above 4Y cycle floor -> High-Conviction Macro Support)" % vs_sma200w_pct
+    elif vs_sma200w_pct <= 150.0:
+        sma200w_regime = "MID-CYCLE EXPANSION (+%.1f%% above 200W SMA -> Healthy Bull Structure)" % vs_sma200w_pct
+    else:
+        sma200w_regime = "LATE-CYCLE EXTENSION (+%.1f%% above 200W SMA -> Elevated Mean-Reversion Risk)" % vs_sma200w_pct
+
+    mayer_hist = []
+    rolling_sum = 0.0
+    sma200_series = [closes[0]] * n_days
+    for i, c_val in enumerate(closes):
+        rolling_sum += c_val
+        if i >= 200:
+            rolling_sum -= closes[i - 200]
+            s200 = rolling_sum / 200.0
+        else:
+            s200 = rolling_sum / (i + 1)
+        sma200_series[i] = s200
+        if i >= 100 and s200 > 0:
+            mayer_hist.append(c_val / s200)
+
+    sma_200d = sma200_series[-1]
+    mayer_multiple = round(price / sma_200d, 3) if sma_200d > 0 else 1.0
+    mayer_pctile = round(100.0 * sum(1 for m in mayer_hist if m <= mayer_multiple) / len(mayer_hist), 1) if mayer_hist else 50.0
+
+    xs = [math.log(i + 365.0) for i in range(n_days)]
+    ys = [math.log(max(1e-10, c)) for c in closes]
+    mx = statistics.mean(xs)
+    my = statistics.mean(ys)
+    cov_xy = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+    var_x = sum((x - mx) ** 2 for x in xs) or 1.0
+    beta_pl = cov_xy / var_x
+    alpha_pl = my - beta_pl * mx
+    residuals = [y - (alpha_pl + beta_pl * x) for x, y in zip(xs, ys)]
+    res_std = statistics.pstdev(residuals) or 0.5
+    cur_pred_ln = alpha_pl + beta_pl * xs[-1]
+    log_reg_fair_price = math.exp(cur_pred_ln)
+    log_reg_low_1sd = math.exp(cur_pred_ln - res_std)
+    log_reg_high_1sd = math.exp(cur_pred_ln + res_std)
+    log_reg_zscore = round((ys[-1] - cur_pred_ln) / res_std, 2)
+
+    if log_reg_zscore <= -0.75:
+        valuation_zone = "DEEP HISTORICAL DISCOUNT (Z = %+.2f sigma below 10Y trendline)" % log_reg_zscore
+    elif log_reg_zscore <= -0.20:
+        valuation_zone = "UNDERVALUED ACCUMULATION ZONE (Z = %+.2f sigma vs 10Y trendline)" % log_reg_zscore
+    elif log_reg_zscore <= 0.75:
+        valuation_zone = "FAIR-VALUE EQUILIBRIUM CORRIDOR (Z = %+.2f sigma vs 10Y trendline)" % log_reg_zscore
+    else:
+        valuation_zone = "HISTORICAL PREMIUM / EXTENSION (Z = %+.2f sigma above 10Y trendline)" % log_reg_zscore
+
+    b_use = binance_bars if binance_bars else bars
+    tot_all_usd = sum(float(b["vol_usd"]) for b in b_use)
+    tb_all_usd = sum(float(b["tb_usd"]) for b in b_use)
+    tb_all_pct = round(100.0 * tb_all_usd / tot_all_usd, 2) if tot_all_usd > 0 else 50.0
+
+    b_1y = b_use[-365:]
+    tot_1y_usd = sum(float(b["vol_usd"]) for b in b_1y)
+    tb_1y_usd = sum(float(b["tb_usd"]) for b in b_1y)
+    cvd_1y_usd = round(2.0 * tb_1y_usd - tot_1y_usd, 2)
+    tb_1y_pct = round(100.0 * tb_1y_usd / tot_1y_usd, 2) if tot_1y_usd > 0 else 50.0
+
+    b_30d = b_use[-30:]
+    tot_30d_usd = sum(float(b["vol_usd"]) for b in b_30d)
+    tb_30d_usd = sum(float(b["tb_usd"]) for b in b_30d)
+    cvd_30d_usd = round(2.0 * tb_30d_usd - tot_30d_usd, 2)
+    tb_30d_pct = round(100.0 * tb_30d_usd / tot_30d_usd, 2) if tot_30d_usd > 0 else 50.0
+    accum_delta_pct = round(tb_30d_pct - tb_all_pct, 2)
+
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    halving_4_dt = datetime.datetime(2024, 4, 20, tzinfo=datetime.timezone.utc)
+    days_since_halving = max(0, int((now_dt - halving_4_dt).total_seconds() // 86400))
+    cycle_progress_pct = round(min(100.0, days_since_halving / 1460.0 * 100.0), 1)
+    if days_since_halving < 180:
+        halving_phase = "PHASE 1: POST-HALVING RE-ACCUMULATION (Day %d / 1460)" % days_since_halving
+    elif days_since_halving < 560:
+        halving_phase = "PHASE 2: PARABOLIC BULL EXPANSION WINDOW (Day %d / 1460)" % days_since_halving
+    elif days_since_halving < 980:
+        halving_phase = "PHASE 3: MID-CYCLE CONSOLIDATION & VALUE RESET (Day %d / 1460 - Analog to late 2018 / late 2022 bottoming window)" % days_since_halving
+    else:
+        halving_phase = "PHASE 4: PRE-HALVING RECOVERY & ACCUMULATION (Day %d / 1460)" % days_since_halving
+
+    cur_month = now_dt.month
+    month_name = now_dt.strftime("%B")
+    month_buckets = {}
+    for b in bars:
+        dt_b = datetime.datetime.fromtimestamp(b["t"] / 1000.0, datetime.timezone.utc)
+        if dt_b.month == cur_month:
+            ym = (dt_b.year, dt_b.month)
+            if ym not in month_buckets:
+                month_buckets[ym] = [b["o"], b["c"]]
+            else:
+                month_buckets[ym][1] = b["c"]
+    month_rets = [((c_end / o_start) - 1.0) * 100.0 for (yr, _m), (o_start, c_end) in sorted(month_buckets.items()) if o_start > 0 and yr < now_dt.year]
+    if not month_rets and month_buckets:
+        month_rets = [((c_end / o_start) - 1.0) * 100.0 for o_start, c_end in month_buckets.values() if o_start > 0]
+    m_win_rate = round(100.0 * sum(1 for r in month_rets if r > 0) / len(month_rets), 1) if month_rets else 50.0
+    m_avg_ret = round(statistics.mean(month_rets), 2) if month_rets else 0.0
+    m_med_ret = round(statistics.median(month_rets), 2) if month_rets else 0.0
+
+    rsi_series = [50.0] * n_days
+    if n_days > 15:
+        avg_g = sum(max(0.0, closes[i] - closes[i - 1]) for i in range(1, 15)) / 14.0
+        avg_l = sum(max(0.0, closes[i - 1] - closes[i]) for i in range(1, 15)) / 14.0
+        for i in range(15, n_days):
+            d_c = closes[i] - closes[i - 1]
+            avg_g = (avg_g * 13.0 + max(0.0, d_c)) / 14.0
+            avg_l = (avg_l * 13.0 + max(0.0, -d_c)) / 14.0
+            rsi_series[i] = 100.0 if avg_l == 0 else (100.0 - 100.0 / (1.0 + avg_g / avg_l))
+
+    def _feat_at(idx):
+        r7 = math.log(closes[idx] / closes[idx - 7]) if closes[idx - 7] > 0 else 0.0
+        r30 = math.log(closes[idx] / closes[idx - 30]) if closes[idx - 30] > 0 else 0.0
+        rs_val = rsi_series[idx]
+        lm = math.log(closes[idx] / sma200_series[idx]) if sma200_series[idx] > 0 else 0.0
+        sub_r = [math.log(closes[j] / closes[j - 1]) for j in range(idx - 29, idx + 1) if closes[j - 1] > 0]
+        v30 = statistics.pstdev(sub_r) if len(sub_r) >= 5 else 0.03
+        return (r7, r30, rs_val, lm, v30)
+
+    candidates = []
+    if n_days >= 160:
+        cur_f = _feat_at(n_days - 1)
+        sample_idxs = range(35, n_days - 91, max(1, (n_days - 126) // 400))
+        f_samples = [_feat_at(i) for i in sample_idxs]
+        scales = []
+        for dim in range(5):
+            col = [x[dim] for x in f_samples]
+            scales.append((statistics.pstdev(col) if len(col) > 2 else 1.0) or 1.0)
+        weights = (1.1, 1.3, 1.0, 1.4, 0.9)
+        for idx in range(35, n_days - 90):
+            f_i = _feat_at(idx)
+            dist_sq = sum(weights[d] * (((cur_f[d] - f_i[d]) / scales[d]) ** 2) for d in range(5))
+            candidates.append((math.sqrt(dist_sq), idx))
+        candidates.sort(key=lambda x: x[0])
+
+    selected_analogs = []
+    used_indices = []
+    for dist, idx in candidates:
+        if all(abs(idx - u) >= 14 for u in used_indices):
+            used_indices.append(idx)
+            p_base = closes[idx]
+            r_7d = ((closes[min(n_days - 1, idx + 7)] / p_base) - 1.0) * 100.0
+            r_30d = ((closes[min(n_days - 1, idx + 30)] / p_base) - 1.0) * 100.0
+            r_90d = ((closes[min(n_days - 1, idx + 90)] / p_base) - 1.0) * 100.0
+            dt_str = datetime.datetime.fromtimestamp(bars[idx]["t"] / 1000.0, datetime.timezone.utc).strftime("%Y-%m-%d")
+            selected_analogs.append({
+                "date": dt_str,
+                "price_then": round(p_base, 6),
+                "distance": round(dist, 3),
+                "similarity_pct": round(max(10.0, 100.0 * math.exp(-0.35 * dist)), 1),
+                "forward_7d_pct": round(r_7d, 2),
+                "forward_30d_pct": round(r_30d, 2),
+                "forward_90d_pct": round(r_90d, 2),
+            })
+            if len(selected_analogs) >= 15:
+                break
+
+    def _summarize_analog_horizon(key):
+        vals = [a[key] for a in selected_analogs]
+        if not vals:
+            return {"prob_up_pct": 50.0, "prob_down_pct": 50.0, "median_return_pct": 0.0, "mean_return_pct": 0.0, "expected_price": price}
+        up_p = round(100.0 * sum(1 for v in vals if v > 0) / len(vals), 1)
+        med_r = round(statistics.median(vals), 2)
+        mean_r = round(statistics.mean(vals), 2)
+        return {
+            "prob_up_pct": up_p,
+            "prob_down_pct": round(100.0 - up_p, 1),
+            "median_return_pct": med_r,
+            "mean_return_pct": mean_r,
+            "expected_price": round(price * (1.0 + med_r / 100.0), 8),
+        }
+
+    knn_7d = _summarize_analog_horizon("forward_7d_pct")
+    knn_30d = _summarize_analog_horizon("forward_30d_pct")
+    knn_90d = _summarize_analog_horizon("forward_90d_pct")
+
+    tok_info = TOKENOMICS_PROFILE.get(base, {
+        "supply_model": "Standard Crypto Asset on Binance",
+        "structural_drivers": "Binance Spot & Perpetual liquidity, BTC beta rotation, and sector narrative flow",
+        "burn_or_lock_pct": 0.0,
+        "structural_bias": 0.0,
+    })
+
+    score = float(tok_info.get("structural_bias", 0.0))
+    notes = []
+
+    if mayer_multiple < 0.80:
+        score += 4.5
+        notes.append("10Y Mayer Multiple is %.2f (Bottom %.1f%% of 10-year history): Deep historical value zone" % (mayer_multiple, mayer_pctile))
+    elif mayer_multiple <= 1.25:
+        score += 2.0
+        notes.append("10Y Mayer Multiple is %.2f (%.1f%% historical percentile): Healthy unstretched valuation" % (mayer_multiple, mayer_pctile))
+    elif mayer_multiple >= 2.20:
+        score -= 4.5
+        notes.append("10Y Mayer Multiple is %.2f (Top %.1f%% of 10-year history): Overheated macro extension" % (mayer_multiple, 100.0 - mayer_pctile))
+
+    if log_reg_zscore <= -0.50:
+        score += 3.0
+        notes.append("10Y Power-Law Regression Z-Score is %+.2f sigma (Fair Value %s): Trading at a structural cycle discount" % (log_reg_zscore, fmt_p(log_reg_fair_price)))
+    elif log_reg_zscore >= 1.25:
+        score -= 3.0
+        notes.append("10Y Power-Law Regression Z-Score is %+.2f sigma (Fair Value %s): Extended above 10Y growth corridor" % (log_reg_zscore, fmt_p(log_reg_fair_price)))
+
+    if knn_7d["prob_up_pct"] >= 58.0:
+        score += 3.5
+        notes.append("10Y k-NN Historical Analogs (15 closest regime twins): %.1f%% rose over 7d (median %+.2f%%) and %.1f%% over 30d (median %+.2f%%)" % (
+            knn_7d["prob_up_pct"], knn_7d["median_return_pct"], knn_30d["prob_up_pct"], knn_30d["median_return_pct"]))
+    elif knn_7d["prob_up_pct"] <= 42.0:
+        score -= 3.5
+        notes.append("10Y k-NN Historical Analogs (15 closest regime twins): %.1f%% fell over 7d (median %+.2f%%) and %.1f%% over 30d (median %+.2f%%)" % (
+            knn_7d["prob_down_pct"], knn_7d["median_return_pct"], knn_30d["prob_down_pct"], knn_30d["median_return_pct"]))
+    else:
+        notes.append("10Y k-NN Historical Analogs: 7d Up %.1f%% (median %+.2f%%) | 30d Up %.1f%% (median %+.2f%%) | 90d Up %.1f%% (median %+.2f%%)" % (
+            knn_7d["prob_up_pct"], knn_7d["median_return_pct"], knn_30d["prob_up_pct"], knn_30d["median_return_pct"], knn_90d["prob_up_pct"], knn_90d["median_return_pct"]))
+
+    if m_win_rate >= 60.0 and m_avg_ret > 2.0:
+        score += 2.0
+        notes.append("10Y %s Seasonality Tailwind: %s closed positive in %.0f%% of past %ss (avg %+.2f%%, median %+.2f%%)" % (
+            month_name, base, m_win_rate, month_name, m_avg_ret, m_med_ret))
+    elif m_win_rate <= 40.0 and m_avg_ret < -2.0:
+        score -= 2.0
+        notes.append("10Y %s Seasonality Headwind: %s closed positive in only %.0f%% of past %ss (avg %+.2f%%)" % (
+            month_name, base, m_win_rate, month_name, m_avg_ret))
+
+    if accum_delta_pct >= 0.8:
+        score += 2.0
+        notes.append("Binance Institutional Accumulation: 30d Taker Buy share (%.2f%%) exceeds 10Y baseline (%.2f%%) by %+.2f%%" % (
+            tb_30d_pct, tb_all_pct, accum_delta_pct))
+    elif accum_delta_pct <= -0.8:
+        score -= 2.0
+        notes.append("Binance Spot Distribution: 30d Taker Buy share (%.2f%%) trails 10Y baseline (%.2f%%) by %+.2f%%" % (
+            tb_30d_pct, tb_all_pct, accum_delta_pct))
+
+    score = round(max(-15.0, min(15.0, score)), 1)
+
+    return {
+        "available": True,
+        "first_date": first_dt,
+        "last_date": last_dt,
+        "total_days": n_days,
+        "binance_days": len(binance_bars),
+        "years_covered": years_cov,
+        "all_time_high": round(ath_price, 8),
+        "ath_date": ath_date,
+        "drawdown_from_ath_pct": ath_dd_pct,
+        "high_52w": round(w52_high, 8),
+        "low_52w": round(w52_low, 8),
+        "range_52w_percentile": w52_pct,
+        "cagr_1y_pct": cagr_1y,
+        "cagr_3y_pct": cagr_3y,
+        "cagr_5y_pct": cagr_5y,
+        "cagr_10y_pct": cagr_10y,
+        "annualized_volatility_10y_pct": ann_vol_pct,
+        "sharpe_ratio_10y": sharpe_10y,
+        "sma_200w": round(sma_200w, 8),
+        "price_vs_sma200w_pct": vs_sma200w_pct,
+        "sma200w_regime": sma200w_regime,
+        "sma_200d": round(sma_200d, 8),
+        "mayer_multiple": mayer_multiple,
+        "mayer_percentile_10y": mayer_pctile,
+        "log_reg_fair_price": round(log_reg_fair_price, 8),
+        "log_reg_band_low": round(log_reg_low_1sd, 8),
+        "log_reg_band_high": round(log_reg_high_1sd, 8),
+        "log_reg_zscore": log_reg_zscore,
+        "valuation_zone": valuation_zone,
+        "binance_flow_10y": {
+            "taker_buy_pct_alltime": tb_all_pct,
+            "taker_buy_pct_1y": tb_1y_pct,
+            "cvd_1y_usd": cvd_1y_usd,
+            "taker_buy_pct_30d": tb_30d_pct,
+            "cvd_30d_usd": cvd_30d_usd,
+            "accumulation_delta_pct": accum_delta_pct,
+        },
+        "halving_cycle": {
+            "last_halving_date": "2024-04-20",
+            "days_since_halving": days_since_halving,
+            "cycle_progress_pct": cycle_progress_pct,
+            "phase": halving_phase,
+        },
+        "seasonality": {
+            "month_name": month_name,
+            "years_sampled": len(month_rets),
+            "win_rate_pct": m_win_rate,
+            "avg_return_pct": m_avg_ret,
+            "median_return_pct": m_med_ret,
+        },
+        "knn_analogs": {
+            "analogs_count": len(selected_analogs),
+            "7d": knn_7d,
+            "30d": knn_30d,
+            "90d": knn_90d,
+            "top_matches": selected_analogs[:5],
+        },
+        "tokenomics": tok_info,
+        "score": score,
+        "notes": notes,
+    }
 
 
 def fetch_global_macro_and_onchain(sym):
@@ -1173,8 +2041,8 @@ def analyze_news(sym):
 
 # ---------------------------------------------------------------- simulation & forecast
 
-def simulate_horizons(klines_1h, price, composite_score, seed=42, klines_5m=None):
-    """5,000-path bootstrap + microstructure drift adjustment over 10m, 30m, 60m, 4h, 24h, and 7d (168h)."""
+def simulate_horizons(klines_1h, price, composite_score, seed=42, klines_5m=None, ten_year=None):
+    """5,000-path bootstrap + microstructure + 10-year analog drift adjustment over 10m, 30m, 60m, 4h, 24h, 7d, 30d, and 90d."""
     rets = []
     for i in range(1, len(klines_1h)):
         p0, p1 = float(klines_1h[i - 1][4]), float(klines_1h[i][4])
@@ -1185,7 +2053,6 @@ def simulate_horizons(klines_1h, price, composite_score, seed=42, klines_5m=None
 
     sigma_1h = statistics.pstdev(rets) or 0.003
     hist_drift_1h = statistics.mean(rets)
-
     # 5m returns for short-term 10m, 30m, 60m horizons
     rets_5m = []
     if klines_5m and len(klines_5m) > 1:
@@ -1198,6 +2065,7 @@ def simulate_horizons(klines_1h, price, composite_score, seed=42, klines_5m=None
 
     sigma_5m = statistics.pstdev(rets_5m) or (sigma_1h / math.sqrt(12.0))
     hist_drift_5m = statistics.mean(rets_5m)
+    # Blend historical drift with the microstructure/technical composite score (-100..+100)
     norm_score = max(-1.0, min(1.0, composite_score / 100.0))
 
     # Horizon specifications: (name, steps, alpha, unit, minutes, hours)
@@ -1209,6 +2077,8 @@ def simulate_horizons(klines_1h, price, composite_score, seed=42, klines_5m=None
         ("4h", 4, 0.22, "1h", 240, 4.0),
         ("24h", 24, 0.12, "1h", 1440, 24.0),
         ("7d", 168, 0.05, "1h", 10080, 168.0),
+        ("30d", 720, 0.02, "1h", 43200, 720.0),
+        ("90d", 2160, 0.01, "1h", 129600, 2160.0),
     ]
 
     rng = random.Random(seed)
@@ -1237,12 +2107,21 @@ def simulate_horizons(klines_1h, price, composite_score, seed=42, klines_5m=None
                 up_count += 1
         finals.sort()
         p_up = round(100.0 * up_count / len(finals), 1)
-        p_down = round(100.0 - p_up, 1)
         med = finals[len(finals) // 2]
         p10 = finals[int(0.10 * len(finals))]
         p25 = finals[int(0.25 * len(finals))]
         p75 = finals[int(0.75 * len(finals))]
         p90 = finals[int(0.90 * len(finals))]
+
+        # Blend 7d, 30d, 90d Monte Carlo with 10-Year k-NN Analog empirical probability when available
+        if name in ("7d", "30d", "90d") and ten_year and ten_year.get("available"):
+            knn_h = (ten_year.get("knn_analogs") or {}).get(name) or {}
+            if knn_h.get("prob_up_pct") is not None:
+                p_up = round(0.70 * p_up + 0.30 * float(knn_h["prob_up_pct"]), 1)
+                knn_exp = float(knn_h.get("expected_price") or med)
+                med = 0.70 * med + 0.30 * knn_exp
+
+        p_down = round(100.0 - p_up, 1)
         out[name] = {
             "horizon": name,
             "minutes": minutes,
@@ -1257,6 +2136,33 @@ def simulate_horizons(klines_1h, price, composite_score, seed=42, klines_5m=None
             "range_80_low": round(p10, 8),
             "range_80_high": round(p90, 8),
         }
+
+    # Add 30d and 90d macro horizons anchored by 10-Year k-NN Analogs & 10-Year Volatility
+    if ten_year and ten_year.get("available"):
+        ann_vol = (float(ten_year.get("annualized_volatility_10y_pct") or 65.0) / 100.0)
+        knn = ten_year.get("knn_analogs") or {}
+        for h_name, days_h in (("30d", 30), ("90d", 90)):
+            kh = knn.get(h_name) or {}
+            p_up_h = float(kh.get("prob_up_pct", 50.0))
+            # Blend 10Y k-NN analog probability with current composite regime
+            p_up_blend = round(max(15.0, min(85.0, 0.75 * p_up_h + 0.25 * (50.0 + composite_score * 0.30))), 1)
+            p_dn_blend = round(100.0 - p_up_blend, 1)
+            med_ret_pct = float(kh.get("median_return_pct", 0.0)) * 0.75 + (norm_score * ann_vol * math.sqrt(days_h / 365.0) * 25.0)
+            exp_p = price * (1.0 + med_ret_pct / 100.0)
+            sig_h = ann_vol * math.sqrt(days_h / 365.0)
+            out[h_name] = {
+                "horizon": h_name,
+                "hours": days_h * 24,
+                "prob_up_pct": p_up_blend,
+                "prob_down_pct": p_dn_blend,
+                "direction": "UP" if p_up_blend >= 53.0 else ("DOWN" if p_up_blend <= 47.0 else "SIDEWAYS / COIN FLIP"),
+                "expected_price": round(exp_p, 8),
+                "expected_move_pct": round(med_ret_pct, 2),
+                "range_50_low": round(exp_p * math.exp(-0.674 * sig_h), 8),
+                "range_50_high": round(exp_p * math.exp(0.674 * sig_h), 8),
+                "range_80_low": round(exp_p * math.exp(-1.282 * sig_h), 8),
+                "range_80_high": round(exp_p * math.exp(1.282 * sig_h), 8),
+            }
     return out
 
 
@@ -1292,6 +2198,10 @@ def forecast_symbol(sym):
     vol_24h = float(t24["quoteVolume"])
     high_24h = float(t24["highPrice"])
     low_24h = float(t24["lowPrice"])
+
+    # 0. 10-Year Historical Binance Cycle, Valuation Corridor & k-NN Analogs (-15 to +15)
+    ten_year = analyze_ten_year_cycle(bsym, price, k1d_recent=k1d)
+    ten_year_score = ten_year.get("score", 0.0) if ten_year else 0.0
 
     # 1. Multi-timeframe technicals (-25 to +25 weighted)
     tf_15m = analyze_timeframe(k15, "15m")
@@ -1333,9 +2243,38 @@ def forecast_symbol(sym):
     vp = compute_volume_profile(k1h, price, n_bars=168, bins=40)
     inst = detect_institutional_signals(k1h, k4h, price)
 
+    # 4.6. Market Regime Filter & Dynamic Multipliers (ADX + TTM Squeeze)
+    regime = compute_market_regime(k1h, k4h, price)
+    reg_mult = regime["multipliers"]
+    tech_score_dyn = round(tech_score * reg_mult["technicals"], 1)
+    flow_score_dyn = round(flow_score * reg_mult["orderflow"], 1)
+
+    # 4.7. Liquidation Heatmap & Magnetic Cascade Modeling
+    liq_clusters = estimate_liquidation_clusters(k1h, price, fut)
+
+    # Phase 3 Microstructure: Marcos López de Prado's VPIN & Wyckoff 2.0 Detector
+    vpin_metrics = None
+    wyckoff_micro = None
+    if microstructure:
+        try:
+            vpin_metrics = microstructure.compute_vpin(k15 if k15 else k1h, num_buckets=20)
+        except Exception:
+            vpin_metrics = None
+        try:
+            wyckoff_micro = microstructure.detect_wyckoff_cvd_divergence(k1h, klines_15m=k15, vp=vp, current_price=price)
+            if wyckoff_micro and wyckoff_micro.get("signals"):
+                for wsig in wyckoff_micro["signals"]:
+                    if wsig not in inst["signals"]:
+                        inst["signals"].append(wsig)
+                inst["bonus_score"] = round(max(-10.0, min(10.0, inst["bonus_score"] + wyckoff_micro.get("bonus_score", 0.0) * 0.5)), 1)
+        except Exception:
+            wyckoff_micro = None
+
     # 5. Composite Score (-100 to +100)
-    inst_and_macro_bonus = round(max(-10.0, min(10.0, inst["bonus_score"] + macro_onchain["macro_bonus"])), 1)
-    raw_total = tech_score + flow_score + fut_score + rel_score + news["score"] + inst_and_macro_bonus
+    inst_and_macro_bonus = round(max(-10.0, min(10.0,
+        inst["bonus_score"] + macro_onchain["macro_bonus"] + liq_clusters.get("score", 0.0) + regime.get("score_delta", 0.0)
+    )), 1)
+    raw_total = tech_score_dyn + flow_score_dyn + fut_score + rel_score + news["score"] + inst_and_macro_bonus + (ten_year_score * 0.65)
     composite = round(max(-100.0, min(100.0, raw_total)), 1)
 
     if composite >= 35:
@@ -1349,8 +2288,14 @@ def forecast_symbol(sym):
     else:
         verdict = "NEUTRAL / RANGE-BOUND (Mixed Signals - Wait for Breakout)"
 
-    horizons = simulate_horizons(k1h, price, composite, klines_5m=k5m)
-    kelly_plan = compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite)
+    horizons = simulate_horizons(k1h, price, composite, klines_5m=k5m, ten_year=ten_year)
+    is_squeeze = ("TTM SQUEEZE ACTIVE" in inst.get("squeeze_4h", ""))
+    bb_width = inst.get("bb_width_4h_pct", 0.0)
+    kelly_plan = compute_kelly_trade_plan(
+        price, horizons, vp, ob, tf_1h, composite,
+        tf_4h=tf_4h, vpin_info=vpin_metrics, is_squeeze=is_squeeze, bb_width_pct=bb_width,
+        liq=liq_clusters, regime=regime
+    )
 
     # Institutional Margin Execution Plan (Leverage tiering, safe liquidation buffer, financing carry, event risk)
     margin_exec = None
@@ -1375,6 +2320,30 @@ def forecast_symbol(sym):
         except Exception:
             margin_exec = None
     kelly_plan["margin_plan"] = margin_exec
+
+    # Phase 4: Deribit Options GEX / Max Pain & Cross-Exchange Smart Order Routing (SOR)
+    deribit_analytics = None
+    sor_quote = None
+    if sor:
+        try:
+            deribit_analytics = sor.fetch_deribit_options_analytics(base_asset(bsym), spot_price=price)
+        except Exception:
+            deribit_analytics = None
+        try:
+            side_order = "BUY" if composite >= 0 else "SELL"
+            venue_q = sor.fetch_multivenue_quotes(bsym)
+            sor_quote = sor.smart_route_order(bsym, side_order, 2000.0, venue_q)
+        except Exception:
+            sor_quote = None
+
+    # Phase 5: High-Performance Canvas Liquidity Heatmap & Whale Block Radar
+    block_metrics = None
+    if heatmap:
+        try:
+            det = heatmap.BlockTradeDetector()
+            block_metrics = heatmap.fetch_live_block_trades(det, bsym, min_notional=100000.0, limit=200)
+        except Exception:
+            block_metrics = None
 
     # Key support & resistance levels
     atr_1h = tf_1h["atr14"]
@@ -1413,10 +2382,19 @@ def forecast_symbol(sym):
             "relative_strength_btc": {"score": rel_score, "max": 10.0},
             "news_catalysts": {"score": news["score"], "max": 15.0},
             "institutional_bonus": {"score": inst_and_macro_bonus, "max": 10.0},
+            "ten_year_cycle": {"score": ten_year_score, "max": 15.0},
         },
+        "ten_year_cycle": ten_year,
         "horizons": horizons,
         "volume_profile": vp,
         "institutional": inst,
+        "market_regime": regime,
+        "liquidation_heatmap": liq_clusters,
+        "vpin": vpin_metrics,
+        "wyckoff_microstructure": wyckoff_micro,
+        "deribit_options": deribit_analytics,
+        "smart_order_routing": sor_quote,
+        "whale_blocks": block_metrics,
         "macro_onchain": macro_onchain,
         "kelly_trade_plan": kelly_plan,
         "timeframes": {"15m": tf_15m, "1h": tf_1h, "4h": tf_4h, "1d": tf_1d},
@@ -1437,6 +2415,31 @@ def forecast_symbol(sym):
     }
 
 
+def forecast_tokens(symbols, write_path=None):
+    """Forecast multiple tokens across crypto markets and optionally persist to JSON."""
+    tokens = []
+    plans = {}
+    for sym in symbols:
+        try:
+            fc = forecast_symbol(sym)
+            tokens.append(fc)
+            if "kelly_trade_plan" in fc:
+                plans[base_asset(sym)] = fc["kelly_trade_plan"]
+        except Exception as e:
+            print("Microstructure forecast error for %s: %s" % (sym, e), file=sys.stderr)
+    out = {
+        "as_of": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "tokens": tokens,
+        "kelly_trade_plans": plans,
+    }
+    if write_path:
+        os.makedirs(os.path.dirname(os.path.abspath(write_path)), exist_ok=True)
+        with open(write_path, "w", encoding="utf-8") as fh:
+            json.dump(out, fh, indent=2)
+            fh.write("\n")
+    return out
+
+
 def render_report(d):
     lines = []
     lines.append("=" * 78)
@@ -1448,12 +2451,13 @@ def render_report(d):
     lines.append("")
 
     # 1. Probabilistic Forecast Table
-    lines.append("1. PROBABILISTIC FUTURE ESTIMATION (5,000 Monte Carlo + Microstructure Drift)")
+    lines.append("1. PROBABILISTIC FUTURE ESTIMATION (5,000 Monte Carlo + 10Y k-NN Analog Drift)")
     lines.append("   %-8s  %-20s  %-10s  %-10s  %-18s  %s" % (
         "HORIZON", "CALL", "P(UP)", "P(DOWN)", "EXPECTED PRICE", "80% CONFIDENCE BAND"))
-    for k in ("10m", "30m", "60m", "4h", "24h", "7d"):
-        if k in d.get("horizons", {}):
-            h = d["horizons"][k]
+    for k in ("10m", "30m", "60m", "4h", "24h", "7d", "30d", "90d"):
+        if k not in d.get("horizons", {}):
+            continue
+        h = d["horizons"][k]
         lines.append("   %-8s  %-20s  %5.1f%%      %5.1f%%      %s (%+.2f%%)    %s to %s" % (
             h["horizon"], h["direction"], h["prob_up_pct"], h["prob_down_pct"],
             fmt_p(h["expected_price"]), h["expected_move_pct"],
@@ -1469,7 +2473,47 @@ def render_report(d):
     lines.append("   - Relative Strength vs BTC   : %+5.1f / 10" % ps["relative_strength_btc"]["score"])
     lines.append("   - News & Macro Catalysts     : %+5.1f / 15" % ps["news_catalysts"]["score"])
     lines.append("   - Institutional / Wyckoff    : %+5.1f / 10" % ps["institutional_bonus"]["score"])
+    if "ten_year_cycle" in ps:
+        lines.append("   - 10-Year Cycle & Analogs    : %+5.1f / 15" % ps["ten_year_cycle"]["score"])
     lines.append("")
+
+    # 2.5. 10-Year Historical Binance Cycle, Valuation Corridor & k-NN Analogs
+    ty = d.get("ten_year_cycle") or {}
+    if ty.get("available"):
+        lines.append("2.5. 10-YEAR BINANCE HISTORICAL CYCLE, VALUATION CORRIDOR & k-NN ANALOGS")
+        lines.append("   Dataset Coverage  : %s to %s (%d Daily Bars / %.2f Years | %d Binance Native Days)" % (
+            ty.get("first_date"), ty.get("last_date"), ty.get("total_days", 0), ty.get("years_covered", 0.0), ty.get("binance_days", 0)))
+        lines.append("   Cycle Extremes    : ATH %s (%s, %+.2f%% drawdown) | 52w Range: %s - %s (%.1f%% pctile)" % (
+            fmt_p(ty.get("all_time_high")), ty.get("ath_date"), ty.get("drawdown_from_ath_pct", 0.0),
+            fmt_p(ty.get("low_52w")), fmt_p(ty.get("high_52w")), ty.get("range_52w_percentile", 50.0)))
+        lines.append("   Multi-Year Growth : 1Y CAGR %+.1f%% | 3Y CAGR %+.1f%% | 5Y CAGR %+.1f%% | 10Y/Inception CAGR %+.1f%% (Sharpe %.2f)" % (
+            ty.get("cagr_1y_pct", 0.0), ty.get("cagr_3y_pct", 0.0), ty.get("cagr_5y_pct", 0.0),
+            ty.get("cagr_10y_pct", 0.0), ty.get("sharpe_ratio_10y", 0.0)))
+        lines.append("   200W Cycle Floor  : 200W SMA %s (%+.2f%%) -> %s" % (
+            fmt_p(ty.get("sma_200w")), ty.get("price_vs_sma200w_pct", 0.0), ty.get("sma200w_regime", "-")))
+        lines.append("   Mayer & Power-Law : 200D SMA %s | Mayer Multiple %.2f (%.1f%% 10Y pctile) | 10Y Fair Value %s (Z=%+.2f sigma)" % (
+            fmt_p(ty.get("sma_200d")), ty.get("mayer_multiple", 1.0), ty.get("mayer_percentile_10y", 50.0),
+            fmt_p(ty.get("log_reg_fair_price")), ty.get("log_reg_zscore", 0.0)))
+        bf = ty.get("binance_flow_10y") or {}
+        lines.append("   10Y Binance Flow  : All-Time Taker Buy %.2f%% | 1Y Net CVD %s | 30d Taker Buy %.2f%% (%+.2f%% vs 10Y avg)" % (
+            bf.get("taker_buy_pct_alltime", 50.0), fmt_usd(bf.get("cvd_1y_usd", 0.0), signed=True),
+            bf.get("taker_buy_pct_30d", 50.0), bf.get("accumulation_delta_pct", 0.0)))
+        hc = ty.get("halving_cycle") or {}
+        sz = ty.get("seasonality") or {}
+        lines.append("   Halving & Season  : %s | %s Seasonality: %.0f%% Win Rate (Avg %+.2f%% across %d yrs)" % (
+            hc.get("phase", "-"), sz.get("month_name", "-"), sz.get("win_rate_pct", 50.0),
+            sz.get("avg_return_pct", 0.0), sz.get("years_sampled", 0)))
+        knn = ty.get("knn_analogs") or {}
+        top_m = knn.get("top_matches") or []
+        if top_m:
+            m_strs = ["%s (sim %.0f%% -> 7d %+.1f%%, 30d %+.1f%%)" % (m["date"], m["similarity_pct"], m["forward_7d_pct"], m["forward_30d_pct"]) for m in top_m[:3]]
+            lines.append("   Top 10Y Analogs   : %s" % " | ".join(m_strs))
+        tk_p = ty.get("tokenomics") or {}
+        if tk_p.get("supply_model"):
+            lines.append("   Supply Tokenomics : %s" % tk_p["supply_model"])
+        for n_ty in ty.get("notes", []):
+            lines.append("   * 10Y Quant Note  : %s" % n_ty)
+        lines.append("")
 
     # 3. Cross-Exchange Perpetual Futures & Whale Positioning
     fut = d["futures"]
@@ -1498,6 +2542,27 @@ def render_report(d):
             lines.append("   * Signal     : %s" % n)
     else:
         lines.append("   %s" % fut.get("note", "No futures data"))
+    lines.append("")
+
+    # 3.5. Liquidation Heatmap & Magnetic Cascade Targets
+    liq = d.get("liquidation_heatmap") or {}
+    lines.append("3.5. LIQUIDATION HEATMAP & CASCADE TARGETS (Estimated Open Interest Clusters)")
+    if liq.get("available"):
+        lines.append("   Magnetic Pull    : %s (Ratio: %.2fx)" % (liq["magnetic_pull"], liq["magnetic_ratio"]))
+        lines.append("   Near Pools (+-3.5%%): Shorts $%.1fM vs Longs $%.1fM -> %s" % (
+            liq["near_short_pool_3pct_m"], liq["near_long_pool_3pct_m"], liq["pull_note"]))
+        if liq.get("cascade_warning"):
+            lines.append("   ! CASCADE ALERT  : %s" % liq["cascade_warning"])
+        lines.append("   Upper Short Liq Targets (Squeeze Magnets):")
+        for sc in liq.get("top_shorts", []):
+            lines.append("     * %s (%+.2f%%) : ~$%.1fM short liquidation volume" % (
+                fmt_p(sc["price"]), sc["dist_pct"], sc["est_usd_m"]))
+        lines.append("   Lower Long Liq Targets (Flush Vulnerability):")
+        for lc in liq.get("top_longs", []):
+            lines.append("     * %s (%+.2f%%) : ~$%.1fM long liquidation volume" % (
+                fmt_p(lc["price"]), lc["dist_pct"], lc["est_usd_m"]))
+    else:
+        lines.append("   %s" % liq.get("note", "Liquidation data not available."))
     lines.append("")
 
     # 4. Spot Order-Flow & Order Book Walls
@@ -1537,10 +2602,19 @@ def render_report(d):
     lines.append("   Key Resistances: %s" % (", ".join(fmt_p(x) for x in d["levels"]["resistances"]) or "-"))
     lines.append("")
 
-    # 6. Institutional Volume Profile, VWAP & Wyckoff/CVD Signals
+    # 6. Institutional Market Profile, VWAP & Market Regime Filter
     vp = d.get("volume_profile") or {}
     inst = d.get("institutional") or {}
-    lines.append("6. INSTITUTIONAL MARKET PROFILE (POC/VAH/VAL), VWAP & WYCKOFF SIGNALS")
+    reg = d.get("market_regime") or {}
+    lines.append("6. INSTITUTIONAL MARKET PROFILE, VWAP & REGIME FILTER")
+    if reg:
+        lines.append("   Market Regime     : %s" % reg.get("regime", "-"))
+        lines.append("   Regime Diagnosis  : %s" % reg.get("description", "-"))
+        lines.append("   Directional Index : 1h ADX %.1f (+DI %.1f, -DI %.1f) | 4h ADX %.1f" % (
+            reg.get("adx_1h", 0.0), reg.get("pdi_1h", 0.0), reg.get("mdi_1h", 0.0), reg.get("adx_4h", 0.0)))
+        mults = reg.get("multipliers", {})
+        lines.append("   Dynamic Weights   : Tech %.2fx | Order Flow %.2fx | Volume Profile %.2fx" % (
+            mults.get("technicals", 1.0), mults.get("orderflow", 1.0), mults.get("volume_profile", 1.0)))
     lines.append("   7d Volume Profile : VAL %s  |  POC (Fair Value Magnet) %s  |  VAH %s" % (
         fmt_p(vp.get("val")), fmt_p(vp.get("poc")), fmt_p(vp.get("vah"))))
     lines.append("   Auction State     : %s" % vp.get("state", "-"))
@@ -1551,6 +2625,60 @@ def render_report(d):
     for sig in inst.get("signals", []):
         lines.append("   * Quant Signal    : %s" % sig)
     lines.append("")
+
+    # 6.5. Phase 3 Microstructure & VPIN Toxicity (López de Prado & Wyckoff 2.0)
+    vp_vpin = d.get("vpin")
+    vp_wyckoff = d.get("wyckoff_microstructure")
+    if vp_vpin or vp_wyckoff:
+        lines.append("6.5. PHASE 3 MICROSTRUCTURE, VPIN TOXICITY & WYCKOFF ORDER FLOW")
+        if vp_vpin:
+            lines.append("   VPIN Toxicity     : %.2f%% (%s) | Status: %s" % (
+                vp_vpin.get("vpin_pct", 0.0), vp_vpin.get("regime", "-"), vp_vpin.get("toxicity_status", "-")))
+            lines.append("   Informed Flow Rate: %.4f informed arrival rate | Adverse Selection: %s" % (
+                vp_vpin.get("informed_arrival_estimate", 0.0), vp_vpin.get("adverse_selection_risk", "LOW")))
+            if vp_vpin.get("warning"):
+                lines.append("   * Toxicity Guard  : %s" % vp_vpin.get("warning"))
+        if vp_wyckoff:
+            lines.append("   Wyckoff Structure : %s (Bonus %+.1f) | Net 16h CVD: %+.1f" % (
+                vp_wyckoff.get("dominant_regime", "-"), vp_wyckoff.get("bonus_score", 0.0), vp_wyckoff.get("net_cvd_16h", 0.0)))
+            for pat in vp_wyckoff.get("patterns", []):
+                lines.append("   * Pattern Alert   : %s (Type: %s | Conf: %d%%)" % (
+                    pat.get("pattern"), pat.get("type"), pat.get("confidence_score", 0)))
+        lines.append("")
+
+    # 6.7. Phase 4: Deribit Options GEX / Max Pain & Smart Order Routing
+    d_opt = d.get("deribit_options")
+    d_sor = d.get("smart_order_routing")
+    if d_opt or d_sor:
+        lines.append("6.7. PHASE 4: OPTIONS MAX PAIN, GEX & SMART ORDER ROUTING (SOR)")
+        if d_opt:
+            lines.append("   Deribit Options   : Max Pain %s (%+.2f%% dist) | PCR %.2f | Net Dealer Gamma %s" % (
+                fmt_p(d_opt.get("max_pain_strike")), d_opt.get("dist_to_max_pain_pct", 0.0),
+                d_opt.get("put_call_ratio", 1.0), fmt_usd(d_opt.get("dealer_net_gamma_usd_m", 0.0) * 1e6, signed=True)))
+            lines.append("   Expiry Pinning    : %s (%s to monthly expiry)" % (
+                d_opt.get("pinning_hazard", "-"), "%.1fh" % d_opt.get("hours_to_monthly_expiry", 0.0)))
+        if d_sor:
+            lines.append("   SOR Best Execution: Primary Venue %s | Cost Savings %s vs worst venue" % (
+                d_sor.get("primary_venue", "BINANCE"), fmt_usd(d_sor.get("cost_savings_usd", 0.0))))
+            lines.append("   Execution Plan    : %s" % d_sor.get("rationale", "-"))
+        lines.append("")
+
+    # 6.8. Phase 5: Canvas Liquidity Heatmap & Institutional Whale Block Trades
+    d_whale = d.get("whale_blocks")
+    if d_whale:
+        lines.append("6.8. PHASE 5: LIQUIDITY HEATMAP & INSTITUTIONAL WHALE RADAR")
+        lines.append("   Whale Block Net Flow : %s (Taker Buy %.1f%% across %d blocks)" % (
+            fmt_usd(d_whale.get("whale_net_flow_usd", 0.0), signed=True),
+            d_whale.get("whale_taker_buy_pct", 50.0),
+            d_whale.get("total_blocks", 0),
+        ))
+        lp = d_whale.get("largest_print")
+        if lp:
+            lines.append("   Largest Block Print  : %s %s %s @ %s" % (
+                lp.get("tier_badge", "WHALE"), lp.get("side"), fmt_usd(lp.get("notional_usd", 0.0)), fmt_p(lp.get("price"))
+            ))
+        lines.append("   PWA & Observability  : 60 FPS HTML5 Canvas Depth Matrix & Desktop/Mobile PWA Alerts Active")
+        lines.append("")
 
     # 7. Global On-Chain TVL, Stablecoin Liquidity & Macro Sentiment
     mc = d.get("macro_onchain") or {}
@@ -1581,16 +2709,25 @@ def render_report(d):
     lines.append("   Profit Targets    : TP1 %s (Scale 50%%) | TP2 %s (Runner)" % (
         fmt_p(kp.get("tp1")), fmt_p(kp.get("tp2"))))
     lines.append("   Quarter-Kelly Risk: %.2f%% of total bankroll risked at Stop-Loss" % kp.get("quarter_kelly_risk_pct", 0.0))
+    ak = kp.get("adaptive_kelly")
+    if ak:
+        lines.append("   Adaptive Sizing   : Base %.2f%% -> Adaptive %.2f%% (Multiplier: %.2fx | %s)" % (
+            ak.get("base_quarter_kelly_pct", 0.0), ak.get("adaptive_kelly_pct", 0.0),
+            ak.get("composite_multiplier", 1.0), ak.get("sizing_rationale", "-")))
     mp = kp.get("margin_plan") or {}
     if mp.get("ok"):
         lines.append("   Leveraged Margin  : Cap %.0fx (Liquidation Safe %.1fx) -> Suggested %.0fx %s | Margin: %s (%.1f%% eq)" % (
             mp.get("leverage_cap_tier", 1.0), mp.get("leverage_cap_liq_safe", 1.0),
             mp.get("leverage", 1.0), "Perp" if mp.get("venue") == "perp" else "Isolated Margin",
             fmt_usd(mp.get("margin_usd")), mp.get("margin_pct_equity", 0.0)))
-        lines.append("   Liquidation Buffer: %s (%.2f%% dist = %.1fx stop distance) | Safe: YES" % (
-            fmt_p(mp.get("liquidation_price")), mp.get("liq_distance_pct", 0.0), mp.get("liq_to_stop_ratio", 0.0)))
-        lines.append("   Financing & Carry : 24h Carry %s (%+.3fR) | Event Regime: %s" % (
-            fmt_usd(mp.get("carry_usd"), signed=True), mp.get("carry_r", 0.0), mp.get("event_level", "CLEAR")))
+        lines.append("   Liquidation & Risk: Liq %s (%.2f%% dist = %.1fx stop) | Bankrupt %s | ADL Quantile: %s" % (
+            fmt_p(mp.get("liquidation_price")), mp.get("liq_distance_pct", 0.0), mp.get("liq_to_stop_ratio", 0.0),
+            fmt_p(mp.get("bankruptcy_price")), mp.get("adl_risk_quantile", 1)))
+        lines.append("   MMR Tier & Insur. : Tier MMR %.2f%% (MM Req %s) | Est. Liq Clearance Fee %s" % (
+            (mp.get("mmr", 0.01) * 100.0), fmt_usd(mp.get("maintenance_margin_usd")), fmt_usd(mp.get("liquidation_clearance_fee_usd"))))
+        lines.append("   Financing & Carry : 24h Carry %s (%+.3fR) | Carry-Adjusted Liq %s | Event: %s" % (
+            fmt_usd(mp.get("carry_usd"), signed=True), mp.get("carry_r", 0.0),
+            fmt_p(mp.get("carry_adjusted_liq_price")), mp.get("event_level", "CLEAR")))
         if mp.get("event_reason") and mp.get("event_level") != "CLEAR":
             lines.append("   * Event Caution   : %s" % mp.get("event_reason"))
     lines.append("")

@@ -1,0 +1,67 @@
+name: Crypto Trader CI & Directional Profit Planner
+
+on:
+  push:
+    branches:
+      - main
+      - bnb_profit_direction_planner
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  verify-and-test:
+    name: Verify Tests & Directional Profit Planner
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: ''
+
+      - name: Run Test Suite
+        run: |
+          python -m unittest tests/test_margin.py tests/test_analyst.py tests/test_profit_planner.py tests/test_intraday_estimator.py
+
+      - name: Run Directional Profit Planner & 5-Coin Intraday Estimator
+        run: |
+          python trader-analyst/profit_planner.py --write trader/profit_plan.json
+          python trader-analyst/intraday_estimator.py --write trader/intraday_5coins.json
+
+      - name: Build Web Dashboard Site
+        run: |
+          mkdir -p _site
+          cp app/index.html _site/index.html
+          cp app/manifest.json _site/manifest.json 2>/dev/null || true
+          cp trader/profit_plan.json _site/profit_plan.json 2>/dev/null || true
+          cp trader/intraday_5coins.json _site/intraday_5coins.json 2>/dev/null || true
+
+      - name: Setup GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        continue-on-error: true
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        if: github.ref == 'refs/heads/main'
+        continue-on-error: true
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        continue-on-error: true
+        id: deployment
+        uses: actions/deploy-pages@v4
