@@ -1173,8 +1173,8 @@ def analyze_news(sym):
 
 # ---------------------------------------------------------------- simulation & forecast
 
-def simulate_horizons(klines_1h, price, composite_score, seed=42):
-    """5,000-path bootstrap + microstructure drift adjustment over 4h, 24h, and 7d (168h)."""
+def simulate_horizons(klines_1h, price, composite_score, seed=42, klines_5m=None):
+    """5,000-path bootstrap + microstructure drift adjustment over 10m, 30m, 60m, 4h, 24h, and 7d (168h)."""
     rets = []
     for i in range(1, len(klines_1h)):
         p0, p1 = float(klines_1h[i - 1][4]), float(klines_1h[i][4])
@@ -1185,25 +1185,51 @@ def simulate_horizons(klines_1h, price, composite_score, seed=42):
 
     sigma_1h = statistics.pstdev(rets) or 0.003
     hist_drift_1h = statistics.mean(rets)
-    # Blend historical drift with the microstructure/technical composite score (-100..+100)
-    # At score = +50, add +0.12 * sigma_1h per hour; decaying over longer horizons as mean reversion kicks in.
+
+    # 5m returns for short-term 10m, 30m, 60m horizons
+    rets_5m = []
+    if klines_5m and len(klines_5m) > 1:
+        for i in range(1, len(klines_5m)):
+            p0, p1 = float(klines_5m[i - 1][4]), float(klines_5m[i][4])
+            if p0 > 0:
+                rets_5m.append(math.log(p1 / p0))
+    if len(rets_5m) < 12:
+        rets_5m = [r / math.sqrt(12.0) for r in rets]
+
+    sigma_5m = statistics.pstdev(rets_5m) or (sigma_1h / math.sqrt(12.0))
+    hist_drift_5m = statistics.mean(rets_5m)
     norm_score = max(-1.0, min(1.0, composite_score / 100.0))
 
-    horizons = [
-        ("4h", 4, 0.22),
-        ("24h", 24, 0.12),
-        ("7d", 168, 0.05),
+    # Horizon specifications: (name, steps, alpha, unit, minutes, hours)
+    # 10m = 2 x 5m bars, 30m = 6 x 5m bars, 60m = 12 x 5m bars
+    horizons_spec = [
+        ("10m", 2, 0.20, "5m", 10, round(10 / 60.0, 4)),
+        ("30m", 6, 0.16, "5m", 30, round(30 / 60.0, 4)),
+        ("60m", 12, 0.12, "5m", 60, 1.0),
+        ("4h", 4, 0.22, "1h", 240, 4.0),
+        ("24h", 24, 0.12, "1h", 1440, 24.0),
+        ("7d", 168, 0.05, "1h", 10080, 168.0),
     ]
+
     rng = random.Random(seed)
     out = {}
-    for name, hours, alpha in horizons:
-        adj_drift = 0.35 * hist_drift_1h + alpha * norm_score * sigma_1h
+    for name, steps, alpha, unit, minutes, hours in horizons_spec:
+        if unit == "5m":
+            base_rets = rets_5m
+            h_drift = hist_drift_5m
+            adj_drift = 0.40 * hist_drift_5m + alpha * norm_score * sigma_5m
+        else:
+            base_rets = rets
+            h_drift = hist_drift_1h
+            adj_drift = 0.35 * hist_drift_1h + alpha * norm_score * sigma_1h
+
         finals = []
         up_count = 0
-        for _ in range(5000):
+        n_paths = 5000
+        for _ in range(n_paths):
             log_r = 0.0
-            for _h in range(hours):
-                r = rng.choice(rets) - hist_drift_1h + adj_drift
+            for _s in range(steps):
+                r = rng.choice(base_rets) - h_drift + adj_drift
                 log_r += r
             fp = price * math.exp(log_r)
             finals.append(fp)
@@ -1219,6 +1245,7 @@ def simulate_horizons(klines_1h, price, composite_score, seed=42):
         p90 = finals[int(0.90 * len(finals))]
         out[name] = {
             "horizon": name,
+            "minutes": minutes,
             "hours": hours,
             "prob_up_pct": p_up,
             "prob_down_pct": p_down,
@@ -1237,8 +1264,9 @@ def simulate_horizons(klines_1h, price, composite_score, seed=42):
 
 def forecast_symbol(sym):
     bsym = to_binance(sym)
-    with ThreadPoolExecutor(max_workers=8) as ex:
+    with ThreadPoolExecutor(max_workers=9) as ex:
         f_t24 = ex.submit(spot_get, "/api/v3/ticker/24hr?symbol=%s" % bsym)
+        f_k5m = ex.submit(spot_get, "/api/v3/klines?symbol=%s&interval=5m&limit=288" % bsym)
         f_k15 = ex.submit(spot_get, "/api/v3/klines?symbol=%s&interval=15m&limit=100" % bsym)
         f_k1h = ex.submit(spot_get, "/api/v3/klines?symbol=%s&interval=1h&limit=240" % bsym)
         f_k4h = ex.submit(spot_get, "/api/v3/klines?symbol=%s&interval=4h&limit=210" % bsym)
@@ -1249,6 +1277,7 @@ def forecast_symbol(sym):
         f_macro = ex.submit(fetch_global_macro_and_onchain, bsym)
 
         t24 = f_t24.result()
+        k5m = f_k5m.result()
         k15 = f_k15.result()
         k1h = f_k1h.result()
         k4h = f_k4h.result()
@@ -1320,7 +1349,7 @@ def forecast_symbol(sym):
     else:
         verdict = "NEUTRAL / RANGE-BOUND (Mixed Signals - Wait for Breakout)"
 
-    horizons = simulate_horizons(k1h, price, composite)
+    horizons = simulate_horizons(k1h, price, composite, klines_5m=k5m)
     kelly_plan = compute_kelly_trade_plan(price, horizons, vp, ob, tf_1h, composite)
 
     # Institutional Margin Execution Plan (Leverage tiering, safe liquidation buffer, financing carry, event risk)
@@ -1422,8 +1451,9 @@ def render_report(d):
     lines.append("1. PROBABILISTIC FUTURE ESTIMATION (5,000 Monte Carlo + Microstructure Drift)")
     lines.append("   %-8s  %-20s  %-10s  %-10s  %-18s  %s" % (
         "HORIZON", "CALL", "P(UP)", "P(DOWN)", "EXPECTED PRICE", "80% CONFIDENCE BAND"))
-    for k in ("4h", "24h", "7d"):
-        h = d["horizons"][k]
+    for k in ("10m", "30m", "60m", "4h", "24h", "7d"):
+        if k in d.get("horizons", {}):
+            h = d["horizons"][k]
         lines.append("   %-8s  %-20s  %5.1f%%      %5.1f%%      %s (%+.2f%%)    %s to %s" % (
             h["horizon"], h["direction"], h["prob_up_pct"], h["prob_down_pct"],
             fmt_p(h["expected_price"]), h["expected_move_pct"],
@@ -1605,6 +1635,67 @@ def render_report(d):
     return "\n".join(lines)
 
 
+
+def record_predictions(results, path="trader/prediction_records.json"):
+    """Appends or writes a structured time-series record of predictions (10m, 30m, 60m, etc.) for accuracy verification."""
+    if not isinstance(results, list):
+        results = [results]
+    d = os.path.dirname(path)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    existing = []
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                loaded = json.load(fh)
+                if isinstance(loaded, list):
+                    existing = loaded
+                elif isinstance(loaded, dict):
+                    existing = [loaded]
+        except Exception:
+            existing = []
+
+    now_iso = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    for r in results:
+        rec = {
+            "record_id": "%s-%s" % (r.get("symbol"), now_iso),
+            "timestamp": r.get("as_of", now_iso),
+            "symbol": r.get("symbol"),
+            "current_price": r.get("price"),
+            "change_24h_pct": r.get("change_24h_pct"),
+            "composite_score": r.get("composite_score"),
+            "verdict": r.get("verdict"),
+            "horizons": {}
+        }
+        for h_key, h_val in r.get("horizons", {}).items():
+            mins = h_val.get("minutes", int(h_val.get("hours", 1) * 60))
+            target_ts = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=mins)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            rec["horizons"][h_key] = {
+                "horizon": h_key,
+                "minutes": mins,
+                "target_timestamp": target_ts,
+                "direction": h_val.get("direction"),
+                "prob_up_pct": h_val.get("prob_up_pct"),
+                "prob_down_pct": h_val.get("prob_down_pct"),
+                "expected_price": h_val.get("expected_price"),
+                "expected_move_pct": h_val.get("expected_move_pct"),
+                "range_50_low": h_val.get("range_50_low"),
+                "range_50_high": h_val.get("range_50_high"),
+                "range_80_low": h_val.get("range_80_low"),
+                "range_80_high": h_val.get("range_80_high"),
+            }
+        existing.append(rec)
+
+    # Keep last 500 records
+    if len(existing) > 500:
+        existing = existing[-500:]
+
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(existing, fh, indent=2)
+        fh.write("\n")
+    return path
+
+
 def main(argv=None):
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -1614,6 +1705,8 @@ def main(argv=None):
     ap.add_argument("symbols", nargs="*", default=["BNB"], help="Binance symbols to forecast, e.g. BNB BTC ETH SOL")
     ap.add_argument("--write", nargs="?", const="trader/forecast.json", metavar="PATH",
                     help="write forecast JSON (default trader/forecast.json)")
+    ap.add_argument("--record", nargs="?", const="trader/prediction_records.json", metavar="PATH",
+                    help="record timestamped values to prediction log (default trader/prediction_records.json)")
     ap.add_argument("--metrics", metavar="PATH", help="also write summary metrics to trader/metrics.json")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args(argv)
@@ -1634,6 +1727,11 @@ def main(argv=None):
         with open(a.write, "w", encoding="utf-8") as fh:
             json.dump(results[0] if len(results) == 1 else results, fh, indent=2)
             fh.write("\n")
+        # Automatically record to trader/prediction_records.json when writing
+        record_predictions(results, path="trader/prediction_records.json")
+
+    if a.record:
+        record_predictions(results, path=a.record)
     if a.metrics:
         d = os.path.dirname(a.metrics)
         if d:
